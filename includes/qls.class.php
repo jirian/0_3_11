@@ -61,6 +61,15 @@ class qls {
 
         require_once('SQL.class.php');
         $this->SQL = new SQL($this);
+		
+		require_once('Update.class.php');
+		$this->Update = new Update($this);
+		
+		// Run update routine
+		$updateComplete = false;
+		while(!$updateComplete) {
+			$updateComplete = $this->Update->determineUpdate();
+		}
 
         // Get configuration information and assign to $config
         $result = $this->SQL->query("SELECT * FROM `{$this->config['sql_prefix']}config`");
