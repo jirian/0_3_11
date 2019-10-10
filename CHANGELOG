@@ -5,10 +5,16 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Since 0.1.1
     - Changes Since 0.1.0
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes since 0.1.1
+
+[Fix]		Resolved issue with cable path and cabinet adjacency entries not being deleted along with cabinets.
+[Fix]		Resolved issue with data export "cabinet objects" cabinet face always being Front.
 
 **Changes since 0.1.0
 

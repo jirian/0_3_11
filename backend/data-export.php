@@ -282,7 +282,11 @@ function createObjects(&$qls, $objectArray){
 		if($floorplanObj) {
 			$cabinetFace = '';
 		} else {
-			$cabinetFace = $object['cabinet_front'] == 0 ? 'Front' : 'Rear';
+			if($object['cabinet_front'] != null) {
+				$cabinetFace = $object['cabinet_front'] == 0 ? 'Front' : 'Rear';
+			} else {
+				$cabinetFace = $object['cabinet_rear'] == 0 ? 'Rear' : 'Front';
+			}
 		}
 		$original = $cabinet.'.'.$name;
 		$posTop = $floorplanObj ? $object['position_top'] : '';

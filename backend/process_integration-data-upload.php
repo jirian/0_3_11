@@ -706,30 +706,30 @@ function buildImportedObjectArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 				$occupancyArray[$cabinetNameHash]['topOccupiedRU'] = $topRU;
 			}
 			
-			$errMsg = 'Object on line '.$csvLineNumber.' of"'.$csvFilename.'"overlaps with another object at RU ';
+			$errMsg = 'Object on line '.$csvLineNumber.' of "'.$csvFilename.'" overlaps with another object at RU ';
 			for($x=$bottomRU; $x<=$topRU; $x++) {
 				if($cabinetFace == 'front') {
 					if($mountConfig == 0) {
 						if(in_array($x, $occupancyArray[$cabinetNameHash]['front'])) {
-							array_push($validate->returnData['error'], $errMsg.' '.$x.'.');
+							array_push($validate->returnData['error'], $errMsg.$x.'.');
 						}
 						array_push($occupancyArray[$cabinetNameHash]['front'], $x);
 					} else if($mountConfig == 1) {
 						if(in_array($x, $occupancyArray[$cabinetNameHash]['front']) or in_array($x, $occupancyArray[$cabinetNameHash]['rear'])) {
-							array_push($validate->returnData['error'], $errMsg.' '.$x.'.');
+							array_push($validate->returnData['error'], $errMsg.$x.'.');
 						}
 						array_push($occupancyArray[$cabinetNameHash]['front'], $x);
 						array_push($occupancyArray[$cabinetNameHash]['rear'], $x);
 					}
 				} else if($cabinetFace == 'rear') {
 					if($mountConfig == 0) {
-						if(in_array($x, $occupancyArray[$cabinetNameHash]['front'])) {
-							array_push($validate->returnData['error'], $errMsg.' '.$x.'.');
+						if(in_array($x, $occupancyArray[$cabinetNameHash]['rear'])) {
+							array_push($validate->returnData['error'], $errMsg.$x.'.');
 						}
 						array_push($occupancyArray[$cabinetNameHash]['rear'], $x);
 					} else if($mountConfig == 1) {
 						if(in_array($x, $occupancyArray[$cabinetNameHash]['front']) or in_array($x, $occupancyArray[$cabinetNameHash]['rear'])) {
-							array_push($validate->returnData['error'], $errMsg.' '.$x.'.');
+							array_push($validate->returnData['error'], $errMsg.$x.'.');
 						}
 						array_push($occupancyArray[$cabinetNameHash]['front'], $x);
 						array_push($occupancyArray[$cabinetNameHash]['rear'], $x);

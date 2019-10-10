@@ -210,6 +210,8 @@ function deleteNodes($id, &$qls){
 		deleteNodes($row['id'], $qls);
 	}
 	$qls->SQL->delete('app_env_tree', array('id' => array('=', $id)));
+	$qls->SQL->delete('app_cable_path', array('cabinet_a_id' => array('=', $id), 'OR', 'cabinet_b_id' => array('=', $id)));
+	$qls->SQL->delete('app_cabinet_adj', array('left_cabinet_id' => array('=', $id), 'OR', 'right_cabinet_id' => array('=', $id)));
 	return;
 }
 
