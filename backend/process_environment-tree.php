@@ -8,7 +8,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	require_once '../includes/Validate.class.php';
 	
 	$validate = new Validate($qls);
-	//$validate->returnData['success'] = array();
+	$validate->returnData['success'] = array();
 	
 	if ($validate->returnData['active'] == 'inactive') {
 		echo json_encode($validate->returnData);
@@ -25,20 +25,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$parentID = $data['parent'];
 			$nodeType = $data['type'];
+			$nodeName = $data['name'];
 			
-			$attrArray = array('parent', 'type');
-			$valueArray = array($parentID, $nodeType);
+			$attrArray = array('parent', 'name', 'type');
+			$valueArray = array($parentID, $nodeName, $nodeType);
 			
+			// Add column and value if floorplan object
 			if($nodeType == 'floorplan') {
 				array_push($attrArray, 'floorplan_img');
 				array_push($valueArray, DEFAULT_FLOORPLAN_IMG);
 			}
 			
-			//Insert new node into env_tree table
+			// Insert new node into env_tree table
 			$qls->SQL->insert('app_env_tree', $attrArray, $valueArray);
 			
-			//Ajax response with auto-incremented node.id so jsTree can replace default 'j1_1' node.id
-			$validate->returnData['success'] = $qls->SQL->insert_id();
+			// Ajax response with auto-incremented node.id so jsTree can replace default 'j1_1' node.id
+			$validate->returnData['success']['nodeID'] = $qls->SQL->insert_id();
+			$validate->returnData['success']['nodeName'] = $nodeName;
 			
 		} else if ($operation == 'rename_node') {
 			
@@ -141,7 +144,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	echo json_encode($treeArray);
 }
 
-function validate($data, &$validate, &$qls){
+function validate(&$data, &$validate, &$qls){
 	$operationArray = array('create_node', 'rename_node', 'move_node', 'delete_node');
 	
 	// Validate the operation command
@@ -154,8 +157,22 @@ function validate($data, &$validate, &$qls){
 			$parentID = $data['parent'];
 			$typeArray = array('location', 'pod', 'cabinet', 'floorplan');
 		
-			$validate->validateInArray($type, $typeArray, 'node type.');
-			$validate->validateTreeID($parentID);
+			// Validate node type
+			if($validate->validateInArray($type, $typeArray, 'node type.')) {
+				
+				// Validate cabinet ID
+				if($validate->validateTreeID($parentID, 'cabinet ID')) {
+					
+					// Generate unique name
+					$name = $qls->App->findUniqueName($parentID, $type);
+					if($name === false) {
+						$errMsg = 'Unable to find unique name.';
+						array_push($validate->returnData['error'], $errMsg);
+					} else {
+						$data['name'] = $name;
+					}
+				}
+			}
 			
 			if($type == 'cabinet') {
 				$query = $qls->SQL->select('id', 'app_env_tree', array('type' => array('=', 'cabinet')));
@@ -167,8 +184,22 @@ function validate($data, &$validate, &$qls){
 			$nodeName = $data['name'];
 			$nodeID = $data['id'];
 			
-			$validate->validateNameText($nodeName, 'environment node name');
-			$validate->validateTreeID($nodeID);
+			$validName = $validate->validateNameText($nodeName, 'environment node name');
+			$validNodeID = $validate->validateTreeID($nodeID);
+			
+			// Validate node name is not a duplicate
+			if($validName and $validNodeID) {
+				if(isset($qls->App->envTreeArray[$nodeID])) {
+					$parentID = $qls->App->envTreeArray[$nodeID]['parent'];
+					$table = 'app_env_tree';
+					$where = array('parent' => array('=', $parentID), 'AND', 'name' => array('=', $nodeName), 'AND', 'id' => array('!=', $nodeID));
+					$errMsg = 'Duplicate node name.';
+					$validate->validateDuplicate($table, $where, $errMsg);
+				} else {
+					$errMsg = 'Parent node does not exist.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+			}
 			
 		} else if ($operation == 'move_node') {
 			

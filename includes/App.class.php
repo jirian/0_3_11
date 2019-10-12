@@ -520,23 +520,46 @@ var $qls;
 	 * Generates unique object name
 	 * @return string
 	 */
-	function findUniqueName($nodeID, $table){
+	function findUniqueName($parentID, $nameType){
+		for($count=0; $count<10; $count++) {
+			$uniqueNameValue = $this->generateUniqueNameValue();
+			
+			// Search for duplicate name
+			if($nameType == 'object') {
+				$uniqueName = NEW_OBJECT_PREFIX.$uniqueNameValue;
+				$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $parentID), 'AND', 'name' => array('=', $uniqueName)));
+			} else {
+				if($nameType == 'location') {
+					$uniqueName = NEW_LOCATION_PREFIX.$uniqueNameValue;
+				} else if($nameType == 'pod') {
+					$uniqueName = NEW_POD_PREFIX.$uniqueNameValue;
+				} else if($nameType == 'cabinet') {
+					$uniqueName = NEW_CABINET_PREFIX.$uniqueNameValue;
+				} else {
+					return false;
+				}
+				$query = $this->qls->SQL->select('*', 'app_env_tree', array('parent' => array('=', $parentID), 'AND', 'name' => array('=', $uniqueName)));
+			}
+			if(!$this->qls->SQL->num_rows($query)) {
+				return $uniqueName;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Generates unique name value
+	 * @return string
+	 */
+	function generateUniqueNameValue(){
 		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$length = 4;
 		$charactersLength = strlen($characters);
-		$rootName = 'New_Object_';
-		for($count=0; $count<10; $count++) {
-			$uniqueString = '';
-			for($i = 0; $i < $length; $i++) {
-				$uniqueString .= $characters[rand(0, $charactersLength - 1)];
-			}
-			$uniqueName = $rootName.$uniqueString;
-			$query = $this->qls->SQL->select('*', $table, array('env_tree_id' => array('=', $nodeID), 'AND', 'name' => array('=', $uniqueName)));
-			if(!$this->qls->SQL->num_rows($query)) {
-				$count = 100;
-			}
+		$uniqueNameValue = '';
+		for($i = 0; $i < $length; $i++) {
+			$uniqueNameValue .= $characters[rand(0, $charactersLength - 1)];
 		}
-		return $uniqueName;
+		return $uniqueNameValue;
 	}
 	
 	/**

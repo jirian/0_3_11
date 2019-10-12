@@ -1515,6 +1515,7 @@ $( document ).ready(function() {
 				}
 			}
 		});
+		return false;
 	})
 	.bind('move_node.jstree', function(event, nodeData){
 		var data = {
@@ -1598,142 +1599,64 @@ $( document ).ready(function() {
 	
 });
 
+function createNode(refData, newNodeType) {
+	var ref = $.jstree.reference(refData.reference);
+	node = ref.get_selected();
+	if(!node.length) { return false; }
+	nodeID = node[0];
+	var data = {
+		operation: 'create_node',
+		parent: nodeID,
+		type: newNodeType
+	};
+	data = JSON.stringify(data);
+	$.post('/backend/process_environment-tree.php', {data:data}, function(response){
+		var responseJSON = JSON.parse(response);
+		if (responseJSON.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(responseJSON.error).size() > 0){
+			displayError(responseJSON.error);
+		} else {
+			var newNodeID = responseJSON.success.nodeID;
+			var newNodeName = responseJSON.success.nodeName;
+			nodeID = ref.create_node(nodeID, {
+				type:newNodeType,
+				id:newNodeID,
+				text:newNodeName
+			});
+			if(nodeID) {
+				ref.edit(nodeID);
+				$('#ajaxTree').jstree('deselect_all');
+				$('#ajaxTree').jstree('select_node', newNodeID);
+			}
+		}
+	});
+}
+
 function customMenu(node) {
 	var items = {
 		"New Location": {
 			"label": "New Location",
-			"action": function (data) {
-				var ref = $.jstree.reference(data.reference);
-				node = ref.get_selected();
-				if(!node.length) { return false; }
-				nodeID = node[0];
-				var data = {
-					operation: 'create_node',
-					parent: nodeID,
-					type: 'location'
-				};
-				data = JSON.stringify(data);
-				$.post('/backend/process_environment-tree.php', {data:data}, function(response){
-					var responseJSON = JSON.parse(response);
-					if (responseJSON.active == 'inactive'){
-						window.location.replace("/");
-					} else if ($(responseJSON.error).size() > 0){
-						displayError(responseJSON.error);
-					} else {
-						var newNodeID = responseJSON.success;
-						nodeID = ref.create_node(nodeID, {
-							type:"location",
-							id:newNodeID
-						});
-						if(nodeID) {
-							ref.edit(nodeID);
-							$('#ajaxTree').jstree('deselect_all');
-							$('#ajaxTree').jstree('select_node', newNodeID);
-						}
-					}
-				});
+			"action": function(data) {
+				createNode(data, 'location');
 			}
 		},
 		"New Pod": {
 			"label": "New Pod",
-			"action": function (data) {
-				var ref = $.jstree.reference(data.reference);
-				node = ref.get_selected();
-				if(!node.length) { return false; }
-				nodeID = node[0];
-				var data = {
-					operation: 'create_node',
-					parent: nodeID,
-					type: 'pod'
-				};
-				data = JSON.stringify(data);
-				$.post('/backend/process_environment-tree.php', {data:data}, function(response){
-					var responseJSON = JSON.parse(response);
-					if (responseJSON.active == 'inactive'){
-						window.location.replace("/");
-					} else if ($(responseJSON.error).size() > 0){
-						displayError(responseJSON.error);
-					} else {
-						var newNodeID = responseJSON.success;
-						nodeID = ref.create_node(nodeID, {
-							type:"pod",
-							id:newNodeID
-						});
-						if(nodeID) {
-							ref.edit(nodeID);
-							$('#ajaxTree').jstree('deselect_all');
-							$('#ajaxTree').jstree('select_node', newNodeID);
-						}
-					}
-				});
+			"action": function(data) {
+				createNode(data, 'pod');
 			}
 		},
 		"New Cabinet": {
 			"label": "New Cabinet",
-			"action": function (data) {
-				var ref = $.jstree.reference(data.reference);
-				node = ref.get_selected();
-				if(!node.length) { return false; }
-				nodeID = node[0];
-				var data = {
-					operation: 'create_node',
-					parent: nodeID,
-					type: 'cabinet'
-				};
-				data = JSON.stringify(data);
-				$.post('/backend/process_environment-tree.php', {data:data}, function(response){
-					var responseJSON = JSON.parse(response);
-					if (responseJSON.active == 'inactive'){
-						window.location.replace("/");
-					} else if ($(responseJSON.error).size() > 0){
-						displayError(responseJSON.error);
-					} else {
-						var newNodeID = responseJSON.success;
-						nodeID = ref.create_node(nodeID, {
-							type:"cabinet",
-							id:newNodeID
-						});
-						if(nodeID) {
-							ref.edit(nodeID);
-							$('#ajaxTree').jstree('deselect_all');
-							$('#ajaxTree').jstree('select_node', newNodeID);
-						}
-					}
-				});
+			"action": function(data) {
+				createNode(data, 'cabinet');
 			}
 		},
 		"New Floorplan": {
 			"label": "New Floorplan",
-			"action": function (data) {
-				var ref = $.jstree.reference(data.reference);
-				node = ref.get_selected();
-				if(!node.length) { return false; }
-				nodeID = node[0];
-				var data = {
-					operation: 'create_node',
-					parent: nodeID,
-					type: 'floorplan'
-				};
-				data = JSON.stringify(data);
-				$.post('/backend/process_environment-tree.php', {data:data}, function(response){
-					var responseJSON = JSON.parse(response);
-					if (responseJSON.active == 'inactive'){
-						window.location.replace("/");
-					} else if ($(responseJSON.error).size() > 0){
-						displayError(responseJSON.error);
-					} else {
-						var newNodeID = responseJSON.success;
-						nodeID = ref.create_node(nodeID, {
-							type:"floorplan",
-							id:newNodeID
-						});
-						if(nodeID) {
-							ref.edit(nodeID);
-							$('#ajaxTree').jstree('deselect_all');
-							$('#ajaxTree').jstree('select_node', newNodeID);
-						}
-					}
-				});
+			"action": function(data) {
+				createNode(data, 'floorplan');
 			}
 		},
 		"Rename": {

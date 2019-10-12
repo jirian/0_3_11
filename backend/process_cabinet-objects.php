@@ -22,8 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 			$cabinetID = $data['cabinetID'];
 			$objectTemplateID = $data['objectID'];
-			$name = $qls->App->findUniqueName($cabinetID, 'app_object');
-			//$name = findUniqueName($qls, $cabinetID);
+			$name = $data['name'];
 			$RU = isset($data['RU']) ? $data['RU'] : 0;
 			$cabinetFace = $data['cabinetFace'];
 			$object = $qls->SQL->fetch_assoc(
@@ -109,7 +108,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		} else if($action == 'updateObject') {
 			$cabinetID = $data['cabinetID'];
 			$objectID = $data['objectID'];
-			$name = 'New_Object';
 			$RU = $data['RU'];
 			$cabinetFace = $data['cabinetFace'];
 			$objectTemplateID = $qls->SQL->fetch_row($qls->SQL->select('template_id', 'app_object', array('id' => array('=', $objectID))))[0];
@@ -344,11 +342,20 @@ function detectOverlap($RUSize, $RU, $cabinetID, &$qls, &$validate){
 	return;
 }
 
-function validate($data, &$validate, &$qls){
+function validate(&$data, &$validate, &$qls){
 	switch($data['action']){
 		case 'add':
+		
 			//Validate cabinet ID
-			$validate->validateID($data['cabinetID'], 'cabinet ID');
+			if($validate->validateID($data['cabinetID'], 'cabinet ID')) {
+				$name = $qls->App->findUniqueName($data['cabinetID'], 'object');
+				if($name === false) {
+					$errMsg = 'Unable to find unique name.';
+					array_push($validate->returnData['error'], $errMsg);
+				} else {
+					$data['name'] = $name;
+				}
+			}
 	
 			//Validate cabinet RU
 			if($data['RU'] != 0) {
@@ -414,24 +421,5 @@ function validate($data, &$validate, &$qls){
 			break;
 	}
 	return;
-}
-
-function findUniqueName(&$qls, $cabinetID){
-	$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	$length = 4;
-    $charactersLength = strlen($characters);
-	$rootName = 'New_Object_';
-	for($count=0; $count<10; $count++) {
-		$uniqueString = '';
-		for($i = 0; $i < $length; $i++) {
-			$uniqueString .= $characters[rand(0, $charactersLength - 1)];
-		}
-		$uniqueName = $rootName.$uniqueString;
-		$query = $qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID), 'AND', 'name' => array('=', $uniqueName)));
-		if(!$qls->SQL->num_rows($query)) {
-			$count = 100;
-		}
-	}
-    return $uniqueName;
 }
 ?>

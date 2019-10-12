@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		if($action == 'add') {
 			$nodeID = $data['nodeID'];
-			$name = $qls->App->findUniqueName($nodeID, 'app_object');
+			$name = $data['name'];
 			$type = $data['type'];
 			$positionTop = $data['positionTop'];
 			$positionLeft = $data['positionLeft'];
@@ -110,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	return;
 }
 
-function validate($data, &$validate, &$qls){
+function validate(&$data, &$validate, &$qls){
 	
 	//Validate action
 	$actionArray = array('add', 'editLocation', 'editName', 'delete');
@@ -118,6 +118,7 @@ function validate($data, &$validate, &$qls){
 		$action = $data['action'];
 		
 		if($action == 'add') {
+			
 			//Validate object type
 			$typeArray = array('walljack', 'wap', 'device');
 			$validate->validateInArray($data['type'], $typeArray, 'type');
@@ -127,14 +128,25 @@ function validate($data, &$validate, &$qls){
 			$validate->validateID($data['positionLeft'], 'object position');
 			
 			//Validate node ID
-			$validate->validateID($data['nodeID'], 'cabinet ID');
+			if($validate->validateID($data['nodeID'], 'cabinet ID')) {
+				$name = $qls->App->findUniqueName($data['nodeID'], 'object');
+				if($name === false) {
+					$errMsg = 'Unable to find unique name.';
+					array_push($validate->returnData['error'], $errMsg);
+				} else {
+					$data['name'] = $name;
+				}
+			}
+			
 		} else if($action == 'editLocation') {
+			
 			//Validate positions
 			$validate->validateID($data['positionTop'], 'object position');
 			$validate->validateID($data['positionLeft'], 'object position');
 			
 			//Validate object ID
 			$validate->validateID($data['objectID'], 'object ID');
+			
 		} else if($action == 'editName') {
 			//Validate object ID
 			$validate->validateID($data['objectID'], 'object ID');

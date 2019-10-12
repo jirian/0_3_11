@@ -667,10 +667,12 @@ class Validate {
 		if (!isset($input)){
 			$errorMsg = ucfirst($reference).' is required.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		} else {
 			if (!preg_match($this->IDRegEx, $input)){
 				$errorMsg = 'Invalid '.$reference.'.';
 				array_push($this->returnData['error'], $errorMsg);
+				return false;
 			}
 		}
 		return true;
@@ -693,10 +695,12 @@ class Validate {
 		if (!isset($input)){
 			$errorMsg = 'Environment tree ID is required.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		} else {
 			if (!preg_match('/^#$|^[1-9]$|^[1-9]{1}[0-9]+$/', $input)){
 				$errorMsg = 'Invalid environment tree ID.';
 				array_push($this->returnData['error'], $errorMsg);
+				return false;
 			}
 		}
 		return true;
