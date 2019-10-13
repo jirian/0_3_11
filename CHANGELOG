@@ -5,18 +5,19 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
-	- Changes Since 0.1.1
-    - Changes Since 0.1.0
+	- Changes Introduced In 0.1.1
+    - Changes Introduced In 0.1.0
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-**Changes since 0.1.1
+**Changes introduced in 0.1.1
 
+[Fix]		Prevent duplicate location node names.
 [Fix]		Resolved issue with cable path and cabinet adjacency entries not being deleted along with cabinets.
 [Fix]		Resolved issue with data export "cabinet objects" cabinet face always being Front.
 
-**Changes since 0.1.0
+**Changes introduced in 0.1.0
 
 [Feature]	Added import/export capabilities for template/floorplan images, floorplan objects, and trunk peer data.
 [Fix]		Resolved issue with code upgrade overwriting database_info.php resulting in initial install page.
