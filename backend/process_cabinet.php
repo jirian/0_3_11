@@ -27,26 +27,35 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		if($action == 'adj') {
 			
-			$attrLocalCabinet = $data['side'] == 'adjCabinetSelectL' ? 'left_cabinet_id' : 'right_cabinet_id';
-			$attrAdjCabinet = $data['side'] == 'adjCabinetSelectL' ? 'right_cabinet_id' : 'left_cabinet_id';
+			$attrLocalCabinet = $data['side'] == 'adjCabinetSelectL' ? 'right_cabinet_id' : 'left_cabinet_id';
+			$attrAdjCabinet = $data['side'] == 'adjCabinetSelectL' ? 'left_cabinet_id' : 'right_cabinet_id';
 			$localCabinetID = $data['cabinetID'];
 			$adjCabinetID = $data['adjCabinetID'];
 			
-			$query = $qls->SQL->select('*', 'app_cabinet_adj', array($attrAdjCabinet => array('=', $localCabinetID)));
-			if ($qls->SQL->num_rows($query)) {
-				$row = $qls->SQL->fetch_assoc($query);
-				$rowID = $row['id'];
-
-				if($adjCabinetID == 0) {
-					$qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
-				} else {
-					$qls->SQL->update('app_cabinet_adj', array($attrLocalCabinet => $adjCabinetID), array('id' => array('=', $rowID)));
-				}
-			} else {
-				if($adjCabinetID != 0) {
-					$qls->SQL->insert('app_cabinet_adj', array($attrLocalCabinet, $attrAdjCabinet), array($adjCabinetID, $localCabinetID));
+			// Build array to loop through
+			$adjacencyArray = array(
+				array($localCabinetID, $attrLocalCabinet),
+				array($adjCabinetID, $attrAdjCabinet)
+			);
+			
+			// Find and delete any existing adjacencies that this change supercedes
+			foreach($adjacencyArray as $adjacencyEntry) {
+				$adjacencyCabinetID = $adjacencyEntry[0];
+				$adjacencyCabinetAttr = $adjacencyEntry[1];
+				if(isset($qls->App->cabinetAdjacencyArray[$adjacencyCabinetID])) {
+					$adjacencyEntry = $qls->App->cabinetAdjacencyArray[$adjacencyCabinetID];
+					$rowID = $adjacencyEntry['id'];
+					if($adjacencyEntry[$adjacencyCabinetAttr] == $adjacencyCabinetID) {
+						$qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
+					}
 				}
 			}
+			
+			// Do not insert adjacency entry if the entry was cleared
+			if($adjCabinetID != 0) {
+				$qls->SQL->insert('app_cabinet_adj', array($attrLocalCabinet, $attrAdjCabinet), array($localCabinetID, $adjCabinetID));
+			}
+			
 		} else if($action == 'path') {
 			
 			$localCabinetID = $data['cabinetID'];

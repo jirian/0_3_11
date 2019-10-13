@@ -578,16 +578,19 @@ function buildImportedPathArray($csvLine, $csvLineNumber, $csvFilename, &$import
 		$pathHash = md5(strtolower($cabinetB.$cabinetA));
 	} else {
 		$pathHash = md5(strtolower($cabinetA.$cabinetB));
-		$errMsg = 'Cannot create a path with the same cabinet as both endpoints on line '.$csvLineNumber.' of '.$csvFilename;
+		$errMsg = 'Cannot create a path with the same cabinet as both endpoints on line '.$csvLineNumber.' of "'.$csvFilename.'".';
 		array_push($validate->returnData['error'], $errMsg);
 	}
 	
+	/*
 	if(array_key_exists($pathHash, $importedPathArray)) {
-		$errMsg = 'Duplicate path entry on line '.$csvLineNumber.' of '.$csvFilename;
+		$errMsg = 'Duplicate path entry on line '.$csvLineNumber.' of "'.$csvFilename.'".';
 		array_push($validate->returnData['error'], $errMsg);
 	} else {
 		$importedPathArray[$pathHash] = array();
 	}
+	*/
+	
 	$importedPathArray[$pathHash]['cabinets'] = array(
 		$cabinetAHash => array(
 			'column' => 'cabinetA',
@@ -1154,7 +1157,7 @@ function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, 
 							array_push($validate->returnData['error'], $errMsg);
 						}
 					} else {
-						$errMsg = ucfirst($cabinetSide).' adjacency is not a cabinet on line '.$csvLineNumber.' of"'.$csvFilename.'"';
+						$errMsg = ucfirst($cabinetSide).' adjacency is not a cabinet on line '.$csvLineNumber.' of "'.$csvFilename.'".';
 						array_push($validate->returnData['error'], $errMsg);
 					}
 				}

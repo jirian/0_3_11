@@ -104,6 +104,13 @@ var $qls;
 			$this->cablePathArray[$row['id']] = $row;
 		}
 		
+		$this->cabinetAdjacencyArray = array();
+		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$this->cabinetAdjacencyArray[$row['left_cabinet_id']] = $row;
+			$this->cabinetAdjacencyArray[$row['right_cabinet_id']] = $row;
+		}
+		
 		$this->compatibilityArray = array();
 		$query = $this->qls->SQL->select('*', 'app_object_compatibility');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
@@ -336,7 +343,6 @@ var $qls;
 			}
 		}
 		
-		error_log('Debug: peerArray = '.json_encode($this->peerArray));
 		
 		// History Action Type
 		$this->historyActionTypeArray = array();
