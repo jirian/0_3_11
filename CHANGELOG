@@ -13,6 +13,10 @@ Contents
 
 **Changes introduced in 0.1.1
 
+[Fix]		Prevent templates from being imported with duplicate names.
+[Fix]		Accommodate importing data which does not specify an enclosure's "strict" property.
+[Fix]		Resolved issue with exporting cable path entries that have no peer cabinet.
+[Fix]		Resolved issue with cabinet adjacency entries persisting after being overwritten.
 [Fix]		Prevent duplicate location node names.
 [Fix]		Resolved issue with cable path and cabinet adjacency entries not being deleted along with cabinets.
 [Fix]		Resolved issue with data export "cabinet objects" cabinet face always being Front.

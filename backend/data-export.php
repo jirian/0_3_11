@@ -232,13 +232,15 @@ function createCablePaths(&$qls){
 	$csvArray = array();
 	$query = $qls->SQL->select('*', 'app_cable_path');
 	while($row = $qls->SQL->fetch_assoc($query)) {
-		$line = array(
-			$qls->App->envTreeArray[$row['cabinet_a_id']]['nameString'],
-			$qls->App->envTreeArray[$row['cabinet_b_id']]['nameString'],
-			$row['distance']*.001,
-			$row['notes']
-		);
-		$csvArray[$qls->App->envTreeArray[$row['cabinet_a_id']]['nameString']] = $line;
+		if($row['cabinet_b_id'] != 0) {
+			$line = array(
+				$qls->App->envTreeArray[$row['cabinet_a_id']]['nameString'],
+				$qls->App->envTreeArray[$row['cabinet_b_id']]['nameString'],
+				$row['distance']*.001,
+				$row['notes']
+			);
+			$csvArray[$qls->App->envTreeArray[$row['cabinet_a_id']]['nameString']] = $line;
+		}
 	}
 
 	ksort($csvArray);

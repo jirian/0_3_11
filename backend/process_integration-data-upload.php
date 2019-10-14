@@ -1245,12 +1245,12 @@ function validateImportedPaths($importedPathArray, $importedCabinetArray, &$vali
 			// Validate Cabinet Name
 			$cabinetNameArray = explode('.', $cabinetName);
 			foreach($cabinetNameArray as $cabinetNameFragment) {
-				$validate->validateNameText($cabinetNameFragment, ucfirst($column).' name '.$cabinetNameFragment.' on line '.$cabinetLine.' of '.$cabinetFilename);
+				$validate->validateNameText($cabinetNameFragment, ucfirst($column).' name '.$cabinetNameFragment.' on line '.$cabinetLine.' of "'.$cabinetFilename.'".');
 			}
 			
 			// Cabinet Name Must Exist in Imported Cabinet Array
 			if(!array_key_exists($cabinetNameHash, $importedCabinetArray)) {
-				$errMsg = ucfirst($column).' on line '.$csvLineNumber.' of"'.$csvFilename.'"does not exist in Cabinets data.';
+				$errMsg = ucfirst($column).' on line '.$csvLineNumber.' of "'.$csvFilename.'" does not exist in Cabinets data.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
 		}
@@ -1578,29 +1578,29 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 		
 		// Validate Object
 		if(!array_key_exists($objectNameHash, $importedObjectArray)) {
-			$errMsg = 'Object referenced on line '.$csvLineNumber.' of '.$csvFilename.' does not exist.';
+			$errMsg = 'Object referenced on line '.$csvLineNumber.' of "'.$csvFilename.'" does not exist.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
 		
 		// Validate Object Face
-		$objectFaceValidated = $validate->validateInArray($objectFace, $allowedFaceArray, 'cabinet face on line '.$csvLineNumber.' of '.$csvFilename);
+		$objectFaceValidated = $validate->validateInArray($objectFace, $allowedFaceArray, 'cabinet face on line '.$csvLineNumber.' of "'.$csvFilename.'".');
 		
 		// Validate Slot ID
-		$slotIDValidated = $validate->validateSlotID($slotID, 'slot ID on line '.$csvLineNumber.' of '.$csvFilename);
+		$slotIDValidated = $validate->validateSlotID($slotID, 'slot ID on line '.$csvLineNumber.' of "'.$csvFilename.'".');
 		
 		// Validate Name
-		$validate->validateNameText($insertName, 'Insert name on line '.$csvLineNumber.' of '.$csvFilename);
+		$validate->validateNameText($insertName, 'Insert name on line '.$csvLineNumber.' of "'.$csvFilename.'".');
 		
 		// Validate Original Insert
 		if($originalInsert != '') {
 			if(!array_key_exists($originalInsertHash, $existingInsertArray)) {
-				$errMsg = 'Original insert on line '.$csvLineNumber.' of "'.$csvFilename.'" adoes not exist.';
+				$errMsg = 'Original insert on line '.$csvLineNumber.' of "'.$csvFilename.'" does not exist.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
 			
 			// Check for original duplicates
 			if(in_array($originalInsertHash, $arrayOriginalHashes)) {
-				$errMsg = 'Duplicate original insert on line '.$csvLineNumber.' of"'.$csvFilename.'"';
+				$errMsg = 'Duplicate original insert on line '.$csvLineNumber.' of "'.$csvFilename.'".';
 				array_push($validate->returnData['error'], $errMsg);
 			} else {
 				array_push($arrayOriginalHashes, $originalInsertHash);
@@ -1609,10 +1609,10 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 		
 		// Validate Template
 		if(!array_key_exists($templateNameHash, $importedTemplateArray)) {
-			$errMsg = 'Template referenced on line '.$line.' of '.$fileName.' does not exist.';
+			$errMsg = 'Template referenced on line '.$csvLineNumber.' of "'.$csvFilename.'" does not exist.';
 			array_push($validate->returnData['error'], $errMsg);
 		} else if($importedTemplateArray[$templateNameHash]['templateType'] != 'insert') {
-			$errMsg = 'Template referenced on line '.$line.' of '.$fileName.' is not an insert.';
+			$errMsg = 'Template referenced on line '.$csvLineNumber.' of "'.$csvFilename.'" is not an insert.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
 		
@@ -1625,25 +1625,42 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 		$face = $objectFace == 'front' ? 0 : 1;
 		$compatible = true;
 		
+		if($csvLineNumber == 26) {
+			error_log('Debug: face='.$face.' depth='.$depth);
+			error_log('Debug: EncPartition='.json_encode($parentTemplate['templatePartitionData']));
+		}
+		
 		if($parentPartition = retrievePartition($parentTemplate['templatePartitionData'][$face], $depth)) {
 			if($insertTemplate['templateFunction'] != $parentTemplate['templateFunction']) {
 				$compatible = false;
-			} else if($insertTemplate['templateEncLayoutX'] != $parentPartition['encLayoutX']) {
-				$compatible = false;
-			} else if($insertTemplate['templateEncLayoutY'] != $parentPartition['encLayoutY']) {
-				$compatible = false;
-			} else if($insertTemplate['templateHUnits'] != $parentPartition['hunits']) {
-				$compatible = false;
-			} else if($insertTemplate['templateVUnits'] != $parentPartition['vunits']) {
-				$compatible = false;
+			}
+			
+			// Check to see if the enclosure "strict" property is present...
+			// this is an added feature so it may not be if importing from older versions
+			if(isset($parentTemplate['encStrict'])) {
+				
+				// Is the enclosure configured as "strict"?
+				if($parentTemplate['encStrict'] == 'yes') {
+					
+					// Check that the insert is compatible
+					if($insertTemplate['templateEncLayoutX'] != $parentPartition['encLayoutX']) {
+						$compatible = false;
+					} else if($insertTemplate['templateEncLayoutY'] != $parentPartition['encLayoutY']) {
+						$compatible = false;
+					} else if($insertTemplate['templateHUnits'] != $parentPartition['hunits']) {
+						$compatible = false;
+					} else if($insertTemplate['templateVUnits'] != $parentPartition['vunits']) {
+						$compatible = false;
+					}
+				}
 			}
 		} else {
-			$errMsg = 'Could not find partition for insert on line '.$line.' of '.$fileName.'.';
+			$errMsg = 'Could not find partition for insert on line '.$csvLineNumber.' of "'.$csvFilename.'".';
 			array_push($validate->returnData['error'], $errMsg);
 		}
 		
 		if(!$compatible) {
-			$errMsg = 'Insert on line '.$line.' of '.$fileName.' is not compatible with slot.';
+			$errMsg = 'Insert on line '.$csvLineNumber.' of "'.$csvFilename.'" is not compatible with slot.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
 	}

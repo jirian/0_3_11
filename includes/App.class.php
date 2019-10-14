@@ -526,7 +526,7 @@ var $qls;
 	 * Generates unique object name
 	 * @return string
 	 */
-	function findUniqueName($parentID, $nameType){
+	function findUniqueName($parentID, $nameType, $name=false){
 		for($count=0; $count<10; $count++) {
 			$uniqueNameValue = $this->generateUniqueNameValue();
 			
@@ -534,6 +534,9 @@ var $qls;
 			if($nameType == 'object') {
 				$uniqueName = NEW_OBJECT_PREFIX.$uniqueNameValue;
 				$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $parentID), 'AND', 'name' => array('=', $uniqueName)));
+			} else if($nameType == 'template') {
+				$uniqueName = $name.'_'.$uniqueNameValue;
+				$query = $this->qls->SQL->select('*', 'app_object_templates', array('templateName' => array('=', $uniqueName)));
 			} else {
 				if($nameType == 'location') {
 					$uniqueName = NEW_LOCATION_PREFIX.$uniqueNameValue;

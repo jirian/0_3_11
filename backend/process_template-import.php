@@ -81,8 +81,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		foreach($importData['success']['template'] as $name => $value) {
 			if($name != 'id') {
 				array_push($templateNameArray, $name);
+				
 				if($name == 'templateCategory_id') {
 					array_push($templateValueArray, $defaultCategoryID);
+				} else if($name == 'templateName') {
+					$uniqueName = $qls->App->findUniqueName(null, 'template', $value);
+					if($uniqueName == false) {
+						$errMsg = 'Unable to find unique template name.';
+						array_push($validate->returnData['error'], $errMsg);
+						echo json_encode($validate->returnData);
+						return;
+					} else {
+						array_push($templateValueArray, $uniqueName);
+					}
 				} else {
 					array_push($templateValueArray, $value);
 				}
