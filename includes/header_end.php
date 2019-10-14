@@ -25,6 +25,41 @@
 	</div>
 </div>
 
+<div id="aboutModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+                <h4 class="modal-title" id="aboutModalLabel">About</h4>
+            </div>
+            <div id="aboutModalBody" class="modal-body">
+				<span><strong>Version:</strong></span> <?php echo PCM_VERSION; ?><br><br>
+				
+				<strong>Changelog:</strong><br><br>
+				<?php
+					$handle = @fopen($_SERVER['DOCUMENT_ROOT'].'/CHANGELOG', 'r');
+					if ($handle) {
+						while (($buffer = fgets($handle, 4096)) !== false) {
+							echo $buffer.'<br>';
+						}
+						if (!feof($handle)) {
+							echo "Error: unexpected fgets() fail\n";
+						}
+						fclose($handle);
+					}
+				?>
+			</div>
+			<div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <div id="notificationsModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="notificationsModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -43,7 +78,8 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<div id="messagesModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="messagesModalLabel" aria-hidden="true" style="display: none;">
+
+<div id="messagesModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="messagesModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

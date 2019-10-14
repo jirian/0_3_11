@@ -31,6 +31,11 @@
 			event.preventDefault();
 			$('#searchSubmit').click();
 		});
+		
+		$('#btnAbout').on('click', function(event){
+			event.preventDefault();
+			$('#aboutModal').modal('show');
+		});
     });
 	
 	function displayError(errMsg){

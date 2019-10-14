@@ -141,7 +141,6 @@
                             <!-- item-->
                             <div class="dropdown-item noti-title">
                                 <h5 class="text-overflow"><small><?php echo $qls->user_info['username']; ?></small> </h5>
-								<small>Version: <?php echo PCM_VERSION; ?></small>
                             </div>
 
                             <!-- item-->
@@ -157,6 +156,11 @@
                             <!-- item-->
                             <a href="logout.php" class="dropdown-item notify-item">
                                 <i class="zmdi zmdi-power"></i> <span>Logout</span>
+                            </a>
+							
+							<!-- item-->
+                            <a id="btnAbout" href="#" class="dropdown-item notify-item">
+                                <i class="zmdi zmdi-help"></i> <span>About</span>
                             </a>
 
                         </div>
