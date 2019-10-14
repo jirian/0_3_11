@@ -1377,4 +1377,46 @@ var $qls;
 		$trunk .= '</svg>';
 		return $trunk;
 	}
+	
+	function checkEntitlement($feature, $count){
+		$returnArray = array(
+			'success' => true,
+			'response' => true
+		);
+		$entitlementID = $this->qls->org_info['entitlement_id'];
+		
+		// POST Request
+		$data = array(
+			'feature': $feature,
+			'count': $count,
+			'entitlementID': $entitlementID
+		);
+		$dataJSON = json_encode($data);
+		$POSTData = array('data' => $dataJSON);
+		
+		$ch = curl_init('https://patchcablemgr.com/public/check-entitlement.php');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
+		
+		// Submit the POST request
+		$response = curl_exec($ch);
+		
+		// Collect POST response
+		$response = json_decode($response, true);
+		
+		//Check for request errors.
+		if(curl_errno($ch)) {
+			$responseArray['success'] = false;
+			$responseArray['response'] = curl_error($ch);
+		} else {
+			$responseArray['response'] = $response;
+		}
+		
+		// Close cURL session handle
+		curl_close($ch);
+		
+		return $responseArray;
+	}
 }

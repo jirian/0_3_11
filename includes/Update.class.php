@@ -82,6 +82,19 @@ var $qls;
 		// Set app version to 0.1.1
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
+		// Add "entitlement_id" column to "app_organization_data" table
+		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_id', 'VARCHAR(40)');
+		
+		// Generate entitlementID and store in DB
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for ($i = 0; $i < $length; $i++) {
+			$entitlementIDSalt .= $characters[rand(0, $charactersLength - 1)];
+		}
+		$entitlementID = sha1(time().$entitlementIDSalt);
+		$this->qls->SQL->update('app_organization_data', array('entitlement_id' => $entitlementID), array('id' => array('=', 1)));
+		
 		// Clear out orphaned cabinet adjacency entries
 		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){

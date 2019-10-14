@@ -361,6 +361,8 @@ DROP TABLE IF EXISTS `{database_prefix}app_organization_data`;
 CREATE TABLE `{database_prefix}app_organization_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `version` varchar(15) NOT NULL,
+  `entitlement_id` varchar(40) NOT NULL,
   PRIMARY KEY(`id`)
 );
 
