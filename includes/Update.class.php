@@ -95,7 +95,57 @@ var $qls;
 		$entitlementID = sha1(time().$entitlementIDSalt);
 		$this->qls->SQL->update('app_organization_data', array('entitlement_id' => $entitlementID), array('id' => array('=', 1)));
 		
+		
+		
+		//
+		// Correct duplicate template names
+		//
+		$templateNameArray = array();
+		$query = $this->qls->SQL->select('*', 'app_object_templates');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			$templateID = $row['id'];
+			$templateName = $row['templateName'];
+			if(in_array($templateName, $templateNameArray)) {
+				$newTemplateName = $templateName.'_'.$qls->App->generateUniqueNameValue();
+				$this->qls->SQL->update('app_object_templates', array('templateName' => $newTemplateName), array('id' => array('=', $templateID)));
+			}
+			array_push($templateNameArray, $templateName);
+		}
+		
+		
+		
+		//
+		// Correct duplicate location names
+		//
+		$envTreeArray = array();
+		$query = $this->qls->SQL->select('*', 'app_env_tree');
+		while ($row = $this->qls->SQL->->fetch_assoc($query)){
+			if(!isset($envTreeArray[$row['parent']])) {
+				$envTreeArray[$row['parent']] = array();
+			}
+			$workingArray = array($row['id'], $row['name']);
+			array_push($envTreeArray[$row['parent']], $workingArray);
+		}
+		
+		foreach($envTreeArray as $parentID => $parent) {
+			$nameArray = array();
+			foreach($parent as $child) {
+				$nodeID = $child[0];
+				$nodeName = $child[1];
+				if(in_array($nodeName, $nameArray)) {
+					$uniqueValue = $this->qls->App->generateUniqueNameValue();
+					$uniqueName = $nodeName.'_'.$uniqueValue.' ('.$nodeID.')';
+					$this->qls->SQL->update('app_env_tree', array('name' => $uniqueName), array('id' => array('=', $nodeID)));
+				}
+				array_push($nameArray, $child[1]);
+			}
+		}
+		
+		
+		
+		//
 		// Clear out orphaned cabinet adjacency entries
+		//
 		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			
@@ -110,7 +160,11 @@ var $qls;
 			}
 		}
 		
+		
+		
+		//
 		// Clear out orphaned cable path entries
+		//
 		$query = $this->qls->SQL->select('*', 'app_cable_path');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			
@@ -124,6 +178,35 @@ var $qls;
 				$this->qls->SQL->delete('app_cable_path', array('id' => array('=', $rowID)));
 			}
 		}
+		
+		
+		
+		//
+		// Resolve duplicate cabinet adjacencies
+		//
+		$leftArray = array();
+		$rightArray = array();
+		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			$rowID = $row['id'];
+			if(isset($leftArray[$row['left_cabinet_id']])) {
+				$this->qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
+			} else if(isset($rightArray[$row['right_cabinet_id']])) {
+				$this->qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
+			}
+			
+			if(!isset($leftArray[$row['left_cabinet_id']])) {
+				$leftArray[$row['left_cabinet_id']] = array();
+			}
+			if(!isset($rightArray[$row['right_cabinet_id']])) {
+				$rightArray[$row['right_cabinet_id']] = array();
+			}
+			
+			array_push($leftArray[$row['left_cabinet_id']], $row);
+			array_push($rightArray[$row['right_cabinet_id']], $row);
+		}
+		
+		
 		
 		// Update current version
 		$this->currentVersion = $incrementalVersion;
