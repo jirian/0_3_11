@@ -315,12 +315,15 @@ function buildPortInsert($insertName, $insertFunction, $data, $depthCounter, $in
 }
 
 function getPortIndex($orientation, $x, $y, $portX, $portY){
+	$portTotal = $portX * $portY;
 	if($orientation == 1) {
 		$portIndex = ($y * $portX) + $x;
 	} else if($orientation == 2) {
 		$portIndex = ($x * $portY) + $y;
 	} else if($orientation == 3) {
 		$portIndex = ($y * $portX) + (($portX - $x) - 1);
+	} else if($orientation == 4) {
+		$portIndex = ($portTotal - ($y * $portX)) - ($portX - $x);
 	}
 	return $portIndex;
 }

@@ -80,6 +80,14 @@
 		</tr>
 		<tr>
 			<td class="objectDetailAlignRight">
+				<strong>Port Orientation:&nbsp&nbsp</strong>
+			</td>
+			<td>
+				<span id="detailPortOrientation" class="objDetail"><a href="#" id="inline-portOrientation" data-type="select">-</a></span>
+			</td>
+		</tr>
+		<tr>
+			<td class="objectDetailAlignRight">
 				<strong>Port Type:&nbsp&nbsp</strong>
 			</td>
 			<td>

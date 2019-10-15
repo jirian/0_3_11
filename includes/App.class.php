@@ -98,6 +98,12 @@ var $qls;
 			$this->categoryArray[$row['id']] = $row;
 		}
 		
+		$this->portOrientationArray = array();
+		$query = $this->qls->SQL->select('*', 'shared_object_portOrientation');
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$this->portOrientationArray[$row['id']] = $row;
+		}
+		
 		$this->cablePathArray = array();
 		$query = $this->qls->SQL->select('*', 'app_cable_path');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
@@ -1387,9 +1393,9 @@ var $qls;
 		
 		// POST Request
 		$data = array(
-			'feature': $feature,
-			'count': $count,
-			'entitlementID': $entitlementID
+			'feature' => $feature,
+			'count' => $count,
+			'entitlementID' => $entitlementID
 		);
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);

@@ -187,25 +187,43 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				// $qls->App->logAction($function, $actionType, $actionString)
 				$actionString = 'Changed <strong>'.$templateName.'</strong> template category: from <strong>'.$origCategoryName.'</strong> to <strong>'.$newCategoryName.'</strong>';
 				$qls->App->logAction(1, 2, $actionString);
+			} else if($data['attribute'] == 'inline-portOrientation') {
+				
+				// Collect template IDs
+				$templateFace = $data['templateFace'];
+				$templateDepth = $data['templateDepth'];
+				$portOrientationID = $data['value'];
+				
+				// Store and manipulate template partition data
+				$template = $qls->App->templateArray[$templateID];
+				$templatePartitionData = json_decode($template['templatePartitionData'], true);
+				updatePartitionData($templatePartitionData[$templateFace], $depth, $portOrientationID, 'portOrientation');
+				$templatePartitionDataJSON = json_encode($templatePartitionData);
+				
+				// Update template partition data
+				$qls->SQL->update('app_object_templates', array('templatePartitionData' => $templatePartitionDataJSON), array('id' => array('=', $templateID)));
+				$qls->SQL->update('app_object_compatibility', array('portOrientation' => $portOrientationID), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
+				
 			} else if($data['attribute'] == 'portNameFormat') {
-				$side = $data['templateFace'];
+				
+				// Collect data
+				$templateFace = $data['templateFace'];
 				$depth = $data['templateDepth'];
 				$portNameFormat = $data['value'];
 				$portNameFormatJSON = json_encode($portNameFormat);
 				
 				// Update compatibility port name format
-				$qls->SQL->update('app_object_compatibility', array('portNameFormat' => $portNameFormatJSON), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $side), 'AND', 'depth' => array('=', $depth)));
+				$qls->SQL->update('app_object_compatibility', array('portNameFormat' => $portNameFormatJSON), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $depth)));
 				
 				// Update template partition data
-				$query = $qls->SQL->select('*', 'app_object_templates', array('id' => array('=', $templateID)));
-				$template = $qls->SQL->fetch_assoc($query);
+				$template = $qls->App->templateArray[$templateID];
 				$templatePartitionData = json_decode($template['templatePartitionData'], true);
-				updatePortNameFormat($templatePartitionData[$side], $depth, $portNameFormat);
+				updatePartitionData($templatePartitionData[$templateFace], $depth, $portNameFormat, 'portNameFormat');
 				$templatePartitionDataJSON = json_encode($templatePartitionData);
 				$qls->SQL->update('app_object_templates', array('templatePartitionData' => $templatePartitionDataJSON), array('id' => array('=', $templateID)));
 				
 				// Generate new port name range
-				$query = $qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $side), 'AND', 'depth' => array('=', $depth)));
+				$query = $qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $depth)));
 				$compatibility = $qls->SQL->fetch_assoc($query);
 				$portLayoutX = $compatibility['portLayoutX'];
 				$portLayoutY = $compatibility['portLayoutY'];
@@ -226,14 +244,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	return;
 }
 
-function updatePortNameFormat(&$partitionData, $depth, $value, $counter=0){
+function updatePartitionData(&$partitionData, $depth, $value, $attribute, $counter=0){
 	foreach($partitionData as &$element) {
 		if($counter == $depth) {
-			$element['portNameFormat'] = $value;
+			$element[$attribute] = $value;
 			return;
 		} else if(isset($element['children'])){
 			$counter++;
-			updatePortNameFormat($element['children'], $depth, $value, $counter);
+			updatePartitionData($element['children'], $depth, $value, $attribute, $counter);
 		}
 		$counter++;
 	}
@@ -383,10 +401,16 @@ function validate($data, &$validate, &$qls){
 							$errorMsg = 'Invalid partition type.';
 							array_push($validate->returnData['error'], $errorMsg);
 						}
+					
 					} else {
 						$errorMsg = 'Invalid template data.';
 						array_push($validate->returnData['error'], $errorMsg);
 					}
+				} else if($data['attribute'] == 'inline-portOrientation') {
+					$portOrientationID = $data['value'];
+					$portOrientationIDArray = array(1, 2, 3, 4);
+					$errMsg = 'port orientation ID';
+					$validate->validateInArray($portOrientationID, $portOrientationIDArray, $reference);
 				} else {
 					//Error
 					$errorMsg = 'Invalid attribute.';

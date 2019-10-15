@@ -445,6 +445,40 @@ function makeRackObjectsClickable(){
 					}
 				});
 				$('#inline-category').editable('setValue', response.categoryID).editable('enable');
+				
+				// Object Port Orientation
+				$('#inline-portOrientation').editable('destroy');
+				$('#inline-portOrientation').editable({
+					showbuttons: false,
+					mode: 'inline',
+					source: response.portOrientationArray,
+					url: 'backend/process_object-custom.php',
+					send: 'always',
+					params: function(params){
+						var data = {
+							'action':'edit',
+							'templateID':templateID,
+							'templateFace':templateFace,
+							'templateDepth':partitionDepth,
+							'attribute':$(this).attr('id'),
+							'value':params.value
+						};
+						params.data = JSON.stringify(data);
+						return params;
+					},
+					success: function(response) {
+						var selectedObjID = $('#selectedObjectID').val();
+						var responseJSON = JSON.parse(response);
+						if (responseJSON.active == 'inactive'){
+							window.location.replace("/");
+						} else if ($(responseJSON.error).size() > 0){
+							displayError(responseJSON.error);
+						}
+					}
+				});
+				$('#inline-portOrientation').editable('setValue', response.portOrientationID).editable('enable');
+				
+				// Object Image
 				$('#templateImageAction').on('click', function(event){
 					event.preventDefault();
 					$('#modalImageUpload').modal('show');
@@ -624,9 +658,9 @@ function resetTemplateDetails(){
 	$('#detailPortType').html('-');
 	$('#detailMediaType').html('-');
 	$('#detailTemplateImage').html('-');
-	
 	$('#inline-templateName').editable('setValue', '-').editable('disable');
 	$('#inline-category').editable('disable').html('-');
+	$('#inline-portOrientation').editable('disable').html('-');
 }
 
 function togglePartitionTypeDependencies(){

@@ -13,6 +13,7 @@ Contents
 
 **Changes introduced in 0.1.1
 
+[Feature]	Added ability to edit template port orientation.
 [Fix]		Prevent templates from being imported with duplicate names.
 [Fix]		Accommodate importing data which does not specify an enclosure's "strict" property.
 [Fix]		Resolved issue with exporting cable path entries that have no peer cabinet.

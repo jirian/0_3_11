@@ -36,13 +36,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$categoryID = $templateInfo['templateCategory_id'];
 		
 		// Retrieve category info
-		$category = $qls->App->categoryArray[$categoryID];
-		$categoryName = $category['name'];
+		$categoryName = $qls->App->categoryArray[$categoryID]['name'];
 		
 		// Compile list of categories to be used for template category selection
 		$categoryArray = array();
 		foreach($qls->App->categoryArray as $categoryEntry) {
 			array_push($categoryArray, array($categoryEntry['id'] => $categoryEntry['name']));
+		}
+		
+		// Retrieve port orientation info
+		$portOrientationArray = array();
+		foreach($qls->App->portOrientationArray as $portOrientationArrayEntry) {
+			array_push($portOrientationArray, array($portOrientationArrayEntry['id'] => $portOrientationArrayEntry['name']));
 		}
 		
 		//Retrieve partition info
@@ -68,7 +73,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portRange = $portNameFirst.$portNameLast;
 			$portProperties = getPortProperties($qls);
 			$portType = $portProperties['portType'][$partitionData['portType']];
-			$portOrientation = $portProperties['portOrientation'][$partitionData['portOrientation']];
+			$portOrientationID = $partitionData['portOrientation'];
+			$portOrientationName = $qls->App->portOrientationArray[$portOrientationID]['name'];
 			$mediaType = $partitionData['partitionFunction'] == 'Passive' ? $portProperties['mediaType'][$partitionData['mediaType']] : 'N/A';
 			
 			// Get peer information
@@ -94,7 +100,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$trunkable = false;
 		} else {
 			// Generic partition... these won't be in the compatibility table so catch them with an else
-			$partitionType = $portRange = $portType = $mediaType = $trunkFlatPath = 'N/A';
+			$partitionType = $portRange = $portType = $portOrientation = $mediaType = $trunkFlatPath = 'N/A';
 			$trunkable = false;
 		}
 		
@@ -143,6 +149,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			'portTotal' => $portTotal,
 			'portNameFormat' => $portNameFormat,
 			'portType' => $portType,
+			'portOrientationArray' => $portOrientationArray,
+			'portOrientationName' => $portOrientationName,
+			'portOrientationID' => $portOrientationID,
 			'mediaType' => $mediaType,
 			'templateImgExists' => $templateImgExists,
 			'templateImgAction' => $templateImgAction,
