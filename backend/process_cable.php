@@ -283,8 +283,41 @@ function validate($data, &$validate, &$qls){
 			
 		} else if ($data['property'] == 'connectionScan') {
 			
+			$localPortArray = explode('-', $data['value']);
+			$localID = $localPortArray[1];
+			$localFace = $localPortArray[2];
+			$localDepth = $localPortArray[3];
+			$localPort = $localPortArray[4];
+			
+			$connectorID = $data['connectorID'];
+			$cable = $qls->App->inventoryByIDArray[$connectorID];
+			$remoteID = $cable['remote_object_id'];
+			$remoteFace = $cable['remote_object_face'];
+			$remoteDepth = $cable['remote_object_depth'];
+			$remotePort = $cable['remote_object_port'];
+			
+			if($remoteID == $localID and $remoteFace == $localFace and $remoteDepth == $localDepth and $remotePort == $localPort) {
+				$errMsg = 'Cannot connect port to itself.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+			
 		} else if ($data['property'] == 'connectionExplore') {
 			
+			$remotePortArray = explode('-', $data['value']);
+			$remoteID = $remotePortArray[1];
+			$remoteFace = $remotePortArray[2];
+			$remoteDepth = $remotePortArray[3];
+			$remotePort = $remotePortArray[4];
+			
+			$localID = $data['objID'];
+			$localFace = $data['objFace'];
+			$localDepth = $data['objDepth'];
+			$localPort = $data['objPort'];
+			
+			if($remoteID == $localID and $remoteFace == $localFace and $remoteDepth == $localDepth and $remotePort == $localPort) {
+				$errMsg = 'Cannot connect port to itself.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
 		}
 		
 	}

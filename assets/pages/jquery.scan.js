@@ -763,7 +763,7 @@ $(document).ready(function() {
 			if (responseJSON.active == 'inactive'){
 				window.location.replace("/");
 			} else if ($(responseJSON.error).size() > 0){
-				displayError(responseJSON.error);
+				displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
 			} else {
 				var connectorPathContainer = $('a[data-connectorid="'+connectorID+'"]');
 				$(connectorPathContainer).html(responseJSON.success.connectorFlatPath).attr('data-selectedNodeID', value);

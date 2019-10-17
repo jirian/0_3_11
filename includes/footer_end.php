@@ -73,6 +73,11 @@
 			html += '</div>';
 			$(element).append(html);
 		});
+		if($(element).closest('.modal').length) {
+			$(element).closest('.modal').animate({ scrollTop: 0 }, "slow");
+		} else {
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+		}
 	}
 
 </script>

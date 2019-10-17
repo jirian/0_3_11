@@ -100,6 +100,47 @@ var $qls;
 		//
 		// Correct duplicate template names
 		//
+		$foundArray = array();
+		$query = $this->qls->SQL->select('*', 'app_inventory');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			$rowID = $row['id'];
+			
+			$aID = $row['a_object_id'];
+			$aFace = $row['a_object_face'];
+			$aDepth = $row['a_object_depth'];
+			$aPort = $row['a_port_id'];
+			
+			$bID = $row['b_object_id'];
+			$bFace = $row['b_object_face'];
+			$bDepth = $row['b_object_depth'];
+			$bPort = $row['b_port_id'];
+			
+			if($aID == $bID and $aFace == $bFace and $aDepth == $bDepth and $aPort == $bPort) {
+				if($aID != 0) {
+					if($row['a_id'] != 0 or $row['b_id'] != 0) {
+						$set = array(
+							'a_object_id' => 0,
+							'a_object_face' => 0,
+							'a_object_depth' => 0,
+							'a_port_id' => 0,
+							'b_object_id' => 0,
+							'b_object_face' => 0,
+							'b_object_depth' => 0,
+							'b_port_id' => 0
+						);
+						$this->qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+					} else {
+						$this->qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+					}
+				}
+			}
+		}
+		
+		
+		
+		//
+		// Correct duplicate template names
+		//
 		$templateNameArray = array();
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
@@ -119,7 +160,7 @@ var $qls;
 		//
 		$envTreeArray = array();
 		$query = $this->qls->SQL->select('*', 'app_env_tree');
-		while ($row = $this->qls->SQL->->fetch_assoc($query)){
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			if(!isset($envTreeArray[$row['parent']])) {
 				$envTreeArray[$row['parent']] = array();
 			}

@@ -40,44 +40,42 @@ $objectArray = array();
 $insertArray = array();
 $query = $qls->SQL->select('*', 'app_object');
 while($row = $qls->SQL->fetch_assoc($query)) {
-	//if($row['template_id'] != 1 and $row['template_id'] != 2 and $row['template_id'] != 3) {
-		if($row['parent_id'] == 0) {
-			$objectArray[$row['id']] = $row;
-		} else {
-			$parentID = $row['parent_id'];
-			$parentFace = $row['parent_face'];
-			$parentDepth = $row['parent_depth'];
-			$encX = $row['insertSlotX'];
-			$encY = $row['insertSlotY'];
-			
-			if(!array_key_exists($parentID, $insertArray)) {
-				$insertArray[$parentID] = array(
-					$parentFace => array(
-						$parentDepth => array(
-							$encX => array(
-								$encY => null
-				))));
-			} else if(!array_key_exists($parentFace, $insertArray[$parentID])) {
-				$insertArray[$parentID][$parentFace] = array(
+	if($row['parent_id'] == 0) {
+		$objectArray[$row['id']] = $row;
+	} else {
+		$parentID = $row['parent_id'];
+		$parentFace = $row['parent_face'];
+		$parentDepth = $row['parent_depth'];
+		$encX = $row['insertSlotX'];
+		$encY = $row['insertSlotY'];
+		
+		if(!array_key_exists($parentID, $insertArray)) {
+			$insertArray[$parentID] = array(
+				$parentFace => array(
 					$parentDepth => array(
 						$encX => array(
 							$encY => null
-				)), 'enclosureCount' => 0);
-			} else if(!array_key_exists($parentDepth, $insertArray[$parentID][$parentFace])) {
-				$insertArray[$parentID][$parentFace][$parentDepth] = array(
+			))));
+		} else if(!array_key_exists($parentFace, $insertArray[$parentID])) {
+			$insertArray[$parentID][$parentFace] = array(
+				$parentDepth => array(
 					$encX => array(
 						$encY => null
-				));
-			} else if(!array_key_exists($encX, $insertArray[$parentID][$parentFace][$parentDepth])) {
-				$insertArray[$parentID][$parentFace][$parentDepth][$encX] = array(
+			)), 'enclosureCount' => 0);
+		} else if(!array_key_exists($parentDepth, $insertArray[$parentID][$parentFace])) {
+			$insertArray[$parentID][$parentFace][$parentDepth] = array(
+				$encX => array(
 					$encY => null
-				);
-			}
-			
-			$insertArray[$parentID][$parentFace]['enclosureCount'] = $insertArray[$parentID][$parentFace]['enclosureCount'] + 1;
-			$insertArray[$parentID][$parentFace][$parentDepth][$encX][$encY] = $row;
+			));
+		} else if(!array_key_exists($encX, $insertArray[$parentID][$parentFace][$parentDepth])) {
+			$insertArray[$parentID][$parentFace][$parentDepth][$encX] = array(
+				$encY => null
+			);
 		}
-	//}
+		
+		$insertArray[$parentID][$parentFace]['enclosureCount'] = $insertArray[$parentID][$parentFace]['enclosureCount'] + 1;
+		$insertArray[$parentID][$parentFace][$parentDepth][$encX][$encY] = $row;
+	}
 }
 		
 // Open ZIP File
@@ -274,11 +272,12 @@ function createObjects(&$qls, $objectArray){
 
 	$csvArray = array();
 	foreach($objectArray as $object) {
-		$floorplanObj = (1 <= $object['template_id'] and $object['template_id'] <= 3) ? true : false;
+		$templateID = $object['template_id'];
+		$floorplanObj = (isset($floorplanObjTemplateArray[$templateID])) ? true : false;
 		$name = $object['name'];
 		$cabinet = $qls->App->envTreeArray[$object['env_tree_id']]['nameString'];
-		$template = $floorplanObj ? $floorplanObjTemplateArray[$object['template_id']] : $qls->App->templateArray[$object['template_id']]['templateName'];
-		$RUSize = $floorplanObj ? '' : $qls->App->templateArray[$object['template_id']]['templateRUSize'];
+		$template = $floorplanObj ? $floorplanObjTemplateArray[$templateID] : $qls->App->templateArray[$templateID]['templateName'];
+		$RUSize = $floorplanObj ? '' : $qls->App->templateArray[$templateID]['templateRUSize'];
 		$topRU = $floorplanObj ? '' : $object['RU'];
 		$bottomRU = $floorplanObj ? '' : $topRU - ($RUSize - 1);
 		if($floorplanObj) {
