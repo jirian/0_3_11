@@ -9,7 +9,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	$validate = new Validate($qls);
 	$validate->returnData['success'] = array();
-	$validate->returnData['debug'] = array();
 	
 	if ($validate->returnData['active'] == 'inactive') {
 		echo json_encode($validate->returnData);
@@ -83,9 +82,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$envTreeArray = array();
 				$query = $qls->SQL->select('*', 'app_env_tree');
 				while($row = $qls->SQL->fetch_assoc($query)) {
-					//if($row['type'] != 'floorplan') {
-						$envTreeArray[$row['id']] = $row;
-					//}
+					$envTreeArray[$row['id']] = $row;
 				}
 				
 				// Generate nameString and nameHash for Environment Tree
@@ -144,9 +141,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$tableObjectArray = array();
 				$query = $qls->SQL->select('*', 'app_object', array('parent_id' => array('=', 0)));
 				while($row = $qls->SQL->fetch_assoc($query)) {
-					//if($row['template_id'] != 1 and $row['template_id'] != 2 and $row['template_id'] != 3) {
-						$tableObjectArray[$row['id']] = $row;
-					//}
+					$tableObjectArray[$row['id']] = $row;
 				}
 				
 				// Inserts
@@ -165,9 +160,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					}
 					array_push($cabinetObjects[$row['env_tree_id']], $row);
 				}
-				
-				// Get Connections
-				//$connectionArray = $qls->App->inventoryAllArray;
 
 				// Build Existing Arrays
 				$existingCabinetArray = buildExistingCabinetArray($envTreeArray, $envAdjArray);
@@ -176,7 +168,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$existingTemplateArray = buildExistingTemplateArray($qls, $tableCategoryArray);
 				$existingObjectArray = buildExistingObjectArray($qls, $tableObjectArray, $envTreeArray);
 				$existingInsertArray = buildExistingInsertArray($tableInsertArray, $envTreeArray, $tableObjectArray, $tableEnclosureCompatibilityArray);
-				//$existingConnectionArray = buildExistingConnectionArray($qls, $connectionArray);
 				$occupancyArray = array();
 				
 				
@@ -346,20 +337,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					// Validate and apply connection data
 					unset($qls->App);
 					$qls->App = new App($qls);
-					//$compatibilityArray = buildCompatibilityArray($qls);
-					//$objectArray = buildObjectArray($qls);
-					//$templateArray = buildTemplateArray($qls);
-					//$envTreeArray = buildEnvTreeArray($qls);
 					$portArray = buildPortArray($qls);
 					validateImportedConnections($qls, $importedConnectionArray, $portArray, $importedObjectArray, $importedTrunkArray, $validate);
 					validateImportedTrunks($qls, $importedTrunkArray, $portArray, $importedObjectArray, $validate);
 					
 					if(count($validate->returnData['error']) == 0) {
-						//$validate->returnData['debug']['connectionArray'] = $importedConnectionArray;
-						$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
-						//$validate->returnData['debug']['importedObjectArray'] = $importedObjectArray;
-						//$validate->returnData['debug']['portArray'] = $portArray;
-						//$validate->returnData['debug']['insertArray'] = $importedInsertArray;
 						processConnections($qls, $importedConnectionArray);
 						processTrunks($qls, $importedTrunkArray, $importedObjectArray, $portArray);
 						$qls->SQL->transaction('COMMIT');
@@ -1445,7 +1427,6 @@ function validateImportedObjects($importedObjectArray, $existingObjectArray, $im
 				} else {
 					$templateRUSize = $importedTemplateArray[$objectTemplateHash]['RUSize'];
 					$templateMountConfig = $importedTemplateArray[$objectTemplateHash]['templateMountConfig'];
-					//$existingTemplate = $existingTemplateArray[$objectTemplateHash];
 				}
 			}
 			
@@ -1457,7 +1438,6 @@ function validateImportedObjects($importedObjectArray, $existingObjectArray, $im
 				if($cabinetRUSize and $templateRUSize) {
 					$topRU = $objectRU + ($templateRUSize - 1);
 					$bottomRU = $objectRU;
-					//$templateMountConfig = $existingTemplate['templateMountConfig'];
 					
 					if($cabinetFaceValidated) {
 						if($templateMountConfig == 0) {
@@ -3471,15 +3451,15 @@ function buildPortArray(&$qls){
 					$partitionType = $compatibility['partitionType'];
 					if($partitionType == 'Connectable') {
 						if($templateType == 'walljack') {
-							//error_log('here1');
+							
 							if(isset($qls->App->peerArray[$objID][$faceID][$depth]['peerArray'])) {
-								//error_log('here2');
+								
 								foreach($qls->App->peerArray[$objID][$faceID][$depth]['peerArray'] as $peerID => $peer) {
-									//error_log('here3');
+									
 									foreach($peer as $peerFaceID => $peerFace) {
-										//error_log('here4');
+										
 										foreach($peerFace as $peerDepth => $partition) {
-											//error_log('here5');
+											
 											$peerObj = $qls->App->objectArray[$peerID];
 											$peerObjName = $peerObj['nameString'];
 											$peerTemplateID = $peerObj['template_id'];
@@ -3487,14 +3467,13 @@ function buildPortArray(&$qls){
 											$peerObjPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
 											$peerObjPortTotal = $peerCompatibility['portTotal'];
 											foreach($partition as $portPair) {
-												//error_log('here6');
+												
 												$peerPortID = $portPair[1];
 												$portID = $portPair[0];
 												$peerObjPortName = $qls->App->generatePortName($peerObjPortNameFormat, $peerPortID, $peerObjPortTotal);
 												$portNameArray = array($objName, $peerObjPortName, $portID);
 												$objPortNameString = implode('.', $portNameArray);
 												$portNameStringHash = md5(strtolower($objPortNameString));
-												//error_log('Debug: portArray Entry = '.$objPortNameString.' - '.$portNameStringHash);
 												$portArray[$portNameStringHash] = array(
 													'objID' => $objID,
 													'face' => $faceID,
@@ -3518,7 +3497,6 @@ function buildPortArray(&$qls){
 								$portNameArray = array($objName, $portName);
 								$objPortNameString = implode('.', $portNameArray);
 								$portNameStringHash = md5(strtolower($objPortNameString));
-								//error_log('Debug: portArray Entry = '.$objPortNameString.' - '.$portNameStringHash);
 								$portArray[$portNameStringHash] = array(
 									'objID' => $objID,
 									'face' => $faceID,
