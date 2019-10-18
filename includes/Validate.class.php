@@ -769,6 +769,7 @@ class Validate {
 		if (!preg_match('/^[a-zA-Z0-9]{1,6}$/', $input) or $input === '0'){
 			$errorMsg = 'Invalid '.$reference.'.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		}
 		return true;
 	}

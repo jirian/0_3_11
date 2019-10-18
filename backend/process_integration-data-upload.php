@@ -418,10 +418,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					//$templateArray = buildTemplateArray($qls);
 					//$envTreeArray = buildEnvTreeArray($qls);
 					$portArray = buildPortArray($qls);
-					validateImportedConnections($qls, $importedConnectionArray, $portArray, $validate);
+					validateImportedConnections($qls, $importedConnectionArray, $portArray, $importedObjectArray, $importedTrunkArray, $validate);
 					validateImportedTrunks($qls, $importedTrunkArray, $portArray, $importedObjectArray, $validate);
 					
 					if(count($validate->returnData['error']) == 0) {
+						//$validate->returnData['debug']['connectionArray'] = $importedConnectionArray;
+						$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
 						processConnections($qls, $importedConnectionArray);
 						processTrunks($qls, $importedTrunkArray);
 						$qls->SQL->transaction('COMMIT');
@@ -968,34 +970,35 @@ function buildImportedConnectionArray($csvLine, $csvLineNumber, $csvFilename, &$
 	$bPortNameHash = ($portB != '' and $portB != 'none') ? md5($portB) : false;
 	$aCode39 = ($aCode39 != '' and $aCode39 != 'none') ? $aCode39 : false;
 	$bCode39 = ($bCode39 != '' and $bCode39 != 'none') ? $bCode39 : false;
-	$aConnector = ($aConnector != '' and $aConnector != 'none') ? $aConnector : false;
-	$bConnector = ($bConnector != '' and $bConnector != 'none') ? $bConnector : false;
+	$aConnector = ($aConnector != '' and $aConnector != 'none' and $aCode39) ? $aConnector : false;
+	$bConnector = ($bConnector != '' and $bConnector != 'none' and $bCode39) ? $bConnector : false;
 	$mediaType = ($mediaType != '' and $mediaType != 'none') ? $mediaType : false;
 	$length = ($length != '' and $length != 'none') ? $length : false;
-	
-	//error_log('Debug: importedConnectionArray AEntry = '.$portA.' - '.$aPortNameHash);
-	//error_log('Debug: importedConnectionArray BEntry = '.$portB.' - '.$bPortNameHash);
 	
 	$addConnection = false;
 	
 	if($aPortNameHash or $aCode39) {
 		$addConnection = true;
 		$workingArray = array(
+			'portName' => $portA,
 			'portNameHash' => $aPortNameHash,
-			'code39' => $aCode39,
+			'code39' => strtoupper($aCode39),
 			'connector' => $aConnector,
+			'peerPortName' => $portB,
 			'peerPortNameHash' => $bPortNameHash,
-			'peerCode39' => $bCode39,
+			'peerCode39' => strtoupper($bCode39),
 			'peerConnector' => $bConnector
 		);
 	} else if($bPortNameHash or $bCode39) {
 		$addConnection = true;
 		$workingArray = array(
+			'portName' => $portB,
 			'portNameHash' => $bPortNameHash,
-			'code39' => $bCode39,
+			'code39' => strtoupper($bCode39),
 			'connector' => $bConnector,
+			'peerPortName' => $portA,
 			'peerPortNameHash' => $aPortNameHash,
-			'peerCode39' => $aCode39,
+			'peerCode39' => strtoupper($aCode39),
 			'peerConnector' => $aConnector
 		);
 	}
@@ -1670,7 +1673,7 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 	}
 }
 
-function validateImportedConnections(&$qls, &$importedConnectionArray, $portArray, &$validate){
+function validateImportedConnections(&$qls, &$importedConnectionArray, $portArray, $importedObjectArray, $importedTrunkArray, &$validate){
 	$cableEndIDArray = array();
 	$portNameHashArray = array();
 	
@@ -1679,31 +1682,68 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 		
 		// Check to see if object port exists
 		$portNameHash = $connection['portNameHash'];
-		if(isset($portArray[$portNameHash])) {
+		if(isset($portArray[$portNameHash]) or isset($importedTrunkArray[$portNameHash])) {
 			if(!in_array($portNameHash, $portNameHashArray)) {
 				array_push($portNameHashArray, $portNameHash);
-				$port = $portArray[$portNameHash];
 				
-				$objID = $port['objID'];
-				$face = $port['face'];
-				$depth = $port['depth'];
-				$portID = $port['portID'];
+				if(isset($portArray[$portNameHash])) {
+					
+					// Object is a normal object and can be found in $portArray
+					$port = $portArray[$portNameHash];
+					$objID = $port['objID'];
+					$face = $port['face'];
+					$depth = $port['depth'];
+					$portID = $port['portID'];
+					
+				} else {
+					
+					// Object port must be a walljack port
+					$objectName = $importedTrunkArray[$portNameHash]['name'];
+					$trunkPeerPortNameHash = $importedTrunkArray[$portNameHash]['peerPortNameHash'];
+					$peerPort = $portArray[$trunkPeerPortNameHash];
+					$objectNameHash = md5($objectName);
+					$object = $importedObjectArray[$objectNameHash];
+					$objID = $object['id'];
+					$face = 0;
+					$depth = 0;
+					$portID = $peerPort['portID'];
+					
+				}
 				
 				$connection['objID'] = $objID;
 				$connection['face'] = $face;
 				$connection['depth'] = $depth;
 				$connection['portID'] = $portID;
 				
+				// Is a peer port specified?
 				if($peerPortNameHash = $connection['peerPortNameHash']) {
-					if(isset($portArray[$peerPortNameHash])) {
+					if(isset($portArray[$peerPortNameHash]) or isset($importedTrunkArray[$peerPortNameHash])) {
 						if(!in_array($peerPortNameHash, $portNameHashArray)) {
 							array_push($portNameHashArray, $peerPortNameHash);
-							$peerPort = $portArray[$peerPortNameHash];
 							
-							$peerObjID = $peerPort['objID'];
-							$peerFace = $peerPort['face'];
-							$peerDepth = $peerPort['depth'];
-							$peerPortID = $peerPort['portID'];
+							if(isset($portArray[$portNameHash])) {
+								
+								// Object is a normal object and can be found in $portArray
+								$peerPort = $portArray[$peerPortNameHash];							
+								$peerObjID = $peerPort['objID'];
+								$peerFace = $peerPort['face'];
+								$peerDepth = $peerPort['depth'];
+								$peerPortID = $peerPort['portID'];
+								
+							} else {
+								
+								// Object port must be a walljack port
+								$objectName = $importedTrunkArray[$peerPortNameHash]['name'];
+								$trunkPeerPortNameHash = $importedTrunkArray[$peerPortNameHash]['peerPortNameHash'];
+								$peerPort = $portArray[$trunkPeerPortNameHash];
+								$objectNameHash = md5($objectName);
+								$object = $importedObjectArray[$objectNameHash];
+								$peerObjID = $object['id'];
+								$peerFace = 0;
+								$peerDepth = 0;
+								$peerPortID = $peerPort['portID'];
+								
+							}
 							
 							$connection['peerObjID'] = $peerObjID;
 							$connection['peerFace'] = $peerFace;
@@ -1720,6 +1760,8 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 							$connection['peerFace'] = 0;
 							$connection['peerDepth'] = 0;
 							$connection['peerPortID'] = 0;
+						} else if(1 == 2) {
+							// Check if peer object is walljack
 						} else {
 							$errMsg = 'PortB on line '.$connection['line'].' of file "'.$connection['fileName'].'" does not exist.';
 							array_push($validate->returnData['error'], $errMsg);
@@ -1731,7 +1773,7 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 				array_push($validate->returnData['error'], $errMsg);
 			}
 		} else {
-			if($connection['peerCode39']) {
+			if($connection['code39']) {
 				// Managed cable is not connected to anything.
 				$connection['objID'] = 0;
 				$connection['face'] = 0;
@@ -1774,16 +1816,16 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 		
 		if($cableEndID) {
 			// Check to see if cableA connector type is valid
-			if($connector = $connection['connector']) {
-				$connectorValue = 0;
+			if($connection['connector']) {
+				$connector = $connection['connector'];
+				$found = false;
 				foreach($qls->App->connectorTypeValueArray as $value => $row) {
 					if($connector == strtolower($row['name'])) {
-						$connectorValue = $value;
+						$connection['connector'] = $value;
+						$found = true;
 					}
 				}
-				if($connectorValue) {
-					$connection['connector'] = $connectorValue;
-				} else {
+				if(!$found) {
 					$errMsg = 'CableA connector type on line '.$connection['line'].' of file "'.$connection['fileName'].'" is invalid.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
@@ -1792,16 +1834,16 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 		
 		if($peerCableEndID) {
 			// Check to see if cableB connector type is valid
-			if($peerConnector = $connection['peerConnector']) {
-				$connectorValue = 0;
+			if($connection['peerConnector']) {
+				$peerConnector = $connection['peerConnector'];
+				$found = false;
 				foreach($qls->App->connectorTypeValueArray as $value => $row) {
 					if($connector == strtolower($row['name'])) {
-						$connectorValue = $value;
+						$connection['peerConnector'] = $value;
+						$found = true;
 					}
 				}
-				if($connectorValue) {
-					$connection['peerConnector'] = $connectorValue;
-				} else {
+				if(!$found) {
 					$errMsg = 'CableB connector type on line '.$connection['line'].' of file "'.$connection['fileName'].'" is invalid.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
@@ -1809,25 +1851,29 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 		}
 		
 		if($cableEndID or $peerCableEndID) {
+			
 			// Check to see if media type is valid
-			if($mediaType = $connection['mediaType']) {
+			if($connection['mediaType']) {
+				$mediaType = $connection['mediaType'];
+				$found = false;
 				foreach($qls->App->mediaTypeValueArray as $value => $row) {
 					if($mediaType == strtolower($row['name'])) {
-						$mediaType = $value;
+						$mediaTypeValue = $value;
+						$connection['mediaTypeValue'] = $mediaTypeValue;
+						$found = true;
 					}
 				}
-				if($mediaType) {
-					$connection['mediaType'] = $mediaType;
-				} else {
+				if(!$found) {
 					$errMsg = 'Media type on line '.$connection['line'].' of file "'.$connection['fileName'].'" is invalid.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 			}
 			
 			// Check to see if length is valid
-			if($length = $connection['length']) {
-				if($mediaType) {
-					$categoryTypeID = $qls->App->mediaTypeValueArray[$mediaType]['category_type_id'];
+			if($connection['length']) {
+				$length = $connection['length'];
+				if($connection['mediaType']) {
+					$categoryTypeID = $qls->App->mediaTypeValueArray[$mediaTypeValue]['category_type_id'];
 					$categoryType = $qls->App->mediaCategoryTypeArray[$categoryTypeID];
 					if(preg_match('/\d+/', $length)) {
 						preg_match('/\d+/', $length, $match);
@@ -1861,9 +1907,9 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 }
 
 function validateImportedTrunks($qls, $importedTrunkArray, $portArray, $importedObjectArray, &$validate){
-	$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
-	$validate->returnData['debug']['portArray'] = $portArray;
-	$validate->returnData['debug']['objectArray'] = $importedObjectArray;
+	//$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
+	//$validate->returnData['debug']['portArray'] = $portArray;
+	//$validate->returnData['debug']['objectArray'] = $importedObjectArray;
 	foreach($importedTrunkArray as $trunk) {
 		
 		$csvLine = $trunk['line'];
@@ -3131,7 +3177,7 @@ function processConnections(&$qls, $importedConnectionArray){
 		$peerDepth = $connection['peerDepth'];
 		$peerPortID = $connection['peerPortID'];
 		
-		$mediaType = $connection['mediaType'];
+		$mediaType = $connection['mediaTypeValue'];
 		$length = $connection['length'];
 
 		
