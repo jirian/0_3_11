@@ -71,22 +71,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 // Prepare Required Data
 				
-				// Store import type
-				$importType = 'none';
-				if(isset($_POST['importType'])) {
-					if(strtolower($_POST['importType']) == 'edit') {
-						$importType = 'edit';
-					} else if(strtolower($_POST['importType']) == 'restore') {
-						$importType = 'restore';
-					} else {
-						$errMsg = 'Invalid import type.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
-				} else {
-					$errMsg = 'Missing import type.';
-					array_push($validate->returnData['error'], $errMsg);
-				}
-				
 				// Cabinet Adjacencies
 				$envAdjArray = array();
 				$query = $qls->SQL->select('*', 'app_cabinet_adj');
@@ -303,52 +287,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$qls->SQL->transaction('BEGIN');
 					
 					// Clear app tables if importing as restore
-					if($importType == 'restore') {
-						clearAppTables($qls);
-					}
+					clearAppTables($qls);
 					
 					// Find Category Changes
 					$categoryAdds = findCategoryAdds($importedCategoryArray);
-					if($importType == 'edit') {
-						$categoryEdits = findCategoryEdits($importedCategoryArray, $existingCategoryArray);
-						$categoryDeletes = findCategoryDeletes($importedCategoryArray, $existingCategoryArray);
-					}
 					
 					// Process Category Changes
 					insertCategoryAdds($qls, $categoryAdds, $importedCategoryArray);
-					if($importType == 'edit') {
-						updateCategoryEdits($qls, $categoryEdits);
-						deleteCategoryDeletes($qls, $categoryDeletes);
-					}
 					
 					// Find Template Changes
 					$templateAdds = findTemplateAdds($importedTemplateArray);
-					if($importType == 'edit') {
-						$templateEdits = findTemplateEdits($importedTemplateArray, $existingTemplateArray);
-						$templateDeletes = findTemplateDeletes($importedTemplateArray, $existingTemplateArray);
-					}
 					
 					// Process Template Changes
 					insertTemplateAdds($qls, $templateAdds, $importedTemplateArray, $importedCategoryArray);
-					if($importType == 'edit') {
-						updateTemplateEdits($qls, $templateEdits, $importedCategoryArray);
-						deleteTemplateDeletes($qls, $templateDeletes);
-					}
 					
 					// Find Cabinet Changes
 					$cabinetAdds = findCabinetAdds($importedCabinetArray, $existingCabinetArray);
-					error_log('Debug: cabinetAdds = '.json_encode($cabinetAdds));
-					if($importType == 'edit') {
-						$cabinetEdits = findCabinetEdits($importedCabinetArray, $existingCabinetArray);
-						$cabinetDeletes = findCabinetDeletes($importedCabinetArray, $existingCabinetArray);
-					}
 					
 					// Process Cabinet Changes
 					insertCabinetAdds($qls, $cabinetAdds, $importedCabinetArray, $existingCabinetArray);
-					if($importType == 'edit') {
-						updateCabinetEdits($qls, $cabinetEdits, $importedCabinetArray, $existingCabinetArray);
-						deleteCabinetDeletes($qls, $cabinetDeletes, $cabinetObjects);
-					}
 					
 					
 					// Populate importedPathArray with cabinet IDs...
@@ -359,17 +316,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					// Find Path Changes
 					$pathAdds = findPathAdds($importedPathArray, $existingPathArray);
-					if($importType == 'edit') {
-						$pathEdits = findPathEdits($importedPathArray, $existingPathArray);
-						$pathDeletes = findPathDeletes($importedPathArray, $existingPathArray);
-					}
 					
 					// Process Path Changes
 					insertPathAdds($qls, $pathAdds, $importedCabinetArray);
-					if($importType == 'edit') {
-						updatePathEdits($qls, $pathEdits);
-						deletePathDeletes($qls, $pathDeletes);
-					}
 					
 					
 					// Populate importedObjectArray with cabinet IDs...
@@ -380,33 +329,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					// Find Object Changes
 					$objectAdds = findObjectAdds($importedObjectArray);
-					if($importType == 'edit') {
-						$objectEdits = findObjectEdits($importedObjectArray, $existingObjectArray);
-						$objectDeletes = findObjectDeletes($importedObjectArray, $existingObjectArray);
-					}
 					
 					// Process Object Changes
 					insertObjectAdds($qls, $objectAdds, $importedObjectArray, $importedCabinetArray, $importedTemplateArray);
-					if($importType == 'edit') {
-						updateObjectEdits($qls, $objectEdits, $importedCabinetArray, $existingTemplateArray);
-						deleteObjectDeletes($qls, $objectDeletes);
-					}
 					
 					
 					
 					// Find Insert Changes
 					$insertAdds = findInsertAdds($importedInsertArray);
-					if($importType == 'edit') {
-						$insertEdits = findInsertEdits($importedInsertArray, $existingInsertArray);
-						$insertDeletes = findInsertDeletes($importedInsertArray, $existingInsertArray);
-					}
 					
 					// Process Insert Changes
 					insertInsertAdds($qls, $insertAdds, $importedInsertArray, $importedObjectArray, $importedCabinetArray, $importedTemplateArray);
-					if($importType == 'edit') {
-						updateInsertEdits($qls, $insertEdits, $importedObjectArray, $importedCabinetArray);
-						deleteInsertDeletes($qls, $insertDeletes);
-					}
 					
 					
 					
@@ -424,8 +357,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					if(count($validate->returnData['error']) == 0) {
 						//$validate->returnData['debug']['connectionArray'] = $importedConnectionArray;
 						$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
+						//$validate->returnData['debug']['importedObjectArray'] = $importedObjectArray;
+						//$validate->returnData['debug']['portArray'] = $portArray;
+						//$validate->returnData['debug']['insertArray'] = $importedInsertArray;
 						processConnections($qls, $importedConnectionArray);
-						processTrunks($qls, $importedTrunkArray);
+						processTrunks($qls, $importedTrunkArray, $importedObjectArray, $portArray);
 						$qls->SQL->transaction('COMMIT');
 						$validate->returnData['success'] = 'Import finished successfully.';
 					} else {
@@ -476,7 +412,8 @@ function buildImportedCabinetArray($csvLine, $csvLineNumber, $csvFilename, &$imp
 	$cabinetSize = $csvLine[2];
 	$cabinetLeft = $csvLine[3];
 	$cabinetRight = $csvLine[4];
-	$originalCabinetName = ($GLOBALS['importType'] == 'edit') ? $csvLine[5] : '';
+	//$originalCabinetName = ($GLOBALS['importType'] == 'edit') ? $csvLine[5] : '';
+	$originalCabinetName = '';
 	$floorplanImg = $csvLine[6];
 	$importedCabinetNameHash = md5(strtolower($cabinetName));
 	$originalCabinetNameHash = md5(strtolower($originalCabinetName));
@@ -665,7 +602,8 @@ function buildImportedObjectArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 	$templateNameHash = md5($templateNameLower);
 	$RU = $csvLine[3];
 	$cabinetFace = strtolower($csvLine[4]);
-	$originalObjectName = ($GLOBALS['importType'] == 'edit') ? $csvLine[5] : '';
+	//$originalObjectName = ($GLOBALS['importType'] == 'edit') ? $csvLine[5] : '';
+	$originalObjectName = '';
 	$originalObjectNameHash = md5(strtolower($originalObjectName));
 	$originalCabinetNameArray = explode('.', $originalObjectName);
 	array_pop($originalCabinetNameArray);
@@ -798,7 +736,8 @@ function buildImportedInsertArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 	$slotID = strtolower($csvLine[2]);
 	$insertName = $csvLine[3];
 	$templateName = $csvLine[4];
-	$originalInsert = ($GLOBALS['importType'] == 'edit') ? strtolower($csvLine[5]) : '';
+	//$originalInsert = ($GLOBALS['importType'] == 'edit') ? strtolower($csvLine[5]) : '';
+	$originalInsert = '';
 	$originalInsertArray = explode('.', $originalInsert);
 	$originalInsertName = array_pop($originalInsertArray);
 	$originalInsertSlotID = array_pop($originalInsertArray);
@@ -861,7 +800,8 @@ function buildImportedCategoryArray($csvLine, $csvLineNumber, $csvFilename, &$im
 	$categoryName = $csvLine[0];
 	$categoryColor = $csvLine[1];
 	$categoryDefaultOption = $csvLine[2];
-	$originalCategoryName = ($GLOBALS['importType'] == 'edit') ? $csvLine[3] : '';
+	//$originalCategoryName = ($GLOBALS['importType'] == 'edit') ? $csvLine[3] : '';
+	$originalCategoryName = '';
 	$originalCategoryNameHash = md5(strtolower($originalCategoryName));
 	$categoryNameHash = md5(strtolower($categoryName));
 	
@@ -903,7 +843,8 @@ function buildExistingTemplateArray(&$qls, $tableCategoryArray){
 function buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, &$importedTemplateArray, $existingTemplateArray){
 	$templateName = $csvLine[0];
 	$templateCategoryName = $csvLine[1];
-	$templateOriginalTemplateName = ($GLOBALS['importType'] == 'edit') ? $csvLine[2] : '';
+	//$templateOriginalTemplateName = ($GLOBALS['importType'] == 'edit') ? $csvLine[2] : '';
+	$templateOriginalTemplateName = '';
 	$templateType = $csvLine[3];
 	$templateFunction = $csvLine[4];
 	$templateRUSize = $csvLine[5];
@@ -1906,99 +1847,160 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 	}
 }
 
-function validateImportedTrunks($qls, $importedTrunkArray, $portArray, $importedObjectArray, &$validate){
-	//$validate->returnData['debug']['importedTrunkArray'] = $importedTrunkArray;
-	//$validate->returnData['debug']['portArray'] = $portArray;
-	//$validate->returnData['debug']['objectArray'] = $importedObjectArray;
-	foreach($importedTrunkArray as $trunk) {
+function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importedObjectArray, &$validate){
+	
+	foreach($importedTrunkArray as &$trunk) {
 		
+		$walljackPortIDArray = array();
 		$csvLine = $trunk['line'];
 		$csvFileName = $trunk['fileName'];
 		$portNameHash = $trunk['portNameHash'];
+		$peerPortNameHash = $trunk['peerPortNameHash'];
 		
+		// Trunk entry is not a walljack
 		if(isset($portArray[$portNameHash])) {
 			
+			// Collect trunk object information
 			$port = $portArray[$portNameHash];
+			$objID = $port['objID'];
 			$face = $port['face'];
 			$depth = $port['depth'];
-			$objID = $port['objID'];
+			$portID = $port['portID'];
 			$obj = $qls->objectArray[$objID];
 			$objTemplateID = $obj['template_id'];
-			$peerPortNameHash = $trunk['peerPortNameHash'];
 			
-			if(isset($portArray[$peerPortNameHash])) {
-				
-				$peerPort = $portArray[$peerPortNameHash];
-				$peerFace = $peerPort['face'];
-				$peerDepth = $peerPort['depth'];
-				$peerID = $peerPort['objID'];
-				$peer = $qls->objectArray[$peerID];
-				$peerTemplateID = $peer['template_id'];
-				
-				// Gather compatibility info for obj & peer
-				$objCompatibility = $qls->compatibilityArray[$objTemplateID][$face][$depth];
-				$peerCompatibility = $qls->compatibilityArray[$peerTemplateID][$face][$depth];
-				
-				// Gather template type for obj & peer
-				$objTemplateType = $objCompatibility['templateType'];
-				$peerTemplateType = $peerCompatibility['templateType'];
-				
-				// Gather media category for obj & peer
-				$objMediaCategory = $objCompatibility['mediaCategory'];
-				$peerMediaCategory = $peerCompatibility['mediaCategory'];
-				
-				if($objTemplateID > 3 and $peerTemplateID > 3) {
-					$objPortTotal = $objCompatibility['portTotal'];
-					$peerPortTotal = $peerCompatibility['portTotal'];
-					
-					if($objPortTotal != $peerPortTotal) {
-						$errMsg = 'Trunk peer port groups on line '.$csvLine.' of file "'.$csvFileName.'" must have the same total number of ports.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
-				}
-				
-				if($objMediaCategory != $peerMediaCategory) {
-					$errMsg = 'Trunk peer port(s) on line '.$csvLine.' of file "'.$csvFileName.'" must be of the same media type.';
-					array_push($validate->returnData['error'], $errMsg);
-				}
-				
-				
-			} else {
-				$peerPortNameHash = $trunk['peerPortNameHash'];
-				$peerTrunkEntry = $importedTrunkArray[$peerPortNameHash];
-				$nameHash = $peerTrunkEntry['nameHash'];
+			// Store the A side Info
+			$trunk['aObjID'] = $objID;
+			$trunk['aFace'] = $face;
+			$trunk['aDepth'] = $depth;
+			$trunk['aPortID'] = $portID;
 			
-				if(isset($importedObjectArray[$nameHash])) {
-					$objID = $importedObjectArray[$nameHash]['id'];
-					$obj = $qls->App->objectArray[$objID];
-					$objTemplateID = $obj['template_id'];
-					$objTemplate = $qls->App->templateArray[$objTemplateID];
-					$objTemplateType = $objTemplate['templateType'];
-					if($objTemplateType != 'walljack') {
-						$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
-				} else {
-					$errMsg = 'Object on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
-					array_push($validate->returnData['error'], $errMsg);
-				}
-			}
-		
 		} else {
-			$nameHash = $trunk['nameHash'];
 			
+			$nameHash = $trunk['nameHash'];
 			if(isset($importedObjectArray[$nameHash])) {
+				
+				// Collect trunk object information
 				$objID = $importedObjectArray[$nameHash]['id'];
 				$obj = $qls->App->objectArray[$objID];
 				$objTemplateID = $obj['template_id'];
 				$objTemplate = $qls->App->templateArray[$objTemplateID];
 				$objTemplateType = $objTemplate['templateType'];
-				if($objTemplateType != 'walljack') {
+				
+				// At this point, the trunk object should be a walljack
+				if($objTemplateType == 'walljack') {
+					
+					// Create variable to track walljack portID
+					if(!isset($walljackPortIDArray[$portNameHash])) {
+						$walljackPortIDArray[$portNameHash] = 0;
+					}
+					
+					// Store the A side Info
+					$trunk['aObjID'] = $objID;
+					$trunk['aFace'] = 0;
+					$trunk['aDepth'] = 0;
+					$trunk['aPortID'] = $walljackPortIDArray[$portNameHash]++;
+					
+				} else {
+					$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+				
+			} else {
+				$errMsg = 'Object on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		}
+		
+		
+		
+		
+		
+		
+		// Process the trunk peer
+		if(isset($portArray[$peerPortNameHash])) {
+			
+			// Collect trunk peer information
+			$peerPort = $portArray[$peerPortNameHash];
+			$peerID = $peerPort['objID'];
+			$peerFace = $peerPort['face'];
+			$peerDepth = $peerPort['depth'];
+			$peerPortID = $peerPort['portID'];
+			$peer = $qls->objectArray[$peerID];
+			$peerTemplateID = $peer['template_id'];
+			
+			// Store the B side Info
+			$trunk['bObjID'] = $peerID;
+			$trunk['bFace'] = $peerFace;
+			$trunk['bDepth'] = $peerDepth;
+			$trunk['bPortID'] = $peerPortID;
+			
+		} else {
+			
+			$peerTrunkEntry = $importedTrunkArray[$peerPortNameHash];
+			$nameHash = $peerTrunkEntry['nameHash'];
+			if(isset($importedObjectArray[$nameHash])) {
+				
+				// Collect trunk peer object information
+				$objID = $importedObjectArray[$nameHash]['id'];
+				$obj = $qls->App->objectArray[$objID];
+				$objTemplateID = $obj['template_id'];
+				$objTemplate = $qls->App->templateArray[$objTemplateID];
+				$objTemplateType = $objTemplate['templateType'];
+				
+				// At this point, the trunk peer object should be a walljack
+				if($objTemplateType == 'walljack') {
+					
+					// Create variable to track walljack portID
+					if(!isset($walljackPortIDArray[$peerPortNameHash])) {
+						$walljackPortIDArray[$peerPortNameHash] = 0;
+					}
+					
+					// Store the B side Info
+					$trunk['bObjID'] = $objID;
+					$trunk['bFace'] = 0;
+					$trunk['bDepth'] = 0;
+					$trunk['bPortID'] = $walljackPortIDArray[$peerPortNameHash]++;
+					
+				} else {
 					$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 			} else {
 				$errMsg = 'Object on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		}
+		
+		if($objTemplateID and $peerTemplateID) {
+			
+			// Gather compatibility info for obj & peer
+			$objCompatibility = $qls->compatibilityArray[$objTemplateID][$face][$depth];
+			$peerCompatibility = $qls->compatibilityArray[$peerTemplateID][$peerFace][$peerDepth];
+			
+			// Gather template type for obj & peer
+			$objTemplateType = $objCompatibility['templateType'];
+			$peerTemplateType = $peerCompatibility['templateType'];
+			
+			// Gather media category for obj & peer
+			$objMediaCategory = $objCompatibility['mediaCategory'];
+			$peerMediaCategory = $peerCompatibility['mediaCategory'];
+			
+			// Check that portTotal is the same
+			if($objTemplateID > 3 and $peerTemplateID > 3) {
+				
+				$objPortTotal = $objCompatibility['portTotal'];
+				$peerPortTotal = $peerCompatibility['portTotal'];
+				
+				if($objPortTotal != $peerPortTotal) {
+					$errMsg = 'Trunk peer port groups on line '.$csvLine.' of file "'.$csvFileName.'" must have the same total number of ports.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+			}
+			
+			// Check that medaCategory is the same
+			if($objMediaCategory != $peerMediaCategory) {
+				$errMsg = 'Trunk peer port(s) on line '.$csvLine.' of file "'.$csvFileName.'" must be of the same media type.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
 		}
@@ -3270,8 +3272,76 @@ function processConnections(&$qls, $importedConnectionArray){
 
 
 // Process Trunks
-function processTrunks($qls, $importedTrunkArray){
+function processTrunks($qls, $importedTrunkArray, $importedObjectArray, $portArray){
+	$query = "TRUNCATE TABLE ".$qls->config['sql_prefix']."app_object_peer";
+	$qls->SQL->query($query);
+	$completedArray = array();
 	
+	foreach($importedTrunkArray as $trunk) {
+		
+		$aPortNameHash = $trunk['portNameHash'];
+		$bPortNameHash = $trunk['peerPortNameHash'];
+		
+		if(!in_array($aPortNameHash, $completedArray) and !in_array($aPortNameHash, $completedArray)) {
+			
+			array_push($completedArray, $aPortNameHash);
+			array_push($completedArray, $bPortNameHash);
+			
+			$aObjectNameHash = $trunk['nameHash'];
+			$aObject = $importedObjectArray[$aObjectNameHash];
+			$aType = $aObject['type'];
+			$aID = $aObject['id'];
+			$aObj = $qls->objectArray[$aID];
+			$aTemplateID = $aObj['template_id'];
+			$aTemplate = $qls->templateArray[$aTemplateID];
+			$aTemplateFunction = $aTemplate['templateFunction'];
+			$aEndpoint = ($aTemplateFunction == 'Endpoint') ? 1 : 0;
+			
+			$trunkPeer = $importedTrunkArray[$bPortNameHash];
+			$bObjectNameHash = $trunkPeer['nameHash'];
+			$bObject = $importedObjectArray[$bObjectNameHash];
+			$bType = $bObject['type'];
+			$bID = $bObject['id'];
+			$bObj = $qls->objectArray[$bID];
+			$bTemplateID = $bObj['template_id'];
+			$bTemplate = $qls->templateArray[$bTemplateID];
+			$bTemplateFunction = $bTemplate['templateFunction'];
+			$bEndpoint = ($bTemplateFunction == 'Endpoint') ? 1 : 0;
+			
+			$floorplanPeer = ($aType == 'floorplanObject' or $bType == 'floorplanObject') ? 1 : 0;
+			
+			// Insert into populated port table
+			$tableAttributes = array(
+				'a_id',
+				'a_face',
+				'a_depth',
+				'a_port',
+				'a_endpoint',
+				'b_id',
+				'b_face',
+				'b_depth',
+				'b_port',
+				'b_endpoint',
+				'floorplan_peer'
+			);
+			
+			$tableValues = array(
+				$trunk['aObjID'],
+				$trunk['aFace'],
+				$trunk['aDepth'],
+				$trunk['aPortID'],
+				$aEndpoint,
+				$trunk['bObjID'],
+				$trunk['bFace'],
+				$trunk['bDepth'],
+				$trunk['bPortID'],
+				$bEndpoint,
+				$floorplanPeer
+			);
+			
+			$qls->SQL->insert('app_object_peer', $tableAttributes, $tableValues);
+		}
+	}
 }
 
 

@@ -135,21 +135,6 @@ $( document ).ready(function() {
     };
 	
 	$("#fileDataImport").filer(filerData);
-	var filerKit = $("#fileDataImport").prop("jFiler");
-	
-	$('#buttonDataImport').on('click', function(){
-		var importType = $('input[name="importType"]:checked').val();
-		var dataObj = {importType:importType};
-		//filerData.uploadFile.data = dataObj;
-		filerKit.options.uploadFile.data = dataObj;
-		console.log(filerKit.options);
-		//filerKit.options = filerData;
-	});
-	
-	$('.importTypeRadio').on('click', function(){
-		$('.importTypeRadio').removeProp('checked');
-		$(this).prop('checked');
-	});
 
 	$('#buttonDataExport').on('click', function(){
 		window.open('/backend/data-export.php');

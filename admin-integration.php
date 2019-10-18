@@ -65,20 +65,8 @@ $qls->Security->check_auth_page('administrator.php');
 			</button>
 			<button id="buttonDataImport" type="button" class="btn btn-danger waves-effect waves-light" data-toggle="modal" data-target="#importModal">
 				<span class="btn-label"><i class="fa fa-download"></i>
-				</span>Import
+				</span>Restore
 			</button>
-			<fieldset class="form-group m-t-10">
-				<div class="inputBlock">
-					<div class="radio">
-						<input class="importTypeRadio" type="radio" name="importType" id="importEdit" value="Edit" checked>
-							<label for="importEdit"><span>Import - Edit</span></label>
-					</div>
-					<div class="radio">
-						<input class="importTypeRadio" type="radio" name="importType" id="importRestore" value="Restore">
-							<label for="importRestore"><span>Import - Restore</span></label>
-					</div>
-				</div>
-			</fieldset>
 		</div>
 	</div>
 </div>
