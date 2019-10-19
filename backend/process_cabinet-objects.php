@@ -346,7 +346,7 @@ function validate(&$data, &$validate, &$qls){
 	switch($data['action']){
 		case 'add':
 		
-			//Validate cabinet ID
+			// Validate cabinet ID
 			if($validate->validateID($data['cabinetID'], 'cabinet ID')) {
 				$name = $qls->App->findUniqueName($data['cabinetID'], 'object');
 				if($name === false) {
@@ -357,49 +357,58 @@ function validate(&$data, &$validate, &$qls){
 				}
 			}
 	
-			//Validate cabinet RU
+			// Validate cabinet RU
 			if($data['RU'] != 0) {
 				$validate->validateID($data['RU'], 'cabinet RU');
 			}
 		
-			//Validate objectID
+			// Validate objectID
 			$validate->validateID($data['objectID'], 'object ID');
 			
+			// Validate entitlement
+			$query = $qls->SQL->select('id', 'app_object');
+			$objNum = $qls->SQL->num_rows($query) + 1;
+			
+			if(!$qls->App->checkEntitlement('object', $objNum)) {
+				$errMsg = 'Exceeded entitled object count.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+			
 		case 'delete':
-			//Validate objectID
+			// Validate objectID
 			$validate->validateID($data['objectID'], 'object ID');
 			break;
 			
 		case 'updateObject':
-			//Validate object ID
+			// Validate object ID
 			$validate->validateID($data['objectID'], 'object ID');
 			
-			//Validate cabinet RU
+			// Validate cabinet RU
 			$validate->validateRUSize($data['RU']);
 			break;
 			
 		case 'updateInsert':
-			//Validate object ID
+			// Validate object ID
 			$validate->validateID($data['objectID'], 'object ID');
 			
-			//Validate parent ID
+			// Validate parent ID
 			$validate->validateID($data['parent_id'], 'parent ID');
 			
-			//Validate parent ID
+			// Validate parent ID
 			$validate->validateID($data['parent_depth'], 'parent depth');
 			
-			//Validate insert slot X
+			// Validate insert slot X
 			$validate->validateID($data['insertSlotX'], 'insert slot X');
 			
-			//Validate insert slot Y
+			// Validate insert slot Y
 			$validate->validateID($data['insertSlotY'], 'insert slot Y');
 			break;
 			
 		case 'edit':
-			//Validate objectID
+			// Validate objectID
 			if($validate->validateID($data['objectID'], 'object ID')) {
 				
-				//Validate object existence
+				// Validate object existence
 				$table = 'app_object';
 				$where = array('id' => array('=', $data['objectID']));
 				if($object = $validate->validateExistenceInDB($table, $where, 'Object does not exist.')) {

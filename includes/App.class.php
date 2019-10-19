@@ -49,11 +49,6 @@ var $qls;
 		// Gather entitlement data
 		$this->gatherEntitlementData();
 		if(time() - $this->entitlementArray['lastChecked'] > ENTITLEMENT_CHECK_FREQUENCY) {
-			error_log('Debug: time = '.time());
-			
-			error_log('Debug: lastChecked = '.$this->entitlementArray['lastChecked']);
-			error_log('Debug: timeDelta = '.time().$this->entitlementArray['lastChecked']);
-			error_log('Debug: freq = '.ENTITLEMENT_CHECK_FREQUENCY);
 			$this->updateEntitlementData();
 			$this->gatherEntitlementData();
 		}
@@ -1455,8 +1450,6 @@ var $qls;
 		switch($attribute) {
 			case 'cabinet':
 				$entitlementCount = $this->entitlementArray['data']['cabinetCount'];
-				error_log('Debug: cabinetCount = '.$count);
-				error_log('Debug: entitlementCount = '.$entitlementCount);
 				if($entitlementCount != 0) {
 					return ($count > $entitlementCount) ? false : true;
 				}

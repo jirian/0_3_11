@@ -78,9 +78,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
-	$error = [];
+	$actionsArray = array('create');
 	
-	return $error;
+	//Validate property
+	if($validate->validateInArray($data['action'], $actionsArray, 'action')) {
+		/*
+		// Validate entitlement
+		$query = $qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
+		$conNum = $qls->SQL->num_rows($query) + 1;
+		
+		if(!$qls->App->checkEntitlement('connection', $conNum)) {
+			$errMsg = 'Exceeded entitled connection count.';
+			array_push($validate->returnData['error'], $errMsg);
+		}
+		*/
+	}
 }
 
 ?>

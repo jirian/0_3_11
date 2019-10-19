@@ -318,6 +318,15 @@ function validate($data, &$validate, &$qls){
 				$errMsg = 'Cannot connect port to itself.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
+			
+			// Validate entitlement
+			$query = $qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
+			$conNum = $qls->SQL->num_rows($query) + 1;
+			
+			if(!$qls->App->checkEntitlement('connection', $conNum)) {
+				$errMsg = 'Exceeded entitled connection count.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
 		}
 		
 	}
