@@ -13,6 +13,7 @@ Contents
 
 **Changes introduced in 0.1.1
 
+[Feature]	Added entitlement functionality.
 [Fix]		Prevent ports from being connected to themselves.
 [Feature]	Added ability to edit template port orientation.
 [Fix]		Prevent templates from being imported with duplicate names.
