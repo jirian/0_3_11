@@ -177,6 +177,11 @@ function validate(&$data, &$validate, &$qls){
 			if($type == 'cabinet') {
 				$query = $qls->SQL->select('id', 'app_env_tree', array('type' => array('=', 'cabinet')));
 				$cabNum = $qls->SQL->num_rows($query) + 1;
+				
+				if(!$qls->App->checkEntitlement($type, $cabNum)) {
+					$errMsg = 'Exceeded entitled cabinet count.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
 			}
 				
 		} else if ($operation == 'rename_node') {

@@ -420,15 +420,6 @@ var $install_error = 'There was an error with the installation! This is most lik
             return false;
 		} else {
 			
-			// Generate entitlementID
-			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-			$charactersLength = strlen($characters);
-			$randomString = '';
-			for ($i = 0; $i < $length; $i++) {
-				$entitlementIDSalt .= $characters[rand(0, $charactersLength - 1)];
-			}
-			$entitlementID = sha1(time().$entitlementIDSalt);
-			
             // Get the Test class
             require_once('Test.class.php');
             $this->test = new Test($database_server_name,
@@ -616,7 +607,10 @@ var $install_error = 'There was an error with the installation! This is most lik
 			}
 			
 			// Add organization data
-			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`) VALUES('Acme, Inc.', '".$app_version."', '".$entitlementID."')")) {
+			$entitlementLastChecked = 0;
+			$entitlementDataArray = array('cabinetCount' => 0, 'objectCount' => 0, 'connectionCount' => 0, 'userCount' => 0);
+			$entitlementData = json_encode($entitlementDataArray);
+			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`, `entitlement_last_checked`, `entitlement_data`) VALUES('Acme, Inc.', '".$this->app_version."', 'None', ".$entitlementLastChecked.", '".$entitlementData."')")) {
 				$this->test->output_error();
 			}
 			

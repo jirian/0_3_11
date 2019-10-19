@@ -46,6 +46,18 @@ var $qls;
 	function __construct(&$qls) {
 	    $this->qls = &$qls;
 		
+		// Gather entitlement data
+		$this->gatherEntitlementData();
+		if(time() - $this->entitlementArray['lastChecked'] > ENTITLEMENT_CHECK_FREQUENCY) {
+			error_log('Debug: time = '.time());
+			
+			error_log('Debug: lastChecked = '.$this->entitlementArray['lastChecked']);
+			error_log('Debug: timeDelta = '.time().$this->entitlementArray['lastChecked']);
+			error_log('Debug: freq = '.ENTITLEMENT_CHECK_FREQUENCY);
+			$this->updateEntitlementData();
+			$this->gatherEntitlementData();
+		}
+		
 		// Generate environment tree object
 		$this->envTreeArray = array();
 		$query = $this->qls->SQL->select('*', 'app_env_tree', false, array('name', 'ASC'));
@@ -1384,23 +1396,36 @@ var $qls;
 		return $trunk;
 	}
 	
-	function checkEntitlement($feature, $count){
-		$returnArray = array(
-			'success' => true,
-			'response' => true
-		);
-		$entitlementID = $this->qls->org_info['entitlement_id'];
+	function gatherEntitlementData(){
+		
+		$this->entitlementArray = array();
+		$query = $this->qls->SQL->select('*', 'app_organization_data', array('id' => array('=', 1)));
+		
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			
+			$entitlementData = json_decode($row['entitlement_data'], true);
+			$this->entitlementArray['id'] = $row['entitlement_id'];
+			$this->entitlementArray['lastChecked'] = $row['entitlement_last_checked'];
+			$this->entitlementArray['data'] = array();
+			
+			foreach($entitlementData as $item => $value) {
+				$this->entitlementArray['data'][$item] = $value;
+			}
+			
+		}
+		
+		return;
+	}
+	
+	function updateEntitlementData(){
+		$entitlementID = $this->entitlementArray['id'];
 		
 		// POST Request
-		$data = array(
-			'feature' => $feature,
-			'count' => $count,
-			'entitlementID' => $entitlementID
-		);
+		$data = array('entitlementID' => $entitlementID);
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);
 		
-		$ch = curl_init('https://patchcablemgr.com/public/check-entitlement.php');
+		$ch = curl_init('https://patchcablemgr.com/public/process-entitlement.php');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
@@ -1409,20 +1434,52 @@ var $qls;
 		// Submit the POST request
 		$response = curl_exec($ch);
 		
-		// Collect POST response
-		$response = json_decode($response, true);
-		
 		//Check for request errors.
 		if(curl_errno($ch)) {
-			$responseArray['success'] = false;
-			$responseArray['response'] = curl_error($ch);
+			error_log('Debug (entitlement): '.curl_error($ch));
 		} else {
-			$responseArray['response'] = $response;
+			// START TEMP DATA
+			$entitlementDataArray = array('cabinetCount' => 0, 'objectCount' => 0, 'connectionCount' => 0, 'userCount' => 1);
+			$response = json_encode($entitlementDataArray);
+			// END TEMP DATA
+			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time(), 'entitlement_data' => $response), array('id' => array('=', 1)));
 		}
 		
 		// Close cURL session handle
 		curl_close($ch);
 		
-		return $responseArray;
+		return;
+	}
+	
+	function checkEntitlement($attribute, $count){
+		switch($attribute) {
+			case 'cabinet':
+				$entitlementCount = $this->entitlementArray['data']['cabinetCount'];
+				error_log('Debug: cabinetCount = '.$count);
+				error_log('Debug: entitlementCount = '.$entitlementCount);
+				if($entitlementCount != 0) {
+					return ($count > $entitlementCount) ? false : true;
+				}
+				
+			case 'object':
+				$entitlementCount = $this->entitlementArray['data']['objectCount'];
+				if($entitlementCount != 0) {
+					return ($count > $entitlementCount) ? false : true;
+				}
+				
+			case 'connection':
+				$entitlementCount = $this->entitlementArray['data']['connectionCount'];
+				if($entitlementCount != 0) {
+					return ($count > $entitlementCount) ? false : true;
+				}
+				
+			case 'user':
+				$entitlementCount = $this->entitlementArray['data']['userCount'];
+				if($entitlementCount != 0) {
+					return ($count > $entitlementCount) ? false : true;
+				}
+		}
+		
+		return;
 	}
 }

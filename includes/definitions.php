@@ -9,4 +9,6 @@ define('NEW_OBJECT_PREFIX', 'Object_');
 define('NEW_LOCATION_PREFIX', 'Location_');
 define('NEW_POD_PREFIX', 'Pod_');
 define('NEW_CABINET_PREFIX', 'Cabinet_');
+
+define('ENTITLEMENT_CHECK_FREQUENCY', 86400);
 ?>

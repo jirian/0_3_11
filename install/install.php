@@ -32,9 +32,9 @@ if (!version_compare('5.5.0', PHP_VERSION, '<=')) {
 }
 
 // Check if system is already installed
-include '../includes/database_info.php';
+include '/app/database_info.php';
 if (SYSTEM_INSTALLED === true) {
-	die('System is already installed.  To reinstall, delete the database_info.php file in the <b>includes/</b> directory.');
+	die('System is already installed.  To reinstall, delete the database_info.php file in <b>/app/</b>.');
 }
 
 // Report all errors except E_NOTICE, because it screws things up...
