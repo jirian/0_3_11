@@ -176,10 +176,6 @@ $( document ).ready(function() {
 
 	$('#inline-orgName').editable({
 		showbuttons: false,
-		//type: 'text',
-		//pk: 1,
-		//name: 'orgName',
-		//title: 'Enter username',
 		mode: 'inline',
 		params: function(params){
 			var data = {
@@ -198,6 +194,28 @@ $( document ).ready(function() {
 				displayError(responseJSON.error);
 			} else {
 				$('#orgName').html(responseJSON.success);
+			}
+		}
+	});
+	
+	$('#inline-entitlement').editable({
+		showbuttons: false,
+		mode: 'inline',
+		params: function(params){
+			var data = {
+				'value':params.value
+			};
+			params.data = JSON.stringify(data);
+			return params;
+		},
+		url: 'backend/process_entitlement.php',
+		success: function(response){
+			var alertMsg = '';
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
 			}
 		}
 	});

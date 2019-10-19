@@ -87,7 +87,7 @@ var $qls;
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_last_checked', 'int(11)');
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_data', 'VARCHAR(40)');
 		
-		$entitlementDataArray = array('cabinetCount' => 0, 'objectCount' => 0, 'connectionCount' => 0, 'userCount' => 0);
+		$entitlementDataArray = array('cabinetCount' => 5, 'objectCount' => 20, 'connectionCount' => 40, 'userCount' => 2);
 		$entitlementData = json_encode($entitlementDataArray);
 		$this->qls->SQL->update('app_organization_data', array('entitlement_id' => $entitlementID, 'entitlement_last_checked' => 0, 'entitlement_data' => $entitlementData), array('id' => array('=', 1)));
 		

@@ -1432,6 +1432,7 @@ var $qls;
 		//Check for request errors.
 		if(curl_errno($ch)) {
 			error_log('Debug (entitlement): '.curl_error($ch));
+			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time()), array('id' => array('=', 1)));
 		} else {
 			// START TEMP DATA
 			$entitlementDataArray = array('cabinetCount' => 0, 'objectCount' => 0, 'connectionCount' => 0, 'userCount' => 1);

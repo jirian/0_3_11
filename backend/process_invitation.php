@@ -82,16 +82,15 @@ function validate($data, &$validate, &$qls){
 	
 	//Validate property
 	if($validate->validateInArray($data['action'], $actionsArray, 'action')) {
-		/*
+		
 		// Validate entitlement
-		$query = $qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
+		$query = $qls->SQL->select('id', 'users');
 		$conNum = $qls->SQL->num_rows($query) + 1;
 		
-		if(!$qls->App->checkEntitlement('connection', $conNum)) {
-			$errMsg = 'Exceeded entitled connection count.';
+		if(!$qls->App->checkEntitlement('user', $conNum)) {
+			$errMsg = 'Exceeded entitled user count.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
-		*/
 	}
 }
 

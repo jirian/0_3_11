@@ -78,7 +78,6 @@ $qls->Security->check_auth_page('administrator.php');
 			</div>
 			<form>
 				<fieldset class="form-group">
-					
 					<label for="smtpFromEmail">From Email</label>
 					<input id="smtpFromEmail" type="text" class="form-control" value="<?php echo $qls->config['from_email']; ?>" placeholder="no-reply@example.com">
 					<label for="smtpFromName">From Name</label>
@@ -105,14 +104,26 @@ $qls->Security->check_auth_page('administrator.php');
 
 	<div class="col-sm-12 col-xs-12 col-md-6 col-lg-6 col-xl-3">
 		<div class="card-box">
+			<fieldset class="form-group">
 			<h4 class="header-title m-t-0 m-b-30">Organization Name</h4>
-			<a href="#" id="inline-orgName" data-type="text" data-pk="1" data-title="Enter organization name"><?php echo $qls->org_info['name']; ?></a>
+				<a href="#" id="inline-orgName" data-type="text" data-pk="1" data-title="Enter organization name"><?php echo $qls->org_info['name']; ?></a>
+			</fieldset>
+		</div>
+	</div>
+	
+	<div class="col-sm-12 col-xs-12 col-md-6 col-lg-6 col-xl-3">
+		<div class="card-box">
+			<h4 class="header-title m-t-0 m-b-30">Entitlement</h4>
+			<fieldset class="form-group">
+				<a href="#" id="inline-entitlement" data-type="text" data-pk="1" data-title="Enter entitlement ID"><?php echo $qls->App->entitlementArray['id']; ?></a>
+			</fieldset>
+			<button id="entitlementCheck" type="button" class="btn btn-primary">Check Now</button>
 		</div>
 	</div>
 </div>
 
 <div class="row">
-	<div class="col-sm-12 col-xs-12 col-md-12 col-lg-12 col-xl-6">
+	<div class="col-sm-12 col-xs-12 col-md-12 col-lg-12 col-xl-12">
 		<div class="card-box">
 			<h4 class="header-title m-t-0 m-b-30">Manage Users</h4>
 			<div class="p-20">
