@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 function validate($data, &$validate, &$qls){
 	$actionsArray = array('create');
 	
-	//Validate property
+	//Validate action
 	if($validate->validateInArray($data['action'], $actionsArray, 'action')) {
 		
 		// Validate entitlement

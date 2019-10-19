@@ -18,16 +18,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	validate($data, $validate, $qls);
 	
 	if (!count($validate->returnData['error'])){
-		$qls->SQL->update('app_organization_data', array('entitlement_id' => $data['value']), array('id' => array('=', 1)));
-		$validate->returnData['success'] = $data['value'];
+		
+		if($data['action'] == 'update') {
+			
+			$qls->SQL->update('app_organization_data', array('entitlement_id' => $data['value']), array('id' => array('=', 1)));
+			$validate->returnData['success'] = $data['value'];
+			
+		} else if($data['action'] == 'check') {
+			
+		}
 	}
 	echo json_encode($validate->returnData);
 }
 
 function validate($data, &$validate, &$qls){
-	$error = [];
+	$actionsArray = array('update', 'check');
 	
-	return $error;
+	//Validate action
+	$validate->validateInArray($data['action'], $actionsArray, 'action'));
 }
 
 ?>

@@ -203,7 +203,8 @@ $( document ).ready(function() {
 		mode: 'inline',
 		params: function(params){
 			var data = {
-				'value':params.value
+				'value':params.value,
+				'action':'update'
 			};
 			params.data = JSON.stringify(data);
 			return params;
