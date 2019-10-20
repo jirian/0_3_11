@@ -610,7 +610,7 @@ var $install_error = 'There was an error with the installation! This is most lik
 			$entitlementLastChecked = 0;
 			$entitlementDataArray = array('cabinetCount' => 5, 'objectCount' => 20, 'connectionCount' => 40, 'userCount' => 2);
 			$entitlementData = json_encode($entitlementDataArray);
-			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`, `entitlement_last_checked`, `entitlement_data`) VALUES('Acme, Inc.', '".$this->app_version."', 'None', ".$entitlementLastChecked.", '".$entitlementData."')")) {
+			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`, `entitlement_last_checked`, `entitlement_data`, `entitlement_comment`) VALUES('Acme, Inc.', '".$this->app_version."', 'None', ".$entitlementLastChecked.", '".$entitlementData."', 'Never checked.')")) {
 				$this->test->output_error();
 			}
 			

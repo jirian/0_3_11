@@ -365,6 +365,7 @@ CREATE TABLE `{database_prefix}app_organization_data` (
   `entitlement_id` varchar(40) NOT NULL,
   `entitlement_last_checked` int(11) NOT NULL,
   `entitlement_data` varchar(255) NOT NULL,
+  `entitlement_comment` varchar(10000) NOT NULL,
   PRIMARY KEY(`id`)
 );
 
