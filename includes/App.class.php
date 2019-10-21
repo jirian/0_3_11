@@ -1427,18 +1427,20 @@ var $qls;
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
 		
 		// Submit the POST request
-		$response = curl_exec($ch);
+		$responseJSON = curl_exec($ch);
 		
 		//Check for request errors.
 		if(curl_errno($ch)) {
 			error_log('Debug (entitlement): '.curl_error($ch));
 			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time()), array('id' => array('=', 1)));
 		} else {
-			// START TEMP DATA
-			$entitlementDataArray = array('cabinetCount' => 0, 'objectCount' => 0, 'connectionCount' => 0, 'userCount' => 1);
-			$response = json_encode($entitlementDataArray);
-			// END TEMP DATA
-			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time(), 'entitlement_data' => $response), array('id' => array('=', 1)));
+			$response = json_decode($responseJSON, true);
+			$updateValues = array(
+				'entitlement_last_checked' => time(),
+				'entitlement_data' => $response['data'],
+				'entitlement_comment' => $response['comment']
+			);
+			$this->qls->SQL->update('app_organization_data', $updataValues, array('id' => array('=', 1)));
 		}
 		
 		// Close cURL session handle
