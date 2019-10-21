@@ -54,7 +54,6 @@ class qls {
 		require_once 'definitions.php';
 		require_once 'vendor/autoload.php';
 		$this->gAuth = new \Google\Authenticator\GoogleAuthenticator();
-		$this->PHPmailer = new \PHPMailer\PHPMailer\PHPMailer;
 		
         require_once('Security.class.php');
         $this->Security = new Security($this);
@@ -78,9 +77,10 @@ class qls {
 		    $this->config[$row['name']] = $row['value'];
 		}
 		
-		$this->PHPmailer->setFrom($this->config['from_email'], $this->config['from_name']);
-		$this->PHPmailer->addReplyTo($this->config['from_email'], $this->config['from_name']);
 		if($this->config['mail_method'] == 'smtp') {
+			$this->PHPmailer = new \PHPMailer\PHPMailer\PHPMailer;
+			$this->PHPmailer->setFrom($this->config['from_email'], $this->config['from_name']);
+			$this->PHPmailer->addReplyTo($this->config['from_email'], $this->config['from_name']);
 			$this->PHPmailer->isSMTP();
 			//$this->PHPmailer->SMTPDebug = 2;
 			$this->PHPmailer->Host = $this->config['smtp_server'];
@@ -93,8 +93,6 @@ class qls {
 			} else {
 				$this->PHPmailer->SMTPAuth = false;
 			}
-		} else {
-			$this->PHPmailer->isSendmail();
 		}
 			
 			

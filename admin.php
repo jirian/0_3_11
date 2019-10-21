@@ -69,8 +69,8 @@ $qls->Security->check_auth_page('administrator.php');
 		<div class="card-box">
 			<h4 class="header-title m-t-0 m-b-30">Email Settings</h4>
 			<div class="radio radio-inline">
-				<input class="mailMethod" type="radio" name="mailMethod" id="mailMethodSendmail" value="sendmail" <?php echo $qls->config['mail_method'] == 'sendmail' ? 'checked' : ''; ?>>
-				<label for="mailMethodSendmail">Sendmail</label>
+				<input class="mailMethod" type="radio" name="mailMethod" id="mailMethodProxy" value="proxy" <?php echo $qls->config['mail_method'] == 'proxy' ? 'checked' : ''; ?>>
+				<label for="mailMethodProxy">PCM Proxy</label>
 			</div>
 			<div class="radio radio-inline">
 				<input class="mailMethod" type="radio" name="mailMethod" id="mailMethodSMTP" value="smtp" <?php echo $qls->config['mail_method'] == 'smtp' ? 'checked' : ''; ?>>
@@ -78,11 +78,11 @@ $qls->Security->check_auth_page('administrator.php');
 			</div>
 			<form>
 				<fieldset class="form-group">
-					<label for="smtpFromEmail">From Email</label>
-					<input id="smtpFromEmail" type="text" class="form-control" value="<?php echo $qls->config['from_email']; ?>" placeholder="no-reply@example.com">
-					<label for="smtpFromName">From Name</label>
-					<input id="smtpFromName" type="text" class="form-control" value="<?php echo $qls->config['from_name']; ?>" placeholder="No Reply">
 					<div id="fieldsSMTP">
+						<label for="smtpFromEmail">From Email</label>
+						<input id="smtpFromEmail" type="text" class="form-control" value="<?php echo $qls->config['from_email']; ?>" placeholder="no-reply@example.com">
+						<label for="smtpFromName">From Name</label>
+						<input id="smtpFromName" type="text" class="form-control" value="<?php echo $qls->config['from_name']; ?>" placeholder="No Reply">
 						<label for="smtpServer">Server</label>
 						<input id="smtpServer" type="text" class="form-control" value="<?php echo $qls->config['smtp_server']; ?>" placeholder="smtp.example.com">
 						<label for="smtpPort">Port</label>

@@ -76,6 +76,14 @@ var $qls;
 	function update_010_to_011() {
 		$incrementalVersion = '0.1.1';
 		
+		// Change mail method from sendmail to proxy
+		$query = $this->qls->SQL->select('value', 'config', array('name' => array('=', 'mail_method')));
+		$result = $row = $this->qls->SQL->fetch_assoc($query);
+		$mailMethod = $result['value'];
+		if($mailMethod == 'sendmail') {
+			$this->qls->SQL->update('config', array('value' => 'proxy'), array('name' => array('=', 'mail_method')));
+		}
+		
 		// Add "version" column to "app_organization_data" table
 		$this->qls->SQL->alter('app_organization_data', 'add', 'version', 'VARCHAR(15)');
 		

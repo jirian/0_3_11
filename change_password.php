@@ -24,20 +24,9 @@ else {
 	if (!isset($_GET['code'])) {
 		if (isset($_POST['process'])) {
 			if($change_link = $qls->User->get_password_reset_link()) {
-				$recipientEmail = $qls->Security->make_safe($_POST['username']);
-				$subject = 'PatchCableMgr - Reset Password';
-				$msg = file_get_contents('./html/email_password-reset.html');
-				$msg = str_replace('<!--btnURL-->', $change_link, $msg);
 				
-				$qls->PHPmailer->addAddress($recipientEmail, '');
-				$qls->PHPmailer->Subject = $subject;
-				$qls->PHPmailer->msgHTML($msg);
-				if(!$qls->PHPmailer->send()) {
-					$submitResponse = 'Email failed:  '.$qls->PHPmailer->ErrorInfo;
-				} else {
-					$submitResponse = SEND_PASSWORD_EMAIL_SUCCESS;
-				}
-				$qls->PHPmailer->clearAllRecipients();
+				$recipientEmail = $qls->Security->make_safe($_POST['username']);
+				$qls->App->sendProxyEmail('passwordReset', $recipientEmail, array('change_link' => $change_link));
 				
 			} else {
 				$submitResponse = $qls->User->send_password_email_error . SEND_PASSWORD_EMAIL_TRY_AGAIN;

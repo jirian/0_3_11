@@ -62,16 +62,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$msg = str_replace('<!--btnURL-->', $btnURL, $msg);
 			$msg = str_replace('<!--btnText-->', $btnText, $msg);
 			
-			//$qls->PHPmailer->SMTPDebug = 3;
-			$qls->PHPmailer->addAddress($recipientEmail, '');
-			$qls->PHPmailer->Subject = $subject;
-			$qls->PHPmailer->msgHTML($msg);
-			if(!$qls->PHPmailer->send()) {
-				array_push($validate->returnData['error'], $qls->PHPmailer->ErrorInfo);
-			} else {
-				$validate->returnData['success'] = 'Invitation sent to: '.$recipientEmail;
+			if($qls->config['mail_method'] == 'smtp') {
+				//$qls->PHPmailer->SMTPDebug = 3;
+				$qls->PHPmailer->addAddress($recipientEmail, '');
+				$qls->PHPmailer->Subject = $subject;
+				$qls->PHPmailer->msgHTML($msg);
+				if(!$qls->PHPmailer->send()) {
+					array_push($validate->returnData['error'], $qls->PHPmailer->ErrorInfo);
+				} else {
+					$validate->returnData['success'] = 'Invitation sent to: '.$recipientEmail;
+				}
+				$qls->PHPmailer->clearAllRecipients();
+			} else if($qls->config['mail_method'] == 'proxy') {
+				$qls->App->sendProxyEmail('invitation', $recipientEmail, array('btnURL' => $btnURL, 'btnText' => $btnText));
 			}
-			$qls->PHPmailer->clearAllRecipients();
 		}
 	}
 	echo json_encode($validate->returnData);
