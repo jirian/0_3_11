@@ -85,12 +85,18 @@ var $qls;
 		// Add "entitlement_id" column to "app_organization_data" table
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_id', 'VARCHAR(40)');
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_last_checked', 'int(11)');
-		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_data', 'VARCHAR(40)');
+		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_data', 'VARCHAR(255)');
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_comment', 'VARCHAR(10000)');
 		
 		$entitlementDataArray = array('cabinetCount' => 5, 'objectCount' => 20, 'connectionCount' => 40, 'userCount' => 2);
 		$entitlementData = json_encode($entitlementDataArray);
-		$this->qls->SQL->update('app_organization_data', array('entitlement_id' => $entitlementID, 'entitlement_last_checked' => 0, 'entitlement_data' => $entitlementData, 'entitlement_comment' => 'Never Checked.'), array('id' => array('=', 1)));
+		$updateValues = array(
+			'entitlement_id' => 'None',
+			'entitlement_last_checked' => 0,
+			'entitlement_data' => $entitlementData,
+			'entitlement_comment' => 'Never Checked.'
+		);
+		$this->qls->SQL->update('app_organization_data', $updateValues, array('id' => array('=', 1)));
 		
 		
 		
@@ -115,7 +121,7 @@ var $qls;
 			if($aID == $bID and $aFace == $bFace and $aDepth == $bDepth and $aPort == $bPort) {
 				if($aID != 0) {
 					if($row['a_id'] != 0 or $row['b_id'] != 0) {
-						$set = array(
+						$updateValues = array(
 							'a_object_id' => 0,
 							'a_object_face' => 0,
 							'a_object_depth' => 0,
@@ -125,7 +131,7 @@ var $qls;
 							'b_object_depth' => 0,
 							'b_port_id' => 0
 						);
-						$this->qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+						$this->qls->SQL->update('app_inventory', $updateValues, array('id' => array('=', $rowID)));
 					} else {
 						$this->qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
 					}
@@ -144,7 +150,7 @@ var $qls;
 			$templateID = $row['id'];
 			$templateName = $row['templateName'];
 			if(in_array($templateName, $templateNameArray)) {
-				$newTemplateName = $templateName.'_'.$qls->App->generateUniqueNameValue();
+				$newTemplateName = $templateName.'_'.$this->generateUniqueNameValue();
 				$this->qls->SQL->update('app_object_templates', array('templateName' => $newTemplateName), array('id' => array('=', $templateID)));
 			}
 			array_push($templateNameArray, $templateName);
@@ -171,8 +177,8 @@ var $qls;
 				$nodeID = $child[0];
 				$nodeName = $child[1];
 				if(in_array($nodeName, $nameArray)) {
-					$uniqueValue = $this->qls->App->generateUniqueNameValue();
-					$uniqueName = $nodeName.'_'.$uniqueValue.' ('.$nodeID.')';
+					$uniqueValue = $this->generateUniqueNameValue();
+					$uniqueName = $nodeName.'_'.$uniqueValue;
 					$this->qls->SQL->update('app_env_tree', array('name' => $uniqueName), array('id' => array('=', $nodeID)));
 				}
 				array_push($nameArray, $child[1]);
@@ -184,6 +190,12 @@ var $qls;
 		//
 		// Clear out orphaned cabinet adjacency entries
 		//
+		$envTreeIDArray = array();
+		$query = $this->qls->SQL->select('*', 'app_env_tree');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			array_push($envTreeIDArray, $row['id']);
+		}
+		
 		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			
@@ -193,7 +205,7 @@ var $qls;
 			$rightCabinetID = $row['right_cabinet_id'];
 			
 			// Delete entry if either of the cabinets does not exist
-			if(!isset($this->qls->envTreeArray[$leftCabinetID]) or !isset($this->qls->envTreeArray[$rightCabinetID])) {
+			if(!in_array($leftCabinetID, $envTreeIDArray) or !in_array($rightCabinetID, $envTreeIDArray)) {
 				$this->qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
 			}
 		}
@@ -227,21 +239,15 @@ var $qls;
 		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			$rowID = $row['id'];
-			if(isset($leftArray[$row['left_cabinet_id']])) {
-				$this->qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
-			} else if(isset($rightArray[$row['right_cabinet_id']])) {
+			$leftCabinetID = $row['left_cabinet_id'];
+			$rightCabinetID = $row['right_cabinet_id'];
+			
+			if(in_array($leftCabinetID, $leftArray) or in_array($rightCabinetID, $rightArray)) {
 				$this->qls->SQL->delete('app_cabinet_adj', array('id' => array('=', $rowID)));
 			}
 			
-			if(!isset($leftArray[$row['left_cabinet_id']])) {
-				$leftArray[$row['left_cabinet_id']] = array();
-			}
-			if(!isset($rightArray[$row['right_cabinet_id']])) {
-				$rightArray[$row['right_cabinet_id']] = array();
-			}
-			
-			array_push($leftArray[$row['left_cabinet_id']], $row);
-			array_push($rightArray[$row['right_cabinet_id']], $row);
+			array_push($leftArray, $leftCabinetID);
+			array_push($rightArray, $rightCabinetID);
 		}
 		
 		
@@ -263,5 +269,20 @@ var $qls;
 		} else {
 			return 'none';
 		}
+	}
+	
+	/**
+	 * Generates unique string to prevent duplicate names
+	 * @return string
+	 */
+	function generateUniqueNameValue(){
+		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$length = 4;
+		$charactersLength = strlen($characters);
+		$uniqueNameValue = '';
+		for($i = 0; $i < $length; $i++) {
+			$uniqueNameValue .= $characters[rand(0, $charactersLength - 1)];
+		}
+		return $uniqueNameValue;
 	}
 }

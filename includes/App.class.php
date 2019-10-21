@@ -1434,13 +1434,15 @@ var $qls;
 			error_log('Debug (entitlement): '.curl_error($ch));
 			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time()), array('id' => array('=', 1)));
 		} else {
-			$response = json_decode($responseJSON, true);
-			$updateValues = array(
-				'entitlement_last_checked' => time(),
-				'entitlement_data' => $response['data'],
-				'entitlement_comment' => $response['comment']
-			);
-			$this->qls->SQL->update('app_organization_data', $updataValues, array('id' => array('=', 1)));
+			
+			if($response = json_decode($responseJSON, true)) {
+				$updateValues = array(
+					'entitlement_last_checked' => time(),
+					'entitlement_data' => $response['data'],
+					'entitlement_comment' => $response['comment']
+				);
+				$this->qls->SQL->update('app_organization_data', $updateValues, array('id' => array('=', 1)));
+			}
 		}
 		
 		// Close cURL session handle
