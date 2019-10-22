@@ -105,6 +105,9 @@ class qls {
         require_once('Upload.class.php');
         $this->Upload = new Upload($this);
 		
+		require_once('Pub.class.php');
+		$this->Pub = new Pub($this);
+		
         $this->main_directory = str_replace('/includes', '', dirname(__FILE__));
 		
         // Make sure their account isn't outdated

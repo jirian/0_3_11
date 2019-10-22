@@ -185,7 +185,7 @@ var $qls;
         $hash[] = sha1(time() + time() . md5(time() + time()) . md5(rand()));
         $hash[] = sha1($hash[0] . $hash[1] . md5(time()));
         $hash[] = sha1($this->qls->config['user_regex'] . time());
-        return sha1($hash[0] . $hash[0] . $hash[1] . $hash[2] . $hash[3] . time() . time() + time());
+        return sha1($hash[0] . $hash[0] . $hash[1] . $hash[2] . $hash[3] . time() . (time() + time()));
 	}
 
 	/**

@@ -24,9 +24,9 @@ else {
 	if (!isset($_GET['code'])) {
 		if (isset($_POST['process'])) {
 			if($change_link = $qls->User->get_password_reset_link()) {
-				
+				error_log('Debug: changeLink = '.$change_link);
 				$recipientEmail = $qls->Security->make_safe($_POST['username']);
-				$qls->App->sendProxyEmail('passwordReset', $recipientEmail, array('change_link' => $change_link));
+				$qls->Pub->sendProxyEmail('password_reset', $recipientEmail, array('change_link' => $change_link));
 				
 			} else {
 				$submitResponse = $qls->User->send_password_email_error . SEND_PASSWORD_EMAIL_TRY_AGAIN;
