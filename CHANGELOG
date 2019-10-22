@@ -13,8 +13,10 @@ Contents
 
 **Changes introduced in 0.1.1
 
+[Feature]	Added PCM email proxy functionality.
 [Feature]	Added entitlement functionality.
 [Fix]		Prevent ports from being connected to themselves.
+[Feature]	Added BottomLeft-Right port orientation.
 [Feature]	Added ability to edit template port orientation.
 [Fix]		Prevent templates from being imported with duplicate names.
 [Fix]		Accommodate importing data which does not specify an enclosure's "strict" property.

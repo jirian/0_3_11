@@ -408,7 +408,8 @@ var $install_error = array();
 			
             // Get the Test class
             require_once('Test.class.php');
-            $this->test = new Test($database_server_name,
+            $this->test = new Test(
+				$database_server_name,				 
                 $database_username,
                 $database_password,
                 $database_name,
@@ -745,6 +746,7 @@ var $install_error = array();
 				"1, 'Left-Right', 1",
 				"2, 'Top-Bottom', 0",
 				"3, 'Right-Left', 0"
+				"4, 'BottomLeft-Right', 0"
 			);
 			
 			// Add object port orientation

@@ -76,6 +76,9 @@ var $qls;
 	function update_010_to_011() {
 		$incrementalVersion = '0.1.1';
 		
+		// Add bottomLeft-Right port orientation
+		$this->qls->SQL->insert('shared_object_portOrientation', array('value', 'name', 'defaultOption'), array(4, 'BottomLeft-Right', 0));
+		
 		// Change mail method from sendmail to proxy
 		$query = $this->qls->SQL->select('value', 'config', array('name' => array('=', 'mail_method')));
 		$result = $row = $this->qls->SQL->fetch_assoc($query);

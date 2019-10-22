@@ -152,15 +152,15 @@
                             <a href="settings.php" class="dropdown-item notify-item">
                                 <i class="zmdi zmdi-settings"></i> <span>Settings</span>
                             </a>
-
-                            <!-- item-->
-                            <a href="logout.php" class="dropdown-item notify-item">
-                                <i class="zmdi zmdi-power"></i> <span>Logout</span>
-                            </a>
 							
 							<!-- item-->
                             <a id="btnAbout" href="#" class="dropdown-item notify-item">
                                 <i class="zmdi zmdi-help"></i> <span>About</span>
+                            </a>
+
+                            <!-- item-->
+                            <a href="logout.php" class="dropdown-item notify-item">
+                                <i class="zmdi zmdi-power"></i> <span>Logout</span>
                             </a>
 
                         </div>
