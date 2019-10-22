@@ -40,15 +40,6 @@ class qls {
 	 */
 	function __construct($current_language) {
 		
-		// Collect HTTP headers relating to the app
-		$this->appHeaders = array();
-		$appHeaderPrefix = 'PCM';
-		foreach(getallheaders() as $name => $value) {
-			if(substr($name, 0, strlen($appHeaderPrefix)) === $appHeaderPrefix) {
-				$this->appHeaders[$name] = $value;
-			}
-		}
-		
         // Get current language constants
         require_once($current_language . '.lang.php');
 		require_once 'definitions.php';

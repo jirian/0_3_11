@@ -32,19 +32,6 @@ if (!defined('IN_INSTALL')) {
  * Contains all the necessary components for an installation
  */
 class Install {
-	
-	function __construct() {
-		
-		// Collect HTTP headers relating to the app
-		$this->appHeaders = array();
-		$appHeaderPrefix = 'PCM';
-		foreach(getallheaders() as $name => $value) {
-			if(substr($name, 0, strlen($appHeaderPrefix)) === $appHeaderPrefix) {
-				$this->appHeaders[$name] = $value;
-			}
-		}
-		
-	}
 
 /**
  * @var string $system_version - The version of the system
@@ -55,15 +42,14 @@ var $app_version = '0.1.1';
 /**
  * @var string $install_error - Contains the installation error
  */
-var $install_error = 'There was an error with the installation! This is most likely a bug please report it <a href="http://www.quadodo.net/s.php" target="_blank">here</a>.';
+var $install_error = array();
 
 	/**
 	 * Construct the class
 	 *	@return void but will output error if found
 	 */
-	function Install() {
+	function __construct() {
         $this->install_directory = dirname(__FILE__);
-        $this->main_directory = str_replace('/install', '', $this->install_directory);
         session_start();
         header('Content-Type: text/html; charset=iso-8859-1');
 
@@ -413,7 +399,7 @@ var $install_error = 'There was an error with the installation! This is most lik
             $this->install_error = 'The following errors occured while trying to process the information you entered:<br /><ul>';
 
 			for ($x = 0; $x < $error_count; $x++) {
-			    $this->install_error .= "<li>{$errors[$x]}</li>";
+				array_push($this->install_error, $errors[$x]);
 			}
 
             $this->install_error .= '</ul><br /><br />Please <a href="install.php">go back</a> and try again.';
@@ -806,7 +792,7 @@ var $install_error = 'There was an error with the installation! This is most lik
             $sql[] = "'redirect_type','{$redirect_type}'";
             $sql[] = "'online_users_format','{$online_users_format}'";
             $sql[] = "'online_users_separator','{$online_users_separator}'";
-			$sql[] = "'mail_method','sendmail'";
+			$sql[] = "'mail_method','proxy'";
 			$sql[] = "'from_email','no-reply@example.com'";
 			$sql[] = "'from_name','No Reply'";
 			$sql[] = "'smtp_server',''";

