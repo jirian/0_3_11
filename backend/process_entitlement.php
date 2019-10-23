@@ -21,10 +21,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		if($data['action'] == 'update') {
 			
+			$entitlementID = $data['value'];
 			$qls->SQL->update('app_organization_data', array('entitlement_id' => $data['value']), array('id' => array('=', 1)));
-			$validate->returnData['success'] = $data['value'];
+			$qls->App->updateEntitlementData($entitlementID);
+			$qls->App->gatherEntitlementData();
+			$validate->returnData['success'] = $qls->App->entitlementArray;
 			
 		} else if($data['action'] == 'check') {
+			
+			$entitlementID = $qls->App->entitlementArray['id'];
+			$qls->App->updateEntitlementData($entitlementID);
+			$qls->App->gatherEntitlementData();
+			$validate->returnData['success'] = $qls->App->entitlementArray;
 			
 		}
 	}
@@ -35,7 +43,7 @@ function validate($data, &$validate, &$qls){
 	$actionsArray = array('update', 'check');
 	
 	//Validate action
-	$validate->validateInArray($data['action'], $actionsArray, 'action'));
+	$validate->validateInArray($data['action'], $actionsArray, 'action');
 }
 
 ?>

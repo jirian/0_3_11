@@ -20,6 +20,19 @@
 	}
  }
  
+ function updateEntitlementData(entitlementData) {
+	$('#entitlementLastChecked').html(entitlementData.lastCheckedFormatted);
+	$('#entitlementStatus').html(entitlementData.status);
+	$('#entitlementEntitlementData').empty();
+	
+	$.each(entitlementData.data, function(index, value){
+		var attribute = '';
+		attribute += '<dt class="col-sm-6">'+value.friendlyName+':</dt>';
+		attribute += '<dd class="col-sm-6">'+value.count+' ('+value.used+')</dd>';
+		$('#entitlementEntitlementData').append(attribute);
+	});
+ }
+ 
  function loadUserTable() {
 	 $('#tableInvitations').empty();
 	 
@@ -173,6 +186,33 @@ $( document ).ready(function() {
 			}
 		});
 	});
+	
+	$('#entitlementCheck').on('click', function(event){
+		event.preventDefault();
+		var entitlementButton = $(this);
+		$(entitlementButton).html('<i class="fa fa-spin fa-spinner"></i>Sending');
+		var entitlementID = $('#inline-entitlement').editable('getValue')['inline-entitlement'];
+
+		//Collect object data
+		var data = {
+			entitlementID: entitlementID,
+			action: 'check'
+			};
+		data = JSON.stringify(data);
+		
+		//Retrieve object details
+		$.post("backend/process_entitlement.php", {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.comment);
+			} else {
+				updateEntitlementData(responseJSON.success);
+			}
+			$(entitlementButton).html('Check Now');
+		});
+	});
 
 	$('#inline-orgName').editable({
 		showbuttons: false,
@@ -217,6 +257,8 @@ $( document ).ready(function() {
 				window.location.replace("/");
 			} else if ($(responseJSON.error).size() > 0){
 				displayError(responseJSON.error);
+			} else {
+				updateEntitlementData(responseJSON.success);
 			}
 		}
 	});

@@ -14,7 +14,7 @@ exit;
         <div class="account-bg">
             <div class="card-box m-b-0">
                 <div class="text-xs-center m-t-20">
-                    <a href="/" class="logo">
+                    <a href="https://patchcablemgr.com" class="logo">
                         <i class="zmdi zmdi-group-work icon-c-logo"></i>
                         <span>PatchCableMgr</span>
                     </a>
@@ -23,6 +23,18 @@ exit;
                     <div class="row">
                         <div class="col-xs-12 text-xs-center">
                             <h6 class="text-muted text-uppercase m-b-0 m-t-0">Sign In</h6>
+							<?php
+							if(isset($_GET['d'])) {
+							?>
+							<br>
+							<p style="text-align:left;" class="m-b-0">
+								<strong>Username:</strong>&nbsp;&nbsp;demo@patchcablemgr.com
+								<br>
+								<strong>Password:</strong>&nbsp;&nbsp;demo
+							</p>
+							<?php
+							}
+							?>
                         </div>
                     </div>
                     <form class="m-t-20" action="login_process.php" method="post">
@@ -114,12 +126,6 @@ exit;
             </div>
         </div>
         <!-- end card-box-->
-
-        <div class="m-t-20">
-            <div class="text-xs-center">
-                <p class="text-white">Don't have an account? <a href="register.php" class="text-white m-l-5"><b>Sign Up</b></a></p>
-            </div>
-        </div>
 
     </div>
     <!-- end wrapper page -->

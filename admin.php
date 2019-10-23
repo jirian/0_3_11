@@ -117,7 +117,24 @@ $qls->Security->check_auth_page('administrator.php');
 			<fieldset class="form-group">
 				<a href="#" id="inline-entitlement" data-type="text" data-pk="1" data-title="Enter entitlement ID"><?php echo $qls->App->entitlementArray['id']; ?></a>
 			</fieldset>
+			<fieldset class="form-group">
+				<dl class="dl-horizontal row">
+					<dt class="col-sm-6 text-truncate">Last Checked:</dt>
+					<dd class="col-sm-6" id="entitlementLastChecked"><?php echo $qls->App->formatTime($qls->App->entitlementArray['lastChecked']);?></dd>
+					<dt class="col-sm-6">Status:</dt>
+					<dd class="col-sm-6" id="entitlementStatus"><?php echo $qls->App->entitlementArray['status'];?></dd>
+					<div id="entitlementEntitlementData">
+					<?php
+						foreach($qls->App->entitlementArray['data'] as $attribute) {
+							print('<dt class="col-sm-6">'.$attribute['friendlyName'].':</dt>');
+							print('<dd class="col-sm-6">'.$attribute['count'].' ('.$attribute['used'].')</dd>');
+						}
+					?>
+					</div>
+				</dl>
+			</fieldset>
 			<button id="entitlementCheck" type="button" class="btn btn-primary">Check Now</button>
+			
 		</div>
 	</div>
 </div>

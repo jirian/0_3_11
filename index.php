@@ -107,7 +107,7 @@ $qls->Security->check_auth_page('user.php');
 				<thead>
 					<tr>
 						<th>Datetime</th>
-						<th>Fumction</th>
+						<th>Function</th>
 						<th>Action Type</th>
 						<th>User</th>
 						<th>Action</th>

@@ -89,9 +89,9 @@ function validate($data, &$validate, &$qls){
 		
 		// Validate entitlement
 		$query = $qls->SQL->select('id', 'users');
-		$conNum = $qls->SQL->num_rows($query) + 1;
+		$userNum = $qls->SQL->num_rows($query) + 1;
 		
-		if(!$qls->App->checkEntitlement('user', $conNum)) {
+		if(!$qls->App->checkEntitlement('user', $userNum)) {
 			$errMsg = 'Exceeded entitled user count.';
 			array_push($validate->returnData['error'], $errMsg);
 		}

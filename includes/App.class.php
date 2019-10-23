@@ -1396,31 +1396,86 @@ var $qls;
 		$this->entitlementArray = array();
 		$query = $this->qls->SQL->select('*', 'app_organization_data', array('id' => array('=', 1)));
 		
-		while($row = $this->qls->SQL->fetch_assoc($query)) {
-			
+		//while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$row = $this->qls->SQL->fetch_assoc($query);
+			error_log($row['entitlement_data']);
 			$entitlementData = json_decode($row['entitlement_data'], true);
 			$this->entitlementArray['id'] = $row['entitlement_id'];
 			$this->entitlementArray['lastChecked'] = $row['entitlement_last_checked'];
+			$this->entitlementArray['lastCheckedFormatted'] = $this->formatTime($row['entitlement_last_checked']);
+			$this->entitlementArray['status'] = $row['entitlement_comment'];
 			$this->entitlementArray['data'] = array();
 			
 			foreach($entitlementData as $item => $value) {
-				$this->entitlementArray['data'][$item] = $value;
+				$workingArray = array();
+				if($item == 'cabinetCount') {
+					
+					// Find number used
+					$query = $this->qls->SQL->select('id', 'app_env_tree', array('type' => array('=', 'cabinet')));
+					$cabNum = $this->qls->SQL->num_rows($query);
+					
+					// Store attribute data
+					$workingArray['attribute'] = $item;
+					$workingArray['count'] = $value;
+					$workingArray['friendlyName'] = 'Cabinets';
+					$workingArray['used'] = $cabNum;
+					
+				} else if($item == 'objectCount') {
+					
+					// Find number used
+					$query = $this->qls->SQL->select('id', 'app_object');
+					$objNum = $this->qls->SQL->num_rows($query);
+					
+					// Store attribute data
+					$workingArray['attribute'] = $item;
+					$workingArray['count'] = $value;
+					$workingArray['friendlyName'] = 'Objects';
+					$workingArray['used'] = $objNum;
+					
+				} else if($item == 'connectionCount') {
+					
+					// Find number used
+					$query = $this->qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
+					$conNum = $this->qls->SQL->num_rows($query);
+					
+					// Store attribute data
+					$workingArray['attribute'] = $item;
+					$workingArray['count'] = $value;
+					$workingArray['friendlyName'] = 'Connections';
+					$workingArray['used'] = $conNum;
+					
+				} else if($item == 'userCount') {
+					
+					// Find number used
+					$query = $this->qls->SQL->select('id', 'users');
+					$userNum = $this->qls->SQL->num_rows($query);
+					
+					// Store attribute data
+					$workingArray['attribute'] = $item;
+					$workingArray['count'] = $value;
+					$workingArray['friendlyName'] = 'Users';
+					$workingArray['used'] = $userNum;
+					
+				}
+				$this->entitlementArray['data'][$item] = $workingArray;
 			}
 			
-		}
+		//}
 		
 		return;
 	}
 	
-	function updateEntitlementData(){
-		$entitlementID = $this->entitlementArray['id'];
+	function updateEntitlementData($entitlementID=false){
+		
+		$entitlementID = ($entitlementID) ? $entitlementID : $this->entitlementArray['id'];
 		
 		// POST Request
 		$data = array('entitlementID' => $entitlementID);
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);
 		
-		$ch = curl_init('https://patchcablemgr.com/public/process-entitlement.php');
+		$ch = curl_init('https://patchcablemgr.com/public/process_entitlement.php');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
@@ -1438,7 +1493,7 @@ var $qls;
 			if($response = json_decode($responseJSON, true)) {
 				$updateValues = array(
 					'entitlement_last_checked' => time(),
-					'entitlement_data' => $response['data'],
+					'entitlement_data' => json_encode($response['data']),
 					'entitlement_comment' => $response['comment']
 				);
 				$this->qls->SQL->update('app_organization_data', $updateValues, array('id' => array('=', 1)));
@@ -1454,25 +1509,25 @@ var $qls;
 	function checkEntitlement($attribute, $count){
 		switch($attribute) {
 			case 'cabinet':
-				$entitlementCount = $this->entitlementArray['data']['cabinetCount'];
+				$entitlementCount = $this->entitlementArray['data']['cabinetCount']['count'];
 				if($entitlementCount != 0) {
 					return ($count > $entitlementCount) ? false : true;
 				}
 				
 			case 'object':
-				$entitlementCount = $this->entitlementArray['data']['objectCount'];
+				$entitlementCount = $this->entitlementArray['data']['objectCount']['count'];
 				if($entitlementCount != 0) {
 					return ($count > $entitlementCount) ? false : true;
 				}
 				
 			case 'connection':
-				$entitlementCount = $this->entitlementArray['data']['connectionCount'];
+				$entitlementCount = $this->entitlementArray['data']['connectionCount']['count'];
 				if($entitlementCount != 0) {
 					return ($count > $entitlementCount) ? false : true;
 				}
 				
 			case 'user':
-				$entitlementCount = $this->entitlementArray['data']['userCount'];
+				$entitlementCount = $this->entitlementArray['data']['userCount']['count'];
 				if($entitlementCount != 0) {
 					return ($count > $entitlementCount) ? false : true;
 				}
@@ -1514,5 +1569,12 @@ var $qls;
 		} else {
 			$response = json_decode($responseJSON, true);
 		}
+	}
+	
+	function formatTime($unixTimeStamp) {
+		$dt = new DateTime("@$unixTimeStamp", new DateTimeZone('UTC'));
+		$dt->setTimezone(new DateTimeZone($this->qls->user_info['timezone']));
+		$dateFormatted = $dt->format('d-M-Y H:i:s');
+		return $dateFormatted;
 	}
 }

@@ -226,9 +226,7 @@ function buildHistoryTable(&$qls){
 		$actionType = $qls->App->historyActionTypeArray[$actionType]['name'];
 		$username = $qls->id_to_username($userID);
 		$action = $history['action'];
-		$dt = new DateTime("@$date", new DateTimeZone('UTC'));
-		$dt->setTimezone(new DateTimeZone($qls->user_info['timezone']));
-		$dateFormatted = $dt->format('Y-m-d H:i:s');
+		$dateFormatted = $qls->App->formatTime($date);
 		
 		$table .= '<tr>';
 		$table .= '<td>'.$dateFormatted.'</td>';
