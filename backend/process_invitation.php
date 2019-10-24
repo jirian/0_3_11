@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 				$qls->PHPmailer->clearAllRecipients();
 			} else if($qls->config['mail_method'] == 'proxy') {
-				$qls->App->sendProxyEmail('invitation', $recipientEmail, array('btnURL' => $btnURL, 'btnText' => $btnText));
+				$qls->Pub->sendProxyEmail('invitation', $recipientEmail, array('btnURL' => $btnURL, 'btnText' => $btnText));
 			}
 		}
 	}

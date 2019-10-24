@@ -1536,41 +1536,6 @@ var $qls;
 		return;
 	}
 	
-	function sendProxyEmail($type, $recipient, $msgData){
-		$returnData = array(
-			'success' => true
-		);
-		
-		// POST Request
-		$data = array(
-			'action' => 'create',
-			'type' => $type,
-			'recipient' => $recipient,
-			'msgData' => $msgData
-		);
-		
-		$dataJSON = json_encode($data);
-		$POSTData = array('data' => $dataJSON);
-		
-		$ch = curl_init('https://patchcablemgr.com/public/process_proxy-email.php');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
-		
-		// Submit the POST request
-		$responseJSON = curl_exec($ch);
-		
-		//Check for request errors.
-		if(curl_errno($ch)) {
-			$returnData['success'] = false;
-			$returnData['msg'] = 'Error when submitting email data to proxy server.';
-		} else {
-			$response = json_decode($responseJSON, true);
-		}
-	}
-	
 	function formatTime($unixTimeStamp) {
 		$dt = new DateTime("@$unixTimeStamp", new DateTimeZone('UTC'));
 		$dt->setTimezone(new DateTimeZone($this->qls->user_info['timezone']));

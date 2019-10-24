@@ -203,14 +203,22 @@
 					<li>
                         <a href="explore.php"><i class="zmdi zmdi-globe-alt"></i> <span> Explore </span> </a>
                     </li>
-                    
+
+					<?php
+						if($userGroup == 'Administrator' or $userGroup == 'Admin' or $userGroup == 'Operator') {
+					?>
                     <li>
                         <a href="scan.php"><i class="fa fa-barcode"></i> <span> Scan </span> </a>
                     </li>
+					<?php } ?>
 					
+					<?php
+						if($userGroup == 'Administrator' or $userGroup == 'Admin' or $userGroup == 'Operator') {
+					?>
 					<li>
                         <a href="cableInventory.php"><i class="fa fa-book"></i> <span> Cable Inventory </span> </a>
                     </li>
+					<?php } ?>
 					
 					<?php
 						if($userGroup == 'Administrator' or $userGroup == 'Admin') {

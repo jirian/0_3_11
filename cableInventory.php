@@ -2,7 +2,7 @@
 define('QUADODO_IN_SYSTEM', true);
 require_once './includes/header.php';
 require_once './includes/redirectToLogin.php';
-$qls->Security->check_auth_page('administrator.php');
+$qls->Security->check_auth_page('operator.php');
 ?>
 
 <?php require 'includes/header_start.php'; ?>

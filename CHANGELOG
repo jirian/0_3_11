@@ -13,6 +13,7 @@ Contents
 
 **Changes introduced in 0.1.1
 
+[Fix]		Resolved broken SSL redirect.
 [Feature]	Added PCM email proxy functionality.
 [Feature]	Added entitlement functionality.
 [Fix]		Prevent ports from being connected to themselves.
