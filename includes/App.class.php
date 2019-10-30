@@ -1589,7 +1589,7 @@ var $qls;
 						$html .= '<div class="'.$rowBorderClass.' tableRow">';
 							for ($x = 0; $x < $encX; $x++){
 								$colBorderClass = ($x == ($encX-1)) ? '' : 'borderRight';
-								$html .= '<div class="'.$colBorderClass.' tableCol enclosureTable insertDroppable"></div>';
+								$html .= '<div class="'.$colBorderClass.' tableCol enclosureTable insertDroppable" data-encX="'.$x.'" data-encY="'.$y.'"></div>';
 							}
 						$html .= '</div>';
 					}
