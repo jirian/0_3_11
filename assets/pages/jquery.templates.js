@@ -86,7 +86,6 @@ function loadProperties(){
 			unitsTaken = workingUnitsTaken > unitsTaken ? workingUnitsTaken : unitsTaken;
 		});
 		var partitionMin = partitionStep * unitsTaken == 0 ? partitionStep :  partitionStep * unitsTaken;
-		
 		var partitionSize = partitionStep * flexUnits;
 		var partitionMax = partitionStep * (flexUnits + availableUnits);
 		
@@ -266,31 +265,35 @@ function addPartition(){
 }
 
 function buildTable(inputX, inputY, className){
-	var table = "<table style='border-collapse: collapse;height:100%;width:100%;'>";
-	for (y = 0; y < inputY; y++){
-		//Create table row and calculate height
-		table += '<tr class="'+className+'" style="width:100%;height:'+100/inputY+'%;">';
-		for (x = 0; x < inputX; x++){
-			table += '<td class="'+className+'" style="width:'+100/inputX+'%;height:'+100/inputY+'%;"></td>';
-		}
-		table+= "</tr>";
-	}
-	table += "</table>";
-	/*
-	// This is for future development
 	var table = '';
-	//table += '<div style="flex:1;display:flex;flex-direction:row;">';
+	
 	for (y = 0; y < inputY; y++){
-		//Create table row and calculate height
 		
-		table += '<div class="'+className+' tableRow">';
+		// Determine border side
+		if(y == inputY) {
+			var rowBorderClass = 'borderBottom';
+		} else {
+			var rowBorderClass = 'borderTop';
+		}
+		
+		// Create row
+		table += '<div class="'+rowBorderClass+' tableRow">';
+		
 		for (x = 0; x < inputX; x++){
-			table += '<div class="tableCol"></div>';
+			
+			// Determine border side
+			if(x == inputX) {
+				var colBorderClass = 'borderRight';
+			} else {
+				var colBorderClass = 'borderLeft';
+			}
+			
+			// Create column
+			table += '<div class="'+className+' '+colBorderClass+' tableCol"></div>';
 		}
 		table += '</div>';
 	}
-	//table += '</div>';
-	*/
+	
 	return table;
 }
 
@@ -447,36 +450,41 @@ function makeRackObjectsClickable(){
 				$('#inline-category').editable('setValue', response.categoryID).editable('enable');
 				
 				// Object Port Orientation
-				$('#inline-portOrientation').editable('destroy');
-				$('#inline-portOrientation').editable({
-					showbuttons: false,
-					mode: 'inline',
-					source: response.portOrientationArray,
-					url: 'backend/process_object-custom.php',
-					send: 'always',
-					params: function(params){
-						var data = {
-							'action':'edit',
-							'templateID':templateID,
-							'templateFace':templateFace,
-							'templateDepth':partitionDepth,
-							'attribute':$(this).attr('id'),
-							'value':params.value
-						};
-						params.data = JSON.stringify(data);
-						return params;
-					},
-					success: function(response) {
-						var selectedObjID = $('#selectedObjectID').val();
-						var responseJSON = JSON.parse(response);
-						if (responseJSON.active == 'inactive'){
-							window.location.replace("/");
-						} else if ($(responseJSON.error).size() > 0){
-							displayError(responseJSON.error);
+				//$('#inline-portOrientation').editable('destroy');
+				if(response.portOrientationID != null) {
+					$('#detailPortOrientation').html('<a href="#" id="inline-portOrientation" data-type="select">-</a>');
+					$('#inline-portOrientation').editable({
+						showbuttons: false,
+						mode: 'inline',
+						source: response.portOrientationArray,
+						url: 'backend/process_object-custom.php',
+						send: 'always',
+						params: function(params){
+							var data = {
+								'action':'edit',
+								'templateID':templateID,
+								'templateFace':templateFace,
+								'templateDepth':partitionDepth,
+								'attribute':$(this).attr('id'),
+								'value':params.value
+							};
+							params.data = JSON.stringify(data);
+							return params;
+						},
+						success: function(response) {
+							var selectedObjID = $('#selectedObjectID').val();
+							var responseJSON = JSON.parse(response);
+							if (responseJSON.active == 'inactive'){
+								window.location.replace("/");
+							} else if ($(responseJSON.error).size() > 0){
+								displayError(responseJSON.error);
+							}
 						}
-					}
-				});
-				$('#inline-portOrientation').editable('setValue', response.portOrientationID).editable('enable');
+					});
+					$('#inline-portOrientation').editable('setValue', response.portOrientationID).editable('enable');
+				} else {
+					$('#detailPortOrientation').html(response.portOrientationName);
+				}
 				
 				// Object Image
 				$('#templateImageAction').on('click', function(event){
@@ -632,7 +640,7 @@ function buildObjectArray(elem){
 	$(elem).children('div').each(function(){
 		var tempData = $(this).data();
 		tempData['flex'] = $(this).css('flex-grow');
-		if ($(this).children('div').length) {
+		if ($(this).children('div.flex-container').length) {
 			tempData['children'] = buildObjectArray(this);
 		}
 		if($(this).data('partitionType') == 'Connectable' && $(this).data('portLayoutX') == 0 && $(this).data('portLayoutY') == 0) {
@@ -1614,9 +1622,6 @@ $( document ).ready(function() {
 					return (css.match(/(^|\s)category\S+/g) || []).join(' ');
 				});
 				$('.enclosure').on('click', function(){
-					//Determine if insert is able to be partitioned
-					var numRows = $(this).find('tr').length;
-					var numCols = $(this).find('td').length;
 					
 					var enclosureParent = $(this).parent();
 					var enclosureObject = $(this).closest('.flex-container-parent');
@@ -1649,8 +1654,8 @@ $( document ).ready(function() {
 					
 					$(variables['obj'])
 					.find('.selectedEnclosure')
-					.find('tr:first')
-					.find('td:first')
+					.find('.tableRow:first')
+					.find('.tableCol:first')
 					.removeClass('enclosureTable')
 					//.data(data)
 					.html('<div id="previewObj3" class="objBaseline" data-hUnits="'+hUnits+'" data-vUnits="'+vUnits+'" data-encLayoutX="'+encLayoutX+'" data-encLayoutY="'+encLayoutY+'"></div>');

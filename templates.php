@@ -4,7 +4,7 @@ require_once './includes/header.php';
 require_once './includes/redirectToLogin.php';
 $qls->Security->check_auth_page('operator.php');
 require_once './includes/content-templates.php';
-require_once './includes/templateFunctions.php';
+//require_once './includes/templateFunctions.php';
 ?>
 
 <?php require 'includes/header_start.php'; ?>

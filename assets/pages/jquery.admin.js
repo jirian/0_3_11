@@ -226,7 +226,6 @@ $( document ).ready(function() {
 		},
 		url: 'backend/process_organization-name.php',
 		success: function(response){
-			var alertMsg = '';
 			var responseJSON = JSON.parse(response);
 			if (responseJSON.active == 'inactive'){
 				window.location.replace("/");
@@ -234,6 +233,27 @@ $( document ).ready(function() {
 				displayError(responseJSON.error);
 			} else {
 				$('#orgName').html(responseJSON.success);
+			}
+		}
+	});
+	
+	$('#inline-serverName').editable({
+		showbuttons: false,
+		mode: 'inline',
+		params: function(params){
+			var data = {
+				'value':params.value
+			};
+			params.data = JSON.stringify(data);
+			return params;
+		},
+		url: 'backend/process_server-name.php',
+		success: function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
 			}
 		}
 	});

@@ -136,6 +136,7 @@ function makeRackObjectsClickable(){
 				$('#detailRUSize').html(response.RUSize);
 				$('#detailMountConfig').html(response.mountConfig);
 				$('#detailPortRange').html(response.portRange);
+				$('#detailPortOrientation').html(response.portOrientationName);
 				$('#detailPortType').html(response.portType);
 				$('#detailMediaType').html(response.mediaType);
 				if(response.templateImgExists) {
@@ -321,7 +322,7 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 function loadCabinetBuild(){
 	makeRackObjectsClickable();
 	//Make the objects height fill the <td> container
-	setObjectSize($('.rackObj'));
+	setObjectSize($('.rackObj:not(.insert)'));
 }
 
 function getFloorplanObjectPeerTable(){

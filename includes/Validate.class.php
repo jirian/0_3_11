@@ -21,6 +21,8 @@ class Validate {
 		$this->portIDRegEx = '/^[0-9]+$/';
 		$this->portNameFieldIncrementalRegEx = '/^[a-zA-Z]$|^[0-9]$|^[1-9][0-9]+$/';
 		$this->md5RegEx = '/^[a-f0-9]{32}$/';
+		$this->domainRegEx = '/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/';
+		$this->orgNameRegEx = '/^[a-zA-Z0-9\/\\\-\_\s\.\,]{0,250}$/';
 	}
 	
 	//
@@ -996,6 +998,36 @@ class Validate {
 			$object = $this->qls->SQL->fetch_assoc($results);
 			return $object;
 		}
+	}
+	
+	function validateServerName($input) {
+		if (!isset($input)){
+			$errorMsg = 'Server name cannot be blank.';
+			array_push($this->returnData['error'], $errorMsg);
+			return false;
+		} else {
+			if (!preg_match($this->domainRegEx, $input) and !filter_var($input, FILTER_VALIDATE_IP)){
+				$errorMsg = 'Invalid server name.';
+				array_push($this->returnData['error'], $errorMsg);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	function validateOrgName($input) {
+		if (!isset($input)){
+			$errorMsg = 'Organization name cannot be blank.';
+			array_push($this->returnData['error'], $errorMsg);
+			return false;
+		} else {
+			if (!preg_match($this->orgNameRegEx, $input)){
+				$errorMsg = 'Invalid organization name.';
+				array_push($this->returnData['error'], $errorMsg);
+				return false;
+			}
+		}
+		return true;
 	}
 }
 

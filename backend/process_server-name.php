@@ -19,16 +19,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	validate($data, $validate, $qls);
 	
 	if (!count($validate->returnData['error'])){
-		$orgName = $data['value'];
-		$qls->SQL->update('app_organization_data', array('name' => $orgName), array('id' => array('=', 1)));
-		$validate->returnData['success'] = $data['value'];
+		$serverName = $data['value'];
+		$qls->SQL->update('config', array('value' => $serverName), array('name' => array('=', 'cookie_domain')));
+		$validate->returnData['success'] = $serverName;
 	}
 	echo json_encode($validate->returnData);
 }
 
 function validate($data, &$validate, &$qls){
-	$orgName = $data['value'];
-	$validate->validateOrgName($orgName);
+	
+	// Validate servername
+	$serverName = $data['value'];
+	$validate->validateServerName($serverName);
+	
+	// Do not update server name if the app is hosted
+	if(array_key_exists('PCM_Hosted', getallheaders())) {
+		$errorMsg = 'Cannot change server name of hosted app.';
+		array_push($validate->returnData['error'], $errorMsg);
+	}
 }
 
 ?>

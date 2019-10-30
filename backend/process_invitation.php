@@ -24,12 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$code = sha1(md5($qls->config['sql_prefix']) . time() . $_SERVER['REMOTE_ADDR']);
 			$subject = "You've been invited!";
 			$recipientEmail = $data['email'];
-			
-			if($qls->config['cookie_domain'] == '') {
-				$domain = $_SERVER['SERVER_ADDR'];
-			} else {
-				$domain = $qls->config['cookie_domain'];
-			}
+			$domain = $qls->config['cookie_domain'];
 			
 			if($qls->config['cookie_path'] == '') {
 				$appPath = '/';
@@ -93,6 +88,12 @@ function validate($data, &$validate, &$qls){
 		
 		if(!$qls->App->checkEntitlement('user', $userNum)) {
 			$errMsg = 'Exceeded entitled user count.';
+			array_push($validate->returnData['error'], $errMsg);
+		}
+		
+		// Validate server name
+		if($qls->config['cookie_domain'] == '') {
+			$errMsg = 'Server name is not set.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
 	}

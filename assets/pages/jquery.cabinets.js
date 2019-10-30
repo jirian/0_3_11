@@ -14,6 +14,7 @@ function clearObjectDetails(){
 	$('#detailRUSize').html('-');
 	$('#detailMountConfig').html('-');
 	$('#detailPortRange').html('-');
+	$('#detailPortOrientation').html('-');
 	$('#detailPortType').html('-');
 	$('#detailMediaType').html('-');
 		
@@ -192,6 +193,7 @@ function makeRackObjectsClickable(){
 				$('#detailRUSize').html(response.RUSize);
 				$('#detailMountConfig').html(response.mountConfig);
 				$('#detailPortRange').html(response.portRange);
+				$('#detailPortOrientation').html(response.portOrientationName);
 				$('#detailPortType').html(response.portType);
 				$('#detailMediaType').html(response.mediaType);
 				
@@ -454,11 +456,10 @@ function initializeInsertDroppable(){
 				.show()
 				.removeClass('stockObj')
 				//Mark object as being racked in cabinet and landing in a valid dropZone
-				.addClass('rackObj')
+				.addClass('rackObj insert')
 				.css({'left':0,
 					'top':0,
 					'width':'100%',
-					'height':encHeight+'px',
 					'display':'flex'
 				})
 				.attr('data-objectid', cabinetObjectID)
@@ -520,7 +521,7 @@ function loadCabinetBuild(){
 	initializeInsertDroppable();
 	makeRackObjectsClickable();
 	//Make the objects height fill the <td> container
-	setObjectSize($('.rackObj'));
+	setObjectSize($('.rackObj:not(.insert)'));
 	
     $('.draggable').draggable({
 		delay: 200,

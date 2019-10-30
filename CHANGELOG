@@ -5,11 +5,21 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.1.2
 	- Changes Introduced In 0.1.1
     - Changes Introduced In 0.1.0
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.1.2
+
+[Fix]		Added organization name validation
+[Feature]	Added ability to adjust server name, a server name is required for accepting user invitations.
+[Fix]		Resolved erroneous entitlement errors when entitlement is unlimited
+[Fix]		Resolved install bug stemming from syntax error introduced by addition of BottomLeft-Right port orientation.
+[Feature]	Added port orientation to object detail.
+[Feature]	Improved markup for template enclosures for improved rendering.
 
 **Changes introduced in 0.1.1
 

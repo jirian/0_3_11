@@ -63,10 +63,24 @@ var $qls;
 	function determineUpdate() {
 		if($this->currentVersion == '0.1.0') {
 			$this->update_010_to_011();
+			$this->update_011_to_012();
+		} else if($this->currentVersion == '0.1.1') {
+			$this->update_011_to_012();
 		} else {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.1.0 to 0.1.1
+	 * @return Boolean
+	 */
+	function update_011_to_012() {
+		$incrementalVersion = '0.1.2';
+		
+		// Set app version to 0.1.2
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 	}
 	
 	/**

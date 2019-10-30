@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portProperties = getPortProperties($qls);
 			$portType = $portProperties['portType'][$partitionData['portType']];
 			$portOrientationID = $partitionData['portOrientation'];
-			$portOrientationName = $qls->App->portOrientationArray[$portOrientationID]['name'];
+			$portOrientationName = $portOrientationID ? $qls->App->portOrientationArray[$portOrientationID]['name'] : 'N/A';
 			$mediaType = $partitionData['partitionFunction'] == 'Passive' ? $portProperties['mediaType'][$partitionData['mediaType']] : 'N/A';
 			
 			// Get peer information
@@ -96,12 +96,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			$trunkable = true;
 		} else if($partitionType == 'Enclosure'){
-			$portRange = $portType = $portOrientation = $mediaType = $trunkFlatPath = 'N/A';
-			$trunkable = false;
+			$portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = 'N/A';
+			$trunkable = $portOrientationID = false;
 		} else {
 			// Generic partition... these won't be in the compatibility table so catch them with an else
-			$partitionType = $portRange = $portType = $portOrientation = $mediaType = $trunkFlatPath = 'N/A';
-			$trunkable = false;
+			$partitionType = $portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = 'N/A';
+			$trunkable = $portOrientationID = false;
 		}
 		
 		if($templateInfo['templateType'] == 'Standard') {

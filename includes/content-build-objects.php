@@ -8,7 +8,7 @@
 $templateCatalog = false;
 include($_SERVER['DOCUMENT_ROOT'].'/includes/content-build-objectData.php');
 $page = basename($_SERVER['PHP_SELF']);
-$cursorClass = ($page == 'templates.php') or ($page == 'retrieve_build-objects.php') ? 'cursorPointer' : 'cursorGrab';
+$cursorClass = (($page == 'templates.php') or ($page == 'retrieve_build-objects.php')) ? 'cursorPointer' : 'cursorGrab';
 
 for ($x=0; $x<2; $x++){
 	$display = $x==0 ? '' : ' style="display:none;"';
@@ -31,7 +31,7 @@ for ($x=0; $x<2; $x++){
 					
 					if ($type == 'Standard'){
 						echo '<div class="'.$cursorClass.' obj'.$ID.' RU'.$RUSize.' category'.$category.' obj-style obj-border stockObj draggable selectable" data-templateid="'.$ID.'" data-objectFace="'.$x.'"  data-objectMountConfig="'.$mountConfig.'" data-RUSize="'.$RUSize.'" data-objectFunction="'.$function.'">';
-						echo buildStandard($partitionData, 'flex-container-parent', $portType);
+						echo $qls->App->buildStandard($partitionData, 'flex-container-parent', $portType);
 						echo '</div>';
 					} else {
 						$flexWidth = $partitionData[0]['hunits']/10;
@@ -50,7 +50,7 @@ for ($x=0; $x<2; $x++){
 						for($encX=0; $encX<$template['encLayoutX']; $encX++) {
 							echo '<td style="flex-direction:column; width:'.round((1/$template['encLayoutX'])*100).'%; height:'.round((1/$template['encLayoutY'])*100).'%;">';
 							if($encX == 0) {
-								echo buildInsert($partitionData, $portType, $RUSize, $class, $dataAttr);
+								echo $qls->App->buildInsert($partitionData, $portType, $RUSize, $class, $dataAttr);
 							}
 							echo '</td>';
 						}

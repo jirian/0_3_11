@@ -83,17 +83,19 @@ function buildStandard($data, $flexClass, $portType, &$depthCounter=0){
 			case 'Enclosure':
 				$encX = $element['encLayoutX'];
 				$encY = $element['encLayoutY'];
-				$html .= '<table class="enclosure border-black" style="border-collapse: collapse;height:100%;width:100%;" data-encLayoutX="'.$encX.'" data-encLayoutY="'.$encY.'">';
-					for ($y = 0; $y < $encY; $y++){
-						//$html .= '<tr style="width:100%;height:'.(100/$encY).'%;">';
-						$html .= '<tr>';
+				
+				$html .= '<div class="flex-container-parent enclosure" data-encLayoutX="'.$encX.'" data-encLayoutY="'.$encY.'">';
+				for ($y = 0; $y < $encY; $y++){
+					$rowBorderClass = ($y == $encY) ? 'borderBottom' : 'borderTop';
+					$html .= '<div class="'.$rowBorderClass.' tableRow">';
 						for ($x = 0; $x < $encX; $x++){
-							$html .= '<td class="enclosureTable insertDroppable" style="width:'.(100/$encX).'%;height:'.(100/$encY).'%;" data-encX="'.$x.'" data-encY="'.$y.'"></td>';
-							//$html .= '<td class="enclosureTable insertDroppable" data-encX="'.$x.'" data-encY="'.$y.'"></td>';
+							$colBorderClass = ($x == $encX) ? 'borderRight' : 'borderLeft';
+							$html .= '<div class="'.$colBorderClass.' tableCol enclosureTable insertDroppable"></div>';
 						}
-						$html .= "</tr>";
-					}
-				$html .= '</table>';
+					$html .= '</div>';
+				}
+				$html .= '</div>';
+				
 				break;
 				
 			case 'Insert':

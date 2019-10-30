@@ -745,7 +745,7 @@ var $install_error = array();
 			$object_portOrientation = array(
 				"1, 'Left-Right', 1",
 				"2, 'Top-Bottom', 0",
-				"3, 'Right-Left', 0"
+				"3, 'Right-Left', 0",
 				"4, 'BottomLeft-Right', 0"
 			);
 			

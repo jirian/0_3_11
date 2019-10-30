@@ -2,12 +2,26 @@
 	display: flex;
 	flex: 1;
 	flex-direction: row;
-	border-top: 1px solid black;
 }
 
 .tableCol {
 	display: flex;
 	flex: 1;
+}
+
+.borderTop {
+	border-top: 1px solid black;
+}
+
+.borderBottom {
+	border-bottom: 1px solid black;
+}
+
+.borderLeft {
+	border-left: 1px solid black;
+}
+
+.borderRight {
 	border-right: 1px solid black;
 }
 
@@ -40,4 +54,19 @@
 
 .no-padding {
 	padding:0px !important;
+}
+
+.enclosureTable {
+	background: repeating-linear-gradient(
+		135deg,
+		transparent,
+		transparent 4px,
+		rgba(0, 0, 0, 0.2) 4px,
+		rgba(0, 0, 0, 0.2) 8px
+	);
+}
+
+.enclosure {
+	flex-direction: column;
+	border: 1px solid black;
 }

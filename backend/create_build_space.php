@@ -184,11 +184,16 @@ function buildPortPartitions($data, $objectID, $face, &$qls, $function, $objName
 				$html .= '<div class="'.$flexClass.' partition selectable" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" data-depth="'.$depthCounter.'">';
 				$encX = $element['encLayoutX'];
 				$encY = $element['encLayoutY'];
-				$html .= '<table class="enclosure border-black" style="border-collapse: collapse;height:100%;width:100%;">';
+				//$html .= '<table class="enclosure border-black" style="border-collapse: collapse;height:100%;width:100%;">';
+				$html .= '<div class="flex-container-parent enclosure" data-encLayoutX="'.$encX.'" data-encLayoutY="'.$encY.'">';
 					for ($y = 0; $y < $encY; $y++){
-						$html .= '<tr style="width:100%;height:'.(100/$encY).'%;">';
+						$rowBorderClass = ($y == 0) ? '' : 'borderTop';
+						$html .= '<div class="'.$rowBorderClass.' tableRow">';
+						//$html .= '<tr style="width:100%;height:'.(100/$encY).'%;">';
 						for ($x = 0; $x < $encX; $x++){
-							$html .= '<td class="enclosureTable insertDroppable" style="width:'.(100/$encX).'%;height:'.(100/$encY).'%;" data-encX="'.$x.'" data-encY="'.$y.'">';
+							$colBorderClass = ($x == ($encX-1)) ? '' : 'borderRight';
+							$html .= '<div class="'.$colBorderClass.' tableCol enclosureTable insertDroppable" data-encX="'.$x.'" data-encY="'.$y.'">';
+							//$html .= '<td class="enclosureTable insertDroppable" style="width:'.(100/$encX).'%;height:'.(100/$encY).'%;" data-encX="'.$x.'" data-encY="'.$y.'">';
 							if(isset($GLOBALS['insert'][$objectID][$face][$depthCounter][$x][$y])) {
 								$insertObject = $GLOBALS['insert'][$objectID][$face][$depthCounter][$x][$y];
 								$insertName = $insertObject['name'];
@@ -205,11 +210,11 @@ function buildPortPartitions($data, $objectID, $face, &$qls, $function, $objName
 								}
 								$html .= buildPortInsert($insertName, $insertFunction, $insertData, 0, $insertID, $endpointTrunked, $categoryName);
 							}
-							$html .= '</td>';
+							$html .= '</div>';
 						}
-						$html .= "</tr>";
+						$html .= "</div>";
 					}
-				$html .= '</table>';
+				$html .= '</div>';
 				break;
 		}
 		$html .= '</div>';
@@ -285,7 +290,7 @@ function buildPortInsert($insertName, $insertFunction, $data, $depthCounter, $in
 			$dataAttr = '';
 		}
 		$selectable = $element['partitionType'] == 'Generic' ? '' : ' selectable';
-		$html .= '<div class="'.$selectable.$class.'" style="display:flex;flex:'.$flex.'; flex-direction:'.$flexDirection.';"'.$dataAttr.' data-objectFace="0" data-depth="'.$depthCounter.'">';
+		$html .= '<div class="insert '.$selectable.$class.'" style="display:flex;flex:'.$flex.'; flex-direction:'.$flexDirection.';"'.$dataAttr.' data-objectFace="0" data-depth="'.$depthCounter.'">';
 		switch($element['partitionType']){
 			case 'Generic':
 				if(isset($element['children'])){

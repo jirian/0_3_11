@@ -76,17 +76,6 @@ function color_inverse($color){
 	width: 100%;
 }
 
-.enclosureTable {
-	border: 1px solid black;
-	background: repeating-linear-gradient(
-		135deg,
-		transparent,
-		transparent 4px,
-		rgba(0, 0, 0, 0.2) 4px,
-		rgba(0, 0, 0, 0.2) 8px
-	);
-}
-
 .port {
 	height: 8px;
 	width: 8px;

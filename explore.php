@@ -10,6 +10,7 @@ $qls->Security->check_auth_page('user.php');
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
 <link href="assets/css/style-cabinet.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/style-object.css" rel="stylesheet" type="text/css"/>
+<link href="assets/css/style-templates.css" rel="stylesheet" type="text/css"/>
 
 <!-- X-editable css -->
 <link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
@@ -298,7 +299,15 @@ $qls->Security->check_auth_page('user.php');
 													<strong>Port Range:&nbsp&nbsp</strong>
 												</td>
 												<td>
-													<span id="detailPortRange" class="objDetail no-modal" data-portNameAction="edit" data-toggle="modal" data-target="#portNameModal">-</span>
+													<span id="detailPortRange" class="objDetail">-</span>
+												</td>
+											</tr>
+											<tr>
+												<td class="objectDetailAlignRight">
+													<strong>Port Orientation:&nbsp&nbsp</strong>
+												</td>
+												<td>
+													<span id="detailPortOrientation" class="objDetail">-</span>
 												</td>
 											</tr>
 											<tr>

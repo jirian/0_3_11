@@ -83,7 +83,7 @@
 				<strong>Port Orientation:&nbsp&nbsp</strong>
 			</td>
 			<td>
-				<span id="detailPortOrientation" class="objDetail"><a href="#" id="inline-portOrientation" data-type="select">-</a></span>
+				<span id="detailPortOrientation" class="objDetail">-</span>
 			</td>
 		</tr>
 		<tr>

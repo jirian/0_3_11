@@ -64,7 +64,6 @@ $qls->Security->check_auth_page('administrator.php');
 			</form>
 		</div>
 	</div>
-	
 	<div class="col-sm-12 col-xs-12 col-md-6 col-lg-6 col-xl-3">
 		<div class="card-box">
 			<h4 class="header-title m-t-0 m-b-30">Email Settings</h4>
@@ -104,9 +103,19 @@ $qls->Security->check_auth_page('administrator.php');
 
 	<div class="col-sm-12 col-xs-12 col-md-6 col-lg-6 col-xl-3">
 		<div class="card-box">
+			
+			<h4 class="header-title m-t-0 m-b-30">App Settings</h4>
 			<fieldset class="form-group">
-			<h4 class="header-title m-t-0 m-b-30">Organization Name</h4>
-				<a href="#" id="inline-orgName" data-type="text" data-pk="1" data-title="Enter organization name"><?php echo $qls->org_info['name']; ?></a>
+				<label>Organization Name</label>
+				<div>
+					<a href="#" id="inline-orgName" data-type="text" data-pk="1"><?php echo $qls->org_info['name']; ?></a>
+				</div>
+			</fieldset>
+				<fieldset class="form-group">
+				<label>Server Name</label>
+				<div>
+					<a href="#" id="inline-serverName" data-type="text" data-pk="1"><?php echo $qls->config['cookie_domain']; ?></a>
+				</div>
 			</fieldset>
 		</div>
 	</div>
@@ -115,7 +124,10 @@ $qls->Security->check_auth_page('administrator.php');
 		<div class="card-box">
 			<h4 class="header-title m-t-0 m-b-30">Entitlement</h4>
 			<fieldset class="form-group">
-				<a href="#" id="inline-entitlement" data-type="text" data-pk="1" data-title="Enter entitlement ID"><?php echo $qls->App->entitlementArray['id']; ?></a>
+				<label>Entitlement ID</label>
+				<div>
+					<a href="#" id="inline-entitlement" data-type="text" data-pk="1" data-title="Enter entitlement ID"><?php echo $qls->App->entitlementArray['id']; ?></a>
+				</div>
 			</fieldset>
 			<fieldset class="form-group">
 				<dl class="dl-horizontal row">
