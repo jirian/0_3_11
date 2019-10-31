@@ -111,11 +111,17 @@ $qls->Security->check_auth_page('administrator.php');
 					<a href="#" id="inline-orgName" data-type="text" data-pk="1"><?php echo $qls->org_info['name']; ?></a>
 				</div>
 			</fieldset>
-				<fieldset class="form-group">
+			<fieldset class="form-group">
 				<label>Server Name</label>
 				<div>
 					<a href="#" id="inline-serverName" data-type="text" data-pk="1"><?php echo $qls->config['cookie_domain']; ?></a>
 				</div>
+			</fieldset>
+			<fieldset class="form-group">
+				<mark class="m-t-15"><strong>Warning:</strong>
+				<br>Server Name must be a DNS resolvable hostname or IP address that can be used to navigate to the app server.
+				<br>If this is incorrect, you may be locked out.  Contact support@patchcablemgr.com.
+				</mark>
 			</fieldset>
 		</div>
 	</div>
