@@ -5,12 +5,20 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.1.3
 	- Changes Introduced In 0.1.2
 	- Changes Introduced In 0.1.1
     - Changes Introduced In 0.1.0
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.1.3
+
+[Fix]		Build->Templates: Ports not displaying in connected partitions.
+[Fix]		Build->Templates: Removed style border around enclosure input fields.
+[Feature]	Import template to appropriate category instead of default category.
+[Fix]		Prevent port orientation of non-connectable partitions from being editable in Build->Templates Template Details.
 
 **Changes introduced in 0.1.2
 

@@ -49,11 +49,6 @@ var $qls;
 		// Store current and running versions
 		$this->currentVersion = $this->getVersion();
 		$this->runningVersion = PCM_VERSION;
-		
-		// If version is not set, assume version 0.1.0
-		if($this->currentVersion == 'none') {
-			$this->currentVersion = '0.1.0';
-		}
 	}
 
 	/**
@@ -63,17 +58,30 @@ var $qls;
 	function determineUpdate() {
 		if($this->currentVersion == '0.1.0') {
 			$this->update_010_to_011();
-			$this->update_011_to_012();
 		} else if($this->currentVersion == '0.1.1') {
 			$this->update_011_to_012();
+		} else if($this->currentVersion == '0.1.2') {
+			$this->update_012_to_013();
 		} else {
 			return true;
 		}
+		$this->currentVersion = $this->getVersion();
 		return false;
 	}
 	
 	/**
-	 * Update from version 0.1.0 to 0.1.1
+	 * Update from version 0.1.2 to 0.1.3
+	 * @return Boolean
+	 */
+	function update_012_to_013() {
+		$incrementalVersion = '0.1.3';
+		
+		// Set app version to 0.1.2
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+	}
+	
+	/**
+	 * Update from version 0.1.1 to 0.1.2
 	 * @return Boolean
 	 */
 	function update_011_to_012() {
@@ -292,7 +300,8 @@ var $qls;
 		if(isset($row['version'])) {
 			return $row['version'];
 		} else {
-			return 'none';
+			// Assume version is 0.1.0 if not set
+			return '0.1.0';
 		}
 	}
 	

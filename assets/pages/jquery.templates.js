@@ -128,6 +128,15 @@ function setInputValues(defaultValues){
 		var portType = $(variables['selectedObj']).data('portType');
 		var mediaType = $(variables['selectedObj']).data('mediaType');
 	}
+	console.log(encLayoutX);
+	console.log(encLayoutY);
+	console.log(encInsertFitment);
+	console.log(portLayoutX);
+	console.log(portLayoutY);
+	console.log(partitionType);
+	console.log(portOrientation);
+	console.log(portType);
+	console.log(mediaType);
 	$('#inputEnclosureLayoutX').val(encLayoutX);
 	$('#inputEnclosureLayoutY').val(encLayoutY);
 	$('[name="enclosureInsertFitment"][value='+encInsertFitment+']').prop('checked', true);
@@ -264,16 +273,20 @@ function addPartition(){
 	return;
 }
 
-function buildTable(inputX, inputY, className){
+function buildTable(inputX, inputY, className, border=false){
 	var table = '';
 	
 	for (y = 0; y < inputY; y++){
 		
 		// Determine border side
-		if(y == inputY) {
-			var rowBorderClass = 'borderBottom';
+		if(border) {
+			if(y == inputY) {
+				var rowBorderClass = 'borderBottom';
+			} else {
+				var rowBorderClass = 'borderTop';
+			}
 		} else {
-			var rowBorderClass = 'borderTop';
+			var rowBorderClass = '';
 		}
 		
 		// Create row
@@ -282,10 +295,14 @@ function buildTable(inputX, inputY, className){
 		for (x = 0; x < inputX; x++){
 			
 			// Determine border side
-			if(x == inputX) {
-				var colBorderClass = 'borderRight';
+			if(border) {
+				if(x == inputX) {
+					var colBorderClass = 'borderRight';
+				} else {
+					var colBorderClass = 'borderLeft';
+				}
 			} else {
-				var colBorderClass = 'borderLeft';
+				var colBorderClass = '';
 			}
 			
 			// Create column
@@ -304,7 +321,7 @@ function buildPortTable(){
 	var y = $('#inputPortLayoutY').val();
 	var table = buildTable(x, y, '');
 	$(variables['selectedObj']).html(table);
-	$(variables['selectedObj']).find('td').each(function(){
+	$(variables['selectedObj']).find('.tableCol').each(function(){
 		$(this).html('<div class="port '+portType+'"></div>');
 	});
 	$(variables['selectedObj']).data('portLayoutX', x);
@@ -362,7 +379,7 @@ function makeRackObjectsClickable(){
 			objFace: templateFace,
 			cabinetFace: cabinetFace,
 			partitionDepth: partitionDepth
-			};
+		};
 		data = JSON.stringify(data);
 		
 		//Retrieve object details
@@ -451,7 +468,7 @@ function makeRackObjectsClickable(){
 				
 				// Object Port Orientation
 				//$('#inline-portOrientation').editable('destroy');
-				if(response.portOrientationID != null) {
+				if(response.portOrientationID != false) {
 					$('#detailPortOrientation').html('<a href="#" id="inline-portOrientation" data-type="select">-</a>');
 					$('#inline-portOrientation').editable({
 						showbuttons: false,
@@ -693,7 +710,7 @@ function togglePartitionTypeDependencies(){
 			break;
 			
 		case 'Enclosure':
-			$('.dependantField.partitionType.enclosure').show();
+			$('.dependantField.partitionType.enclosureField').show();
 			break;
 	}
 }
@@ -1267,7 +1284,7 @@ function initializeTemplateCatalog(){
 $( document ).ready(function() {
 	toggleObjectTypeDependencies();
 	
-	$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog.php', function(){
+	$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog-013.php', function(){
 		initializeTemplateCatalog();
 	});
 	
@@ -1298,8 +1315,33 @@ $( document ).ready(function() {
 	}
 	setCategory();
 	
+	// Clone a template to the workspace
+	$('#objClone').click(function(){
+		var templateID = $('#selectedObjectID').val();
+		var templateObj = $('#availableContainer0').find('[data-templateid="19"]');
+		var variables = getVariables();
+		$(variables['obj']).html($(templateObj).clone());
+		$('.flex-container, .flex-container-parent').on('click', function(event){
+			event.stopPropagation();
+			
+			// Highlight this object
+			$(variables['obj']).find('.rackObjSelected').removeClass('rackObjSelected');
+			$(this).addClass('rackObjSelected');
+			
+			// Enable the 'size' input
+			$('#inputCustomPartitionSize').prop('disabled', false);
+			
+			loadProperties();
+			setInputValues(false);
+			togglePartitionTypeDependencies();
+			handleOrientationInput();
+			updatePortNameDisplay();
+		});
+	});
+	
+	// Delete a temlate
 	$('#objDelete').click(function(){
-		var templateID = $('#availableContainer').find('.rackObjSelected').closest('[data-templateid]').attr('data-templateid');
+		var templateID = $('#selectedObjectID').val();
 		var data = {};
 		data['id'] = templateID;
 		data['action'] = 'delete';
@@ -2008,7 +2050,7 @@ $( document ).ready(function() {
 		var variables = getVariables();
 		var x = $('#inputEnclosureLayoutX').val();
 		var y = $('#inputEnclosureLayoutY').val();
-		var table = buildTable(x, y, 'enclosureTable');
+		var table = buildTable(x, y, 'enclosureTable', true);
 		$(variables['selectedObj']).html(table);
 		
 		$(variables['selectedObj']).data('encLayoutX', x);

@@ -45,7 +45,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		curl_close($ch);
 		
 		// Check for errors
-		if(count($importData['error'])) {
+		if(isset($importData['error'])) {
 			foreach($importData['error'] as $serverErrMsg) {
 				$errMsg = 'Server Error - '.$serverErrMsg;
 				array_push($validate->returnData['error'], $errMsg);
@@ -70,10 +70,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		// Obtain default category information.
 		// This is needed to categorize the imported template.
-		$query = $qls->SQL->select('*', 'app_object_category', array('defaultOption' => array('=', 1)));
-		$defaultCategory = $qls->SQL->fetch_assoc($query);
-		$defaultCategoryName = $defaultCategory['name'];
-		$defaultCategoryID = $defaultCategory['id'];
+		$importedCategoryName = $importData['success']['category']['name'];
+		$importedCategoryColor = $importData['success']['category']['color'];
+		$categoryFound = false;
+		foreach($qls->App->categoryArray as $category) {
+			if(strtolower($category['name']) == strtolower($importedCategoryName)) {
+				$categoryID = $category['id'];
+				$categoryFound = true;
+			}
+		}
+		
+		if(!$categoryFound) {
+			$qls->SQL->insert('app_object_category', array('name', 'color', 'defaultOption'), array($importedCategoryName, $importedCategoryColor, 0));
+			$categoryID = $qls->SQL->insert_id();
+		}
 		
 		// Format the template data received from patchcablemgr.com to be inserted into the DB
 		$templateNameArray = array();
@@ -83,7 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				array_push($templateNameArray, $name);
 				
 				if($name == 'templateCategory_id') {
-					array_push($templateValueArray, $defaultCategoryID);
+					array_push($templateValueArray, $categoryID);
 				} else if($name == 'templateName') {
 					$uniqueName = $qls->App->findUniqueName(null, 'template', $value);
 					if($uniqueName == false) {
@@ -122,7 +132,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// Insert template compatibility data into DB
 			$qls->SQL->insert('app_object_compatibility', $templateCompatibilityNameArray, $templateCompatibilityValueArray);
 		}
-		$validate->returnData['success'] = 'This template has been imported to the default category named '.$defaultCategoryName;
+		$validate->returnData['success'] = 'This template has been imported to the '.$importedCategoryName.' category.';
 	}
 	echo json_encode($validate->returnData);
 	return;

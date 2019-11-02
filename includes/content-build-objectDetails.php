@@ -111,6 +111,11 @@
 			</td>
 		</tr>
 	</table>
+	<!--
+	<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-20">
+		<span class="btn-label"><i class="fa fa-times"></i></span>Clone
+	</button>
+	-->
 	<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-20">
 		<span class="btn-label"><i class="fa fa-times"></i></span>Delete
 	</button>

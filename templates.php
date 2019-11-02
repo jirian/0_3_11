@@ -424,7 +424,7 @@ require_once './includes/content-templates.php';
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-30">Properties</h4>
 				<div class="row">
-					<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-6">
+					<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
 						<input id="inputSideCount" type="hidden" name="sideCount" value="0">
 						<input id="inputCurrentSide" type="hidden" value="0">
 					
@@ -554,7 +554,7 @@ require_once './includes/content-templates.php';
 						</fieldset>
 						
 						<!-- Enclosure Layout -->
-						<fieldset id="objectEnclosureLayout" class="dependantField partitionType enclosure form-group">
+						<fieldset id="objectEnclosureLayout" class="dependantField partitionType enclosureField form-group">
 							<label>Enclosure Layout</label>
 							<div class="inputBlock" style="margin-bottom:10px;">
 								<div style="display:inline;">Col:</div>
@@ -567,7 +567,7 @@ require_once './includes/content-templates.php';
 						</fieldset>
 						
 						<!-- Enclosure Insert Fitment -->
-						<fieldset id="objectEnclosureInsertFitment" class="dependantField partitionType enclosure form-group">
+						<fieldset id="objectEnclosureInsertFitment" class="dependantField partitionType enclosureField form-group">
 							<label>Enclosure Insert Fitment</label>
 							<div class="inputBlock" >
 								<div class="radio">
