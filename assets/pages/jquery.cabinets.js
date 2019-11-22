@@ -63,7 +63,7 @@ function makePathDeleteClickable(selectSource){
 	$('.cablePathRemove').off('click');
 	$('.cablePathRemove').on('click', function(){
 		var parentElement = $(this).closest('tr');
-		var pathID = $(parentElement).attr('data-pathid');
+		var pathID = $(parentElement).data('pathId');
 		//Collect object data
 		var data = {
 			pathID: pathID,
@@ -108,7 +108,7 @@ function makePathDeleteClickable(selectSource){
 		params: function(params){
 			var data = {
 				action: 'path',
-				cabinetID: $('#cabinetHeader').attr('data-cabinetid'),
+				cabinetID: $('#cabinetHeader').data('cabinetId'),
 				pathID: params.pk,
 				value: params.value
 			};
@@ -142,15 +142,15 @@ function makeRackObjectsClickable(){
 			var partitionDepth = 0;
 		} else {
 			var object = $(this).closest('.rackObj');
-			var partitionDepth =  parseInt($(this).attr('data-depth'), 10);
+			var partitionDepth =  parseInt($(this).data('depth'), 10);
 		}
 		
 		//Store objectID
-		var objID = $(object).attr('data-objectid');
+		var objID = $(object).data('templateObjectId');
 		$('#selectedObjectID').val(objID);
 		
 		//Store objectFace
-		var objFace = $(object).attr('data-objectFace');
+		var objFace = $(object).data('objectFace');
 		$('#selectedObjectFace').val(objFace);
 		
 		//Store objectDepth
@@ -219,8 +219,8 @@ function makeFloorplanObjectsClickable(){
 	$('#floorplanContainer').find('.selectable').off('click');
 	$('#floorplanContainer').find('.selectable').on('click', function(event){
 		event.stopPropagation();
-		var objectID = $(this).attr('data-objectID');
-		var objectType = $(this).attr('data-type');
+		var objectID = $(this).data('objectId');
+		var objectType = $(this).data('type');
 		$(document).data('selectedFloorplanObject', $(this));
 		$(document).data('selectedFloorplanObjectID', objectID);
 		$(document).data('selectedFloorplanObjectType', objectType);
@@ -275,7 +275,7 @@ function initializePathSelector(){
 	$('#cabinetTrunkedTo').on('click', function(e){
 		e.preventDefault();
 
-		var modalTitle = $(this).attr('data-modalTitle');
+		var modalTitle = $(this).data('modaltitle');
 		var peerIDArray = $(this).data('peerIDArray');
 		$(document).data('peerIDArray', peerIDArray);
 		var objectID = $('#selectedObjectID').val();
@@ -295,7 +295,7 @@ function initializeFloorplanPathSelector(){
 	$('#floorplanTrunkedTo').on('click', function(e){
 		e.preventDefault();
 
-		var modalTitle = $(this).attr('data-modalTitle');
+		var modalTitle = $(this).data('modalitle');
 		var peerIDArray = $(this).data('peerIDArray');
 		$(document).data('peerIDArray', peerIDArray);
 		var objectID = $('#selectedObjectID').val();
@@ -397,21 +397,21 @@ function initializeInsertDroppable(){
 			data['cabinetID'] = $('#cabinetID').val();
 			data['cabinetFace'] = $('#currentCabinetFace').val();
 			data['RU'] = 0;
-			data['objectID'] = ui.draggable.attr('data-objectid');
-			data['parent_id'] = parseInt($(this).parent().closest('.rackObj').attr('data-objectid'));
-			data['parent_face'] = parseInt($(this).parent().closest('.rackObj').attr('data-objectface'));
-			data['parent_depth'] = parseInt($(this).closest('[data-depth]').attr('data-depth'));
-			data['insertSlotX'] = $(this).attr('data-encX');
-			data['insertSlotY'] = $(this).attr('data-encY');
+			//data['objectID'] = ui.draggable.data('templateObjectId');
+			data['parent_id'] = parseInt($(this).parent().closest('.flex-container-parent').data('templateObjectId'));
+			data['parent_face'] = parseInt($(this).parent().closest('.flex-container-parent').data('objectFace'));
+			data['parent_depth'] = parseInt($(this).closest('[data-depth]').data('depth'));
+			data['insertSlotX'] = $(this).data('encX');
+			data['insertSlotY'] = $(this).data('encY');
 			
 			//If object came from stock, then append the clone.  Otherwise append the object.
 			if (ui.draggable.hasClass('stockObj')){
 				var object = ui.draggable.clone();
-				data['objectID'] = ui.draggable.attr('data-templateid');
+				data['objectID'] = ui.draggable.data('templateId');
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
-				data['objectID'] = ui.draggable.attr('data-objectid');
+				data['objectID'] = ui.draggable.data('templateObjectId');
 				data['action'] = 'updateInsert';
 			}
 			
@@ -448,24 +448,27 @@ function initializeInsertDroppable(){
 			if (ui.draggable.hasClass('stockObj')){
 				var cabinetObjectID = $('#objectID').val();
 			} else {
-				var cabinetObjectID = ui.draggable.attr('data-objectid');
+				var cabinetObjectID = ui.draggable.data('objectId');
 			}
 			
 			//Create object where it was dropped.
 			$(this).append(object
 				.show()
-				.removeClass('stockObj')
+				.removeClass('stockObj obj-border')
 				//Mark object as being racked in cabinet and landing in a valid dropZone
 				.addClass('rackObj insert')
-				.css({'left':0,
-					'top':0,
-					'width':'100%',
-					'display':'flex'
+				.css({
+					//'left':0,
+					//'top':0,
+					//'width':'auto',
+					//'height':'auto',
+					//'display':'flex'
 				})
-				.attr('data-objectid', cabinetObjectID)
+				.attr('data-object-id', cabinetObjectID)
 				.draggable({
 					delay: 200,
 					helper: 'clone',
+					classes: {'ui-draggable-dragging': 'obj-border'},
 					zIndex: 1000,
 					cursorAt: {
 						top:10
@@ -473,7 +476,8 @@ function initializeInsertDroppable(){
 					start: function(){
 						var cabinetRUObject = $(this).parent();
 						var dragStartWidth = $(cabinetRUObject).width();
-						$(cabinetRUObject).children().eq(1).width(dragStartWidth);
+						var dragStartHeight = $(cabinetRUObject).height();
+						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
 					},
 					revert: function(){
 						return determineRevert($(this), false)
@@ -487,18 +491,18 @@ function initializeInsertDroppable(){
 
 function retrieveCabinet(cabinetID, cabinetFace){
 	var objID = $('#selectedObjectID').val();
-	$('#buildSpaceContent').load('backend/create_build_space.php', {id:cabinetID, face:cabinetFace, view:'port'}, function(){
+	$('#buildSpaceContent').load('backend/create_build_space.php?page=build', {id:cabinetID, face:cabinetFace, view:'port'}, function(){
 		loadCabinetBuild();
 		//Re-highlight select cabinet object when switching cabinet side.
 		if (objID) {
-			$('[data-objectid="'+objID+'"]').addClass('rackObjSelected');
+			$('[data-object-id="'+objID+'"]').addClass('rackObjSelected');
 		}
 	});
 }
 
 function determineRevert(obj, expandDroppable){
 	var droppableIndex = $('.droppable').index($(obj).parent());
-	var objectRUSize = parseInt($(obj).attr('data-RUSize'));
+	var objectRUSize = parseInt($(obj).data('ruSize'));
 	if ($(obj).hasClass('revert')) {
 		$(obj).removeClass('revert');
 		if(expandDroppable){
@@ -521,16 +525,17 @@ function loadCabinetBuild(){
 	initializeInsertDroppable();
 	makeRackObjectsClickable();
 	//Make the objects height fill the <td> container
-	setObjectSize($('.rackObj:not(.insert)'));
+	//setObjectSize($('.rackObj:not(.insert)'));
 	
     $('.draggable').draggable({
 		delay: 200,
 		helper: 'clone',
 		cursorAt: {top:10},
 		start: function(){
+			console.log($(this).attr('class'));
 			var cabinetRUObject = $(this).parent();
 			var dragStartWidth = $(cabinetRUObject).width();
-			$(cabinetRUObject).children().eq(2).width(dragStartWidth);
+			$(cabinetRUObject).children().eq(1).width(dragStartWidth);
 		},
 		revert: function(){
 			return determineRevert($(this), false);
@@ -541,6 +546,7 @@ function loadCabinetBuild(){
     $('.insertDraggable').draggable({
 		delay: 200,
 		helper: 'clone',
+		classes: {'ui-draggable-dragging': 'obj-border'},
 		cursorAt: {top:10},
 		start: function(){
 			var cabinetRUObject = $(this).parent();
@@ -591,24 +597,24 @@ function loadCabinetBuild(){
 		accept: '.draggable, .initialDraggable',
 		drop: function(event, ui){
 			var data = {};
-			var cabinetRU = parseInt($(this).attr('data-cabinetRU'));
-			var objectRUSize = parseInt($(ui.draggable).attr('data-RUSize'));
+			var cabinetRU = parseInt($(this).data('cabinetru'));
+			var objectRUSize = parseInt($(ui.draggable).data('ruSize'));
 			var droppableIndex = $('.droppable').index($(this));
 			var currentCabinetFace = $('#currentCabinetFace').val();
 			var validDrop = true;
 			data['cabinetID'] = $('#cabinetID').val();
 			data['cabinetFace'] = currentCabinetFace;
-			data['objectFace'] = ui.draggable.attr('data-objectFace');
+			data['objectFace'] = ui.draggable.data('objectFace');
 			data['RU'] = cabinetRU;
 			
 			//If object came from stock, then append the clone.  Otherwise append the object.
 			if (ui.draggable.hasClass('stockObj')){
 				var object = ui.draggable.clone();
-				data['objectID'] = ui.draggable.attr('data-templateid');
+				data['objectID'] = ui.draggable.data('templateId');
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
-				data['objectID'] = ui.draggable.attr('data-objectid');
+				data['objectID'] = ui.draggable.find('.flex-container-parent').data('templateObjectId');
 				data['action'] = 'updateObject';
 			}
 			
@@ -644,7 +650,7 @@ function loadCabinetBuild(){
 			if (ui.draggable.hasClass('stockObj')){
 				var cabinetObjectID = $('#objectID').val();
 			} else {
-				var cabinetObjectID = ui.draggable.attr('data-objectid');
+				var cabinetObjectID = ui.draggable.data('templateObjectId');
 				removeObject($(ui.draggable));
 			}
 			
@@ -656,9 +662,13 @@ function loadCabinetBuild(){
 				.removeClass('stockObj')
 				//Mark object as being racked in cabinet and landing in a valid dropZone
 				.addClass('rackObj')
-				.css({'left':0,'top':0,'width':'100%'})
+				.css({
+					'left':0,
+					'top':0,
+					'width':'auto'
+				})
 				.show()
-				.attr('data-objectid', cabinetObjectID)
+				.attr('data-template-object-id', cabinetObjectID)
 				.draggable({
 					delay: 200,
 					helper: 'clone',
@@ -667,9 +677,12 @@ function loadCabinetBuild(){
 						top:10
 					},
 					start: function(){
+						console.log($(this).prop("tagName"));
 						var cabinetRUObject = $(this).parent();
 						var dragStartWidth = $(cabinetRUObject).width();
-						$(cabinetRUObject).children().eq(1).width(dragStartWidth);
+						var dragStartHeight = $(cabinetRUObject).height();
+						console.log('Width='+dragStartWidth+' Height='+dragStartHeight);
+						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
 					},
 					revert: function(){
 						return determineRevert($(this), true);
@@ -692,7 +705,7 @@ function filterTemplates(){
 		
 		$.each(templates, function(indexTemplate, valueTemplate){
 			var templateObj = $(this);
-			var templateName = $(valueTemplate).attr('data-templatename').toLowerCase();
+			var templateName = $(valueTemplate).data('templateName').toLowerCase();
 			var match = true;
 			$.each(tags, function(indexTag, valueTag){
 				var tag = valueTag.toLowerCase();
@@ -761,7 +774,7 @@ function getFloorplanObjectPeerTable(){
 			table += '<tbody id="floorplanObjectTableBody">';
 			
 			$.each(response.success.floorplanObjectPeerTable, function(index, item){
-				table += '<tr data-id="'+item.objID+'" style="cursor: pointer;">';
+				table += '<tr data-object-id="'+item.objID+'" style="cursor: pointer;">';
 				table += '<td>'+item.objName+'</td>';
 				table += '<td>'+item.peerPortName+'</td>';
 				table += '</tr>';
@@ -770,7 +783,7 @@ function getFloorplanObjectPeerTable(){
 			table += '</table>';
 			
 			$('#floorplanObjectTableContainer').html($(table).on('click', 'tr', function(){
-				var floorplanObjID = $(this).attr('data-id');
+				var floorplanObjID = $(this).data('objectId');
 				$('#floorplanObj'+floorplanObjID).click();
 			}));
 			
@@ -926,7 +939,7 @@ $( document ).ready(function() {
 		drop: function(event, ui){
 			var objectOrig = ui.draggable;
 			var objectClone = ui.draggable.clone();
-			var type = objectClone.attr('data-type');
+			var type = objectClone.data('type');
 			var objectOffsetTop = ui.offset.top;
 			var objectOffsetLeft = ui.offset.left;
 			var canvasOffsetTop = $(this).offset().top;
@@ -974,7 +987,7 @@ $( document ).ready(function() {
 				makeFloorplanObjectsClickable();
 			} else {
 				var action = 'editLocation';
-				var objectID = ui.draggable.attr('data-objectID');
+				var objectID = ui.draggable.data('objectId');
 				var object = objectOrig;
 				var data = {
 					action: action,
@@ -996,7 +1009,7 @@ $( document ).ready(function() {
 					displayError(response.error);
 				} else {
 					if(action == 'add') {
-						object.attr('data-objectID', response.success.id);
+						object.data('objectId', response.success.id);
 						object.attr('id', 'floorplanObj'+response.success.id);
 						getFloorplanObjectPeerTable();
 					}
@@ -1190,7 +1203,7 @@ $( document ).ready(function() {
 	});
 	
 	$('.categoryTitle').on('click', function(){
-		var categoryName = $(this).attr('data-categoryName');
+		var categoryName = $(this).data('categoryName');
 		if($('.category'+categoryName+'Container').is(':visible')) {
 			$('.category'+categoryName+'Container').hide(400);
 			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
@@ -1204,7 +1217,7 @@ $( document ).ready(function() {
 	
 	$('.sideSelectorCabinet').on('change', function(){
 		var currentCabinetFace = $(this).val();
-		var cabinetID = $('#cabinetHeader').attr('data-cabinetid');
+		var cabinetID = $('#cabinetHeader').data('cabinetId');
 		$('#currentCabinetFace').val(currentCabinetFace);
 		retrieveCabinet(cabinetID, currentCabinetFace);
 		if (currentCabinetFace == 0) {
@@ -1218,7 +1231,7 @@ $( document ).ready(function() {
 	
 	$('#pathAdd').click(function(){
 		var data = {};
-		data['cabinetID'] = $('#cabinetHeader').attr('data-cabinetid');
+		data['cabinetID'] = $('#cabinetHeader').data('cabinetId');
 		data['action'] = 'new';
 		data = JSON.stringify(data);
 		$.post('backend/process_cabinet.php', {data:data}, function(data){
@@ -1227,7 +1240,7 @@ $( document ).ready(function() {
 				alert(responseJSON['error']);
 			} else {
 				var cablePathLine = '';
-				cablePathLine += '<tr data-pathid="'+responseJSON.success.newID+'">';
+				cablePathLine += '<tr data-path-id="'+responseJSON.success.newID+'">';
 				cablePathLine += '<td><a href="#" class="pathCabinetSelect" data-type="select" data-pk="'+responseJSON.success.newID+'" data-value=""></a></td>';
 				cablePathLine += '<td><a href="#" class="pathDistanceNumber" data-type="number" data-pk="'+responseJSON.success.newID+'" data-min="1" data-value="1"></a></td>';				
 				cablePathLine += '<td><a href="#" class="pathNotesText" data-type="text" data-pk="'+responseJSON.success.newID+'"></a></td>';
@@ -1247,7 +1260,7 @@ $( document ).ready(function() {
 
 	$('#objDelete').click(function(){
 		var objectID = $('#selectedObjectID').val();
-		var object = $('#cabinetTable').find('[data-objectid='+objectID+']');
+		var object = $('#cabinetTable').find('[data-template-object-id='+objectID+']');
 		
 		var data = {
 			objectID: objectID,
@@ -1370,7 +1383,7 @@ $( document ).ready(function() {
 					//Build cable path table
 					var tableData = '';
 					$(response.success.path).each(function(index, path){
-						tableData += '<tr data-pathID="'+path.id+'">';
+						tableData += '<tr data-path-id="'+path.id+'">';
 						tableData += '<td><a href="#" class="pathCabinetSelect" data-type="select" data-pk="'+path.id+'" data-value="'+path.cabinetID+'"></a></td>';
 						tableData += '<td><a href="#" class="pathDistanceNumber" data-type="number" data-pk="'+path.id+'" data-min="1" data-value="'+path.distance+'"></a></td>';
 						tableData += '<td><a href="#" class="pathNotesText" data-type="text" data-pk="'+path.id+'">'+path.notes+'</a></td>';
@@ -1470,7 +1483,7 @@ $( document ).ready(function() {
 										disablePan: false
 									});
 								})
-							.attr('data-objectID', item.id)
+							.data('objectId', item.id)
 							.attr('id', 'floorplanObj'+item.id)
 						);
 						

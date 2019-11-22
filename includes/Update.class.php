@@ -62,11 +62,42 @@ var $qls;
 			$this->update_011_to_012();
 		} else if($this->currentVersion == '0.1.2') {
 			$this->update_012_to_013();
+		//} else if($this->currentVersion == '0.1.3') {
+			//$this->update_013_to_014();
 		} else {
 			return true;
 		}
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.1.3 to 0.1.4
+	 * @return Boolean
+	 */
+	function update_013_to_014() {
+		$incrementalVersion = '0.1.4';
+		
+		// Set app version to 0.1.4
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add "scrollLock" column to "users" table
+		$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);
+		
+		// Rename "portLayoutX/Y" and "encLayoutX/Y" in partition data to "valueX/Y"
+		$query = $this->qls->SQL->select('*', 'app_object_templates');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			if($row['templatePartitionData']) {
+				$rowID = $row['id'];
+				$partitionDataJSON = $row['templatePartitionData'];
+				$partitionData = json_decode($partitionDataJSON, true);
+				foreach($partitionData as &$face) {
+					$this->alterTemplatePartitionDataLayoutName($face);
+				}
+				$partitionDataJSON = json_encode($partitionData);
+				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
+			}
+		}
 	}
 	
 	/**
@@ -318,5 +349,23 @@ var $qls;
 			$uniqueNameValue .= $characters[rand(0, $charactersLength - 1)];
 		}
 		return $uniqueNameValue;
+	}
+	
+	function alterTemplatePartitionDataLayoutName(&$data){
+		foreach($data as &$partition) {
+			$partitionType = $partition['partitionType'];
+			if($partitionType == 'Connectable' or $partitionType == 'Enclosure') {
+				$layoutPrefix = ($partitionType == 'Connectable') ? 'port' : 'enc';
+				$valueX = $partition[$layoutPrefix.'LayoutX'];
+				$valueY = $partition[$layoutPrefix.'LayoutY'];
+				$partition['valueX'] = $valueX;
+				$partition['valueY'] = $valueY;
+				unset($partition[$layoutPrefix.'LayoutX']);
+				unset($partition[$layoutPrefix.'LayoutY']);
+			}
+			if(isset($partition['children'])) {
+				$this->alterTemplatePartitionDataLayoutName($partition['children']);
+			}
+		}
 	}
 }

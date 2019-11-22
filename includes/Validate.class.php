@@ -220,6 +220,22 @@ class Validate {
 		return true;
 	}
 	
+	function validateLayoutAxis($input, $reference=false) {
+		$reference = $reference ? $reference.' (layout axis)' : $reference;
+		if (!isset($input)){
+			$errorMsg = $reference ? $reference : 'Layout axis is required.';
+			array_push($this->returnData['error'], $errorMsg);
+			return false;
+		} else {
+			if (!preg_match('/^[0-9]+$/', $input)){
+				$errorMsg = $reference ? $reference : 'Invalid layout axis value.';
+				array_push($this->returnData['error'], $errorMsg);
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	function validatePortLayoutX($input, $reference=false) {
 		$reference = $reference ? $reference.' (portLayoutX)' : $reference;
 		if (!isset($input)){
@@ -680,7 +696,7 @@ class Validate {
 		return true;
 	}
 	
-	function validatePortID($input, $reference) {
+	function validatePortID($input, $reference="port ID") {
 		if (!isset($input)){
 			$errorMsg = ucfirst($reference).' is required.';
 			array_push($this->returnData['error'], $errorMsg);
@@ -902,51 +918,59 @@ class Validate {
 		if($depth < 20) {
 			//$depth++;
 			
-			//Validate partition port layout X
-			if(!$this->validatePortLayoutX($input['portLayoutX'], $reference)) {
-				$success = false;
-			}
-			
-			//Validate partition port layout Y
-			if(!$this->validatePortLayoutY($input['portLayoutY'], $reference)) {
-				$success = false;
-			}
-			
-			//Validate partition enclosure layout X
-			if(!$this->validateEnclosureLayoutX($input['encLayoutX'], $reference)) {
-				$success = false;
-			}
-			
-			//Validate partition enclosure layout Y
-			if(!$this->validateEnclosureLayoutY($input['encLayoutY'], $reference)) {
-				$success = false;
-			}
-			
 			//Validate partition type
 			if(!$this->validatePartitionType($input['partitionType'], $reference)) {
+				
 				$success = false;
-			}
-			
-			//Validate port orientation
-			if(!$this->validatePortOrientation($input['portOrientation'], $reference)) {
-				$success = false;
-			}
-			
-			//Validate port type
-			if(!$this->validatePortType($input['portType'], $reference)) {
-				$success = false;
-			}
-			
-			// Validate port name format
-			if($input['partitionType'] == 'Connectable') {
-				if(!$this->validatePortNameFormat($input['portNameFormat'], $reference)) {
-					$success = false;
+				$partitionType = $input['partitionType'];
+				
+				if($partitionType == 'Connectable') {
+					
+					//Validate partition port layout X
+					if(!$this->validateLayoutAxis($input['valueX'], 'Invalid port layout X')) {
+						$success = false;
+					}
+					
+					//Validate partition port layout Y
+					if(!$this->validateLayoutAxis($input['valueY'], 'Invalid port layout Y')) {
+						$success = false;
+					}
+					
+					//Validate port orientation
+					if(!$this->validatePortOrientation($input['portOrientation'], $reference)) {
+						$success = false;
+					}
+					
+					//Validate port type
+					if(!$this->validatePortType($input['portType'], $reference)) {
+						$success = false;
+					}
+					
+					// Validate port name format
+					if($input['partitionType'] == 'Connectable') {
+						if(!$this->validatePortNameFormat($input['portNameFormat'], $reference)) {
+							$success = false;
+						}
+					}
+					
+					// Validate media type
+					if(!$this->validateMediaType($input['mediaType'], $reference)) {
+						$success = false;
+					}
+				
+				} else if($partitionType == 'Enclosure') {
+					
+					//Validate partition enclosure layout X
+					if(!$this->validateLayoutAxis($input['valueX'], 'Invalid enclosure layout X')) {
+						$success = false;
+					}
+					
+					//Validate partition enclosure layout Y
+					if(!$this->validateLayoutAxis($input['valueY'], 'Invalid enclosure layout Y')) {
+						$success = false;
+					}
+					
 				}
-			}
-			
-			// Validate media type
-			if(!$this->validateMediaType($input['mediaType'], $reference)) {
-				$success = false;
 			}
 			
 			// Validate partition flex direction
@@ -955,10 +979,10 @@ class Validate {
 			}
 			
 			// Validate partition flex units
-			if(!$this->validateFlexUnits($input['hunits'], $reference)) {
+			if(!$this->validateFlexUnits($input['hUnits'], $reference)) {
 				$success = false;
 			}
-			if(!$this->validateFlexUnits($input['vunits'], $reference)) {
+			if(!$this->validateFlexUnits($input['vUnits'], $reference)) {
 				$success = false;
 			}
 			

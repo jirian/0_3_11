@@ -81,6 +81,9 @@ while ($row = $qls->SQL->fetch_assoc($query)){
 	array_push($populatedPortTable, $row['object_id'].'-'.$row['object_face'].'-'.$row['object_depth'].'-'.$row['port_id']);
 }
 
+$page = basename($_GET['page']);
+$cursorClass = ($page == 'explore') ? 'cursorPointer' : 'cursorGrab';
+
 ?>
 
 <!--
@@ -88,7 +91,7 @@ while ($row = $qls->SQL->fetch_assoc($query)){
 //Cabinet
 /////////////////////////////
 -->
-	<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinetid="<?php echo $node_id; ?>"><?php echo $node_name; ?></div>
+	<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="<?php echo $node_id; ?>"><?php echo $node_name; ?></div>
 	<input id="cabinetID" type="hidden" value="<?php echo $node_id; ?>">
 	<input id="objectID" type="hidden" value="">
 	<table id="cabinetTable" class="cabinet">
@@ -102,23 +105,50 @@ while ($row = $qls->SQL->fetch_assoc($query)){
 						$objName = $object[$cabLoop]['name'];
 						$face = $object[$cabLoop]['face'];
 						$templateID = $object[$cabLoop]['template_id'];
-						$function = $objectTemplate[$templateID]['templateFunction'];
+						$template = $qls->App->templateArray[$templateID];
+						$partitionData = json_decode($template['templatePartitionData'], true);
+						$function = $template['templateFunction'];
+						$type = $template['templateType'];
+						$mountConfig = $template['templateMountConfig'];
 						$objectID = $object[$cabLoop]['id'];
-						$RUSize = $objectTemplate[$templateID]['templateRUSize'];
-						$categoryName = $objectTemplate[$templateID]['categoryName'];
+						$RUSize = $template['templateRUSize'];
+						$categoryID = $template['templateCategory_id'];
+						$categoryName = $qls->App->categoryArray[$categoryID]['name'];
 						echo '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
 						if($cabinetView == 'port') {
-							echo '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
-							echo buildPortPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
+							$objAttrArray = array(
+								'data-template-object-id' => $objectID,
+								'data-template-type' => $type,
+								'data-template-id' => $templateID,
+								'data-object-face' => $face,
+								'data-object-mount-config' => $mountConfig,
+								'data-ru-size' => $RUSize,
+								'data-template-function' => '"'.$function.'"',
+								'data-template-category-id' => $categoryID,
+								'data-template-category-name' => $categoryName
+							);
+							
+							$objClassArray = array(
+								'rackObj',
+								$cursorClass,
+								'draggable'
+							);
+							//echo '<div data-object-id="'.$objectID.'" data-template-id="'.$templateID.'" data-ru-size="'.$RUSize.'" data-object-face="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
+							//echo buildPortPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
+							echo $qls->App->generateTemplateStandardContainer($template, $face, $objClassArray, $objAttrArray);
+							$rackObj = true;
+							$objClassArray = array();
+							echo $qls->App->buildStandard($partitionData[$face], $rackObj, $categoryName, $objClassArray, $objAttrArray, $objectID, $face);
+							echo '</div>';
 						} else if($cabinetView == 'visual') {
 							$templateImgAttr = $face == 0 ? 'frontImage' : 'rearImage';
 							$templateImgPath = '/images/templateImages/'.$objectTemplate[$templateID][$templateImgAttr];
 							echo '<div style="background-image: url('.$templateImgPath.'); background-size: 100% 100%" data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
 							echo buildVisualPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
+							echo '</div>';
 						} else if($cabinetView == 'name') {
-							echo '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable"><strong>'.$objName.'</strong>';
+							echo '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable"><strong>'.$objName.'</strong></div>';
 						}
-						echo '</div>';
 						$skipCounter = $RUSize-1;
 					} else {
 						if ($skipCounter == 0){
@@ -141,87 +171,6 @@ while ($row = $qls->SQL->fetch_assoc($query)){
 	<div class="cab-height cabinet-foot"></div>
 
 <?php
-function buildPortPartitions($data, $objectID, $face, &$qls, $function, $objName, &$depthCounter=0){
-	$html = '';
-	foreach($data as $element){
-		$flexDirection = $element['direction'];
-		$flex = $element['flex'];
-		$flexClass = $depthCounter == 0 ? 'flex-container-parent' : 'flex-container';
-		
-		switch($element['partitionType']){
-			case 'Generic':
-				$html .= '<div class="'.$flexClass.'" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';">';
-				if(isset($element['children'])){
-					$depthCounter++;
-					$html .= buildPortPartitions($element['children'], $objectID, $face, $qls, $function, $objName, $depthCounter);
-				}
-				break;
-				
-			case 'Connectable':
-				$portX = $element['portLayoutX'];
-				$portY = $element['portLayoutY'];
-				$portPrefix = $element['portPrefix'];
-				$portNumber = $element['portNumber'];
-				if($function == 'Endpoint') {
-					$query = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$objectID.' AND a_face = '.$face.' AND a_depth = '.$depthCounter.') OR (b_id = '.$objectID.' AND b_face = '.$face.' AND b_depth = '.$depthCounter.')');
-					$endpointTrunked = $qls->SQL->num_rows($query) ? true : false;
-				} else {
-					$endpointTrunked = false;
-				}
-				$html .= '<div class="'.$flexClass.' partition selectable" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" data-depth="'.$depthCounter.'">';
-				$html .= '<table class="border-black portTable" style="border-collapse: collapse;height:100%;width:100%;">';
-					for ($y = 0; $y < $portY; $y++){
-						$html .= '<tr style="width:100%;height:'.(100/$portY).'%;">';
-						for ($x = 0; $x < $portX; $x++){
-							$html .= createPort($element, $x, $y, $depthCounter, false, $endpointTrunked, $face, $objectID);
-						}
-						$html .= '</tr>';
-					}
-				$html .= '</table>';
-				break;
-				
-			case 'Enclosure';
-				$html .= '<div class="'.$flexClass.' partition selectable" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" data-depth="'.$depthCounter.'">';
-				$encX = $element['encLayoutX'];
-				$encY = $element['encLayoutY'];
-				//$html .= '<table class="enclosure border-black" style="border-collapse: collapse;height:100%;width:100%;">';
-				$html .= '<div class="flex-container-parent enclosure" data-encLayoutX="'.$encX.'" data-encLayoutY="'.$encY.'">';
-					for ($y = 0; $y < $encY; $y++){
-						$rowBorderClass = ($y == 0) ? '' : 'borderTop';
-						$html .= '<div class="'.$rowBorderClass.' tableRow">';
-						//$html .= '<tr style="width:100%;height:'.(100/$encY).'%;">';
-						for ($x = 0; $x < $encX; $x++){
-							$colBorderClass = ($x == ($encX-1)) ? '' : 'borderRight';
-							$html .= '<div class="'.$colBorderClass.' tableCol enclosureTable insertDroppable" data-encX="'.$x.'" data-encY="'.$y.'">';
-							//$html .= '<td class="enclosureTable insertDroppable" style="width:'.(100/$encX).'%;height:'.(100/$encY).'%;" data-encX="'.$x.'" data-encY="'.$y.'">';
-							if(isset($GLOBALS['insert'][$objectID][$face][$depthCounter][$x][$y])) {
-								$insertObject = $GLOBALS['insert'][$objectID][$face][$depthCounter][$x][$y];
-								$insertName = $insertObject['name'];
-								$insertID = $insertObject['id'];
-								$insertTemplate = $GLOBALS['objectTemplate'][$insertObject['template_id']];
-								$insertFunction = $insertTemplate['templateFunction'];
-								$insertData = $insertTemplate['partitionData'][0];
-								$categoryName = $GLOBALS['category'][$insertTemplate['templateCategory_id']]['name'];
-								if($function == 'Endpoint') {
-									$query = $qls->SQL->select('*', 'app_object_peer', array('a_id' => array('=', $insertObject['id']), 'OR', 'b_id' => array('=', $insertObject['id'])));
-									$endpointTrunked = $qls->SQL->num_rows($query) ? true : false;
-								} else {
-									$endpointTrunked = false;
-								}
-								$html .= buildPortInsert($insertName, $insertFunction, $insertData, 0, $insertID, $endpointTrunked, $categoryName);
-							}
-							$html .= '</div>';
-						}
-						$html .= "</div>";
-					}
-				$html .= '</div>';
-				break;
-		}
-		$html .= '</div>';
-		$depthCounter++;
-	}
-	return $html;
-}
 
 function buildVisualPartitions($data, $objectID, $face, &$qls, $function, $objName, &$depthCounter=0){
 	$html = '';

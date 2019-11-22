@@ -11,7 +11,8 @@
 				echo '<div id="cabinetContainer'.$x.'" '.$display.'>';
 				echo '<div class="cab-height cabinet-border cabinet-end"></div>';
 				echo '<table class="cabinet">';
-				$cabinetSize = 25;
+
+				$cabinetSize = 5;
 				for ($cabLoop=$cabinetSize; $cabLoop>0; $cabLoop--){
 					echo '<tr class="cabinet">';
 					echo '<td class="cabinetRailRU cabinetRailLeft cabinet">';
@@ -20,7 +21,7 @@
 					echo '<td class="RackUnit'.$x.'">';
 					if ($cabLoop == $cabinetSize) {
 						$activeObj = ($x==0) ? 'activeObj' : '';
-						echo '<div id="previewObj'.$x.'" class="'.$activeObj.' objBaseline" data-hUnits="10" data-vUnits="2"></div>';
+						echo '<div id="previewObj'.$x.'" class="'.$activeObj.' objBaseline" data-h-units="10" data-v-units="2"></div>';
 					}
 					echo '</td>';
 					echo '<td class="cabinetRailRU cabinetRailRight cabinet"></td>';

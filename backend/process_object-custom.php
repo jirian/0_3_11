@@ -20,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		if($action == 'add') {
 			$name = $data['name'];
 			$category_id = $data['category'];
-			$type= $data['type'];
+			$type = $data['type'];
 			
 			$mediaTypeArray = array();
 			$query = $qls->SQL->select('*', 'shared_mediaType');
@@ -82,21 +82,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// Insert compatibility data into DB
 			foreach($compatibilityArray as $side=>$face){
 				foreach($face as $element){
-					$portType = $element['portType'];
-					$mediaType = $function == 'Endpoint' ? 8 : $element['mediaType'];
-					$mediaCategory = $function == 'Endpoint' ? 5 : $mediaTypeArray[$mediaType]['category_id'];
-					$mediaCategoryType = $objectPortTypeArray[$portType]['category_type_id'];
-					$portTotal = array_key_exists('portX', $element) ? $element['portX'] * $element['portY'] : 0;
+					$partitionType = $element['partitionType'];
 					
-					$qls->SQL->insert('app_object_compatibility', array(
+					if($partitionType == 'Connectable') {
+						$portType = $element['portType'];
+						$mediaType = $function == 'Endpoint' ? 8 : $element['mediaType'];
+						$mediaCategory = $function == 'Endpoint' ? 5 : $mediaTypeArray[$mediaType]['category_id'];
+						$mediaCategoryType = $objectPortTypeArray[$portType]['category_type_id'];
+						$portTotal = array_key_exists('portX', $element) ? $element['portX'] * $element['portY'] : 0;
+						
+						$columnArray = array(
 							'template_id',
 							'side',
 							'depth',
 							'portLayoutX',
 							'portLayoutY',
 							'portTotal',
-							'encLayoutX',
-							'encLayoutY',
 							'templateType',
 							'partitionType',
 							'partitionFunction',
@@ -110,15 +111,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							'vUnits',
 							'flex',
 							'portNameFormat'
-						), array(
+						);
+						
+						$valueArray = array(
 							$objectID,
 							$side,
 							$element['depth'],
 							$element['portX'],
 							$element['portY'],
 							$portTotal,
-							$element['encX'],// needs to come from enclosure object
-							$element['encY'],//
 							$type,
 							$element['partitionType'],
 							$function,
@@ -127,13 +128,46 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							$mediaType,
 							$mediaCategory,
 							$mediaCategoryType,
-							$element['direction'],//
-							$element['hUnits'],//
-							$element['vUnits'],//
+							$element['direction'],
+							$element['hUnits'],
+							$element['vUnits'],
 							$element['flex'],
 							$element['portNameFormat']
-						)
-					);
+						);
+						
+					} else if($partitionType == 'Enclosure') {
+						error_log(json_encode($element));
+						$columnArray = array(
+							'template_id',
+							'side',
+							'depth',
+							'encTolerance',
+							'templateType',
+							'partitionType',
+							'partitionFunction',
+							'direction',
+							'hUnits',
+							'vUnits',
+							'flex'
+						);
+						
+						$valueArray = array(
+							$objectID,
+							$side,
+							$element['depth'],
+							$element['encTolerance'],
+							$type,
+							$element['partitionType'],
+							$function,
+							$element['direction'],
+							$element['hUnits'],
+							$element['vUnits'],
+							$element['flex']
+						);
+					}
+					
+					
+					$qls->SQL->insert('app_object_compatibility', $columnArray, $valueArray);
 				}
 			}
 			
@@ -204,6 +238,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->SQL->update('app_object_templates', array('templatePartitionData' => $templatePartitionDataJSON), array('id' => array('=', $templateID)));
 				$qls->SQL->update('app_object_compatibility', array('portOrientation' => $portOrientationID), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
 				
+			} else if($data['attribute'] == 'inline-enclosureTolerance') {
+				
+				// Collect template IDs
+				$templateFace = $data['templateFace'];
+				$templateDepth = $data['templateDepth'];
+				$encTolerance = strtolower($data['value']);
+				
+				// Store and manipulate template partition data
+				$template = $qls->App->templateArray[$templateID];
+				$templatePartitionData = json_decode($template['templatePartitionData'], true);
+				updatePartitionData($templatePartitionData[$templateFace], $depth, ucfirst($encTolerance), 'encTolerance');
+				$templatePartitionDataJSON = json_encode($templatePartitionData);
+				
+				// Update template partition data
+				$qls->SQL->update('app_object_templates', array('templatePartitionData' => $templatePartitionDataJSON), array('id' => array('=', $templateID)));
+				$qls->SQL->update('app_object_compatibility', array('encTolerance' => ucfirst($encTolerance)), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
+				
 			} else if($data['attribute'] == 'portNameFormat') {
 				
 				// Collect data
@@ -270,8 +321,8 @@ function getCompatibilityInfo($face, $dataArray=array(), &$depthCounter=0){
 		} else if($partitionType == 'Connectable') {
 			$tempArray = array();
 			$tempArray['depth'] = $depthCounter;
-			$tempArray['portX'] = $element['portLayoutX'];
-			$tempArray['portY'] = $element['portLayoutY'];
+			$tempArray['portX'] = $element['valueX'];
+			$tempArray['portY'] = $element['valueY'];
 			$tempArray['partitionType'] = $element['partitionType'];
 			$tempArray['portOrientation'] = $element['portOrientation'];
 			$tempArray['portType'] = $element['portType'];
@@ -286,8 +337,9 @@ function getCompatibilityInfo($face, $dataArray=array(), &$depthCounter=0){
 		} else if($partitionType == 'Enclosure') {
 				$tempArray = array();
 				$tempArray['depth'] = $depthCounter;
-				$tempArray['encX'] = $element['encLayoutX'];
-				$tempArray['encY'] = $element['encLayoutY'];
+				$tempArray['encX'] = $element['valueX'];
+				$tempArray['encY'] = $element['valueY'];
+				$tempArray['encTolerance'] = $element['encTolerance'];
 				$tempArray['partitionType'] = $element['partitionType'];
 				$tempArray['direction'] = $element['direction'];
 				$tempArray['hUnits'] = $element['hunits'];
@@ -411,6 +463,11 @@ function validate($data, &$validate, &$qls){
 					$portOrientationIDArray = array(1, 2, 3, 4);
 					$errMsg = 'port orientation ID';
 					$validate->validateInArray($portOrientationID, $portOrientationIDArray, $reference);
+				} else if($data['attribute'] == 'inline-enclosureTolerance') {
+					$encTolerance = strtolower($data['value']);
+					$encToleranceArray = array('strict', 'loose');
+					$errMsg = 'enclosure tolerance';
+					$validate->validateInArray($encTolerance, $encToleranceArray, $reference);
 				} else {
 					//Error
 					$errorMsg = 'Invalid attribute.';

@@ -44,6 +44,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			array_push($categoryArray, array($categoryEntry['id'] => $categoryEntry['name']));
 		}
 		
+		// Compile list of enclosure tolerances
+		$encToleranceArray = array('Strict' => 'Strict', 'Loose' => 'Loose');
+		
 		// Retrieve port orientation info
 		$portOrientationArray = array();
 		foreach($qls->App->portOrientationArray as $portOrientationArrayEntry) {
@@ -76,6 +79,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portOrientationID = $partitionData['portOrientation'];
 			$portOrientationName = $portOrientationID ? $qls->App->portOrientationArray[$portOrientationID]['name'] : 'N/A';
 			$mediaType = $partitionData['partitionFunction'] == 'Passive' ? $portProperties['mediaType'][$partitionData['mediaType']] : 'N/A';
+			$encTolerance = 'N/A';
 			
 			// Get peer information
 			$peerIsFloorplanObject = false;
@@ -96,11 +100,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			$trunkable = true;
 		} else if($partitionType == 'Enclosure'){
+			$encTolerance = $partitionData['encTolerance'];
 			$portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = 'N/A';
 			$trunkable = $portOrientationID = false;
 		} else {
 			// Generic partition... these won't be in the compatibility table so catch them with an else
-			$partitionType = $portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = 'N/A';
+			$partitionType = $portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = $encTolerance = 'N/A';
 			$trunkable = $portOrientationID = false;
 		}
 		
@@ -153,6 +158,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			'portOrientationName' => $portOrientationName,
 			'portOrientationID' => $portOrientationID,
 			'mediaType' => $mediaType,
+			'encToleranceArray' => $encToleranceArray,
+			'encTolerance' => $encTolerance,
 			'templateImgExists' => $templateImgExists,
 			'templateImgAction' => $templateImgAction,
 			'templateImgPath' => $templateImgPath,

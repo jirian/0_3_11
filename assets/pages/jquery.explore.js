@@ -53,7 +53,7 @@ function makeRackObjectsClickable(){
 	$('.port').click(function(event){
 		$(document).data('portClickedFlag', true);
 		
-		var portIndex = $(this).attr('data-portIndex');
+		var portIndex = $(this).data('portIndex');
 		
 		//Store PortID
 		$(document).data('clickedObjPortID', portIndex);
@@ -66,10 +66,10 @@ function makeRackObjectsClickable(){
 		$('#containerFullPath').empty();
 
 		if ($(document).data('portClickedFlag') === false) {
-			if ($(this).children('.portTable').length == 0) {
-				$(document).data('clickedObjPortID', null);
-			} else {
+			if ($(this).data('partitionType') == 'Connectable') {
 				$(document).data('clickedObjPortID', 0);
+			} else {
+				$(document).data('clickedObjPortID', null);
 			}
 		}
 		
@@ -81,12 +81,12 @@ function makeRackObjectsClickable(){
 			var partitionDepth = 0;
 		} else {
 			var object = $(this).closest('.rackObj');
-			var partitionDepth =  parseInt($(this).attr('data-depth'), 10);
+			var partitionDepth =  parseInt($(this).data('depth'), 10);
 		}
 		
 		//Store objectID
-		var objID = $(object).attr('data-objectid');
-		var objFace = $(object).attr('data-objectFace');
+		var objID = $(object).data('templateObjectId');
+		var objFace = $(object).data('objectFace');
 		var cabinetFace = $(document).data('currentCabinetFace');
 
 		$(document).data('clickedObjID', objID);
@@ -97,13 +97,13 @@ function makeRackObjectsClickable(){
 		$('.rackObjSelected').removeClass('rackObjSelected');
 		$(this).addClass('rackObjSelected');
 		
-		if($(this).children('.portTable').length == 0) {
+		if ($(this).data('partitionType') == 'Connectable') {
+			processPortSelection();
+		} else {
 			$('#selectPort').empty();
 			$('#selectPort').prop("disabled", true);
 			$('#checkboxPopulated').prop("checked", false);
 			$('#checkboxPopulated').prop("disabled", true);
-		} else {
-			processPortSelection();
 		}
 		
 		//Collect object data
@@ -311,18 +311,16 @@ function setObjectSize(obj){
 }
 
 function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
-	$('#buildSpaceContent').load('backend/create_build_space.php', {id:cabinetID, face:cabinetFace, view:cabinetView}, function(){
-		loadCabinetBuild();
+	$('#buildSpaceContent').load('backend/create_build_space.php?page=explore', {id:cabinetID, face:cabinetFace, view:cabinetView}, function(){
+		makeRackObjectsClickable();
+		
+		//Make the objects height fill the <td> container
+		setObjectSize($('.rackObj:not(.insert)'));
+		
 		if($('#objID').length) {
 			selectObject($('#cabinetTable'));
 		}
 	});
-}
-
-function loadCabinetBuild(){
-	makeRackObjectsClickable();
-	//Make the objects height fill the <td> container
-	setObjectSize($('.rackObj:not(.insert)'));
 }
 
 function getFloorplanObjectPeerTable(){

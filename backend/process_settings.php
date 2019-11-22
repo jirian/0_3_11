@@ -29,6 +29,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->SQL->update('users', array('scanMethod' => $scanMethod), array('id' => array('=', $qls->user_info['id'])));
 				$validate->returnData['success'] = 'Scan method has been updated.';
 				break;
+				
+			case 'scrollLock':
+				$scrollLock = $data['value'] ? 1 : 0;
+				$qls->SQL->update('users', array('scrollLock' => $scrollLock), array('id' => array('=', $qls->user_info['id'])));
+				$validate->returnData['success'] = 'Template scroll has been updated.';
+				break;
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -36,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 function validate($data, &$validate, &$qls){
 	
-	$propertyArray = array('timezone', 'scanMethod');
+	$propertyArray = array('timezone', 'scanMethod', 'scrollLock');
 	
 	if($validate->validateInArray($data['property'], $propertyArray, 'property')) {
 		
@@ -51,6 +57,14 @@ function validate($data, &$validate, &$qls){
 			$scanMethodArray = array('manual', 'barcode');
 			$validate->validateInArray($data['value'], $scanMethodArray, 'scan method');
 			
+		} else if($data['property'] == 'scrollLock'){
+			
+			if(!is_bool($data['value'])) {
+				
+				$errMsg = 'Invalid value.';
+				array_push($validate->returnData['error'], $errMsg);
+				
+			}
 		}
 		
 	}

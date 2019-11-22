@@ -419,296 +419,302 @@ require_once './includes/content-templates.php';
 </div>
 
 <div class="row">
-	<div class="col-xs-12">
-		<div class="col-md-4">
-			<div class="card-box">
-				<h4 class="header-title m-t-0 m-b-30">Properties</h4>
-				<div class="row">
-					<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
-						<input id="inputSideCount" type="hidden" name="sideCount" value="0">
-						<input id="inputCurrentSide" type="hidden" value="0">
+	<div class="col-md-4">
+		<div class="card-box">
+			<h4 class="header-title m-t-0 m-b-30">Properties</h4>
+			<input id="inputSideCount" type="hidden" name="sideCount" value="0">
+		
+			<!-- Name -->
+			<fieldset class="form-group">
+				<label>Name</label>
+				<input id="inputName" class="form-control" type="text" name="name" placeholder="New_Template" value="New_Template">
+			</fieldset>
+			
+			<!-- Category -->
+			<fieldset class="form-group">
+				<label>Category</label>
+				<div class="input-group" style="display:flex;">
+					<!-- Category select input -->
+					<div>
+					<select id="inputCategory" name="category" class="form-control">
+						<?php echo $inputCategory; ?>
+					</select>
+					</div>
 					
-						<!-- Name -->
-						<fieldset class="form-group">
-							<label>Name</label>
-							<input id="inputName" class="form-control" type="text" name="name" placeholder="New_Template" value="New_Template">
-						</fieldset>
-						
-						<!-- Category -->
-						<fieldset class="form-group">
-							<label>Category</label>
-							<div class="input-group" style="display:flex;">
-								<!-- Category select input -->
-								<div>
-								<select id="inputCategory" name="category" class="form-control">
-									<?php echo $inputCategory; ?>
-								</select>
-								</div>
-								
-								<!-- Category edit button -->
-								<div style="margin:auto 0px auto 5px">
-									<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#myModal">
-										<i class="zmdi zmdi-edit"></i>
-									</button>
-								</div>
-							</div>
-							
-						</fieldset>
-						
-						<!-- Object Type -->
-						<fieldset id="objectType" class="form-group">
-							<label>Template Type</label>
-							<div class="inputBlock">
-								<div class="radio">
-									<input class="objectType" type="radio" name="objectTypeRadio" id="objectTypeStandard" value="Standard" checked>
-										<label for="objectTypeStandard">Standard</label>
-								</div>
-								<div class="radio">
-									<input class="objectType" type="radio" name="objectTypeRadio" id="objectTypeInsert" value="Insert">
-										<label for="objectTypeInsert">Insert</label>
-								</div>
-							</div>
-						</fieldset>
-						
-						<!-- RU Size -->
-						<fieldset id="objectRUSize" class="dependantField objectType standard form-group">
-							<label>Template Size</label>
-							<div class="inputBlock" style="margin-bottom:10px;">
-								<div style="display:inline;">RU:</div>
-								<input style="position:absolute; left:40px;" id="inputRU" name="RUSize" type="number" min="1" max="25" value="1"/>
-							</div>
-						</fieldset>
-						
-						<!-- Object Function -->
-						<fieldset id="objectFunction" class="dependantField objectType standard form-group">
-							<label>Template Function</label>
-							<div class="inputBlock" >
-								<div class="radio">
-									<input class="objectFunction" type="radio" name="objectFunction" id="inputObjectFunctionPassive" value="Endpoint" checked>
-									<label for="inputObjectFunctionPassive">Endpoint</label>
-								</div>
-								<div class="radio">
-									<input class="objectFunction" type="radio" name="objectFunction" id="inputObjectFunctionEndpoint" value="Passive">
-									<label for="inputObjectFunctionEndpoint">Passive</label>
-								</div>
-							</div>
-						</fieldset>
-						
-						<!-- Mounting Configuration -->
-						<fieldset id="objectMountConfig" class="dependantField objectType standard form-group">
-							<label>Mounting Configuration</label>
-							<div class="inputBlock" >
-								<div class="radio">
-									<input class="sideCount" type="radio" name="sideCount" id="inputSideCount2Post" value="0" checked>
-									<label for="inputSideCount2Post">2-Post</label>
-								</div>
-								<div class="radio">
-									<input class="sideCount" type="radio" name="sideCount" id="inputSideCount4Post" value="1">
-									<label for="inputSideCount4Post">4-Post</label>
-								</div>
-							</div>
-						</fieldset>
-						
-						<!-- Partition Type -->
-						<fieldset id="objectPartitionType" class="form-group">
-							<label>Partition Type</label>
-							<div class="inputBlock" >
-								<div class="radio">
-									<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeGeneric" value="Generic" checked>
-									<label for="inputPartitionTypeGeneric">Generic</label>
-								</div>
-								<div class="radio">
-									<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeConnectable" value="Connectable">
-									<label for="inputPartitionTypeConnectable">Connectable</label>
-								</div>
-								<div class="radio">
-									<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeEnclosure" value="Enclosure">
-									<label for="inputPartitionTypeEnclosure">Enclosure</label>
-								</div>
-							</div>
-						</fieldset>
-						
-						<!-- Custom Add/Remove Partition -->
-						<fieldset id="objectPartitionAddRemove" class="dependantField partitionType generic form-group">
-							<label>Add/Remove Partition</label>
-							<div class="inputBlock">
-								<div class="radio">
-									<input type="radio" id="partitionH" class="partitionAxis" value="h" name="customPartitionAxis" checked>
-									<label for="partitionH"> Horizontal </label>
-								</div>
-								<div class="radio">
-									<input type="radio" id="partitionV" class="partitionAxis" value="v" name="customPartitionAxis">
-									<label for="partitionV"> Vertical </label>
-								</div>
-								<button id="customPartitionAdd" class="btn btn-sm waves-effect waves-light btn-primary" type="button"> <i class="fa fa-plus"></i> </button>
-								<button id="customPartitionRemove" class="btn btn-sm waves-effect waves-light btn-danger disabled" type="button" disabled> <i class="fa fa-remove"></i> </button>
-							</div>
-						</fieldset>
-						
-						<!-- Custom Partition Size -->
-						<fieldset id="objectPartitionSize" class="dependantField partitionType generic form-group">
-							<label>Partition Size</label>
-							<div class="inputBlock" >
-							<input id="inputCustomPartitionSize" name="customSectionSize" type="number" step="0.5" min="0.5" max="1" value="0.5" disabled />
-							</div>
-						</fieldset>
-						
-						<!-- Enclosure Layout -->
-						<fieldset id="objectEnclosureLayout" class="dependantField partitionType enclosureField form-group">
-							<label>Enclosure Layout</label>
-							<div class="inputBlock" style="margin-bottom:10px;">
-								<div style="display:inline;">Col:</div>
-								<input style="position:absolute; left:40px;" id="inputEnclosureLayoutX" name="encLayoutX" type="number" min="1" max="12" value="1"/>
-							</div>
-							<div class="inputBlock" >
-								<div style="display:inline;">Row:</div>
-								<input style="position:absolute; left:40px;" id="inputEnclosureLayoutY" name="encLayoutY" type="number" min="1" max="12" value="1"/>
-							</div>
-						</fieldset>
-						
-						<!-- Enclosure Insert Fitment -->
-						<fieldset id="objectEnclosureInsertFitment" class="dependantField partitionType enclosureField form-group">
-							<label>Enclosure Insert Fitment</label>
-							<div class="inputBlock" >
-								<div class="radio">
-									<input class="enclosureInsertFitment" type="radio" name="enclosureInsertFitment" id="inputEnclosureInsertFitmentStrict" value="Strict" checked>
-									<label for="inputEnclosureInsertFitmentStrict">Strict</label>
-								</div>
-								<div class="radio">
-									<input class="enclosureInsertFitment" type="radio" name="enclosureInsertFitment" id="inputEnclosureInsertFitmentLoose" value="Loose">
-									<label for="inputEnclosureInsertFitmentLoose">Loose</label>
-								</div>
-							</div>
-						</fieldset>
-						
-						<!-- Port Numbering -->
-						<fieldset id="objectPortPrefix" class="dependantField partitionType connectable endpoint passive form-group">
-							<label>Port ID</label><br>
-							<div id="portNameDisplay"></div>
-							<button id="buttonPortNameConfigure" class="btn btn-sm waves-effect waves-light btn-primary" data-portNameAction="add" data-toggle="modal" data-target="#portNameModal" type="button">
-								<span class="btn-label">
-									<i class="zmdi zmdi-edit"></i>
-								</span>
-								Configure
-							</button>
-						</fieldset>
-						
-						<!-- Port Layout -->
-						<fieldset id="objectPortLayout" class="dependantField partitionType connectable endpoint passive form-group">
-							<label>Port Layout</label>
-							<div class="inputBlock" style="margin-bottom:10px;">
-								<div style="display:inline;">Col:</div>
-								<input style="position:absolute; left:40px;" id="inputPortLayoutX" name="portLayoutX" type="number" min="0" max="48" value="0"/>
-							</div>
-							<div class="inputBlock">
-								<div style="display:inline;">Row:</div>
-								<input style="position:absolute; left:40px;" id="inputPortLayoutY" name="portLayoutY" type="number" min="0" max="6" value="0"/>
-							</div>
-						</fieldset>
-						
-						<!-- Port Orientation -->
-						<fieldset id="objectPortOrientation" class="dependantField partitionType connectable endpoint passive form-group">
-							<label>Port Orientation</label>
-							<div class="inputBlock">
-								<?php echo generateOrientation($qls); ?>
-							</div>
-						</fieldset>
-						
-						<!-- Port Type -->
-						<fieldset id="objectPortType" class="dependantField partitionType connectable endpoint passive form-group">
-							<label>Port Type</label>
-							<select id="inputPortType" name="portType" class="form-control">
-								<?php echo generatePortType($qls); ?>
-							</select>
-						</fieldset>
-						
-						<!-- Media Type -->
-						<fieldset id="objectMediaType" class="dependantField partitionType connectable passive form-group">
-							<label>Media Type</label>
-							<select id="inputMediaType" name="mediaType" class="form-control">
-								<?php echo generateMediaType($qls); ?>
-							</select>
-						</fieldset>
-						
-						<button id="objectEditor-Submit" type="submit" class="btn btn-success waves-effect waves-light">
-							<span class="btn-label"><i class="fa fa-check"></i></span>
-							Submit
+					<!-- Category edit button -->
+					<div style="margin:auto 0px auto 5px">
+						<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#myModal">
+							<i class="zmdi zmdi-edit"></i>
 						</button>
 					</div>
 				</div>
-			</div>
-		</div>
-
-
-		<div class="col-md-8">
-			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
-					<div class="card-box" style="min-height:500px;">
-						<h4 class="header-title m-t-0">Preview</h4>
-						<div class="m-t-0 m-b-30">
-							<div class="radio radio-inline">
-								<input class="sideSelector" type="radio" name="sideSelector" id="sideSelectorFront" value="0" checked disabled>
-								<label for="sideSelectorFront">Front</label>
-							</div>
-							<div class="radio radio-inline">
-								<input class="sideSelector" type="radio" name="sideSelector" id="sideSelectorBack" value="1" disabled>
-								<label for="sideSelectorBack">Back</label>
-							</div>
-						</div>
-						<?php include_once('includes/content-cabinet.php'); ?>
+				
+			</fieldset>
+			
+			<!-- Object Type -->
+			<fieldset id="objectType" class="form-group">
+				<label>Template Type</label>
+				<div class="inputBlock">
+					<div class="radio">
+						<input class="objectType" type="radio" name="objectTypeRadio" id="objectTypeStandard" value="Standard" checked>
+							<label for="objectTypeStandard">Standard</label>
+					</div>
+					<div class="radio">
+						<input class="objectType" type="radio" name="objectTypeRadio" id="objectTypeInsert" value="Insert">
+							<label for="objectTypeInsert">Insert</label>
 					</div>
 				</div>
-		
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
-					<div class="card-box">
-						<h4 class="header-title m-t-0">Template Details</h4>
-						
-						<div id="objectCardBox" class="card">
-							<div class="card-header">Selected Template</div>
-							<div class="card-block">
-								<blockquote class="card-blockquote">
-									<input id="selectedObjectID" type="hidden">
-									<input id="selectedObjectFace" type="hidden">
-									<input id="selectedPartitionDepth" type="hidden">
-									<?php include_once('./includes/content-build-objectDetails.php'); ?>
-								</blockquote>
-							</div>
-						</div>
-						<div id="availableObjects">
-							<div class="card">
-							
-								<div class="card-header">
-									<span>Available Templates</span>
-									<div class="pull-right" title="Import Template">
-										Import&nbsp;&nbsp;
-										<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#modalTemplateCatalog">
-											<i class="ti-import"></i>
-										</button>
-									</div>
-								</div>
-								
-								<div class="m-t-15 m-l-5">
-									<div class="radio radio-inline">
-										<input class="sideSelectorDetail" type="radio" name="sideSelectorDetails" id="sideSelectorDetailsFront" value="0" checked>
-										<label for="sideSelectorDetailsFront">Front</label>
-									</div>
-									<div class="radio radio-inline">
-										<input class="sideSelectorDetail" type="radio" name="sideSelectorDetails" id="sideSelectorDetailsBack" value="1">
-										<label for="sideSelectorDetailsBack">Back</label>
-									</div>
-								</div>
-								
-								<div id="availableContainer" class="card-block">
-									<h6>Name Filter:</h6>
-									<select id="templateFilter" multiple data-role="tagsinput"></select>
-									<div id="templateContainer">
-										<?php include_once('./includes/content-build-objects.php'); ?>
-									</div>
-								</div>
-								
-							</div>
+			</fieldset>
+			
+			<!-- RU Size -->
+			<fieldset id="objectRUSize" class="dependantField objectType standard form-group">
+				<label>Template Size</label>
+				<div class="inputBlock" style="margin-bottom:10px;">
+					<div style="display:inline;">RU:</div>
+					<input style="position:absolute; left:40px;" id="inputRU" name="RUSize" type="number" min="1" max="25" value="1"/>
+				</div>
+			</fieldset>
+			
+			<!-- Object Function -->
+			<fieldset id="objectFunction" class="dependantField objectType standard form-group">
+				<label>Template Function</label>
+				<div class="inputBlock" >
+					<div class="radio">
+						<input class="objectFunction" type="radio" name="objectFunction" id="inputObjectFunctionPassive" value="Endpoint" checked>
+						<label for="inputObjectFunctionPassive">Endpoint</label>
+					</div>
+					<div class="radio">
+						<input class="objectFunction" type="radio" name="objectFunction" id="inputObjectFunctionEndpoint" value="Passive">
+						<label for="inputObjectFunctionEndpoint">Passive</label>
+					</div>
+				</div>
+			</fieldset>
+			
+			<!-- Mounting Configuration -->
+			<fieldset id="objectMountConfig" class="dependantField objectType standard form-group">
+				<label>Mounting Configuration</label>
+				<div class="inputBlock" >
+					<div class="radio">
+						<input class="sideCount" type="radio" name="sideCount" id="inputSideCount2Post" value="0" checked>
+						<label for="inputSideCount2Post">2-Post</label>
+					</div>
+					<div class="radio">
+						<input class="sideCount" type="radio" name="sideCount" id="inputSideCount4Post" value="1">
+						<label for="inputSideCount4Post">4-Post</label>
+					</div>
+				</div>
+			</fieldset>
+			
+			<!-- Partition Type -->
+			<fieldset id="objectPartitionType" class="form-group">
+				<label>Partition Type</label>
+				<div class="inputBlock" >
+					<div class="radio">
+						<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeGeneric" value="Generic" checked>
+						<label for="inputPartitionTypeGeneric">Generic</label>
+					</div>
+					<div class="radio">
+						<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeConnectable" value="Connectable">
+						<label for="inputPartitionTypeConnectable">Connectable</label>
+					</div>
+					<div class="radio">
+						<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeEnclosure" value="Enclosure">
+						<label for="inputPartitionTypeEnclosure">Enclosure</label>
+					</div>
+				</div>
+			</fieldset>
+			
+			<!-- Custom Add/Remove Partition -->
+			<fieldset id="objectPartitionAddRemove" class="form-group">
+				<label>Add/Remove Partition</label>
+				<div class="inputBlock">
+					<div class="radio">
+						<input type="radio" id="partitionH" class="partitionAxis" value="h" name="customPartitionAxis">
+						<label for="partitionH"> Horizontal </label>
+					</div>
+					<div class="radio">
+						<input type="radio" id="partitionV" class="partitionAxis" value="v" name="customPartitionAxis" checked>
+						<label for="partitionV"> Vertical </label>
+					</div>
+					<button id="customPartitionAdd" class="btn btn-sm waves-effect waves-light btn-primary" type="button"> <i class="fa fa-plus"></i> </button>
+					<button id="customPartitionRemove" class="btn btn-sm waves-effect waves-light btn-danger disabled" type="button" disabled> <i class="fa fa-remove"></i> </button>
+				</div>
+			</fieldset>
+			
+			<!-- Custom Partition Size -->
+			<fieldset id="objectPartitionSize" class="form-group">
+				<label>Partition Size</label>
+				<div class="inputBlock" >
+				<input id="inputCustomPartitionSize" name="customSectionSize" type="number" step="0.5" min="0.5" max="1" value="0.5" disabled />
+				</div>
+			</fieldset>
+			
+			<!-- Enclosure Layout -->
+			<fieldset id="objectEnclosureLayout" class="dependantField partitionType enclosureField form-group">
+				<label>Enclosure Layout</label>
+				<div class="inputBlock" style="margin-bottom:10px;">
+					<div style="display:inline;">Col:</div>
+					<input style="position:absolute; left:40px;" id="inputEnclosureLayoutX" name="encLayoutX" type="number" min="1" max="12" value="1"/>
+				</div>
+				<div class="inputBlock" >
+					<div style="display:inline;">Row:</div>
+					<input style="position:absolute; left:40px;" id="inputEnclosureLayoutY" name="encLayoutY" type="number" min="1" max="12" value="1"/>
+				</div>
+			</fieldset>
+			
+			<!-- Enclosure Insert Fitment -->
+			<fieldset id="objectEnclosureTolerance" class="dependantField partitionType enclosureField form-group">
+				<label>Enclosure Tolerance</label>
+				<div class="inputBlock" >
+					<div class="radio">
+						<input class="enclosureTolerance" type="radio" name="enclosureTolerance" id="inputEnclosureToleranceStrict" value="Strict" checked>
+						<label for="inputEnclosureToleranceStrict">Strict</label>
+					</div>
+					<div class="radio">
+						<input class="enclosureTolerance" type="radio" name="enclosureTolerance" id="inputEnclosureToleranceLoose" value="Loose">
+						<label for="inputEnclosureToleranceLoose">Loose</label>
+					</div>
+				</div>
+			</fieldset>
+			
+			<!-- Port Numbering -->
+			<fieldset id="objectPortPrefix" class="dependantField partitionType connectable endpoint passive form-group">
+				<label>Port ID</label><br>
+				<div id="portNameDisplay"></div>
+				<button id="buttonPortNameConfigure" class="btn btn-sm waves-effect waves-light btn-primary" data-portNameAction="add" data-toggle="modal" data-target="#portNameModal" type="button">
+					<span class="btn-label">
+						<i class="zmdi zmdi-edit"></i>
+					</span>
+					Configure
+				</button>
+			</fieldset>
+			
+			<!-- Port Layout -->
+			<fieldset id="objectPortLayout" class="dependantField partitionType connectable endpoint passive form-group">
+				<label>Port Layout</label>
+				<div class="inputBlock" style="margin-bottom:10px;">
+					<div style="display:inline;">Col:</div>
+					<input style="position:absolute; left:40px;" id="inputPortLayoutX" name="portLayoutX" type="number" min="0" max="48" value="0"/>
+				</div>
+				<div class="inputBlock">
+					<div style="display:inline;">Row:</div>
+					<input style="position:absolute; left:40px;" id="inputPortLayoutY" name="portLayoutY" type="number" min="0" max="6" value="0"/>
+				</div>
+			</fieldset>
+			
+			<!-- Port Orientation -->
+			<fieldset id="objectPortOrientation" class="dependantField partitionType connectable endpoint passive form-group">
+				<label>Port Orientation</label>
+				<div class="inputBlock">
+					<?php echo generateOrientation($qls); ?>
+				</div>
+			</fieldset>
+			
+			<!-- Port Type -->
+			<fieldset id="objectPortType" class="dependantField partitionType connectable endpoint passive form-group">
+				<label>Port Type</label>
+				<select id="inputPortType" name="portType" class="form-control">
+					<?php echo generatePortType($qls); ?>
+				</select>
+			</fieldset>
+			
+			<!-- Media Type -->
+			<fieldset id="objectMediaType" class="dependantField partitionType connectable passive form-group">
+				<label>Media Type</label>
+				<select id="inputMediaType" name="mediaType" class="form-control">
+					<?php echo generateMediaType($qls); ?>
+				</select>
+			</fieldset>
+			
+			<button id="objectEditor-Submit" type="submit" class="btn btn-success waves-effect waves-light">
+				<span class="btn-label"><i class="fa fa-check"></i></span>
+				Submit
+			</button>
+		</div>
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+		<div id="cabinetContainer" style="padding-bottom:50px;" class="card-box">
+			<div style="display:flex;">
+			<h4 class="header-title m-t-0 m-b-30">Preview</h4>
+			<div class="checkbox" style="margin-left: 15px;">
+				<?php
+					if($qls->user_info['scrollLock']) {
+						$scrollLockState = 'checked';
+						$scrollLockBool = true;
+					} else {
+						$scrollLockState = '';
+						$scrollLockBool = false;
+					}
+				?>
+				<input id="checkboxScrollLock" type="checkbox" <?php echo $scrollLockState; ?>>
+				<label for="checkboxScrollLock">
+					Lock <small>(set to <span id="scrollState"></span>)</small>
+				</label>
+			</div>
+			</div>
+			<div class="m-t-0 m-b-30"  style="display:flex;">
+				<div class="radio radio-inline">
+					<input class="sideSelector" type="radio" name="sideSelector" id="sideSelectorFront" value="0" checked disabled>
+					<label for="sideSelectorFront">Front</label>
+				</div>
+				<div class="radio radio-inline">
+					<input class="sideSelector" type="radio" name="sideSelector" id="sideSelectorBack" value="1" disabled>
+					<label for="sideSelectorBack">Back</label>
+				</div>
+				
+			</div>
+			<?php include_once('includes/content-cabinet.php'); ?>
+		</div>
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+		<div class="card-box">
+			<h4 class="header-title m-t-0">Template Details</h4>
+			
+			<div id="objectCardBox" class="card">
+				<div class="card-header">Selected Template</div>
+				<div class="card-block">
+					<blockquote class="card-blockquote">
+						<input id="selectedObjectID" type="hidden">
+						<input id="selectedObjectFace" type="hidden">
+						<input id="selectedPartitionDepth" type="hidden">
+						<?php include_once('./includes/content-build-objectDetails.php'); ?>
+					</blockquote>
+				</div>
+			</div>
+			<div id="availableObjects">
+				<div class="card">
+				
+					<div class="card-header">
+						<span>Available Templates</span>
+						<div class="pull-right" title="Import Template">
+							Import&nbsp;&nbsp;
+							<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#modalTemplateCatalog">
+								<i class="ti-import"></i>
+							</button>
 						</div>
 					</div>
+					
+					<div class="m-t-15 m-l-5">
+						<div class="radio radio-inline">
+							<input class="sideSelectorDetail" type="radio" name="sideSelectorDetails" id="sideSelectorDetailsFront" value="0" checked>
+							<label for="sideSelectorDetailsFront">Front</label>
+						</div>
+						<div class="radio radio-inline">
+							<input class="sideSelectorDetail" type="radio" name="sideSelectorDetails" id="sideSelectorDetailsBack" value="1">
+							<label for="sideSelectorDetailsBack">Back</label>
+						</div>
+					</div>
+					
+					<div id="availableContainer" class="card-block">
+						<h6>Name Filter:</h6>
+						<select id="templateFilter" multiple data-role="tagsinput"></select>
+						<div id="templateContainer">
+							<?php include_once('./includes/content-build-objects.php'); ?>
+						</div>
+					</div>
+					
 				</div>
 			</div>
 		</div>

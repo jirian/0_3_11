@@ -103,6 +103,14 @@
 			</td>
 		</tr>
 		<tr>
+			<td class="objectDetailAlignRight">
+				<strong>Enclosure Tolerance:&nbsp&nbsp</strong>
+			</td>
+			<td>
+				<span id="detailEnclosureTolerance" class="objDetail">-</span>
+			</td>
+		</tr>
+		<tr>
 			<td class="objectDetailAlignRight" valign="top">
 				<strong>Image:&nbsp&nbsp</strong>
 			</td>
@@ -110,12 +118,18 @@
 				<span id="detailTemplateImage" class="objDetail">-</span>
 			</td>
 		</tr>
+		<tr>
+			<td class="objectDetailAlignRight" valign="top">
+				<strong>Clone:&nbsp&nbsp</strong>
+			</td>
+			<td width="100%">
+				<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light disabled" disabled>
+					<i class="fa fa-copy"></i>
+				</button>
+			</td>
+		</tr>
 	</table>
-	<!--
-	<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-20">
-		<span class="btn-label"><i class="fa fa-times"></i></span>Clone
-	</button>
-	-->
+	
 	<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-20">
 		<span class="btn-label"><i class="fa fa-times"></i></span>Delete
 	</button>

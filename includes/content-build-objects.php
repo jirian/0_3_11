@@ -15,51 +15,97 @@ for ($x=0; $x<2; $x++){
 	echo '<div id="availableContainer'.$x.'"'.$display.'>';
 	foreach($templates as $category => $categoryTemplate) {
 		echo '<div class="categoryContainerEntire">';
-			echo '<h4 class="categoryTitle cursorPointer" data-categoryName="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
+			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
 			echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
 			foreach ($categoryTemplate as $template) {
 				if (isset($template['partitionData'][$x])) {
-					$partitionData = $template['partitionData'][$x];
-					$ID = $template['id'];
-					$type = $template['type'];
 					
-					echo '<div class="object-wrapper object'.$ID.'" data-templateName="'.$template['name'].'">';
-					echo '<h4 class="templateName'.$ID.' header-title m-t-0 m-b-15">'.$template['name'].'</h4>';
-					$RUSize = $template['RUSize'];
-					$mountConfig = $template['mountConfig'];
-					$function = $template['function'];
+					$templateID = $template['id'];
+					$templateOrganic = $qls->App->templateArray[$templateID];
+					$templateName = $templateOrganic['templateName'];
+					$partitionData = json_decode($templateOrganic['templatePartitionData'], true);
+					$partitionData = $partitionData[$x];
+					$type = $templateOrganic['templateType'];
+					$RUSize = $templateOrganic['templateRUSize'];
+					$function = $templateOrganic['templateFunction'];
+					$mountConfig = $templateOrganic['templateMountConfig'];
+					$categoryID = $templateOrganic['templateCategory_id'];
+					
+					echo '<div class="object-wrapper object'.$templateID.'" data-template-name="'.$templateName.'">';
+					echo '<h4 class="templateName'.$templateID.' header-title m-t-0 m-b-15">'.$templateName.'</h4>';
+					
+					$objAttrArray = array(
+						'data-template-type' => $type,
+						'data-template-id' => $templateID,
+						'data-object-face' => $x,
+						'data-object-mount-config' => $mountConfig,
+						'data-ru-size' => $RUSize,
+						'data-template-function' => '"'.$function.'"',
+						'data-template-category-id' => $categoryID,
+						'data-template-category-name' => $category
+					);
 					
 					if ($type == 'Standard'){
-						echo '<div class="'.$cursorClass.' obj'.$ID.' RU'.$RUSize.' category'.$category.' obj-style obj-border stockObj draggable selectable" data-templateid="'.$ID.'" data-objectFace="'.$x.'"  data-objectMountConfig="'.$mountConfig.'" data-RUSize="'.$RUSize.'" data-objectFunction="'.$function.'">';
-						echo $qls->App->buildStandard($partitionData, 'flex-container-parent', $portType);
+						$objClassArray = array(
+							'stockObj',
+							$cursorClass,
+							'draggable'
+						);
+						echo $qls->App->generateTemplateStandardContainer($templateOrganic, $x, $objClassArray, $objAttrArray);
+						$rackObj = false;
+						$objClassArray = array();
+						echo $qls->App->buildStandard($partitionData, $rackObj, $category, $objClassArray, $objAttrArray);
 						echo '</div>';
 					} else {
-						$flexWidth = $partitionData[0]['hunits']/10;
-						$flexHeight = 1/$template['encLayoutY'];
-						$dataAttr = ' data-templateid="'.$ID.'" data-objectFace="'.$x.'"  data-objectMountConfig="'.$mountConfig.'" data-RUSize="'.$RUSize.'" data-objectFunction="'.$function.'"';
-						$class = ' category'.$category.' stockObj obj-style obj-border insertDraggable selectable';
-						echo '<div class="obj'.$ID.' RU'.$RUSize.'">';
-						// Flex Container
-						echo '<div class="flex-container-parent" style="flex-direction:row;">';
-						// Define Width
-						echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
-						// Define Height
-						echo '<div class="flex-container" style="flex:'.$flexHeight.';">';
-						echo '<table style="height:100%; width:100%;">';
-						echo '<tr>';
-						for($encX=0; $encX<$template['encLayoutX']; $encX++) {
-							echo '<td style="flex-direction:column; width:'.round((1/$template['encLayoutX'])*100).'%; height:'.round((1/$template['encLayoutY'])*100).'%;">';
-							if($encX == 0) {
-								echo $qls->App->buildInsert($partitionData, $portType, $RUSize, $class, $dataAttr);
-							}
-							echo '</td>';
+						$objClassArray = array(
+							'stockObj',
+							$cursorClass,
+							'insertDraggable'
+						);
+						array_push($objClassArray, 'insertDraggable');
+						$flexWidth = $partitionData[0]['hUnits']/10;
+						$flexHeight = 1/$templateOrganic['templateEncLayoutY'];
+						$parentHUnits = $templateOrganic['templateHUnits'];
+						$parentVUnits = $templateOrganic['templateVUnits'];
+						$parentEncLayoutX = $templateOrganic['templateEncLayoutX'];
+						$parentEncLayoutY = $templateOrganic['templateEncLayoutY'];
+						
+						// Object type specific data
+						$objAttrArray['data-template-type'] = '"Insert"';
+						$objAttrArray['data-object-mount-config'] = 0;
+						$objAttrArray['data-parent-h-units'] = $parentHUnits;
+						$objAttrArray['data-parent-v-units'] = $parentVUnits;
+						$objAttrArray['data-h-units'] = $parentHUnits;
+						$objAttrArray['data-v-units'] = $parentVUnits;
+						$objAttrArray['data-parent-enc-layout-x'] = $parentEncLayoutX;
+						$objAttrArray['data-parent-enc-layout-y'] = $parentEncLayoutY;
+						
+						// Generate data attribute string
+						$objAttrWorkingArray = array();
+						foreach($objAttrArray as $attr => $value) {
+							array_push($objAttrWorkingArray, $attr.'='.$value);
 						}
-						echo '</tr>';
-						echo '</table>';
-						echo '</div>';
-						echo '</div>';
-						echo '</div>';
-						echo '</div>';
+						$objAttr = implode(' ', $objAttrWorkingArray);
+						
+							// Flex Container
+							echo '<div class="RU'.$RUSize.'" style="flex-direction:row;">';
+								// Partition Width
+								echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
+									// Partition Height
+									echo '<div class="flex-container" style="flex:'.$flexHeight.';">';
+										echo '<div class="tableRow">';
+										for($encX=0; $encX<$templateOrganic['templateEncLayoutX']; $encX++) {
+											echo '<div class="tableCol">';
+											if($encX == 0) {
+												$encInsert = false;
+												echo $qls->App->buildInsert($partitionData, $templateOrganic, $categoryName, $objClassArray, $objAttrArray, $encInsert, false);
+											}
+											echo '</div>';
+										}
+										echo '</div>';
+									echo '</div>';
+								echo '</div>';
+							echo '</div>';
 					}
 					echo '</div>';
 				}

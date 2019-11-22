@@ -29,6 +29,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
+	//Validate object ID
+	$validate->validateObjectID($data['objID']);
 	
+	//Validate object face
+	$validate->validateObjectFace($data['objFace']);
+
+	//Validate partition depth
+	$validate->validatePartitionDepth($data['partitionDepth']);
+	
+	//Validate portID
+	$validate->validatePortID($data['portID']);
+	
+	return true;
 }
 ?>

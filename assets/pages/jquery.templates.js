@@ -11,7 +11,7 @@ function handlePartitionOrientaion(){
 	
 	// Check the appropriate partition orientation radio
 	if(!isParent || hasChildren){
-		if($(variables['selectedObj']).css('flex-direction') == 'column') {
+		if($(variables['selectedObj']).data('direction') == 'column') {
 			$('#partitionH').prop('checked', true);
 		} else {
 			$('#partitionV').prop('checked', true);
@@ -25,24 +25,25 @@ function handlePartitionOrientaion(){
 function handlePartitionAddRemove(){
 	var variables = getVariables();
 	var isParent = $(variables['selectedObj']).hasClass('flex-container-parent');
-	var flexDirection = $(variables['selectedObj']).css('flex-direction');
-	var partitionOrientation = $('input.partitionAxis:checked').val();
-	var parentUnitAttr = partitionOrientation == 'h' ? 'data-vunits' : 'data-hunits';
-	var parentFlexUnits = parseInt($(variables['selectedObj']).parent().attr(parentUnitAttr), 10);
-	var spaceTaken = 0;
-	var spaceAvailable = parentFlexUnits - spaceTaken;
+	var partitionType = $(variables['selectedObj']).data('partitionType');
+	var flexDirection = $(variables['selectedObj']).data('direction');
+	var unitAttr = flexDirection == 'column' ? 'vUnits' : 'hUnits';
+	var partitionUnits = $(variables['selectedObj']).data(unitAttr);
+	var childUnits = 0;
 	
-	if(isParent) {
-		$(variables['selectedObj']).children('.flex-container').each(function(){
-			spaceTaken += parseInt($(this).attr(parentUnitAttr), 10)
-		});
-	}
+	// Sum of child units
+	$(variables['selectedObj']).children('.flex-container').each(function(){
+		childUnits += parseInt($(this).data(unitAttr), 10)
+	});
 	
-	// Handle partition add button
-	if(spaceAvailable == 0 || (spaceAvailable == 1 && parentFlexUnits == 1)){
-		$('#customPartitionAdd').addClass('disabled').prop('disabled', true);
-	} else {
+	// Units available
+	var availableUnits = partitionUnits - childUnits;
+	if(availableUnits && partitionType == 'Generic'){
+		// Enable
 		$('#customPartitionAdd').removeClass('disabled').prop('disabled', false);
+	} else {
+		// Disable
+		$('#customPartitionAdd').addClass('disabled').prop('disabled', true);
 	}
 	
 	// Handle partition remove button
@@ -58,20 +59,21 @@ function handleOrientationInput(){
 	handlePartitionAddRemove();
 }
 
-function loadProperties(){
+function setPartitionSizeInput(){
 	var variables = getVariables();
+	console.log($(document).data('templateSide'));
 	
 	// If selected object is not the parent container...
 	if(!$(variables['selectedObj']).hasClass('flex-container-parent')){
-		var flexDirection = $(variables['selectedObj']).css('flex-direction');
+		var flexDirection = $(variables['selectedObj']).data('direction');
 		var partitionStep = flexDirection == 'column' ? 0.1 : 0.5;
-		var selectedUnitAttr = flexDirection == 'column' ? 'data-hUnits' : 'data-vUnits';
-		var parentUnitAttr = flexDirection == 'column' ? 'data-vUnits' : 'data-hUnits';
-		var flexUnits = parseInt($(variables['selectedObj']).attr(selectedUnitAttr), 10);
-		var parentFlexUnits = parseInt($(variables['selectedParent']).attr(selectedUnitAttr), 10);
+		var selectedUnitAttr = flexDirection == 'column' ? 'hUnits' : 'vUnits';
+		var parentUnitAttr = flexDirection == 'column' ? 'vUnits' : 'hUnits';
+		var flexUnits = parseInt($(variables['selectedObj']).data(selectedUnitAttr), 10);
+		var parentFlexUnits = parseInt($(variables['selectedParent']).data(selectedUnitAttr), 10);
 		var siblingUnits = 0;
 		$(variables['selectedObj']).siblings().each(function(){
-			siblingUnits += parseInt($(this).attr(selectedUnitAttr), 10);
+			siblingUnits += parseInt($(this).data(selectedUnitAttr), 10);
 		});
 		var takenUnits = siblingUnits + flexUnits;
 		var availableUnits = parentFlexUnits - takenUnits;
@@ -81,12 +83,13 @@ function loadProperties(){
 		$(variables['selectedObj']).children().each(function(){
 			workingUnitsTaken = 0;
 			$(this).children().each(function(){
-				workingUnitsTaken += parseInt($(this).attr(parentUnitAttr), 10);
+				workingUnitsTaken += parseInt($(this).data(parentUnitAttr), 10);
 			});
 			unitsTaken = workingUnitsTaken > unitsTaken ? workingUnitsTaken : unitsTaken;
 		});
 		var partitionMin = partitionStep * unitsTaken == 0 ? partitionStep :  partitionStep * unitsTaken;
-		var partitionSize = partitionStep * flexUnits;
+		console.log('partitionStep='+partitionStep+' flexUnits='+flexUnits);
+		var partitionSize = ((partitionStep * 10) * (flexUnits * 10)) / 100;
 		var partitionMax = partitionStep * (flexUnits + availableUnits);
 		
 		$('#inputCustomPartitionSize').val(partitionSize);
@@ -102,67 +105,55 @@ function loadProperties(){
 	}
 }
 
-function setInputValues(defaultValues){
-	if(defaultValues) {
-		var templateType = $('input[name="objectTypeRadio"]:checked').val();
+function setInputValues(){
+	var variables = getVariables();
+	
+	var partitionType = $(variables['selectedObj']).data('partitionType');
+	$('[name="partitionType"][value='+partitionType+']').prop('checked', true);
+	
+	if(partitionType == 'Generic') {
 		
-		var encLayoutX = 0;
-		var encLayoutY = 0;
-		var encInsertFitment = 'Strict';
-		var portLayoutX = 1;
-		var portLayoutY = 1;
-		var partitionType = 'Generic';
-		var portOrientation = 1;
-		var portType = 1;
-		var mediaType = 1;
-	} else {
-		var variables = getVariables();
+	} else if(partitionType == 'Connectable') {
 		
-		var encLayoutX = $(variables['selectedObj']).data('encLayoutX');
-		var encLayoutY = $(variables['selectedObj']).data('encLayoutY');
-		var encInsertFitment = $(variables['selectedObj']).data('encInsertFitment');
-		var portLayoutX = $(variables['selectedObj']).data('portLayoutX');
-		var portLayoutY = $(variables['selectedObj']).data('portLayoutY');
-		var partitionType = $(variables['selectedObj']).data('partitionType');
+		var portLayoutX = $(variables['selectedObj']).data('valueX');
+		var portLayoutY = $(variables['selectedObj']).data('valueY');
 		var portOrientation = $(variables['selectedObj']).data('portOrientation');
 		var portType = $(variables['selectedObj']).data('portType');
 		var mediaType = $(variables['selectedObj']).data('mediaType');
+		
+		$('#inputPortLayoutX').val(portLayoutX);
+		$('#inputPortLayoutY').val(portLayoutY);
+		$('input.objectPortOrientation[value="'+portOrientation+'"]').prop('checked', true);
+		$('#inputPortType').children('[value="'+portType+'"]').prop('selected', true);
+		$('#inputMediaType').children('[value="'+mediaType+'"]').prop('selected', true);
+		
+	} else if(partitionType == 'Enclosure') {
+		
+		var encLayoutX = $(variables['selectedObj']).data('valueX');
+		var encLayoutY = $(variables['selectedObj']).data('valueY');
+		var encTolerance = $(variables['selectedObj']).data('encTolerance');
+		
+		$('#inputEnclosureLayoutX').val(encLayoutX);
+		$('#inputEnclosureLayoutY').val(encLayoutY);
+		$('[name="enclosureTolerance"][value='+encTolerance+']').prop('checked', true);
+		
 	}
-	console.log(encLayoutX);
-	console.log(encLayoutY);
-	console.log(encInsertFitment);
-	console.log(portLayoutX);
-	console.log(portLayoutY);
-	console.log(partitionType);
-	console.log(portOrientation);
-	console.log(portType);
-	console.log(mediaType);
-	$('#inputEnclosureLayoutX').val(encLayoutX);
-	$('#inputEnclosureLayoutY').val(encLayoutY);
-	$('[name="enclosureInsertFitment"][value='+encInsertFitment+']').prop('checked', true);
-	$('#inputPortLayoutX').val(portLayoutX);
-	$('#inputPortLayoutY').val(portLayoutY);
-	$('[name="partitionType"][value='+partitionType+']').prop('checked', true);
-	$('input.objectPortOrientation[value="'+portOrientation+'"]').prop('checked', true);
-	$('#inputPortType').children('[value="'+portType+'"]').prop('selected', true);
-	$('#inputMediaType').children('[value="'+mediaType+'"]').prop('selected', true);
 }
 
 function resizePartition(inputValue){
 	var variables = getVariables();
-	var flexDirection = $(variables['selectedObj']).css('flex-direction');
-	var selectedUnitAttr = flexDirection == 'column' ? 'data-hUnits' : 'data-vUnits';
-	var parentUnitAttr = flexDirection == 'column' ? 'data-vUnits' : 'data-hUnits';
-	var parentFlexUnits = parseInt($(variables['selectedParent']).parent().attr(selectedUnitAttr), 10);
+	var flexDirection = $(variables['selectedObj']).data('direction');
+	var selectedUnitAttr = flexDirection == 'column' ? 'hUnits' : 'vUnits';
+	var parentFlexUnits = parseInt($(variables['selectedParent']).parent().data(selectedUnitAttr), 10);
 	var partitionFlexUnits = flexDirection == 'row' ? inputValue*2 : inputValue*10;
 	var partitionFlexSize = partitionFlexUnits/parentFlexUnits;
 	$(variables['selectedObj']).css('flex-grow', partitionFlexSize);
-	$(variables['selectedObj']).attr(selectedUnitAttr, partitionFlexUnits);
+	$(variables['selectedObj']).data(selectedUnitAttr, partitionFlexUnits);
 	var dependentFlexSize = 1/partitionFlexUnits;
 	$(variables['selectedObj']).children().each(function(){
-		$(this).attr(selectedUnitAttr, partitionFlexUnits);
+		$(this).data(selectedUnitAttr, partitionFlexUnits);
 		$(this).children().each(function(){
-			var dependentFlexUnits = $(this).attr(selectedUnitAttr);
+			var dependentFlexUnits = $(this).data(selectedUnitAttr);
 			$(this).css('flex-grow', dependentFlexSize*dependentFlexUnits);
 		});
 	});
@@ -188,13 +179,13 @@ function resetRUSize(){
 	var spaceTaken = 0;
 	if($(variables['obj']).children('.flex-container-parent').css('flex-direction') == 'column') {
 		$(variables['obj']).children('.flex-container-parent').children().each(function(){
-			spaceTaken += parseInt($(this).attr('data-vUnits'), 10);
+			spaceTaken += parseInt($(this).data('vUnits'), 10);
 		});
 	} else {
 		$(variables['obj']).children('.flex-container-parent').children().each(function(){
 			workingSpaceTaken = 0;
 			$(this).children().each(function(){
-				workingSpaceTaken += parseInt($(this).attr('data-vUnits'), 10);
+				workingSpaceTaken += parseInt($(this).data('vUnits'), 10);
 			});
 			spaceTaken = workingSpaceTaken > spaceTaken ? workingSpaceTaken : spaceTaken;
 		});
@@ -221,11 +212,9 @@ function setDefaultData(obj){
 		}
 	];
 	
-	$(obj).data('portLayoutX', 1);
-	$(obj).data('portLayoutY', 1);
-	$(obj).data('encLayoutX', 1);
-	$(obj).data('encLayoutY', 1);
-	$(obj).data('encInsertFitment', 'Strict');
+	$(obj).data('valueX', 1);
+	$(obj).data('valueY', 1);
+	$(obj).data('encTolerance', 'Strict');
 	$(obj).data('partitionType', 'Generic');
 	$(obj).data('portOrientation', 1);
 	$(obj).data('portType', 1);
@@ -239,36 +228,23 @@ function addPartition(){
 	
 	var parentFlexDirection = axis == 'h' ? 'column' : 'row';
 	var flexDirection = axis == 'h' ? 'row' : 'column';
-	var unitAttr = axis == 'h' ? 'data-vUnits' : 'data-hUnits';
-	var flexUnits = parseInt($(variables['selectedParent']).attr(unitAttr), 10);
+	var unitAttr = axis == 'h' ? 'vUnits' : 'hUnits';
+	var flexUnits = parseInt($(variables['selectedParent']).data(unitAttr), 10);
 	var flex = 1/flexUnits;
 	var html = '';
 	
 	// Set flex-direction according to the orientation input
 	$(variables['selectedObj']).css('flex-direction', parentFlexDirection).data('direction', parentFlexDirection);
-	var vUnits = axis == 'h' ? 1 : parseInt($(variables['selectedObj']).attr('data-vUnits'), 10);
-	var hUnits = axis == 'h' ? parseInt($(variables['selectedObj']).attr('data-hUnits'), 10) : 1;
-	html += '<div class="flex-container border-black transparency-20" style="flex:'+flex+'; flex-direction:'+flexDirection+';" data-hUnits="'+hUnits+'" data-vUnits="'+vUnits+'"></div>';
+	var vUnits = axis == 'h' ? 1 : parseInt($(variables['selectedObj']).data('vUnits'), 10);
+	var hUnits = axis == 'h' ? parseInt($(variables['selectedObj']).data('hUnits'), 10) : 1;
+	html += '<div class="flex-container border-black transparency-20" style="flex:'+flex+'; flex-direction:'+flexDirection+';" data-direction="'+flexDirection+'" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'"></div>';
 	$(variables['selectedObj']).append(html);
 	var newObj = $(variables['selectedObj']).children().last();
 	$(newObj).on('click', function(event){
 		event.stopPropagation();
-		
-		// Highlight this object
-		$(variables['obj']).find('.rackObjSelected').removeClass('rackObjSelected');
-		$(this).addClass('rackObjSelected');
-		
-		// Enable the 'size' input
-		$('#inputCustomPartitionSize').prop('disabled', false);
-		
-		loadProperties();
-		setInputValues(false);
-		togglePartitionTypeDependencies();
-		handleOrientationInput();
-		updatePortNameDisplay();
+		makeTemplatePartitionClickable(this);
 	});
 	setDefaultData(newObj);
-	$(newObj).data('direction', flexDirection);
 	
 	return;
 }
@@ -316,21 +292,19 @@ function buildTable(inputX, inputY, className, border=false){
 
 function buildPortTable(){
 	var variables = getVariables();
-	var portType = $('#inputPortType').find('option:selected').attr('data-value');
-	var x = $('#inputPortLayoutX').val();
-	var y = $('#inputPortLayoutY').val();
+	var portType = $('#inputPortType').find('option:selected').data('value');
+	var x = $(variables['selectedObj']).data('valueX');
+	var y = $(variables['selectedObj']).data('valueY');
 	var table = buildTable(x, y, '');
 	$(variables['selectedObj']).html(table);
 	$(variables['selectedObj']).find('.tableCol').each(function(){
 		$(this).html('<div class="port '+portType+'"></div>');
 	});
-	$(variables['selectedObj']).data('portLayoutX', x);
-	$(variables['selectedObj']).data('portLayoutY', y);
 }
 
 function makeRackObjectsClickable(){
 	$('.categoryTitle').on('click', function(){
-		var categoryName = $(this).attr('data-categoryName');
+		var categoryName = $(this).data('categoryName');
 		if($('.category'+categoryName+'Container').is(':visible')) {
 			$('.category'+categoryName+'Container').hide(400);
 			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
@@ -349,16 +323,16 @@ function makeRackObjectsClickable(){
 			var partitionDepth = 0;
 		} else {
 			var object = $(this).closest('.stockObj');
-			var partitionDepth =  parseInt($(this).attr('data-depth'), 10);
+			var partitionDepth =  parseInt($(this).data('depth'), 10);
 		}
 		$('#selectedPartitionDepth').val(partitionDepth);
 		
 		//Store objectID
-		var templateID = $(object).attr('data-templateid');
+		var templateID = $(object).data('templateId');
 		$('#selectedObjectID').val(templateID);
 		
 		//Store objectFace
-		var templateFace = $(object).attr('data-objectFace');
+		var templateFace = $(object).data('objectFace');
 		$('#selectedObjectFace').val(templateFace);
 		
 		initializeImageUpload(templateID, templateFace);
@@ -402,6 +376,7 @@ function makeRackObjectsClickable(){
 				$('#detailMediaType').html(response.mediaType);
 				$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
 				$('#detailTemplateImage').append('<div id="templateImageActionContainer"><a id="templateImageAction" href="#">' + response.templateImgAction + '</a></div>');
+				$('#objClone').prop('disabled', false).removeClass('disabled');
 				
 				// Port Range
 				if(response.portRange == 'N/A') {
@@ -503,6 +478,43 @@ function makeRackObjectsClickable(){
 					$('#detailPortOrientation').html(response.portOrientationName);
 				}
 				
+				// Object EnclosureTolerance
+				//$('#inline-portOrientation').editable('destroy');
+				if(response.encTolerance != 'N/A') {
+					$('#detailEnclosureTolerance').html('<a href="#" id="inline-enclosureTolerance" data-type="select">-</a>');
+					$('#inline-enclosureTolerance').editable({
+						showbuttons: false,
+						mode: 'inline',
+						source: response.encToleranceArray,
+						url: 'backend/process_object-custom.php',
+						send: 'always',
+						params: function(params){
+							var data = {
+								'action':'edit',
+								'templateID':templateID,
+								'templateFace':templateFace,
+								'templateDepth':partitionDepth,
+								'attribute':$(this).attr('id'),
+								'value':params.value
+							};
+							params.data = JSON.stringify(data);
+							return params;
+						},
+						success: function(response) {
+							var selectedObjID = $('#selectedObjectID').val();
+							var responseJSON = JSON.parse(response);
+							if (responseJSON.active == 'inactive'){
+								window.location.replace("/");
+							} else if ($(responseJSON.error).size() > 0){
+								displayError(responseJSON.error);
+							}
+						}
+					});
+					$('#inline-enclosureTolerance').editable('setValue', response.encTolerance).editable('enable');
+				} else {
+					$('#detailEnclosureTolerance').html(response.encTolerance);
+				}
+				
 				// Object Image
 				$('#templateImageAction').on('click', function(event){
 					event.preventDefault();
@@ -535,11 +547,63 @@ function makeRackObjectsClickable(){
 	});
 }
 
-function expandRackUnit(objectRUSize){
+function makeTemplatePartitionClickable(elem){
+	var variables = getVariables();
+	// Highlight this object
+	$(variables['obj']).find('.rackObjSelected').removeClass('rackObjSelected');
+	$(elem).addClass('rackObjSelected');
+	
+	// Enable the 'size' input
+	$('#inputCustomPartitionSize').prop('disabled', false);
+	
+	setPartitionSizeInput();
+	setInputValues();
+	togglePartitionTypeDependencies();
+	handleOrientationInput();
+	updatePortNameDisplay();
+}
+
+function expandRackUnit(RUSize){
+	
+	// Expand RU for each cabinet side
 	for (var x=0; x<2; x++) {
+		
+		var cabinetSize = $('#cabinetContainer'+x).children('table').find('tr').length;
+		var RUChange = false;
+		
+		if(RUSize > cabinetSize) {
+			
+			// Cabinet needs to grow
+			var RUDiff = RUSize - cabinetSize;
+			var rackUnitHTML = '<tr class="cabinet"><td class="cabinetRailRU cabinetRailLeft cabinet">1</td><td class="RackUnit'+x+'"></td><td class="cabinetRailRU cabinetRailRight cabinet"></td></tr>';
+			for (i = 0; i < RUDiff; i++) {
+				$('#cabinetContainer'+x).children('table').append(rackUnitHTML);
+			}
+			cabinetSize = RUSize;
+			RUChange = true;
+		} else if(RUSize < cabinetSize) {
+			
+			// Cabinet needs to shrink
+			var RUDiff = cabinetSize - RUSize;
+			for (i = 0; i < RUDiff && cabinetSize > 5; i++) {
+				$('#cabinetContainer'+x).children('table').find('tr').last().remove();
+				cabinetSize--;
+			}
+			RUChange = true;
+		}
+		
+		// Renumber RUs
+		if(RUChange) {
+			$.each($('#cabinetContainer'+x).children('table').find('tr'), function(){
+				var index = $('#cabinetContainer'+x).children('table').find('tr').index(this);
+				var RUNumber = cabinetSize - index;
+				$(this).children().first().html(RUNumber);
+			});
+		}
+		
 		$('.RackUnit'+x).show();
-		$('.RackUnit'+x).eq(0).attr('rowspan', objectRUSize);
-		for (y=1; y<objectRUSize; y++) {
+		$('.RackUnit'+x).eq(0).attr('rowspan', RUSize);
+		for (y=1; y<RUSize; y++) {
 			$('.RackUnit'+x).eq(y).hide();
 		}
 	}
@@ -560,14 +624,14 @@ function setObjectSize(){
 		if(flexDirection == 'row') {
 			$(flexContainerParent).children().each(function(){
 				$(this).children().each(function(){
-					var partitionFlexUnits = parseInt($(this).attr('data-vUnits'), 10);
+					var partitionFlexUnits = parseInt($(this).data('vUnits'), 10);
 					var partitionFlexSize = partitionFlexUnits/parentFlexUnits;
 					$(this).css('flex', partitionFlexSize + ' 1 0%');
 				});
 			});
 		} else {
 			$(flexContainerParent).children().each(function(){
-				var partitionFlexUnits = parseInt($(this).attr('data-vUnits'), 10);
+				var partitionFlexUnits = parseInt($(this).data('vUnits'), 10);
 				var partitionFlexSize = partitionFlexUnits/parentFlexUnits;
 				$(this).css('flex', partitionFlexSize + ' 1 0%');
 			});
@@ -583,7 +647,8 @@ function switchSides(sideValue){
 		$('#cabinetContainer1').hide();
 		$('#cabinetContainer0').show();
 	}
-	$('#inputCurrentSide').val(sideValue);
+	//$('#inputCurrentSide').val(sideValue);
+	$(document).data('templateSide', sideValue);
 }
 
 function switchSidesDetail(sideValue){
@@ -594,11 +659,12 @@ function switchSidesDetail(sideValue){
 		$('#availableContainer0').show();
 		$('#availableContainer1').hide();
 	}
+	$(document).data('availableTemplateSide', sideValue);
 }
 
 function getVariables(){
 	var variables = [];
-	variables['currentSide'] = $('#inputCurrentSide').val();
+	variables['currentSide'] = $(document).data('templateSide');
 	variables['obj'] = $('#previewObj'+variables['currentSide']);
 	variables['selectedObj'] = $(variables['obj']).find('.rackObjSelected');
 	variables['selectedParent'] = $(variables['selectedObj']).parent();
@@ -609,7 +675,7 @@ function getVariables(){
 
 function reapplyCategory(){
 	var variables = getVariables();
-	var selectedCategory = $("#inputCategory").find('option:selected').attr('data-value');
+	var selectedCategory = $("#inputCategory").find('option:selected').data('value');
 	
 	$(variables['selectedObj']).removeClass (function (index, css) {
 		return (css.match (/(^|\s)category\S+/g) || []).join(' ');
@@ -620,31 +686,32 @@ function reapplyCategory(){
 
 function buildObj(objID, hUnits, vUnits, direction){
 	var obj = $('#previewObj'+objID);
-	$(obj).html('<div class="flex-container-parent" style="flex-direction:column" data-hUnits="'+hUnits+'" data-vUnits="'+vUnits+'"></div>');
+	$(obj).html('<div class="flex-container-parent rackObjSelected" style="flex-direction:'+direction+'" data-direction="'+direction+'" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'"></div>');
 	var newObj = $(obj).children('.flex-container-parent');
-	$(newObj).addClass('rackObjSelected');
+	//$(newObj).addClass('rackObjSelected');
 	setDefaultData(newObj);
-	$(newObj).data('direction', direction);
+	//$(newObj).data('direction', direction);
 	$(newObj).on('click', function(){
 		// Highlight the object
 		$(this).find('.rackObjSelected').removeClass('rackObjSelected');
 		$(this).addClass('rackObjSelected');
 		
-		loadProperties();
-		setInputValues(false);
+		setPartitionSizeInput();
+		setInputValues();
 		togglePartitionTypeDependencies();
 		handleOrientationInput();
 		updatePortNameDisplay();
 	});
-	loadProperties();
-	setInputValues(true);
+	setPartitionSizeInput();
+	setInputValues();
 	togglePartitionTypeDependencies();
 	handleOrientationInput();
+	//$(newObj).click();
 }
 
 function setCategory(){
 	variables = getVariables();
-	var category = $('#inputCategory').find('option:selected').attr('data-value');
+	var category = $('#inputCategory').find('option:selected').data('value');
 	$(variables['obj']).removeClass (function (index, css) {
 		return (css.match (/(^|\s)category\S+/g) || []).join(' ');
 	});
@@ -655,15 +722,15 @@ function buildObjectArray(elem){
 	var parent = [];
 
 	$(elem).children('div').each(function(){
-		var tempData = $(this).data();
-		tempData['flex'] = $(this).css('flex-grow');
+		var workingArray = $(this).data();
+		workingArray['flex'] = $(this).css('flex-grow');
 		if ($(this).children('div.flex-container').length) {
-			tempData['children'] = buildObjectArray(this);
+			workingArray['children'] = buildObjectArray(this);
 		}
-		if($(this).data('partitionType') == 'Connectable' && $(this).data('portLayoutX') == 0 && $(this).data('portLayoutY') == 0) {
-			tempData['partitionType'] = 'Generic';
+		if($(this).data('partitionType') == 'Connectable' && $(this).data('valueX') == 0 && $(this).data('valueY') == 0) {
+			workingArray['partitionType'] = 'Generic';
 		}
-		parent.push(tempData);
+		parent.push(workingArray);
 	});
 
 	return parent;
@@ -685,7 +752,12 @@ function resetTemplateDetails(){
 	$('#detailTemplateImage').html('-');
 	$('#inline-templateName').editable('setValue', '-').editable('disable');
 	$('#inline-category').editable('disable').html('-');
-	$('#inline-portOrientation').editable('disable').html('-');
+	$('#inline-portOrientation').editable('destroy').html('-');
+	$('#detailPortOrientation').html('-');
+	$('#inline-enclosureTolerance').editable('destroy').html('-');
+	$('#detailEnclosureTolerance').html('-');
+	
+	$('#objClone').prop('disabled', true).addClass('disabled');
 }
 
 function togglePartitionTypeDependencies(){
@@ -777,11 +849,11 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 	var templates = $(containerElement).find('.object-wrapper');
 	
 	if($(tags).length) {
-		$(templates).hide().attr('data-visible', false);
+		$(templates).hide().data('visible', false);
 		
 		$.each(templates, function(indexTemplate, valueTemplate){
 			var templateObj = $(this);
-			var templateName = $(valueTemplate).attr('data-templatename').toLowerCase();
+			var templateName = $(valueTemplate).data('templateName').toLowerCase();
 			var match = true;
 			$.each(tags, function(indexTag, valueTag){
 				var tag = valueTag.toLowerCase();
@@ -792,7 +864,7 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 				}
 			});
 			if(match) {
-				$(templateObj).show().attr('data-visible', true);
+				$(templateObj).show().data('visible', true);
 			}
 		});
 		
@@ -804,7 +876,7 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 			}
 		});
 	} else {
-		$(templates).show().attr('data-visible', true);;
+		$(templates).show().data('visible', true);;
 		$(categoryContainers).show();
 	}
 }
@@ -957,7 +1029,7 @@ function setPortNameFieldFocus(){
 
 function handlePortNameOptions(){
 	var focusedPortNameField = $(document).data('focusedPortNameField');
-	var valuePortNameType = $(focusedPortNameField).attr('data-type');
+	var valuePortNameType = $(focusedPortNameField).data('type');
 	$('#selectPortNameFieldType').children('option[value="'+valuePortNameType+'"]').prop('selected', true);
 	
 	if(valuePortNameType == 'static') {
@@ -981,8 +1053,8 @@ function handlePortNameOptions(){
 			$('#selectPortNameFieldOrder').append('<option value="'+x+'">'+optionString+'</option>');
 		}
 		
-		var valuePortNameCount = $(focusedPortNameField).attr('data-count');
-		var valuePortNameOrder = $(focusedPortNameField).attr('data-order');
+		var valuePortNameCount = $(focusedPortNameField).data('count');
+		var valuePortNameOrder = $(focusedPortNameField).data('order');
 		$('#inputPortNameFieldCount').val(valuePortNameCount);
 		$('#selectPortNameFieldOrder').children('option[value="'+valuePortNameOrder+'"]').prop('selected', true);
 		$('#selectPortNameFieldOrder').prop("disabled", false);
@@ -1010,11 +1082,11 @@ function convertNumToDeg(num){
 
 function reorderIncrementals(newOrder){
 	var focusedPortNameField = $(document).data('focusedPortNameField');
-	var originalOrder = parseInt($(focusedPortNameField).attr('data-order'));
+	var originalOrder = parseInt($(focusedPortNameField).data('order'));
 	var incrementalElements = $('.portNameFields[data-type="incremental"], .portNameFields[data-type="series"]');
 	$(incrementalElements).each(function(){
 		
-		var currentOrder = parseInt($(this).attr('data-order'));
+		var currentOrder = parseInt($(this).data('order'));
 		if(newOrder > originalOrder) {
 			var adjustment = -1;
 		} else if(newOrder < originalOrder) {
@@ -1030,7 +1102,7 @@ function reorderIncrementals(newOrder){
 		}
 		
 		var y = convertNumToDeg(x);
-		$(this).attr('data-order', x);
+		$(this).data('order', x);
 		$(this).prev('em').html(y);
 	});
 }
@@ -1040,19 +1112,19 @@ function resetIncrementals(){
 	var incrementalElements = $('.portNameFields[data-type="incremental"], .portNameFields[data-type="series"]');
 	
 	// Set order to last if this is an unorderable field changing to an orderable field?
-	var selectedOrder = parseInt($(focusedPortNameField).attr('data-order'));
+	var selectedOrder = parseInt($(focusedPortNameField).data('order'));
 	if(selectedOrder == 0) {
-		$(focusedPortNameField).attr('data-order', incrementalElements.length);
+		$(focusedPortNameField).data('order', incrementalElements.length);
 	}
 	
 	incrementalElements = incrementalElements.sort(function(a, b) {
-		return parseInt($(a).attr('data-order')) - parseInt($(b).attr('data-order'));
+		return parseInt($(a).data('order')) - parseInt($(b).data('order'));
 	});
 	
 	$(incrementalElements).each(function(index){
 		var newOrder = index+1;
 		var newOrderString = convertNumToDeg(newOrder);
-		$(this).attr('data-order', newOrder);
+		$(this).data('order', newOrder);
 		$(this).prev().html(newOrderString);
 	});
 }
@@ -1078,10 +1150,10 @@ function updateportNameFormat(){
 	var allElementsArray = [];
 	
 	$(allElements).each(function(){
-		var elementType = $(this).attr('data-type');
+		var elementType = $(this).data('type');
 		var elementValue = $(this).val();
-		var elementCount = parseInt($(this).attr('data-count'));
-		var elementOrder = parseInt($(this).attr('data-order'));
+		var elementCount = parseInt($(this).data('count'));
+		var elementOrder = parseInt($(this).data('order'));
 		if(elementType == 'series') {
 			elementValue = elementValue.split(',');
 			var elementCount = elementValue.length;
@@ -1109,8 +1181,8 @@ function updatePortNameDisplay(){
 		var portNameFormat = $(document).data('portNameFormatEdit');
 	} else {
 		var variables = getVariables();
-		var portLayoutX = $(variables['selectedObj']).data('portLayoutX');
-		var portLayoutY = $(variables['selectedObj']).data('portLayoutY');
+		var portLayoutX = $(variables['selectedObj']).data('valueX');
+		var portLayoutY = $(variables['selectedObj']).data('valueY');
 		var portTotal = portLayoutX * portLayoutY;
 		var portNameFormat = $(variables['selectedObj']).data('portNameFormat');
 	}
@@ -1183,7 +1255,7 @@ function initializeTemplateCatalog(){
 	
 	// Make catalog titles expandable
 	$('.templateCatalogCategoryTitle').on('click', function(){
-		var categoryName = $(this).attr('data-categoryName');
+		var categoryName = $(this).data('categoryName');
 		if($('.templateCatalogCategory'+categoryName+'Container').is(':visible')) {
 			$('.templateCatalogCategory'+categoryName+'Container').hide(400);
 			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
@@ -1203,15 +1275,15 @@ function initializeTemplateCatalog(){
 			var partitionDepth = 0;
 		} else {
 			var object = $(this).closest('.stockObj');
-			var partitionDepth =  parseInt($(this).attr('data-depth'), 10);
+			var partitionDepth =  parseInt($(this).data('depth'), 10);
 		}
 		
 		//Store objectID
-		var objID = $(object).attr('data-templateid');
+		var objID = $(object).data('templateId');
 		$(document).data('templateCatalogID', objID);
 		
 		//Store objectFace
-		var objFace = $(object).attr('data-objectFace');
+		var objFace = $(object).data('objectFace');
 		
 		//Remove hightlight from all racked objects
 		$('#templateCatalogAvailableContainer').find('.rackObjSelected').removeClass('rackObjSelected');
@@ -1281,7 +1353,150 @@ function initializeTemplateCatalog(){
 	});
 }
 
+function handleMountConfig(mountConfig){
+	if (mountConfig == 1) {
+		//4-Post
+		$('#inputSideCount4Post').prop('checked', true);
+		$('#inputSideCount').val(1);
+		$('.sideSelector').prop('disabled', false);
+		$('#objectTypeInsert0').prop('disabled', true);
+		$('#objectTypeInsert1').prop('disabled', true);
+	} else {
+		//2-Post
+		$('#inputSideCount2Post').prop('checked', true);
+		$('#inputSideCount').val(0);
+		$('.sideSelector').prop('disabled', true);
+		$('#objectTypeInsert0').prop('disabled', false);
+		setPartitionSizeInput();
+		setInputValues();
+		togglePartitionTypeDependencies();
+		handleOrientationInput();
+		$('#sideSelectorFront').prop('checked', true);
+	}
+}
+
+function handleScrollLock(){
+	var scrollLockState = $('#checkboxScrollLock').is(':checked');
+	
+	if(!scrollLockState) {
+		var topnavHeight = $('#topnav').height();
+		var cabinetTop = $('#cabinetContainer').offset().top;
+		var cabinetHeight = $('#cabinetContainer').outerHeight();
+		var cabinetBuffer = 30;
+		var cabinetTopToNav = cabinetTop - topnavHeight - cabinetBuffer;
+		$('#cabinetContainer').offset({top:cabinetTop});
+
+		$(window).scroll(function() {
+			var windowTop = $(window).scrollTop();
+			var cabinetBottom = cabinetHeight + $('#cabinetContainer').offset().top;
+			var footerTop = $('footer').offset().top;
+			if(windowTop > cabinetTopToNav && cabinetBottom <= footerTop+5) {
+				var cabinetOffset = windowTop + topnavHeight + cabinetBuffer;
+				if(cabinetOffset+cabinetHeight > footerTop) {
+					cabinetOffset = footerTop - cabinetHeight;
+				}
+				$('#cabinetContainer').offset({top:cabinetOffset});
+			} else if(windowTop < cabinetTopToNav) {
+				$('#cabinetContainer').offset({top:cabinetTop});
+			}
+		});
+	} else {
+		$('#cabinetContainer').css('position', 'static');
+		$(window).unbind('scroll');
+	}
+	
+}
+
+function buildInsertParent(hUnits, vUnits, encLayoutX, encLayoutY){
+	var variables = getVariables();
+	var RUSize = Math.ceil(vUnits/2);
+	var flexRow = hUnits/10;
+	var flexCol = (RUSize*2)/vUnits;
+	var table = '';
+	
+	table += '<div class="flex-container-parent" style="flex-direction:row;">';
+	table += '<div style="display:flex; flex-direction:column; flex:'+flexRow+'">';
+	table += '<div style="display:flex; flex-direction:column; flex:'+flexCol+'">';
+	table += buildTable(encLayoutX, encLayoutY, 'enclosureTable', true);
+	table += '</div>';
+	table += '</div>';
+	
+	// Clear the preview object of any user formatting
+	$(variables['obj']).removeClass(function(index, css) {
+		return (css.match(/(^|\s)category\S+/g) || []).join(' ');
+	});
+	
+	expandRackUnit(RUSize);
+	setObjectSize();
+	$(variables['obj']).html(table);
+	
+	$(variables['obj'])
+	.find('.tableRow:first')
+	.find('.tableCol:first')
+	.html('<div id="previewObj3" class="objBaseline" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'" data-value-x="'+encLayoutX+'" data-value-y="'+encLayoutY+'"></div>');
+}
+
+function buildInsertPreviewObj(encElem){
+	
+	var variables = getVariables();
+	var enclosureParent = $(encElem).parent();
+	var enclosureObject = $(encElem).closest('.flex-container-parent');
+	var enclosureObjectParent = $(enclosureObject).parent();
+	var objectFlexDirection = $(enclosureObjectParent).css('flex-direction');
+	var objectFunction = $(enclosureObjectParent).data('templateFunction');
+	var hUnits = parseInt($(enclosureParent).data('hUnits'), 10);
+	var vUnits = parseInt($(enclosureParent).data('vUnits'), 10);
+	var encLayoutX = parseInt($(enclosureParent).data('valueX'), 10);
+	var encLayoutY = parseInt($(enclosureParent).data('valueY'), 10);
+	$('[name="objectFunction"][value='+objectFunction+']').prop('checked', true);
+	var RUSize = parseInt($(enclosureObjectParent).data('ruSize'), 10);
+	$('#inputRU').val(RUSize);
+	
+	// Enable input fields
+	$('#partitionH, #partitionV, #inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #objectType, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', false);
+	/*
+	// Adjust the RU table cell size
+	expandRackUnit(RUSize);
+	
+	// Mark the selected so it can be referenced in preview object
+	$(encElem).addClass('selectedEnclosure');
+	
+	// Copy the selected object to preview object
+	$(variables['obj']).html($(enclosureObject).clone().removeClass('rackObjSelected'));
+
+	// Cleanup marking
+	$(encElem).removeClass('selectedEnclosure');
+	
+	$(variables['obj'])
+	.find('.selectedEnclosure')
+	.find('.tableRow:first')
+	.find('.tableCol:first')
+	.removeClass('enclosureTable')
+	.html('<div id="previewObj3" class="objBaseline" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'" data-value-x="'+encLayoutX+'" data-value-y="'+encLayoutY+'"></div>');
+	*/
+	buildInsertParent(hUnits, vUnits, encLayoutX, encLayoutY)
+	
+	// Original preview object needs to grow first
+	//setObjectSize();
+	
+	$(document).data('templateSide', 3);
+	//setObjectSize();
+	buildObj(3, hUnits, vUnits, objectFlexDirection);
+	setCategory();
+	togglePartitionTypeDependencies();
+	handleOrientationInput();
+}
+
 $( document ).ready(function() {
+	
+	var scrollLockState = $('#checkboxScrollLock').is(':checked');
+	if(scrollLockState) {
+		var scrollLockSetting = 'locked';
+	} else {
+		var scrollLockSetting = 'unlocked';
+	}
+	$('#scrollState').html(scrollLockSetting);
+	handleScrollLock();	
 	toggleObjectTypeDependencies();
 	
 	$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog-013.php', function(){
@@ -1309,34 +1524,107 @@ $( document ).ready(function() {
 	var defaultCategoryColor = '#d3d3d3';
 	makeRackObjectsClickable();
 	$(document).data('obj', $('#previewObj0'));
+	$(document).data('templateSide', 0);
+	$(document).data('availableTemplateSide', 0);
 	setObjectSize();
 	for(x=0; x<2; x++) {
 		buildObj(x, 10, 2, 'column');
 	}
 	setCategory();
 	
+	$('#checkboxScrollLock').on('change', function(){
+		handleScrollLock();
+	});
+	
 	// Clone a template to the workspace
 	$('#objClone').click(function(){
 		var templateID = $('#selectedObjectID').val();
-		var templateObj = $('#availableContainer0').find('[data-templateid="19"]');
-		var variables = getVariables();
-		$(variables['obj']).html($(templateObj).clone());
-		$('.flex-container, .flex-container-parent').on('click', function(event){
-			event.stopPropagation();
+		var templateSide = $(document).data('availableTemplateSide');
+		var templateObj = $('#availableContainer'+templateSide).find('[data-template-id="'+templateID+'"]');
+		var templateType = $(templateObj).data('templateType');
+		
+		// Store template data
+		var mountConfig = $(templateObj).data('objectMountConfig');
+		var RUSize = $(templateObj).data('ruSize');
+		var categoryID = $(templateObj).data('templateCategoryId');
+		var category = $(templateObj).data('templateCategoryName');
+		var face = $(templateObj).data('objectFace');
+		var templateFunction = $(templateObj).data('templateFunction');
+		var templateObjChild = $(templateObj).children()[0];
+		
+		$('[name="objectTypeRadio"][value='+templateType+']').prop('checked', true);
+		$('[name="category"][value='+categoryID+']').prop('selected', true);
+		
+		if(templateType == 'Insert') {
 			
-			// Highlight this object
-			$(variables['obj']).find('.rackObjSelected').removeClass('rackObjSelected');
-			$(this).addClass('rackObjSelected');
 			
-			// Enable the 'size' input
-			$('#inputCustomPartitionSize').prop('disabled', false);
+			var parentHUnits = $(templateObj).data('parentHUnits');
+			var parentVUnits = $(templateObj).data('parentVUnits');
+			var parentEncLayoutX = $(templateObj).data('parentEncLayoutX');
+			var parentEncLayoutY = $(templateObj).data('parentEncLayoutY');
+			buildInsertParent(parentHUnits, parentVUnits, parentEncLayoutX, parentEncLayoutY);
+			switchSides(3);
+			setCategory();
+			$('#previewObj3').html($(templateObj).clone());
+			var object = $('#previewObj3');
+			objFaceArray = [object];
 			
-			loadProperties();
-			setInputValues(false);
-			togglePartitionTypeDependencies();
-			handleOrientationInput();
-			updatePortNameDisplay();
+		} else {
+			switchSides(0);
+		
+			for(x=0; x<2; x++) {
+				var flexUnits = RUSize * 2;
+				$('#previewObj'+x).data('vUnits', flexUnits);
+				$('#previewObj'+x).children('.flex-container-parent').data('vUnits', flexUnits);
+			}
+		
+			// Clone template faces to workspace and save them for reference
+			if(mountConfig == 0) {
+				$('#previewObj0').html($(templateObjChild).clone());
+				var object = $('#previewObj0');
+				
+				objFaceArray = [object];
+			} else {
+				
+				// Find the index of the opposite face
+				var faceOpposite = face == 0 ? 1 : 0;
+				
+				// Store the opposite face
+				var templateObjOpposite = $('#availableContainer'+faceOpposite).find('.stockObj [data-template-id="'+templateID+'"]');
+				console.log('Standard clone '+face+'-'+faceOpposite);
+				// Clone front and rear to workspace
+				$('#previewObj'+face).html($(templateObjChild).clone());
+				$('#previewObj'+faceOpposite).html($(templateObjOpposite).clone());
+				var object = $('#previewObj'+face);
+				var objectOpposite = $('#previewObj'+faceOpposite);
+				
+				objFaceArray = [object, objectOpposite];
+			}
+			
+		}
+		
+		// Apply template data
+		handleMountConfig(mountConfig);
+		$('#inputRU').val(RUSize);
+		$('#inputCategory').children('[value='+categoryID+']').prop('selected', true);
+		$('[name="objectFunction"][value='+templateFunction+']').prop('checked', true);
+		expandRackUnit(RUSize);
+		setObjectSize();
+		setCategory();
+		toggleObjectTypeDependencies();
+		togglePartitionTypeDependencies();
+		
+		$.each(objFaceArray, function(){
+			
+			$(this).find('.flex-container').addClass('border-black transparency-20');
+			$(this).find('.flex-container, .flex-container-parent').on('click', function(event){
+				event.stopPropagation();
+				makeTemplatePartitionClickable(this);
+			});
 		});
+		
+		var variables = getVariables();
+		$(variables['selectedObj']).click();
 	});
 	
 	// Delete a temlate
@@ -1362,7 +1650,7 @@ $( document ).ready(function() {
 		});
 	});
 
-	//colorpicker start
+	// Start colorpicker
 	$('#color-picker').spectrum({
 		preferredFormat: 'hex',
 		showButtons: false,
@@ -1392,18 +1680,18 @@ $( document ).ready(function() {
 		}
 	}).val(defaultCategoryColor);
 	
-	//Select category
+	// Select category
 	$('#categoryList').children('button').on('click', function(){
 		if($(this).hasClass('rackObjSelected')) {
 			resetCategoryForm(defaultCategoryColor);
 		} else {
 			$('#categoryList').children('button').removeClass('rackObjSelected');
 			$(this).addClass('rackObjSelected');
-			$('#inputCategoryID').val($(this).attr('data-id'));
-			$('#inputCategoryCurrentID').val($(this).attr('data-id'));
-			$('#inputCategoryName').val($(this).attr('data-name'));
-			$('#color-picker').spectrum('set', $(this).attr('data-color'));
-			if($(this).attr('data-default') == 1) {
+			$('#inputCategoryID').val($(this).data('id'));
+			$('#inputCategoryCurrentID').val($(this).data('id'));
+			$('#inputCategoryName').val($(this).data('name'));
+			$('#color-picker').spectrum('set', $(this).data('color'));
+			if($(this).data('default') == 1) {
 				$('#inputCategoryDefault').prop({'checked':true,'disabled':true});
 			} else {
 				$('#inputCategoryDefault').prop({'checked':false,'disabled':false});
@@ -1411,7 +1699,7 @@ $( document ).ready(function() {
 		}
 	});
 	
-	//Delete selected categories
+	// Delete selected categories
 	$('#manageCategories-Delete').on('click', function(){
 		var data = JSON.stringify($('#manageCategoriesCurrent-Form').serializeArray());
 		$.post('backend/process_object-category.php', {'data':data}, function(response){
@@ -1440,7 +1728,7 @@ $( document ).ready(function() {
 		});
 	});
 	
-	//Category Manager form save
+	// Category Manager form save
 	$('#manageCategories-Save').on('click', function(event){
 		var defaultOptionProp = $('#inputCategoryDefault').prop('disabled');
 		if(defaultOptionProp) {
@@ -1466,8 +1754,8 @@ $( document ).ready(function() {
 				$("#customStyle").load('includes/content-custom_style.php');
 				if(responseJSON.success.defaultOption == 1) {
 					var currentDefault = $('#categoryList').children('button[data-default="1"]');
-					$(currentDefault).attr('data-default', 0);
-					$(currentDefault).html($(currentDefault).attr('data-name'));
+					$(currentDefault).data('default', 0);
+					$(currentDefault).html($(currentDefault).data('name'));
 				}
 				if(responseJSON.success.action == 'add') {
 					$('#inputCategory').append('<option id="categoryOption'+responseJSON.success.id+'" data-value="category'+responseJSON.success.name+'" value="'+responseJSON.success.id+'">'+responseJSON.success.name+'</option>');
@@ -1479,11 +1767,11 @@ $( document ).ready(function() {
 						} else {
 							$('#categoryList').children('button').removeClass('rackObjSelected');
 							$(this).addClass('rackObjSelected');
-							$('#inputCategoryID').val($(this).attr('data-id'));
-							$('#inputCategoryCurrentID').val($(this).attr('data-id'));
-							$('#inputCategoryName').val($(this).attr('data-name'));
-							$('#color-picker').spectrum('set', $(this).attr('data-color'));
-							if($(this).attr('data-default') == 1) {
+							$('#inputCategoryID').val($(this).data('id'));
+							$('#inputCategoryCurrentID').val($(this).data('id'));
+							$('#inputCategoryName').val($(this).data('name'));
+							$('#color-picker').spectrum('set', $(this).data('color'));
+							if($(this).data('default') == 1) {
 								$('#inputCategoryDefault').prop({'checked':true,'disabled':true});
 							} else {
 								$('#inputCategoryDefault').prop({'checked':false,'disabled':false});
@@ -1499,7 +1787,7 @@ $( document ).ready(function() {
 					$('#alertMsgCategory').html(alertMsg);
 				} else {
 					// Update category select option
-					$('#categoryOption'+responseJSON.success.id).attr('data-value', 'category'+responseJSON.success.name);
+					$('#categoryOption'+responseJSON.success.id).data('value', 'category'+responseJSON.success.name);
 					$('#categoryOption'+responseJSON.success.id).val(responseJSON.success.id);
 					$('#categoryOption'+responseJSON.success.id).html(responseJSON.success.name);
 					
@@ -1508,13 +1796,13 @@ $( document ).ready(function() {
 						return (className.match (/(^|\s)category\S+/g) || []).join(' ');
 					});
 					$('#categoryList'+responseJSON.success.id).addClass('category'+responseJSON.success.name);
-					$('#categoryList'+responseJSON.success.id).attr('data-name', responseJSON.success.name);
-					$('#categoryList'+responseJSON.success.id).attr('data-color', responseJSON.success.color);
+					$('#categoryList'+responseJSON.success.id).data('name', responseJSON.success.name);
+					$('#categoryList'+responseJSON.success.id).data('color', responseJSON.success.color);
 					var defaultIdentifier = '';
 					if(responseJSON.success.defaultOption == 1) {
 						defaultIdentifier = '*';
 					}
-					$('#categoryList'+responseJSON.success.id).attr('data-default', responseJSON.success.defaultOption);
+					$('#categoryList'+responseJSON.success.id).data('default', responseJSON.success.defaultOption);
 					$('#categoryList'+responseJSON.success.id).html(responseJSON.success.name+defaultIdentifier);
 					resetCategoryForm(defaultCategoryColor);
 					var alertMsg = '';
@@ -1527,7 +1815,7 @@ $( document ).ready(function() {
 		});
 	});
 	
-	//Form submit
+	// Form submit
 	$('#objectEditor-Submit').on('click', function(){
 		// Gather user input
 		var data = {};
@@ -1538,10 +1826,10 @@ $( document ).ready(function() {
 		data['function'] = $('input[name="objectFunction"]:checked').val();
 		data['objects'] = [];
 		if(data['type'] == 'Insert'){
-			var encLayoutX = parseInt($('#previewObj3').attr('data-encLayoutX'), 10);
-			var encLayoutY = parseInt($('#previewObj3').attr('data-encLayoutY'), 10);
-			var objHUnits = parseInt($('#previewObj3').attr('data-hUnits'), 10);
-			var objVUnits = parseInt($('#previewObj3').attr('data-vUnits'), 10);
+			var encLayoutX = parseInt($('#previewObj3').data('valueX'), 10);
+			var encLayoutY = parseInt($('#previewObj3').data('valueY'), 10);
+			var objHUnits = parseInt($('#previewObj3').data('hUnits'), 10);
+			var objVUnits = parseInt($('#previewObj3').data('vUnits'), 10);
 			var insertRUSize = Math.ceil(objVUnits/2);
 			data['RUSize'] = insertRUSize;
 			data['encLayoutX'] = encLayoutX;
@@ -1573,159 +1861,98 @@ $( document ).ready(function() {
 		});
 	});
 	
-	//Category
+	// Category
 	$('#inputCategory').on('change', function(){
 		setCategory();
 	});
 	
-	//Side Count Selector
+	// Side Count Selector
 	$('.sideCount').on('change', function(){
-		if ($(this).val() == 1) {
-			//4-Post
-			$('#inputSideCount').val(1);
-			$('.sideSelector').prop('disabled', false);
-			$('#objectTypeInsert0').prop('disabled', true);
-			$('#objectTypeInsert1').prop('disabled', true);
-		} else {
-			//2-Post
-			$('#inputSideCount').val(0);
-			$('.sideSelector').prop('disabled', true);
-			$('#objectTypeInsert0').prop('disabled', false);
-			switchSides(0);
-			loadProperties();
-			setInputValues(false);
-			togglePartitionTypeDependencies();
-			handleOrientationInput();
-			$('#sideSelectorFront').prop('checked', true);
-		}
+		switchSides(0);
+		var mountConfig = $(this).val();
+		handleMountConfig(mountConfig);
 	});
 	
-	//Side Switcher
+	// Side Switcher
 	$('.sideSelector').on('change', function(){
 		var selectedSide = $(this).val();
 		switchSides(selectedSide);
 		setCategory();
 		setObjectSize();
-		loadProperties();
-		setInputValues(false);
+		setPartitionSizeInput();
+		setInputValues();
 		togglePartitionTypeDependencies();
 		handleOrientationInput();
 	});
 	
-	//Detail Side Switcher
+	// Detail Side Switcher
 	$('.sideSelectorDetail').on('change', function(){
 		switchSidesDetail($(this).val());
 	});
 	
-	//RU Size
+	// RU Size
 	$('#inputRU').on('change', function(){
 		var variables = getVariables();
 		
 		for(x=0; x<2; x++) {
 			var flexUnits = variables['RUSize'] * 2;
-			$('#previewObj'+x).attr('data-vUnits', flexUnits);
-			$('#previewObj'+x).children('.flex-container-parent').attr('data-vUnits', flexUnits);
+			$('#previewObj'+x).data('vUnits', flexUnits);
+			$('#previewObj'+x).children('.flex-container-parent').data('vUnits', flexUnits);
 		}
 		
 		expandRackUnit(variables['RUSize']);
 		setObjectSize();
-		loadProperties();
-		setInputValues(false);
+		setPartitionSizeInput();
+		setInputValues();
 		handleOrientationInput();
 	});
 	
 	// Object Type
 	$('input.objectType').on('change', function(){
-		var category = $('#inputCategory').find('option:selected').attr('data-value');
+		var category = $('#inputCategory').find('option:selected').data('value');
 		toggleObjectTypeDependencies();
 		
 		switch($(this).val()) {
 			case 'Insert':
-				// Inserts cannot be enclosures
-				$('#inputPartitionTypeEnclosure').prop('disabled', true);
 				
 				// Inserts cannot be 4-post mountable
 				$('.sideSelector').prop('disabled', true);
 				$('#inputSideCount2Post').prop('checked', true);
 				$('#sideSelectorFront').prop('checked', true);
-				switchSides(0);
+				switchSides(3);
 				
 				// Variables must be retrieved after switchSides() because it updates the reference to the currently selected object
 				var variables = getVariables();
-				loadProperties();
-				handleOrientationInput();
+				//setPartitionSizeInput();
 				
 				// Disable relevant input fields
-				$('#objectPartitionAddRemove, #objectPartitionSize, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', true);
+				$('#partitionH, #partitionV, #inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #inputPartitionTypeEnclosure, #customPartitionAdd, #customPartitionRemove, #objectPartitionSize, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', true);
 				
 				// Clear the preview object of any user formatting
-				$(variables['obj']).html('Select enclosure from "Available Objects" section.');
-				$(variables['obj']).removeClass(function(index, css) {
+				$('#previewObj0').html('Select enclosure from "Available Objects" section.');
+				$('#previewObj0').removeClass(function(index, css) {
 					return (css.match(/(^|\s)category\S+/g) || []).join(' ');
 				});
 				$('.enclosure').on('click', function(){
-					
-					var enclosureParent = $(this).parent();
-					var enclosureObject = $(this).closest('.flex-container-parent');
-					var enclosureObjectParent = $(enclosureObject).parent();
-					var objectFlexDirection = $(enclosureObjectParent).css('flex-direction');
-					var objectFunction = $(enclosureObjectParent).attr('data-objectFunction');
-					var hUnits = parseInt($(enclosureParent).attr('data-hunits'), 10);
-					var vUnits = parseInt($(enclosureParent).attr('data-vunits'), 10);
-					var encLayoutX = parseInt($(this).attr('data-encLayoutX'), 10);
-					var encLayoutY = parseInt($(this).attr('data-encLayoutY'), 10);
-					$('[name="objectFunction"][value='+objectFunction+']').prop('checked', true);
-					setInputValues(true);
-					var RUSize = parseInt($(enclosureObjectParent).attr('data-RUSize'), 10);
-					$('#inputRU').val(RUSize);
-					
-					// Enable input fields
-					$('#objectType, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', false);
-					
-					// Adjust the RU table cell size
-					expandRackUnit(RUSize);
-					
-					// Mark the selected so it can be referenced in preview object
-					$(this).addClass('selectedEnclosure');
-					
-					// Copy the selected object to preview object
-					$(variables['obj']).html($(enclosureObject).clone().removeClass('rackObjSelected'));
-				
-					// Cleanup marking
-					$(this).removeClass('selectedEnclosure');
-					
-					$(variables['obj'])
-					.find('.selectedEnclosure')
-					.find('.tableRow:first')
-					.find('.tableCol:first')
-					.removeClass('enclosureTable')
-					//.data(data)
-					.html('<div id="previewObj3" class="objBaseline" data-hUnits="'+hUnits+'" data-vUnits="'+vUnits+'" data-encLayoutX="'+encLayoutX+'" data-encLayoutY="'+encLayoutY+'"></div>');
-					
-					// Original preview object needs to grow first
-					setObjectSize();
-					
-					$('#inputCurrentSide').val(3);
-					setObjectSize();
-					buildObj(3, hUnits, vUnits, objectFlexDirection);
-					setCategory();
-					togglePartitionTypeDependencies();
-					//buildPortTable();
-					//updatePortNameDisplay();
+					switchSides(0);
+					buildInsertPreviewObj(this);
 				});
 				break;
 				
 			case 'Standard':
+				switchSides(0);
 				// Variables must be retrieved here... see above comment under 'Insert' case
 				var variables = getVariables();
-				$('#inputPartitionTypeEnclosure').prop('disabled', false);
+				$('#inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #inputPartitionTypeEnclosure').prop('disabled', false);
 				for(x=0; x<2; x++) {
 					buildObj(x, 10, 2, 'column');
 				}
-				$('#inputCurrentSide').val(0);
+				
+				$(document).data('templateSide', 0);
 				expandRackUnit(variables['RUSize']);
 				setObjectSize();
 				setCategory();
+				handleOrientationInput();
 				
 				// Remove the click hook from enclosure elements
 				// that were added when selecting 'insert' object type.
@@ -1750,8 +1977,8 @@ $( document ).ready(function() {
 				$('#inputSideCount2Post').prop('checked', true);
 				$('#sideSelectorFront').prop('checked', true);
 				switchSides(0);
-				loadProperties();
-				setInputValues(false);
+				setPartitionSizeInput();
+				setInputValues();
 				handleOrientationInput();
 				break;
 		}
@@ -1763,16 +1990,36 @@ $( document ).ready(function() {
 	$('input.partitionType').on('change', function(){
 		var variables = getVariables();
 		var partitionType = $(this).val();
-		//setDefaultData(variables['selectedObj']);
+		setDefaultData(variables['selectedObj']);
 		$(variables['selectedObj']).data('partitionType', partitionType);
 		$(variables['selectedObj']).empty();
-		loadProperties();
-		setInputValues(false);
+		setPartitionSizeInput();
+		setInputValues();
 		togglePartitionTypeDependencies();
+		
+		// Connectable and Enclosure tables require flex-direction column
+		if(partitionType == 'Connectable' || partitionType == 'Enclosure') {
+			$(variables['selectedObj']).css('flex-direction', 'column');
+		} else {
+			var parentDirection = $(variables['selectedParent']).css('flex-direction');
+			if(parentDirection == 'column') {
+				var partitionDirection = 'row';
+			} else {
+				var partitionDirection = 'column';
+			}
+			$(variables['selectedObj']).css('flex-direction', partitionDirection).data('direction', partitionDirection);
+		}
+		
 		handleOrientationInput();
+		
 		if(partitionType == 'Connectable') {
 			buildPortTable();
 			updatePortNameDisplay();
+		} else if(partitionType == 'Enclosure') {
+			var x = $('#inputEnclosureLayoutX').val();
+			var y = $('#inputEnclosureLayoutY').val();
+			var table = buildTable(x, y, 'enclosureTable', true);
+			$(variables['selectedObj']).html(table);
 		}
 	});
 	
@@ -1818,7 +2065,7 @@ $( document ).ready(function() {
 	// Focus First Port Name Field
 	$('#portNameModal').on('shown.bs.modal', function (e){
 		var invoker = $(e.relatedTarget);
-		$(document).data('portNameFormatAction', $(invoker).attr('data-portNameAction'));
+		$(document).data('portNameFormatAction', $(invoker).data('portNameAction'));
 		
 		setPortNameInput();
 		updatePortNameDisplay();
@@ -1872,10 +2119,11 @@ $( document ).ready(function() {
 		var focusedPortNameField = $(document).data('focusedPortNameField');
 		var valuePortNameType = $(this).val();
 		
-		focusedPortNameField.attr('data-type', valuePortNameType);
+		focusedPortNameField.data('type', valuePortNameType);
+		$(focusedPortNameField).attr('data-type', valuePortNameType);
 		
 		if(valuePortNameType == 'static') {
-			$(focusedPortNameField).attr('data-order', 0);
+			$(focusedPortNameField).data('order', 0);
 			$(focusedPortNameField).val('Port');
 		} else if(valuePortNameType == 'incremental') {
 			$(focusedPortNameField).val('1');
@@ -1892,7 +2140,7 @@ $( document ).ready(function() {
 	$('#inputPortNameFieldCount').on('change', function(){
 		var focusedPortNameField = $(document).data('focusedPortNameField');
 		var valueCount = $(this).val();
-		focusedPortNameField.attr('data-count', valueCount);
+		focusedPortNameField.data('count', valueCount);
 		updateportNameFormat();
 		updatePortNameDisplay();
 	});
@@ -1915,10 +2163,10 @@ $( document ).ready(function() {
 		var incrementalCount = $(incrementalElements).length;
 		var incrementalArray = {};
 		$(incrementalElements).each(function(){
-			var elementType = $(this).attr('data-type');
+			var elementType = $(this).data('type');
 			var elementValue = $(this).val();
 			if(elementType == 'incremental') {
-				var elementCount = parseInt($(this).attr('data-count'));
+				var elementCount = parseInt($(this).data('count'));
 				if(elementCount == 0) {
 					elementCount = portTotal;
 				}
@@ -1926,7 +2174,7 @@ $( document ).ready(function() {
 				elementValue = elementValue.split(',');
 				var elementCount = elementValue.length;
 			}
-			var elementOrder = parseInt($(this).attr('data-order'));
+			var elementOrder = parseInt($(this).data('order'));
 			var elementNumerator = 0;
 			incrementalArray[elementOrder] = {
 				type: elementType,
@@ -1951,11 +2199,11 @@ $( document ).ready(function() {
 		for(var x=0; x<portTotal; x++) {
 			var portString = '';
 			$(allElements).each(function(){
-				var dataType = $(this).attr('data-type');
+				var dataType = $(this).data('type');
 				if(dataType == 'static') {
 					portString = portString + $(this).val();
 				} else if(dataType == 'incremental' || dataType == 'series') {
-					var incrementalOrder = parseInt($(this).attr('data-order'));
+					var incrementalOrder = parseInt($(this).data('order'));
 					var incremental = incrementalArray[incrementalOrder];	
 					var howMuchToIncrement = Math.floor(x/incremental.numerator);
 					
@@ -1987,9 +2235,6 @@ $( document ).ready(function() {
 	// Custom Partition Add
 	$('#customPartitionAdd').on('click', function(){
 		var variables = getVariables();
-		
-		// Remove any port or enclosure tables but preserve partitions
-		$(variables['selectedObj']).children('table').remove();
 		
 		setDefaultData(variables['selectedObj']);
 		addPartition();
@@ -2027,8 +2272,8 @@ $( document ).ready(function() {
 			resetRUSize();
 		}
 		
-		loadProperties();
-		setInputValues(false);
+		setPartitionSizeInput();
+		setInputValues();
 		togglePartitionTypeDependencies();
 		handleOrientationInput();
 	});
@@ -2053,51 +2298,56 @@ $( document ).ready(function() {
 		var table = buildTable(x, y, 'enclosureTable', true);
 		$(variables['selectedObj']).html(table);
 		
-		$(variables['selectedObj']).data('encLayoutX', x);
-		$(variables['selectedObj']).data('encLayoutY', y);
+		$(variables['selectedObj']).data('valueX', x);
+		$(variables['selectedObj']).data('valueY', y);
 		
 		//Apply the selected category to the active object
-		$(".activeObj").addClass($('#inputCategory').find('option:selected').attr('data-value'));
+		$(".activeObj").addClass($('#inputCategory').find('option:selected').data('value'));
 	});
 	
 	// Enclosure Strict Insert Fitment
-	$('[id^=inputEnclosureInsertFitment]').on('change', function(){
-		var enclosureInsertFitment = $(this).val();
+	$('[id^=inputEnclosureTolerance]').on('change', function(){
+		var enclosureTolerance = $(this).val();
 		var variables = getVariables();
-		$(variables['selectedObj']).data('encInsertFitment', enclosureInsertFitment);
+		$(variables['selectedObj']).data('encTolerance', enclosureTolerance);
 	});
 	
-	//Port Layout
+	// Port Layout
 	$('[id^=inputPortLayout]').on('change', function(){
+		var variables = getVariables();
+		var x = $('#inputPortLayoutX').val();
+		var y = $('#inputPortLayoutY').val();
+		$(variables['selectedObj']).data('valueX', x);
+		$(variables['selectedObj']).data('valueY', y);
 		buildPortTable();
 		updatePortNameDisplay();
 	});
 	
-	//Set port orientation
+	// Set port orientation
 	$('input.objectPortOrientation').on('change', function(){
 		var variables = getVariables();
 		$(variables['selectedObj']).data('portOrientation', $(this).val());
 	});
 	
-	//Set port type
+	// Set port type
 	$('#inputPortType').on('change', function(){
 		var variables = getVariables();
 		$(variables['selectedObj']).data('portType', $(this).val());
 	});
 	
-	//Set media type
+	// Set media type
 	$('#inputMediaType').on('change', function(){
 		var variables = getVariables();
 		$(variables['selectedObj']).data('mediaType', $(this).val());
 	});
 	
-	//Select template requested by app
+	// Select template requested by app
 	if($('#templateID').length) {
 		var templateID = $('#templateID').val();
 		// Dropdown template category
-		$('#availableContainer0').find('[data-templateid='+templateID+']').closest('.categoryContainerEntire').children('.categoryTitle').click();
+		$('#availableContainer0').find('[data-template-id='+templateID+']').closest('.categoryContainerEntire').children('.categoryTitle').click();
 		// Select template
-		$('#availableContainer0').find('[data-templateid='+templateID+']').click();
+		$('#availableContainer0').find('[data-template-id='+templateID+']').click();
 		$('#templateID').remove();
 	}
 	

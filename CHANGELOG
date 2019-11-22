@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.1.4
 	- Changes Introduced In 0.1.3
 	- Changes Introduced In 0.1.2
 	- Changes Introduced In 0.1.1
@@ -12,6 +13,13 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.1.4
+
+[Feature]	Added ability to define enclosure tolerance as strict or loose.
+[Feature]	Added ability to clone templates
+[Feature]	Improved markup for insert objects and connectable partitions for improved rendering.
+[Feature]	Build->Templates: Added template workspace scrolling
 
 **Changes introduced in 0.1.3
 
