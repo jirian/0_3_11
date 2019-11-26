@@ -1408,7 +1408,6 @@ var $qls;
 		
 		//while($row = $this->qls->SQL->fetch_assoc($query)) {
 			$row = $this->qls->SQL->fetch_assoc($query);
-			error_log($row['entitlement_data']);
 			$entitlementData = json_decode($row['entitlement_data'], true);
 			$this->entitlementArray['id'] = $row['entitlement_id'];
 			$this->entitlementArray['lastChecked'] = $row['entitlement_last_checked'];
@@ -1496,7 +1495,6 @@ var $qls;
 		
 		//Check for request errors.
 		if(curl_errno($ch)) {
-			error_log('Debug (entitlement): '.curl_error($ch));
 			$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time()), array('id' => array('=', 1)));
 		} else {
 			
@@ -1553,27 +1551,26 @@ var $qls;
 		return $dateFormatted;
 	}
 	
-	function buildStandard($data, $rackObj, $categoryName, $objClassArray, $objAttrArray, $objID=false, $objFace=false, &$depthCounter=0){
+	function buildStandard($data, $rackObj, $objID=false, $objFace=false, &$depthCounter=0){
 		
 		$html = '';
 		$encInsert = false;
 		foreach($data as $element){
 			
 			$partitionType = $element['partitionType'];
+			$html .= $this->generatePartition($element, $depthCounter);
 			
 			switch($partitionType){
 				case 'Generic':
 				
-					$html .= $this->generateGenericPartition($element, $categoryName, $depthCounter);
 					if(isset($element['children'])){
 						$depthCounter++;
-						$html .= $this->buildStandard($element['children'], $rackObj, $categoryName, $objClassArray, $objAttrArray, $objID, $objFace, $depthCounter);
+						$html .= $this->buildStandard($element['children'], $rackObj, $objID, $objFace, $depthCounter);
 					}
 					break;
 					
 				case 'Connectable':
 				
-					$html .= $this->generateConnectablePartition($element, $categoryName, $encInsert, $objClassArray, $objAttrArray, $depthCounter);
 					$html .= $this->buildConnectable($element, $objID, $objFace, $depthCounter);
 					break;
 					
@@ -1582,51 +1579,7 @@ var $qls;
 					$valueX = $element['valueX'];
 					$valueY = $element['valueY'];
 					
-					$html .= $this->generateEnclosurePartition($element, $categoryName, $objClassArray, $objAttrArray, $depthCounter);
-					$html .= $this->buildEnclosure($valueX, $valueY, $rackObj, $objID, $objFace, $depthCounter);
-					break;
-			}
-			$html .= '</div>';
-			$depthCounter++;
-		}
-		return $html;
-	}
-	
-	function buildInsert($data, $template, $categoryName, $objClassArray, $objAttrArray, $encInsert, $rackObj=true, $objID=false, $depthCounter=0){
-		
-		if($depthCounter == 0) {
-			$parentHUnits = $template['templateHUnits'];
-			$parentVUnits = $template['templateVUnits'];
-			$parentEncLayoutX = $template['templateEncLayoutX'];
-			$parentEncLayoutY = $template['templateEncLayoutY'];
-			
-			// Object type specific data
-			$objAttrArray['data-parent-h-units'] = $parentHUnits;
-			$objAttrArray['data-parent-v-units'] = $parentVUnits;
-			$objAttrArray['data-h-units'] = $parentHUnits;
-			$objAttrArray['data-v-units'] = $parentVUnits;
-			$objAttrArray['data-parent-enc-layout-x'] = $parentEncLayoutX;
-			$objAttrArray['data-parent-enc-layout-y'] = $parentEncLayoutY;
-		}
-		
-		$html = '';
-		foreach($data as $element){
-			$partitionType = $element['partitionType'];
-			
-			switch($partitionType){
-				case 'Generic':
-					
-					$html .= $this->generateGenericPartition($element, $categoryName, $depthCounter);
-					if(isset($element['children'])){
-						$depthCounter++;
-						$html .= $this->buildInsert($element['children'], $template, $categoryName, $objClassArray, $objAttrArray, $encInsert, $rackObj, $objID, $depthCounter);
-					}
-					break;
-					
-				case 'Connectable':
-				
-					$html .= $this->generateConnectablePartition($element, $categoryName, $encInsert, $objClassArray, $objAttrArray, $depthCounter);
-					$html .= $this->buildConnectable($element, $objID, 0, $depthCounter);
+					$html .= $this->buildEnclosure($valueX, $valueY, $objID, $objFace, $depthCounter);
 					break;
 			}
 			$html .= '</div>';
@@ -1644,7 +1597,7 @@ var $qls;
 		$portNameFormat = $element['portNameFormat'];
 		
 		$portTotal = $portX * $portY;
-		$html = '<div style="display:flex;height:100%;flex-direction:column;">';
+		$html = '<div class="border-black" style="display:flex;height:100%;flex-direction:column;">';
 			for ($y = 0; $y < $portY; $y++){
 				$html .= '<div class="tableRow">';
 				for ($x = 0; $x < $portX; $x++){
@@ -1706,7 +1659,7 @@ var $qls;
 		return $html;
 	}
 	
-	function buildEnclosure($encX, $encY, $rackObj, $objID=false, $objFace=false, $depthCounter=false){
+	function buildEnclosure($encX, $encY, $objID=false, $objFace=false, $depthCounter=false){
 		
 		$html = '<div class="enclosure" style="display:flex;flex:1;height:100%;" data-enc-layout-x="'.$encX.'" data-enc-layout-y="'.$encY.'">';
 		for ($y = 0; $y < $encY; $y++){
@@ -1726,31 +1679,18 @@ var $qls;
 							$insertObjID = $insert['id'];
 							$insertTemplateID = $insert['template_id'];
 							$insertTemplate = $this->templateArray[$insertTemplateID];
-							$templateType = $insertTemplate['templateType'];
-							$mountConfig = $insertTemplate['templateMountConfig'];
-							$RUSize = $insertTemplate['templateRUSize'];
-							$function = $insertTemplate['templateFunction'];
 							$insertPartitionDataJSON = $insertTemplate['templatePartitionData'];
 							$insertPartitionData = json_decode($insertPartitionDataJSON, true);
-							$categoryID = $insertTemplate['templateCategory_id'];
-							$categoryName = $this->categoryArray[$categoryID]['name'];
-							$encInsert = true;
 							
-							$objAttrArray = array(
-								'data-template-type' => $templateType,
-								'data-template-object-id' => $insertObjID,
-								'data-template-id' => $insertTemplateID,
-								'data-object-face' => 0,
-								'data-object-mount-config' => 0,
-								'data-ru-size' => $RUSize,
-								'data-template-function' => '"'.$function.'"',
-								'data-template-category-id' => $categoryID,
-								'data-template-category-name' => $categoryName
+							$objClassArray = array(
+								'rackObj',
+								'insertDraggable'
 							);
-							
-							$objClassArray = array();
-							
-							$html .= $this->buildInsert($insertPartitionData[0], $insertTemplate, $categoryName, $objClassArray, $objAttrArray, $encInsert, $rackObj, $insertObjID);
+							$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $insertObjID);
+							$rackObj = true;
+							$objFace = 0;
+							$html .= $this->buildStandard($insertPartitionData[$objFace], $rackObj, $insertObjID, $objFace);
+							$html .= '</div>';
 						}
 					}
 					$html .= '</div>';
@@ -1775,43 +1715,71 @@ var $qls;
 		return $portIndex;
 	}
 
-	function generateEnclosurePartition($element, $categoryName, $objClassArray, $objAttrArray, $depth){
-		$partitionType = $element['partitionType'];
-		$flexDirection = $element['direction'];
-		$flex = $element['flex'];
-		$hUnits = $element['hUnits'];
-		$vUnits = $element['vUnits'];
-		$valueX = $element['valueX'];
-		$valueY = $element['valueY'];
-		$encTolerance = $element['encTolerance'];
-
-		$classArray = array(
-			($depth == 0) ? 'flex-container-parent' : 'flex-container',
-			'selectable'
-		);
+	function generatePartition($partition, $depth){
 		
-		if($depth == 0) {
-			$flex = $flexDirection == 'column' ? $hUnits/10 : $vUnits*0.5;
-			array_push($classArray, 'category'.$categoryName);
-		}
+		$objAttrArray = array();
+		
+		$partitionType = $partition['partitionType'];
+		$flexDirection = $partition['direction'];
+		$flex = $partition['flex'];
+		$hUnits = $partition['hUnits'];
+		$vUnits = $partition['vUnits'];
 		
 		$objAttrArray['data-direction'] = $flexDirection;
 		$objAttrArray['data-partition-type'] = $partitionType;
 		$objAttrArray['data-depth'] = $depth;
 		$objAttrArray['data-h-units'] = $hUnits;
 		$objAttrArray['data-v-units'] = $vUnits;
-		$objAttrArray['data-value-x'] = $valueX;
-		$objAttrArray['data-value-y'] = $valueY;
-		$objAttrArray['data-enc-tolerance'] = '"'.$encTolerance.'"';
 		
-		array_push($objClassArray, 'selectable');
+		$classArray = array();
+		
+		if($partitionType == 'Generic') {
+			
+			if($depth == 0) {
+				array_push($classArray, 'selectable');
+			}
+			
+		} else if($partitionType == 'Connectable') {
+			
+			// Collect Connectable partition data
+			$valueX = $partition['valueX'];
+			$valueY = $partition['valueY'];
+			$portOrientationID = $partition['portOrientation'];
+			$portNameFormat = $partition['portNameFormat'];
+			$portNameFormatString = json_encode($portNameFormat);
+			$portTypeID = $partition['portType'];
+			$mediaTypeID = $partition['mediaType'];
+			
+			// Add Connectable partition data to attribute array
+			$objAttrArray['data-port-orientation'] = $portOrientationID;
+			$objAttrArray['data-port-type'] = $portTypeID;
+			$objAttrArray['data-media-type'] = $mediaTypeID;
+			$objAttrArray['data-value-x'] = $valueX;
+			$objAttrArray['data-value-y'] = $valueY;
+			$objAttrArray['data-port-name-format'] = '\''.$portNameFormatString.'\'';
+			
+			array_push($classArray, 'selectable');
+			
+		} else if($partitionType == 'Enclosure') {
+			
+			// Collect Enclosure partition data
+			$valueX = $partition['valueX'];
+			$valueY = $partition['valueY'];
+			$encTolerance = $partition['encTolerance'];
+			
+			// Add Enclosure partition data to attribute array
+			$objAttrArray['data-value-x'] = $valueX;
+			$objAttrArray['data-value-y'] = $valueY;
+			$objAttrArray['data-enc-tolerance'] = '"'.$encTolerance.'"';
+			
+			array_push($classArray, 'selectable');
+		}
+		
 		if($depth == 0) {
 			$flex = $flexDirection == 'column' ? $hUnits/10 : $vUnits*0.5;
-			$category = 'category'.$categoryName;
-			array_push($objClassArray, $category);
-			array_push($objClassArray, 'flex-container-parent');
+			array_push($classArray, 'flex-container-parent');
 		} else {
-			array_push($objClassArray, 'flex-container');
+			array_push($classArray, 'flex-container');
 		}
 		
 		// Generate data attribute string
@@ -1819,132 +1787,49 @@ var $qls;
 		foreach($objAttrArray as $attr => $value) {
 			array_push($objAttrWorkingArray, $attr.'='.$value);
 		}
+		
 		$objAttr = implode(' ', $objAttrWorkingArray);
-		$objClass = implode(' ', $objClassArray);
+		$objClass = implode(' ', $classArray);
 		
 		$html = '<div class="'.$objClass.'" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" '.$objAttr.'>';
 		
 		return $html;
 	}
 
-	function generateGenericPartition($element, $categoryName, $depth){
-		$partitionType = $element['partitionType'];
-		$flexDirection = $element['direction'];
-		$flex = $element['flex'];
-		$hUnits = $element['hUnits'];
-		$vUnits = $element['vUnits'];
-		
-		$classArray = array(
-			($depth == 0) ? 'flex-container-parent selectable' : 'flex-container'
-		);
-		
-		if($depth == 0) {
-			$flex = $flexDirection == 'column' ? $hUnits/10 : $vUnits*0.5;
-			array_push($classArray, 'category'.$categoryName);
-		}
-		
-		$dataAttrArray = array(
-			'data-direction' => $flexDirection,
-			'data-partition-type' => $partitionType,
-			'data-depth' => $depth,
-			'data-h-units' => $hUnits,
-			'data-v-units' => $vUnits
-		);
-		
-		// Generate data attribute string
-		$dataAttrWorkingArray = array();
-		foreach($dataAttrArray as $attr => $value) {
-			array_push($dataAttrWorkingArray, $attr.'='.$value);
-		}
-		$dataAttr = implode(' ', $dataAttrWorkingArray);
-		$class = implode(' ', $classArray);
-		
-		$html = '<div class="'.$class.'" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" '.$dataAttr.'>';
-		
-		return $html;
-	}
-
-	function generateConnectablePartition($element, $categoryName, $encInsert, $objClassArray, $objAttrArray, $depth){
-		$partitionType = $element['partitionType'];
-		$flexDirection = $element['direction'];
-		$flex = $element['flex'];
-		$hUnits = $element['hUnits'];
-		$vUnits = $element['vUnits'];
-		$valueX = $element['valueX'];
-		$valueY = $element['valueY'];
-		$portOrientationID = $element['portOrientation'];
-		$portNameFormat = $element['portNameFormat'];
-		$portNameFormatString = json_encode($portNameFormat);
-		$portTypeID = $element['portType'];
-		$mediaTypeID = $element['mediaType'];
-		
-		
-		
-		$objAttrArray['data-direction'] = $flexDirection;
-		$objAttrArray['data-partition-type'] = $partitionType;
-		$objAttrArray['data-depth'] = $depth;
-		$objAttrArray['data-h-units'] = $hUnits;
-		$objAttrArray['data-v-units'] = $vUnits;
-		$objAttrArray['data-port-orientation'] = $portOrientationID;
-		$objAttrArray['data-port-type'] = $portTypeID;
-		$objAttrArray['data-media-type'] = $mediaTypeID;
-		$objAttrArray['data-value-x'] = $valueX;
-		$objAttrArray['data-value-y'] = $valueY;
-		$objAttrArray['data-port-name-format'] = '\''.$portNameFormatString.'\'';
-		
-		array_push($objClassArray, 'selectable');
-		if($depth == 0) {
-			$flex = $flexDirection == 'column' ? $hUnits/10 : $vUnits*0.5;
-			$category = 'category'.$categoryName;
-			array_push($objClassArray, $category);
-			array_push($objClassArray, 'flex-container-parent');
-			array_push($objClassArray, 'insertDraggable');
-			if($encInsert) {
-				array_push($objClassArray, 'rackObj');
-			} else {
-				array_push($objClassArray, 'stockObj');
-			}
-		} else {
-			array_push($objClassArray, 'flex-container');
-		}
-		
-		// Generate data attribute string
-		$dataAttrWorkingArray = array();
-		foreach($objAttrArray as $attr => $value) {
-			array_push($dataAttrWorkingArray, $attr.'='.$value);
-		}
-		$dataAttr = implode(' ', $dataAttrWorkingArray);
-		$class = implode(' ', $objClassArray);
-		
-		$html = '<div class="'.$class.'" style="flex:'.$flex.'; flex-direction:column;" '.$dataAttr.'>';
-		
-		return $html;
-	}
-
-	function generateTemplateStandardContainer($template, $face, $objClassArray, $objAttrArray){
-		$ID = $template['id'];
-		$type = $template['templateType'];
-		$RUSize = $template['templateRUSize'];
-		$mountConfig = $template['templateMountConfig'];
-		$function = $template['templateFunction'];
+	function generateObjContainer($template, $face, $objClassArray, $objID=false){
+		$templateID = $template['id'];
+		$templateType = $template['templateType'];
+		$templateRUSize = $template['templateRUSize'];
+		$templateFunction = $template['templateFunction'];
 		$categoryID = $template['templateCategory_id'];
-		$category = $this->categoryArray[$categoryID]['name'];
-		/*
-		$objAttrArray = array(
-			'data-template-id' => $ID,
-			'data-object-face' => $face,
-			'data-object-mount-config' => $mountConfig,
-			'data-ru-size' => $RUSize,
-			'data-template-function' => '"'.$function.'"',
-			'data-template-category-id' => $categoryID,
-			'data-template-category-name' => $category,
-			'data-template-type' => '"'.$type.'"'
-		);
-		*/
-		array_push($objClassArray, 'obj'.$ID);
-		array_push($objClassArray, 'obj-style');
-		array_push($objClassArray, 'obj-border');
-		//array_push($objClassArray, 'draggable');
+		$categoryName = $this->categoryArray[$categoryID]['name'];
+		$parentHUnits = $template['templateHUnits'];
+		$parentVUnits = $template['templateVUnits'];
+		$parentEncLayoutX = $template['templateEncLayoutX'];
+		$parentEncLayoutY = $template['templateEncLayoutY'];
+		
+		// Object data
+		$objAttrArray = array();
+		$objAttrArray['data-template-type'] = '"'.$templateType.'"';
+		$objAttrArray['data-object-face'] = $face;
+		$objAttrArray['data-template-id'] = $templateID;
+		$objAttrArray['data-ru-size'] = $templateRUSize;
+		$objAttrArray['data-template-function'] = '"'.$templateFunction.'"';
+		$objAttrArray['data-template-category-id'] = $categoryID;
+		$objAttrArray['data-template-category-name'] = $categoryName;
+		
+		// Object ID
+		if($objID) {
+			$objAttrArray['data-template-object-id'] = $objID;
+		}
+		
+		// Mount config
+		if($templateType == 'Standard') {
+			$templateMountConfig = $template['templateMountConfig'];
+			$objAttrArray['data-object-mount-config'] = $templateMountConfig;
+		}
+
+		array_push($objClassArray, 'category'.$categoryName);
 		
 		// Generate data attribute string
 		$objAttrWorkingArray = array();
@@ -1954,7 +1839,7 @@ var $qls;
 		$dataAttr = implode(' ', $objAttrWorkingArray);
 		$objClass = implode(' ', $objClassArray);
 		
-		$html = '<div class="RU'.$RUSize.' '.$objClass.'"'.$dataAttr.'>';
+		$html = '<div style="display:flex;flex:1;" class="'.$objClass.'"'.$dataAttr.'>';
 		
 		return $html;
 	}

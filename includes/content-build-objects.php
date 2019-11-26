@@ -49,12 +49,12 @@ for ($x=0; $x<2; $x++){
 						$objClassArray = array(
 							'stockObj',
 							$cursorClass,
-							'draggable'
+							'draggable',
+							'RU'.$RUSize
 						);
-						echo $qls->App->generateTemplateStandardContainer($templateOrganic, $x, $objClassArray, $objAttrArray);
+						echo $qls->App->generateObjContainer($templateOrganic, $x, $objClassArray);
 						$rackObj = false;
-						$objClassArray = array();
-						echo $qls->App->buildStandard($partitionData, $rackObj, $category, $objClassArray, $objAttrArray);
+						echo $qls->App->buildStandard($partitionData, $rackObj);
 						echo '</div>';
 					} else {
 						$objClassArray = array(
@@ -62,23 +62,9 @@ for ($x=0; $x<2; $x++){
 							$cursorClass,
 							'insertDraggable'
 						);
-						array_push($objClassArray, 'insertDraggable');
+						
 						$flexWidth = $partitionData[0]['hUnits']/10;
 						$flexHeight = 1/$templateOrganic['templateEncLayoutY'];
-						$parentHUnits = $templateOrganic['templateHUnits'];
-						$parentVUnits = $templateOrganic['templateVUnits'];
-						$parentEncLayoutX = $templateOrganic['templateEncLayoutX'];
-						$parentEncLayoutY = $templateOrganic['templateEncLayoutY'];
-						
-						// Object type specific data
-						$objAttrArray['data-template-type'] = '"Insert"';
-						$objAttrArray['data-object-mount-config'] = 0;
-						$objAttrArray['data-parent-h-units'] = $parentHUnits;
-						$objAttrArray['data-parent-v-units'] = $parentVUnits;
-						$objAttrArray['data-h-units'] = $parentHUnits;
-						$objAttrArray['data-v-units'] = $parentVUnits;
-						$objAttrArray['data-parent-enc-layout-x'] = $parentEncLayoutX;
-						$objAttrArray['data-parent-enc-layout-y'] = $parentEncLayoutY;
 						
 						// Generate data attribute string
 						$objAttrWorkingArray = array();
@@ -88,7 +74,7 @@ for ($x=0; $x<2; $x++){
 						$objAttr = implode(' ', $objAttrWorkingArray);
 						
 							// Flex Container
-							echo '<div class="RU'.$RUSize.'" style="flex-direction:row;">';
+							echo '<div class="RU'.$RUSize.'" style="display:flex;flex-direction:row;">';
 								// Partition Width
 								echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
 									// Partition Height
@@ -97,8 +83,16 @@ for ($x=0; $x<2; $x++){
 										for($encX=0; $encX<$templateOrganic['templateEncLayoutX']; $encX++) {
 											echo '<div class="tableCol">';
 											if($encX == 0) {
-												$encInsert = false;
-												echo $qls->App->buildInsert($partitionData, $templateOrganic, $categoryName, $objClassArray, $objAttrArray, $encInsert, false);
+												$objClassArray = array(
+													'stockObj',
+													$cursorClass,
+													'insertDraggable'
+												);
+												$face = 0;
+												echo $qls->App->generateObjContainer($templateOrganic, $face, $objClassArray);
+												$rackObj = false;
+												echo $qls->App->buildStandard($partitionData, $rackObj);
+												echo '</div>';
 											}
 											echo '</div>';
 										}

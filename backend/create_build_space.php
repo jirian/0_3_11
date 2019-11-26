@@ -116,38 +116,31 @@ $cursorClass = ($page == 'explore') ? 'cursorPointer' : 'cursorGrab';
 						$categoryName = $qls->App->categoryArray[$categoryID]['name'];
 						echo '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
 						if($cabinetView == 'port') {
-							$objAttrArray = array(
-								'data-template-object-id' => $objectID,
-								'data-template-type' => $type,
-								'data-template-id' => $templateID,
-								'data-object-face' => $face,
-								'data-object-mount-config' => $mountConfig,
-								'data-ru-size' => $RUSize,
-								'data-template-function' => '"'.$function.'"',
-								'data-template-category-id' => $categoryID,
-								'data-template-category-name' => $categoryName
-							);
 							
 							$objClassArray = array(
 								'rackObj',
 								$cursorClass,
-								'draggable'
+								'draggable',
+								'RU'.$RUSize
 							);
-							//echo '<div data-object-id="'.$objectID.'" data-template-id="'.$templateID.'" data-ru-size="'.$RUSize.'" data-object-face="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
-							//echo buildPortPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
-							echo $qls->App->generateTemplateStandardContainer($template, $face, $objClassArray, $objAttrArray);
+							
+							echo $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID);
 							$rackObj = true;
-							$objClassArray = array();
-							echo $qls->App->buildStandard($partitionData[$face], $rackObj, $categoryName, $objClassArray, $objAttrArray, $objectID, $face);
+							echo $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face);
 							echo '</div>';
+							
 						} else if($cabinetView == 'visual') {
+							
 							$templateImgAttr = $face == 0 ? 'frontImage' : 'rearImage';
 							$templateImgPath = '/images/templateImages/'.$objectTemplate[$templateID][$templateImgAttr];
 							echo '<div style="background-image: url('.$templateImgPath.'); background-size: 100% 100%" data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
 							echo buildVisualPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
 							echo '</div>';
+							
 						} else if($cabinetView == 'name') {
+							
 							echo '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable"><strong>'.$objName.'</strong></div>';
+							
 						}
 						$skipCounter = $RUSize-1;
 					} else {

@@ -137,6 +137,7 @@ function makeRackObjectsClickable(){
 	$('#cabinetTable').find('.selectable').off('click');
 	$('#cabinetTable').find('.selectable').on('click', function(event){
 		event.stopPropagation();
+		/*
 		if($(this).hasClass('rackObj')) {
 			var object = $(this);
 			var partitionDepth = 0;
@@ -144,6 +145,10 @@ function makeRackObjectsClickable(){
 			var object = $(this).closest('.rackObj');
 			var partitionDepth =  parseInt($(this).data('depth'), 10);
 		}
+		*/
+		
+		var object = $(this).closest('.rackObj');
+		var partitionDepth =  parseInt($(this).data('depth'), 10);
 		
 		//Store objectID
 		var objID = $(object).data('templateObjectId');
@@ -398,8 +403,8 @@ function initializeInsertDroppable(){
 			data['cabinetFace'] = $('#currentCabinetFace').val();
 			data['RU'] = 0;
 			//data['objectID'] = ui.draggable.data('templateObjectId');
-			data['parent_id'] = parseInt($(this).parent().closest('.flex-container-parent').data('templateObjectId'));
-			data['parent_face'] = parseInt($(this).parent().closest('.flex-container-parent').data('objectFace'));
+			data['parent_id'] = parseInt($(this).closest('.rackObj').data('templateObjectId'));
+			data['parent_face'] = parseInt($(this).closest('.rackObj').data('objectFace'));
 			data['parent_depth'] = parseInt($(this).closest('[data-depth]').data('depth'));
 			data['insertSlotX'] = $(this).data('encX');
 			data['insertSlotY'] = $(this).data('encY');
@@ -531,11 +536,9 @@ function loadCabinetBuild(){
 		delay: 200,
 		helper: 'clone',
 		cursorAt: {top:10},
-		start: function(){
-			console.log($(this).attr('class'));
-			var cabinetRUObject = $(this).parent();
-			var dragStartWidth = $(cabinetRUObject).width();
-			$(cabinetRUObject).children().eq(1).width(dragStartWidth);
+		start: function(event, ui){
+			var dragStartWidth = $(this).width();
+			$(ui.helper).width(dragStartWidth);
 		},
 		revert: function(){
 			return determineRevert($(this), false);
@@ -548,11 +551,10 @@ function loadCabinetBuild(){
 		helper: 'clone',
 		classes: {'ui-draggable-dragging': 'obj-border'},
 		cursorAt: {top:10},
-		start: function(){
-			var cabinetRUObject = $(this).parent();
+		start: function(event, ui){
 			var dragStartWidth = $(this).width();
 			var dragStartHeight = $(this).height();
-			$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
+			$(ui.helper).width(dragStartWidth).height(dragStartHeight);
 		},
 		revert: function(){
 			return determineRevert($(this), false);
@@ -614,7 +616,7 @@ function loadCabinetBuild(){
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
-				data['objectID'] = ui.draggable.find('.flex-container-parent').data('templateObjectId');
+				data['objectID'] = ui.draggable.data('templateObjectId');
 				data['action'] = 'updateObject';
 			}
 			
