@@ -78,8 +78,15 @@ var $qls;
 	function update_013_to_014() {
 		$incrementalVersion = '0.1.4';
 		
+		// Insert template RUSize must be same as parent template
+		// Insert partition v/hUnits may need to be based on full size instead of parent template v/hUnit values
+		// Add encTolerance field to partitionData JSON
+		
 		// Set app version to 0.1.4
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add "encTolerance" column to "object_compatibility" table
+		$this->qls->SQL->alter('app_object_compatibility', 'add', 'encTolerance', 'varchar(255)', true);
 		
 		// Add "scrollLock" column to "users" table
 		$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);

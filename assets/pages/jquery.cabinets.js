@@ -469,7 +469,7 @@ function initializeInsertDroppable(){
 					//'height':'auto',
 					//'display':'flex'
 				})
-				.attr('data-object-id', cabinetObjectID)
+				.attr('data-template-object-id', cabinetObjectID)
 				.draggable({
 					delay: 200,
 					helper: 'clone',
@@ -500,7 +500,7 @@ function retrieveCabinet(cabinetID, cabinetFace){
 		loadCabinetBuild();
 		//Re-highlight select cabinet object when switching cabinet side.
 		if (objID) {
-			$('[data-object-id="'+objID+'"]').addClass('rackObjSelected');
+			$('[data-template-object-id="'+objID+'"]').find('.flex-container-parent:first').addClass('rackObjSelected');
 		}
 	});
 }

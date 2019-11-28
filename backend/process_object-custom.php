@@ -142,6 +142,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							'side',
 							'depth',
 							'encTolerance',
+							'encLayoutX',
+							'encLayoutY',
 							'templateType',
 							'partitionType',
 							'partitionFunction',
@@ -156,6 +158,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							$side,
 							$element['depth'],
 							$element['encTolerance'],
+							$element['encX'],
+							$element['encY'],
 							$type,
 							$element['partitionType'],
 							$function,
@@ -328,8 +332,8 @@ function getCompatibilityInfo($face, $dataArray=array(), &$depthCounter=0){
 			$tempArray['portType'] = $element['portType'];
 			$tempArray['mediaType'] = $element['mediaType'];
 			$tempArray['direction'] = $element['direction'];
-			$tempArray['hUnits'] = $element['hunits'];
-			$tempArray['vUnits'] = $element['vunits'];
+			$tempArray['hUnits'] = $element['hUnits'];
+			$tempArray['vUnits'] = $element['vUnits'];
 			$tempArray['flex'] = $element['flex'];
 			$tempArray['portNameFormat'] = json_encode($element['portNameFormat']);
 			array_push($dataArray, $tempArray);
@@ -342,8 +346,8 @@ function getCompatibilityInfo($face, $dataArray=array(), &$depthCounter=0){
 				$tempArray['encTolerance'] = $element['encTolerance'];
 				$tempArray['partitionType'] = $element['partitionType'];
 				$tempArray['direction'] = $element['direction'];
-				$tempArray['hUnits'] = $element['hunits'];
-				$tempArray['vUnits'] = $element['vunits'];
+				$tempArray['hUnits'] = $element['hUnits'];
+				$tempArray['vUnits'] = $element['vUnits'];
 				$tempArray['flex'] = $element['flex'];
 				array_push($dataArray, $tempArray);
 		}

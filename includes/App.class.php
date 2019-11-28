@@ -1597,7 +1597,7 @@ var $qls;
 		$portNameFormat = $element['portNameFormat'];
 		
 		$portTotal = $portX * $portY;
-		$html = '<div class="border-black" style="display:flex;height:100%;flex-direction:column;">';
+		$html = '<div class="border-black" style="display:flex;height:100%;flex-direction:column;flex:1;">';
 			for ($y = 0; $y < $portY; $y++){
 				$html .= '<div class="tableRow">';
 				for ($x = 0; $x < $portX; $x++){
@@ -1827,6 +1827,21 @@ var $qls;
 		if($templateType == 'Standard') {
 			$templateMountConfig = $template['templateMountConfig'];
 			$objAttrArray['data-object-mount-config'] = $templateMountConfig;
+		}
+		
+		if($templateType == 'Insert') {
+			$parentHUnits = $template['templateHUnits'];
+			$parentVUnits = $template['templateVUnits'];
+			$parentEncLayoutX = $template['templateEncLayoutX'];
+			$parentEncLayoutY = $template['templateEncLayoutY'];
+			$objAttrArray['data-h-units'] = $parentHUnits;
+			$objAttrArray['data-v-units'] = $parentVUnits;
+			$objAttrArray['data-parent-h-units'] = $parentHUnits;
+			$objAttrArray['data-parent-v-units'] = $parentVUnits;
+			$objAttrArray['data-parent-enc-layout-x'] = $parentEncLayoutX;
+			$objAttrArray['data-parent-enc-layout-y'] = $parentEncLayoutY;
+			
+			array_push($objClassArray, 'insert');
 		}
 
 		array_push($objClassArray, 'category'.$categoryName);

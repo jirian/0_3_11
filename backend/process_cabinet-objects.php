@@ -233,21 +233,27 @@ function checkInsertCompatibility($parent_id, $parent_face, $parent_depth, $obje
 	$parent = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $parentTemplateID), 'AND', 'side' => array('=', $parent_face), 'AND', 'depth' => array('=', $parent_depth))));
 	$insert = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_object_templates', 'id='.$objectTemplateID));
 	
-	/*
-	if($parent['hUnits'] != $insert['templateHUnits']) {
-		$compatible = false;
+	if($parent['encTolerance'] == 'Strict') {
+		if($parent['hUnits'] != $insert['templateHUnits']) {
+			error_log('Debug: hUnits');
+			$compatible = false;
+		}
+		if($parent['vUnits'] != $insert['templateVUnits']) {
+			error_log('Debug: vUnits');
+			$compatible = false;
+		}
+		if($parent['encLayoutX'] != $insert['templateEncLayoutX']) {
+			error_log('Debug: layoutX');
+			$compatible = false;
+		}
+		if($parent['encLayoutY'] != $insert['templateEncLayoutY']) {
+			error_log('Debug: layoutY');
+			$compatible = false;
+		}
 	}
-	if($parent['vUnits'] != $insert['templateVUnits']) {
-		$compatible = false;
-	}
-	if($parent['encLayoutX'] != $insert['templateEncLayoutX']) {
-		$compatible = false;
-	}
-	if($parent['encLayoutY'] != $insert['templateEncLayoutY']) {
-		$compatible = false;
-	}
-	*/
+	
 	if($parent['partitionFunction'] != $insert['templateFunction']) {
+		error_log('Debug: function');
 		$compatible = false;
 	}
 

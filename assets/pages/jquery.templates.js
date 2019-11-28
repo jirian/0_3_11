@@ -762,7 +762,9 @@ function resetTemplateDetails(){
 
 function togglePartitionTypeDependencies(){
 	var partitionType = $('input.partitionType:checked').val();
+	var objectType = $('input.objectType:checked').val();
 	$('.dependantField.partitionType').hide();
+	$('#partitionH, #partitionV, #customPartitionAdd, #customPartitionRemove, #objectPartitionSize, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', false);
 	switch(partitionType) {
 		case 'Generic':
 			$('.dependantField.partitionType.generic').show().prop('disabled', false);
@@ -783,6 +785,20 @@ function togglePartitionTypeDependencies(){
 			
 		case 'Enclosure':
 			$('.dependantField.partitionType.enclosureField').show();
+			break;
+	}
+	
+	switch(objectType) {
+		case 'Standard':
+			$('#inputPartitionTypeGeneric').prop('disabled', false);
+			$('#inputPartitionTypeConnectable').prop('disabled', false);
+			$('#inputPartitionTypeEnclosure').prop('disabled', false);
+			break;
+			
+		case 'Insert':
+			$('#inputPartitionTypeGeneric').prop('disabled', false);
+			$('#inputPartitionTypeConnectable').prop('disabled', false);
+			$('#inputPartitionTypeEnclosure').prop('disabled', true);
 			break;
 	}
 }
@@ -1407,11 +1423,11 @@ function handleScrollLock(){
 	
 }
 
-function buildInsertParent(hUnits, vUnits, encLayoutX, encLayoutY){
+function buildInsertParent(RUSize, hUnits, vUnits, encLayoutX, encLayoutY){
 	var variables = getVariables();
-	var RUSize = Math.ceil(vUnits/2);
+	var totalVUnits = RUSize * 2;
 	var flexRow = hUnits/10;
-	var flexCol = (RUSize*2)/vUnits;
+	var flexCol = vUnits/totalVUnits;
 	var table = '';
 	
 	table += '<div class="flex-container-parent" style="flex-direction:row;">';
@@ -1434,57 +1450,6 @@ function buildInsertParent(hUnits, vUnits, encLayoutX, encLayoutY){
 	.find('.tableRow:first')
 	.find('.tableCol:first')
 	.html('<div id="previewObj3" class="objBaseline" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'" data-value-x="'+encLayoutX+'" data-value-y="'+encLayoutY+'"></div>');
-}
-
-function buildInsertPreviewObj(encElem){
-	
-	var variables = getVariables();
-	var enclosureParent = $(encElem).parent();
-	var enclosureObject = $(encElem).closest('.flex-container-parent');
-	var enclosureObjectParent = $(enclosureObject).parent();
-	var objectFlexDirection = $(enclosureObjectParent).css('flex-direction');
-	var objectFunction = $(enclosureObjectParent).data('templateFunction');
-	var hUnits = parseInt($(enclosureParent).data('hUnits'), 10);
-	var vUnits = parseInt($(enclosureParent).data('vUnits'), 10);
-	var encLayoutX = parseInt($(enclosureParent).data('valueX'), 10);
-	var encLayoutY = parseInt($(enclosureParent).data('valueY'), 10);
-	$('[name="objectFunction"][value='+objectFunction+']').prop('checked', true);
-	var RUSize = parseInt($(enclosureObjectParent).data('ruSize'), 10);
-	$('#inputRU').val(RUSize);
-	
-	// Enable input fields
-	$('#partitionH, #partitionV, #inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #objectType, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', false);
-	/*
-	// Adjust the RU table cell size
-	expandRackUnit(RUSize);
-	
-	// Mark the selected so it can be referenced in preview object
-	$(encElem).addClass('selectedEnclosure');
-	
-	// Copy the selected object to preview object
-	$(variables['obj']).html($(enclosureObject).clone().removeClass('rackObjSelected'));
-
-	// Cleanup marking
-	$(encElem).removeClass('selectedEnclosure');
-	
-	$(variables['obj'])
-	.find('.selectedEnclosure')
-	.find('.tableRow:first')
-	.find('.tableCol:first')
-	.removeClass('enclosureTable')
-	.html('<div id="previewObj3" class="objBaseline" data-h-units="'+hUnits+'" data-v-units="'+vUnits+'" data-value-x="'+encLayoutX+'" data-value-y="'+encLayoutY+'"></div>');
-	*/
-	buildInsertParent(hUnits, vUnits, encLayoutX, encLayoutY)
-	
-	// Original preview object needs to grow first
-	//setObjectSize();
-	
-	$(document).data('templateSide', 3);
-	//setObjectSize();
-	buildObj(3, hUnits, vUnits, objectFlexDirection);
-	setCategory();
-	togglePartitionTypeDependencies();
-	handleOrientationInput();
 }
 
 $( document ).ready(function() {
@@ -1544,7 +1509,6 @@ $( document ).ready(function() {
 		var templateType = $(templateObj).data('templateType');
 		
 		// Store template data
-		var mountConfig = $(templateObj).data('objectMountConfig');
 		var RUSize = $(templateObj).data('ruSize');
 		var categoryID = $(templateObj).data('templateCategoryId');
 		var category = $(templateObj).data('templateCategoryName');
@@ -1557,15 +1521,14 @@ $( document ).ready(function() {
 		
 		if(templateType == 'Insert') {
 			
-			
 			var parentHUnits = $(templateObj).data('parentHUnits');
 			var parentVUnits = $(templateObj).data('parentVUnits');
 			var parentEncLayoutX = $(templateObj).data('parentEncLayoutX');
 			var parentEncLayoutY = $(templateObj).data('parentEncLayoutY');
-			buildInsertParent(parentHUnits, parentVUnits, parentEncLayoutX, parentEncLayoutY);
+			buildInsertParent(RUSize, parentHUnits, parentVUnits, parentEncLayoutX, parentEncLayoutY);
 			switchSides(3);
 			setCategory();
-			$('#previewObj3').html($(templateObj).clone());
+			$('#previewObj3').html($(templateObjChild).clone());
 			var object = $('#previewObj3');
 			objFaceArray = [object];
 			
@@ -1579,6 +1542,7 @@ $( document ).ready(function() {
 			}
 		
 			// Clone template faces to workspace and save them for reference
+			var mountConfig = $(templateObj).data('objectMountConfig');
 			if(mountConfig == 0) {
 				$('#previewObj0').html($(templateObjChild).clone());
 				var object = $('#previewObj0');
@@ -1824,6 +1788,7 @@ $( document ).ready(function() {
 		data['category'] = $('#inputCategory').val();
 		data['type'] = $('input[name="objectTypeRadio"]:checked').val();
 		data['function'] = $('input[name="objectFunction"]:checked').val();
+		data['RUSize'] = $('#inputRU').val();
 		data['objects'] = [];
 		if(data['type'] == 'Insert'){
 			var encLayoutX = parseInt($('#previewObj3').data('valueX'), 10);
@@ -1831,14 +1796,14 @@ $( document ).ready(function() {
 			var objHUnits = parseInt($('#previewObj3').data('hUnits'), 10);
 			var objVUnits = parseInt($('#previewObj3').data('vUnits'), 10);
 			var insertRUSize = Math.ceil(objVUnits/2);
-			data['RUSize'] = insertRUSize;
+			//data['RUSize'] = insertRUSize;
 			data['encLayoutX'] = encLayoutX;
 			data['encLayoutY'] = encLayoutY;
 			data['hUnits'] = objHUnits;
 			data['vUnits'] = objVUnits;
 			data['objects'].push(buildObjectArray('#previewObj3'));
 		} else {
-			data['RUSize'] = $('#inputRU').val();
+			//data['RUSize'] = $('#inputRU').val();
 			data['mountConfig'] = $('input[name="sideCount"]:checked').val();
 			for (var x=0; x<=data['mountConfig']; x++) {
 				data['objects'].push(buildObjectArray('#previewObj'+x));
@@ -1923,7 +1888,6 @@ $( document ).ready(function() {
 				
 				// Variables must be retrieved after switchSides() because it updates the reference to the currently selected object
 				var variables = getVariables();
-				//setPartitionSizeInput();
 				
 				// Disable relevant input fields
 				$('#partitionH, #partitionV, #inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #inputPartitionTypeEnclosure, #customPartitionAdd, #customPartitionRemove, #objectPartitionSize, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', true);
@@ -1935,7 +1899,31 @@ $( document ).ready(function() {
 				});
 				$('.enclosure').on('click', function(){
 					switchSides(0);
-					buildInsertPreviewObj(this);
+					
+					var enclosureParent = $(this).parent();
+					var enclosureObject = $(this).closest('.flex-container-parent');
+					var enclosureObjectParent = $(enclosureObject).parent();
+					var objectFlexDirection = $(enclosureObjectParent).css('flex-direction');
+					var objectFunction = $(enclosureObjectParent).data('templateFunction');
+					var hUnits = parseInt($(enclosureParent).data('hUnits'), 10);
+					var vUnits = parseInt($(enclosureParent).data('vUnits'), 10);
+					var encLayoutX = parseInt($(enclosureParent).data('valueX'), 10);
+					var encLayoutY = parseInt($(enclosureParent).data('valueY'), 10);
+					$('[name="objectFunction"][value='+objectFunction+']').prop('checked', true);
+					var RUSize = parseInt($(enclosureObjectParent).data('ruSize'), 10);
+					$('#inputRU').val(RUSize);
+					
+					// Enable input fields
+					$('#partitionH, #partitionV, #inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #objectType, #objectMediaType, #objectPortType, #objectPortOrientation, #objectPortLayout').prop('disabled', false);
+
+					buildInsertParent(RUSize, hUnits, vUnits, encLayoutX, encLayoutY)
+					
+					$(document).data('templateSide', 3);
+
+					buildObj(3, hUnits, vUnits, objectFlexDirection);
+					setCategory();
+					togglePartitionTypeDependencies();
+					handleOrientationInput();
 				});
 				break;
 				

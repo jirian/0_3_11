@@ -63,8 +63,14 @@ for ($x=0; $x<2; $x++){
 							'insertDraggable'
 						);
 						
-						$flexWidth = $partitionData[0]['hUnits']/10;
-						$flexHeight = 1/$templateOrganic['templateEncLayoutY'];
+						$hUnits = $partitionData[0]['hUnits'];
+						$vUnits = $partitionData[0]['vUnits'];
+						$minRUSize = ceil($vUnits/2);
+						$totalVUnits = $minRUSize * 2;
+						$heightNumerator = $vUnits/$totalVUnits;
+						$flexWidth = $hUnits/10;
+						$flexHeight = $heightNumerator/$templateOrganic['templateEncLayoutY'];
+						$minRUSize = ceil($vUnits/2);
 						
 						// Generate data attribute string
 						$objAttrWorkingArray = array();
@@ -74,7 +80,7 @@ for ($x=0; $x<2; $x++){
 						$objAttr = implode(' ', $objAttrWorkingArray);
 						
 							// Flex Container
-							echo '<div class="RU'.$RUSize.'" style="display:flex;flex-direction:row;">';
+							echo '<div class="RU'.$minRUSize.'" style="display:flex;flex-direction:row;">';
 								// Partition Width
 								echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
 									// Partition Height
