@@ -62,8 +62,8 @@ var $qls;
 			$this->update_011_to_012();
 		} else if($this->currentVersion == '0.1.2') {
 			$this->update_012_to_013();
-		//} else if($this->currentVersion == '0.1.3') {
-			//$this->update_013_to_014();
+		} else if($this->currentVersion == '0.1.3') {
+			$this->update_013_to_014();
 		} else {
 			return true;
 		}
@@ -86,10 +86,10 @@ var $qls;
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Add "encTolerance" column to "object_compatibility" table
-		$this->qls->SQL->alter('app_object_compatibility', 'add', 'encTolerance', 'varchar(255)', true);
+		//$this->qls->SQL->alter('app_object_compatibility', 'add', 'encTolerance', 'varchar(255)', true);
 		
 		// Add "scrollLock" column to "users" table
-		$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);
+		//$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);
 		
 		// Rename "portLayoutX/Y" and "encLayoutX/Y" in partition data to "valueX/Y"
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
@@ -100,6 +100,7 @@ var $qls;
 				$partitionData = json_decode($partitionDataJSON, true);
 				foreach($partitionData as &$face) {
 					$this->alterTemplatePartitionDataLayoutName($face);
+					$this->alterTemplatePartitionDataDimensionUnits($face);
 				}
 				$partitionDataJSON = json_encode($partitionData);
 				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
@@ -363,15 +364,49 @@ var $qls;
 			$partitionType = $partition['partitionType'];
 			if($partitionType == 'Connectable' or $partitionType == 'Enclosure') {
 				$layoutPrefix = ($partitionType == 'Connectable') ? 'port' : 'enc';
-				$valueX = $partition[$layoutPrefix.'LayoutX'];
-				$valueY = $partition[$layoutPrefix.'LayoutY'];
-				$partition['valueX'] = $valueX;
-				$partition['valueY'] = $valueY;
-				unset($partition[$layoutPrefix.'LayoutX']);
-				unset($partition[$layoutPrefix.'LayoutY']);
+				
+				// Change 'LayoutX' to 'valueX'
+				if(isset($partition[$layoutPrefix.'LayoutX'])) {
+					$valueX = $partition[$layoutPrefix.'LayoutX'];
+					$partition['valueX'] = $valueX;
+					unset($partition[$layoutPrefix.'LayoutX']);
+				}
+				
+				// Change 'LayoutY' to 'valueY'
+				if(isset($partition[$layoutPrefix.'LayoutY'])) {
+					$valueY = $partition[$layoutPrefix.'LayoutY'];
+					$partition['valueY'] = $valueY;
+					unset($partition[$layoutPrefix.'LayoutY']);
+				}
 			}
+			
 			if(isset($partition['children'])) {
 				$this->alterTemplatePartitionDataLayoutName($partition['children']);
+			}
+		}
+	}
+	
+	function alterTemplatePartitionDataDimensionUnits(&$data){
+		foreach($data as &$partition) {
+			
+			// Change 'vunits' to 'vUnits'
+			if(isset($partition['vunits'])) {
+				error_log('here');
+				$vUnitValue = $partition['vunits'];
+				$partition['vUnits'] = $vUnitValue;
+				unset($partition['vunits']);
+				error_log(json_encode($partition));
+			}
+			
+			// Change 'hunits' to 'hUnits'
+			if(isset($partition['hunits'])) {
+				$hUnitValue = $partition['hunits'];
+				$partition['hUnits'] = $hUnitValue;
+				unset($partition['hunits']);
+			}
+			
+			if(isset($partition['children'])) {
+				$this->alterTemplatePartitionDataDimensionUnits($partition['children']);
 			}
 		}
 	}
