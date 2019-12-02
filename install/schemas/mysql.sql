@@ -302,6 +302,7 @@ CREATE TABLE `{database_prefix}app_object_compatibility` (
   `portTotal` int(11) DEFAULT NULL,
   `encLayoutX` int(11) DEFAULT NULL,
   `encLayoutY` int(11) DEFAULT NULL,
+  `encTolerance` varchar(255) DEFAULT NULL,
   `templateType` varchar(255) NOT NULL,
   `partitionType` varchar(255) DEFAULT NULL,
   `partitionFunction` varchar(255) DEFAULT NULL,
