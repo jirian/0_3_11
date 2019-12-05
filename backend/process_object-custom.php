@@ -179,7 +179,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success'] = 'Object was added.';
 			
 			// Log action in history
-			$actionString = 'Created new template: <strong>'.$name.'</strong>';
+			$actionString = 'Created template: <strong>'.$name.'</strong>';
 			$qls->App->logAction(1, 1, $actionString);
 				
 		} else if($action == 'delete') {

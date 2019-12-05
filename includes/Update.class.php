@@ -86,10 +86,10 @@ var $qls;
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Add "encTolerance" column to "object_compatibility" table
-		//$this->qls->SQL->alter('app_object_compatibility', 'add', 'encTolerance', 'varchar(255)', true);
+		$this->qls->SQL->alter('app_object_compatibility', 'add', 'encTolerance', 'varchar(255)', true);
 		
 		// Add "scrollLock" column to "users" table
-		//$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);
+		$this->qls->SQL->alter('users', 'add', 'scrollLock', 'tinyint(4)', false, 1);
 		
 		// Rename "portLayoutX/Y" and "encLayoutX/Y" in partition data to "valueX/Y"
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
@@ -384,6 +384,7 @@ var $qls;
 				$this->alterTemplatePartitionDataLayoutName($partition['children']);
 			}
 		}
+		return true;
 	}
 	
 	function alterTemplatePartitionDataDimensionUnits(&$data){
@@ -391,11 +392,9 @@ var $qls;
 			
 			// Change 'vunits' to 'vUnits'
 			if(isset($partition['vunits'])) {
-				error_log('here');
 				$vUnitValue = $partition['vunits'];
 				$partition['vUnits'] = $vUnitValue;
 				unset($partition['vunits']);
-				error_log(json_encode($partition));
 			}
 			
 			// Change 'hunits' to 'hUnits'
@@ -409,5 +408,6 @@ var $qls;
 				$this->alterTemplatePartitionDataDimensionUnits($partition['children']);
 			}
 		}
+		return true;
 	}
 }

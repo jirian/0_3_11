@@ -1551,7 +1551,7 @@ var $qls;
 		return $dateFormatted;
 	}
 	
-	function buildStandard($data, $rackObj, $objID=false, $objFace=false, &$depthCounter=0){
+	function buildStandard($data, $rackObj, $objID=false, $objFace=false, $cabinetView=false, &$depthCounter=0){
 		
 		$html = '';
 		$encInsert = false;
@@ -1565,13 +1565,15 @@ var $qls;
 				
 					if(isset($element['children'])){
 						$depthCounter++;
-						$html .= $this->buildStandard($element['children'], $rackObj, $objID, $objFace, $depthCounter);
+						$html .= $this->buildStandard($element['children'], $rackObj, $objID, $objFace, $cabinetView, $depthCounter);
 					}
 					break;
 					
 				case 'Connectable':
 				
-					$html .= $this->buildConnectable($element, $objID, $objFace, $depthCounter);
+					if($cabinetView === false) {
+						$html .= $this->buildConnectable($element, $objID, $objFace, $depthCounter);
+					}
 					break;
 					
 				case 'Enclosure':
@@ -1579,7 +1581,7 @@ var $qls;
 					$valueX = $element['valueX'];
 					$valueY = $element['valueY'];
 					
-					$html .= $this->buildEnclosure($valueX, $valueY, $objID, $objFace, $depthCounter);
+					$html .= $this->buildEnclosure($valueX, $valueY, $objID, $objFace, $cabinetView, $depthCounter);
 					break;
 			}
 			$html .= '</div>';
@@ -1659,7 +1661,7 @@ var $qls;
 		return $html;
 	}
 	
-	function buildEnclosure($encX, $encY, $objID=false, $objFace=false, $depthCounter=false){
+	function buildEnclosure($encX, $encY, $objID=false, $objFace=false, $cabinetView=false, $depthCounter=false){
 		
 		$html = '<div class="enclosure" style="display:flex;flex:1;height:100%;" data-enc-layout-x="'.$encX.'" data-enc-layout-y="'.$encY.'">';
 		for ($y = 0; $y < $encY; $y++){
@@ -1686,10 +1688,11 @@ var $qls;
 								'rackObj',
 								'insertDraggable'
 							);
-							$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $insertObjID);
+							$categoryData = false;
+							$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $insertObjID, $categoryData, $cabinetView);
 							$rackObj = true;
 							$objFace = 0;
-							$html .= $this->buildStandard($insertPartitionData[$objFace], $rackObj, $insertObjID, $objFace);
+							$html .= $this->buildStandard($insertPartitionData[$objFace], $rackObj, $insertObjID, $objFace, $cabinetView);
 							$html .= '</div>';
 						}
 					}
@@ -1796,13 +1799,13 @@ var $qls;
 		return $html;
 	}
 
-	function generateObjContainer($template, $face, $objClassArray, $objID=false){
+	function generateObjContainer($template, $face, $objClassArray, $objID=false, $categoryData=false, $cabinetView=false){
 		$templateID = $template['id'];
 		$templateType = $template['templateType'];
 		$templateRUSize = $template['templateRUSize'];
 		$templateFunction = $template['templateFunction'];
 		$categoryID = $template['templateCategory_id'];
-		$categoryName = $this->categoryArray[$categoryID]['name'];
+		$categoryName = ($categoryData !== false) ? $categoryData['name'] : $this->categoryArray[$categoryID]['name'];
 		$parentHUnits = $template['templateHUnits'];
 		$parentVUnits = $template['templateVUnits'];
 		$parentEncLayoutX = $template['templateEncLayoutX'];
@@ -1844,19 +1847,97 @@ var $qls;
 			array_push($objClassArray, 'insert');
 		}
 
-		array_push($objClassArray, 'category'.$categoryName);
-		
 		// Generate data attribute string
 		$objAttrWorkingArray = array();
 		foreach($objAttrArray as $attr => $value) {
 			array_push($objAttrWorkingArray, $attr.'='.$value);
 		}
+		
+		$objStyleArray = array(
+			'display:flex;',
+			'flex:1;'
+		);
+		
+		if($categoryData !== false) {
+			$colorCode = $categoryData['color'];
+			array_push($objStyleArray, 'background-color:'.$colorCode.';');
+		} else {
+			array_push($objClassArray, 'category'.$categoryName);
+		}
+		
+		// Assess cabinet view type
+		if($cabinetView !== false) {
+			if($cabinetView == 'visual') {
+				$templateImgAttr = $face == 0 ? 'frontImage' : 'rearImage';
+				if($template[$templateImgAttr] !== null) {
+					$templateImgPath = '/images/templateImages/'.$template[$templateImgAttr];
+					array_push($objStyleArray, 'background-image: url('.$templateImgPath.');');
+					array_push($objStyleArray, 'background-size: 100% 100%;');
+				}
+			}
+		}
+		
 		$dataAttr = implode(' ', $objAttrWorkingArray);
 		$objClass = implode(' ', $objClassArray);
+		$objStyle = implode('', $objStyleArray);
 		
-		$html = '<div style="display:flex;flex:1;" class="'.$objClass.'"'.$dataAttr.'>';
+		$html = '<div style="'.$objStyle.'" class="'.$objClass.'"'.$dataAttr.'>';
 		
 		return $html;
+	}
+
+	// Necessary for transition from 0.1.3 to 0.1.4
+	function alterTemplatePartitionDataLayoutName(&$data){
+		foreach($data as &$partition) {
+			$partitionType = $partition['partitionType'];
+			if($partitionType == 'Connectable' or $partitionType == 'Enclosure') {
+				$layoutPrefix = ($partitionType == 'Connectable') ? 'port' : 'enc';
+				
+				// Change 'LayoutX' to 'valueX'
+				if(isset($partition[$layoutPrefix.'LayoutX'])) {
+					$valueX = $partition[$layoutPrefix.'LayoutX'];
+					$partition['valueX'] = $valueX;
+					unset($partition[$layoutPrefix.'LayoutX']);
+				}
+				
+				// Change 'LayoutY' to 'valueY'
+				if(isset($partition[$layoutPrefix.'LayoutY'])) {
+					$valueY = $partition[$layoutPrefix.'LayoutY'];
+					$partition['valueY'] = $valueY;
+					unset($partition[$layoutPrefix.'LayoutY']);
+				}
+			}
+			
+			if(isset($partition['children'])) {
+				$this->alterTemplatePartitionDataLayoutName($partition['children']);
+			}
+		}
+		return true;
+	}
+
+	// Necessary for transition from 0.1.3 to 0.1.4
+	function alterTemplatePartitionDataDimensionUnits(&$data){
+		foreach($data as &$partition) {
+			
+			// Change 'vunits' to 'vUnits'
+			if(isset($partition['vunits'])) {
+				$vUnitValue = $partition['vunits'];
+				$partition['vUnits'] = $vUnitValue;
+				unset($partition['vunits']);
+			}
+			
+			// Change 'hunits' to 'hUnits'
+			if(isset($partition['hunits'])) {
+				$hUnitValue = $partition['hunits'];
+				$partition['hUnits'] = $hUnitValue;
+				unset($partition['hunits']);
+			}
+			
+			if(isset($partition['children'])) {
+				$this->alterTemplatePartitionDataDimensionUnits($partition['children']);
+			}
+		}
+		return true;
 	}
 
 }

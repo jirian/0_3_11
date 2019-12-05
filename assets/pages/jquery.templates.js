@@ -303,7 +303,7 @@ function buildPortTable(){
 }
 
 function makeRackObjectsClickable(){
-	$('.categoryTitle').on('click', function(){
+	$('#templateContainer').find('.categoryTitle').on('click', function(){
 		var categoryName = $(this).data('categoryName');
 		if($('.category'+categoryName+'Container').is(':visible')) {
 			$('.category'+categoryName+'Container').hide(400);
@@ -865,11 +865,12 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 	var templates = $(containerElement).find('.object-wrapper');
 	
 	if($(tags).length) {
-		$(templates).hide().data('visible', false);
+		$(templates).hide().removeClass('templateVisible');
 		
 		$.each(templates, function(indexTemplate, valueTemplate){
-			var templateObj = $(this);
+			var templateObj = $(valueTemplate);
 			var templateName = $(valueTemplate).data('templateName').toLowerCase();
+			console.log(templateName);
 			var match = true;
 			$.each(tags, function(indexTag, valueTag){
 				var tag = valueTag.toLowerCase();
@@ -879,20 +880,22 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 					match = false;
 				}
 			});
+			
 			if(match) {
-				$(templateObj).show().data('visible', true);
+				console.log('show');
+				$(templateObj).show().addClass('templateVisible');
 			}
 		});
 		
 		$.each(categoryContainers, function(){
-			if($(this).find('.object-wrapper[data-visible="true"]').size()) {
+			if($(this).find('.object-wrapper.templateVisible').size()) {
 				$(this).show();
 			} else {
 				$(this).hide();
 			}
 		});
 	} else {
-		$(templates).show().data('visible', true);;
+		$(templates).show().addClass('templateVisible');;
 		$(categoryContainers).show();
 	}
 }
@@ -1260,26 +1263,26 @@ function initializeTemplateCatalog(){
 	$('#templateCatalogFilter').on('itemAdded', function(event){
 		var containerElement = $('#templateCatalogAvailableContainer');
 		var inputElement = $('#templateCatalogFilter');
-		var categoryContainers = $(containerElement).find('.categoryCatalogContainerEntire');
+		var categoryContainers = $(containerElement).find('.categoryContainerEntire');
 		filterTemplates(containerElement, inputElement, categoryContainers);
 	}).on('itemRemoved', function(event){
 		var containerElement = $('#templateCatalogAvailableContainer');
 		var inputElement = $('#templateCatalogFilter');
-		var categoryContainers = $(containerElement).find('.categoryCatalogContainerEntire');
+		var categoryContainers = $(containerElement).find('.categoryContainerEntire');
 		filterTemplates(containerElement, inputElement, categoryContainers);
 	});
 	
 	// Make catalog titles expandable
-	$('.templateCatalogCategoryTitle').on('click', function(){
+	$('#containerTemplateCatalog').find('.categoryTitle').on('click', function(){
 		var categoryName = $(this).data('categoryName');
-		if($('.templateCatalogCategory'+categoryName+'Container').is(':visible')) {
-			$('.templateCatalogCategory'+categoryName+'Container').hide(400);
-			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
+		if($('#containerTemplateCatalog').find('.category'+categoryName+'Container').is(':visible')) {
+			$('#containerTemplateCatalog').find('.category'+categoryName+'Container').hide(400);
+			$('#containerTemplateCatalog').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
 		} else {
-			$('.templateCatalogCategoryContainer').hide(400);
-			$('.templateCatalogCategoryTitle').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
-			$('.templateCatalogCategory'+categoryName+'Container').show(400);
-			$(this).children('i').removeClass('fa-caret-right').addClass('fa-caret-down');
+			$('#containerTemplateCatalog').find('.categoryContainer').hide(400);
+			$('#containerTemplateCatalog').find('.categoryTitle').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
+			$('#containerTemplateCatalog').find('.category'+categoryName+'Container').show(400);
+			$('#containerTemplateCatalog').children('i').removeClass('fa-caret-right').addClass('fa-caret-down');
 		}
 	});
 	
@@ -1464,7 +1467,8 @@ $( document ).ready(function() {
 	handleScrollLock();	
 	toggleObjectTypeDependencies();
 	
-	$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog-013.php', function(){
+	//$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog-013.php', function(){
+	$('#containerTemplateCatalog').load('/backend/retrieve_template-catalog.php', function(){
 		initializeTemplateCatalog();
 	});
 	

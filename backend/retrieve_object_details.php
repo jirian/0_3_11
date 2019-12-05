@@ -114,7 +114,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$RUSize = $templateInfo['templateRUSize'];
 		} else if($templateInfo['templateType'] == 'Insert'){
 			$mountConfig = $RUSize = 'N/A';
-			$insertRUSize = $templateInfo['templateRUSize'];
 		}
 		
 		$templateImgFilename = $objectFace == 0 ? $templateInfo['frontImage'] : $templateInfo['rearImage'];
@@ -122,12 +121,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$templateImgExists = true;
 			$templateImgAction = 'update';
 			$templateImgPath = '/images/templateImages/'.$templateImgFilename;
+			$RUHeight = 25;
 			if($templateInfo['templateType'] == 'Standard') {
-				$templateImgHeight = $RUSize * 25;
+				$templateImgHeight = $RUSize * $RUHeight;
 				$templateImgWidth = 100;
 			} else if($templateInfo['templateType'] == 'Insert'){
-				$templateImgHeight = round(($insertRUSize*25)/$templateInfo['templateEncLayoutY']);
-				$templateImgWidth = round(($templateInfo['templateHUnits']*10)/$templateInfo['templateEncLayoutX']);
+				$hUnits = $templateInfo['templateHUnits'];
+				$vUnits = $templateInfo['templateVUnits'];
+				$encX = $templateInfo['templateEncLayoutX'];
+				$encY = $templateInfo['templateEncLayoutY'];
+				
+				////////////// HERE /////
+				
+				$templateImgHeight = round((($RUHeight / 2) * $vUnits) / $encY);
+				$templateImgWidth = round(($hUnits * 10) / $encX);
 			}
 		} else {
 			$templateImgExists = false;

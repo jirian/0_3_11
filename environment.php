@@ -388,7 +388,7 @@ require_once './includes/templateFunctions.php';
 								<select id="templateFilter" multiple data-role="tagsinput">
 								</select>
 								<?php
-									$template = false;
+									//$template = false;
 									include_once('./includes/content-build-objectData.php');
 									include_once('./includes/content-build-objects.php');
 								?>

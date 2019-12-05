@@ -223,7 +223,6 @@ $qls->Security->check_auth_page('user.php');
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
 					<div class="card-box">
 						<h4 class="header-title m-t-0">Selection Details</h4>
-						<?php //include_once('includes/content-build-objectData.php'); ?>
 						<div id="objectCardBox" class="card">
 							<div class="card-header">Object</div>
 							<div class="card-block">

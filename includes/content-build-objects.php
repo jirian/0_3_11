@@ -4,32 +4,31 @@
 //Placeable objects
 /////////////////////////////
 -->
-<?php
-$templateCatalog = false;
-include($_SERVER['DOCUMENT_ROOT'].'/includes/content-build-objectData.php');
-$page = basename($_SERVER['PHP_SELF']);
-$cursorClass = (($page == 'templates.php') or ($page == 'retrieve_build-objects.php')) ? 'cursorPointer' : 'cursorGrab';
 
-for ($x=0; $x<2; $x++){
+<?php
+$page = basename($_SERVER['PHP_SELF']);
+$cursorClass = (($page == 'templates.php') or ($page == 'retrieve_build-objects.php') or ($page == 'retrieve_template-catalog.php')) ? 'cursorPointer' : 'cursorGrab';
+$faceCount = ($page == 'retrieve_template-catalog.php') ? 1 : 2;
+
+for ($x=0; $x<$faceCount; $x++){
 	$display = $x==0 ? '' : ' style="display:none;"';
-	echo '<div id="availableContainer'.$x.'"'.$display.'>';
+	$availableContainerID = ($page == 'retrieve_template-catalog.php') ? 'templateCatalogAvailableContainer' : 'availableContainer'.$x;
+	echo '<div id="'.$availableContainerID.'"'.$display.'>';
 	foreach($templates as $category => $categoryTemplate) {
 		echo '<div class="categoryContainerEntire">';
 			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
 			echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
-			foreach ($categoryTemplate as $template) {
-				if (isset($template['partitionData'][$x])) {
+			foreach ($categoryTemplate as $templateID => $templateOrganic) {
+				if (isset($templateOrganic['templatePartitionData'][$x])) {
 					
-					$templateID = $template['id'];
-					$templateOrganic = $qls->App->templateArray[$templateID];
 					$templateName = $templateOrganic['templateName'];
-					$partitionData = json_decode($templateOrganic['templatePartitionData'], true);
-					$partitionData = $partitionData[$x];
+					$partitionData = $templateOrganic['templatePartitionData'][$x];
 					$type = $templateOrganic['templateType'];
 					$RUSize = $templateOrganic['templateRUSize'];
 					$function = $templateOrganic['templateFunction'];
 					$mountConfig = $templateOrganic['templateMountConfig'];
 					$categoryID = $templateOrganic['templateCategory_id'];
+					$categoryData = isset($templateOrganic['categoryData']) ? $templateOrganic['categoryData'] : false;
 					
 					echo '<div class="object-wrapper object'.$templateID.'" data-template-name="'.$templateName.'">';
 					echo '<h4 class="templateName'.$templateID.' header-title m-t-0 m-b-15">'.$templateName.'</h4>';
@@ -52,7 +51,8 @@ for ($x=0; $x<2; $x++){
 							'draggable',
 							'RU'.$RUSize
 						);
-						echo $qls->App->generateObjContainer($templateOrganic, $x, $objClassArray);
+						$objID = false;
+						echo $qls->App->generateObjContainer($templateOrganic, $x, $objClassArray, $objID, $categoryData);
 						$rackObj = false;
 						echo $qls->App->buildStandard($partitionData, $rackObj);
 						echo '</div>';
@@ -95,7 +95,8 @@ for ($x=0; $x<2; $x++){
 													'insertDraggable'
 												);
 												$face = 0;
-												echo $qls->App->generateObjContainer($templateOrganic, $face, $objClassArray);
+												$objID = false;
+												echo $qls->App->generateObjContainer($templateOrganic, $face, $objClassArray, $objID, $categoryData);
 												$rackObj = false;
 												echo $qls->App->buildStandard($partitionData, $rackObj);
 												echo '</div>';

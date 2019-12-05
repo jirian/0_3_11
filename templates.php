@@ -4,7 +4,6 @@ require_once './includes/header.php';
 require_once './includes/redirectToLogin.php';
 $qls->Security->check_auth_page('operator.php');
 require_once './includes/content-templates.php';
-//require_once './includes/templateFunctions.php';
 ?>
 
 <?php require 'includes/header_start.php'; ?>
@@ -239,7 +238,6 @@ require_once './includes/content-templates.php';
 								<h6>Name Filter:</h6>
 								<select id="templateCatalogFilter" multiple data-role="tagsinput"></select>
 								<div id="containerTemplateCatalog"></div>
-								<?php //include_once('./includes/content-build-templateCatalogObjects.php'); ?>
 							</div>
 							<p class="m-t-10">
 								<mark>Don't see what you're looking for?</mark><br>
@@ -711,7 +709,10 @@ require_once './includes/content-templates.php';
 						<h6>Name Filter:</h6>
 						<select id="templateFilter" multiple data-role="tagsinput"></select>
 						<div id="templateContainer">
-							<?php include_once('./includes/content-build-objects.php'); ?>
+							<?php
+								include_once('./includes/content-build-objectData.php');
+								include_once('./includes/content-build-objects.php');
+							?>
 						</div>
 					</div>
 					

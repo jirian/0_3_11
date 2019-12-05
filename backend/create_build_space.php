@@ -131,11 +131,26 @@ $cursorClass = ($page == 'explore') ? 'cursorPointer' : 'cursorGrab';
 							
 						} else if($cabinetView == 'visual') {
 							
+							$objClassArray = array(
+								'rackObj',
+								$cursorClass,
+								'draggable',
+								'RU'.$RUSize
+							);
+							
+							$categoryData = false;
+							echo $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID, $categoryData, $cabinetView);
+							$rackObj = true;
+							echo $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face, $cabinetView);
+							echo '</div>';
+							
+							/*
 							$templateImgAttr = $face == 0 ? 'frontImage' : 'rearImage';
 							$templateImgPath = '/images/templateImages/'.$objectTemplate[$templateID][$templateImgAttr];
 							echo '<div style="background-image: url('.$templateImgPath.'); background-size: 100% 100%" data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable">';
 							echo buildVisualPartitions($objectTemplate[$templateID]['partitionData'][$face], $objectID, $face, $qls, $function, $objName);
 							echo '</div>';
+							*/
 							
 						} else if($cabinetView == 'name') {
 							

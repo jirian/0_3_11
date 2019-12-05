@@ -3065,6 +3065,7 @@ function insertTemplateAdds(&$qls, $templateAdds, &$importedTemplateArray, $impo
 					'portTotal',
 					'encLayoutX',
 					'encLayoutY',
+					'encTolerance',
 					'templateType',
 					'partitionType',
 					'partitionFunction',
@@ -3089,6 +3090,7 @@ function insertTemplateAdds(&$qls, $templateAdds, &$importedTemplateArray, $impo
 					$portTotal,
 					$compatibilityRecord['encX'],
 					$compatibilityRecord['encY'],
+					$compatibilityRecord['encTolerance'],
 					$templateType,
 					$compatibilityRecord['partitionType'],
 					$templateFunction,
@@ -3357,30 +3359,31 @@ function getCompatibilityInfo($face, $dataArray=array(), &$depthCounter=0){
 		} else if($partitionType == 'Connectable') {
 			$tempArray = array();
 			$tempArray['depth'] = $depthCounter;
-			$tempArray['portX'] = $element['portLayoutX'];
-			$tempArray['portY'] = $element['portLayoutY'];
+			$tempArray['portX'] = $element['valueX'];
+			$tempArray['portY'] = $element['valueY'];
 			$tempArray['partitionType'] = $element['partitionType'];
 			$tempArray['portOrientation'] = $element['portOrientation'];
 			$tempArray['portType'] = $element['portType'];
 			$tempArray['mediaType'] = $element['mediaType'];
 			$tempArray['direction'] = $element['direction'];
-			$tempArray['hUnits'] = $element['hunits'];
-			$tempArray['vUnits'] = $element['vunits'];
+			$tempArray['hUnits'] = $element['hUnits'];
+			$tempArray['vUnits'] = $element['vUnits'];
 			$tempArray['flex'] = $element['flex'];
 			$tempArray['portNameFormat'] = $element['portNameFormat'];
 			array_push($dataArray, $tempArray);
 		
 		} else if($partitionType == 'Enclosure') {
-				$tempArray = array();
-				$tempArray['depth'] = $depthCounter;
-				$tempArray['encX'] = $element['encLayoutX'];
-				$tempArray['encY'] = $element['encLayoutY'];
-				$tempArray['partitionType'] = $element['partitionType'];
-				$tempArray['direction'] = $element['direction'];
-				$tempArray['hUnits'] = $element['hunits'];
-				$tempArray['vUnits'] = $element['vunits'];
-				$tempArray['flex'] = $element['flex'];
-				array_push($dataArray, $tempArray);
+			$tempArray = array();
+			$tempArray['depth'] = $depthCounter;
+			$tempArray['encX'] = $element['valueX'];
+			$tempArray['encY'] = $element['valueY'];
+			$tempArray['encTolerance'] = $element['encTolerance'];
+			$tempArray['partitionType'] = $element['partitionType'];
+			$tempArray['direction'] = $element['direction'];
+			$tempArray['hUnits'] = $element['hUnits'];
+			$tempArray['vUnits'] = $element['vUnits'];
+			$tempArray['flex'] = $element['flex'];
+			array_push($dataArray, $tempArray);
 		}
 		$depthCounter++;
 	}

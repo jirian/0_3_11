@@ -93,8 +93,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				array_push($templateNameArray, $name);
 				
 				if($name == 'templateCategory_id') {
+					
 					array_push($templateValueArray, $categoryID);
+					
 				} else if($name == 'templateName') {
+					
 					$uniqueName = $qls->App->findUniqueName(null, 'template', $value);
 					if($uniqueName == false) {
 						$errMsg = 'Unable to find unique template name.';
@@ -104,6 +107,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					} else {
 						array_push($templateValueArray, $uniqueName);
 					}
+					
+				// Necessary for transition from 0.1.3 to 0.1.4
+				} else if($name == 'templatePartitionData') {
+					
+					$partitionData = json_decode($value, true);
+					foreach($partitionData as &$face) {
+						$qls->App->alterTemplatePartitionDataLayoutName($face);
+						$qls->App->alterTemplatePartitionDataDimensionUnits($face);
+					}
+					$value = json_encode($partitionData);
+					array_push($templateValueArray, $value);
+					
 				} else {
 					array_push($templateValueArray, $value);
 				}
@@ -129,9 +144,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 			}
 			
+			// Necessary for transition from 0.1.3 to 0.1.4
+			if($templateCompatibility['partitionType'] == 'Enclosure') {
+				if(!isset($templateCompatibility['encTolerance'])) {
+					array_push($templateCompatibilityNameArray, 'encTolerance');
+					array_push($templateCompatibilityValueArray, 'Loose');
+				}
+			}
+			
 			// Insert template compatibility data into DB
 			$qls->SQL->insert('app_object_compatibility', $templateCompatibilityNameArray, $templateCompatibilityValueArray);
 		}
+		
+		// Log action in history
+		$actionString = 'Imported template: <strong>'.$uniqueName.'</strong>';
+		$qls->App->logAction(1, 1, $actionString);
+		
 		$validate->returnData['success'] = 'This template has been imported to the '.$importedCategoryName.' category.';
 	}
 	echo json_encode($validate->returnData);
