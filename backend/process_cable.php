@@ -240,14 +240,35 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					if(!$clear) {
 						insertTableInventory($qls, $objID, $objFace, $objDepth, $objPort, $elementID, $elementFace, $elementDepth, $elementPort);
+						
+						// Log history
+						$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+						$remotePort = $qls->App->generateObjectPortName($elementID, $elementFace, $elementDepth, $elementPort);
+						$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+						$qls->App->logAction(3, 1, $actionString);
+						
+					} else {
+						
+						// Log history
+						$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+						$remotePortData = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+						$remoteObjID = $remotePortData['id'];
+						$remoteObjFace = $remotePortData['face'];
+						$remoteObjDepth = $remotePortData['depth'];
+						$remoteObjPort = $remotePortData['port'];
+						$remotePort = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
+						$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+						$qls->App->logAction(3, 3, $actionString);
+					
 					}
 					
 					include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
 				
 					$validate->returnData['success']['pathFull'] = buildPathFull($path);
 					$validate->returnData['success']['peerPortID'] = $peerPortID;
+					
 				}
-
+				
 				break;
 		}
 	}

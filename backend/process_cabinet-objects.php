@@ -103,14 +103,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				)
 			);
 			
+			//This tells the client what the new object_id is
+			$validate->returnData['success'] = $qls->SQL->insert_id();
+			
 			// Log history
 			$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
 			$actionString = 'Added new object: <strong>'.$cabinetName.'.'.$name.'</strong>';
 			$qls->App->logAction(2, 1, $actionString);
 			
-			//This tells the client what the new object_id is
-			$validate->returnData['success'] = $qls->SQL->insert_id();
-				
 		} else if($action == 'updateObject') {
 			$cabinetID = $data['cabinetID'];
 			$objectID = $data['objectID'];

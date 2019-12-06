@@ -1626,6 +1626,10 @@ var $qls;
 						// Class - populated
 						if(isset($this->populatedPortArray[$objID][$objFace][$objDepth][$portIndex])) {
 							array_push($classArray, 'populated');
+							
+						// Class - connected
+						} else if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex])) {
+							array_push($classArray, 'populated');
 						}
 						
 						// Class - trunked

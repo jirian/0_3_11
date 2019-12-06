@@ -38,6 +38,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$portID
 				)
 			);
+			
+			// Log history
+			$portName = $qls->App->generateObjectPortName($objectID, $objectFace, $partitionDepth, $portID);
+			$actionString = 'Marked port as populated: <strong>'.$portName.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else {
 			$qls->SQL->delete(
 				'app_populated_port',
@@ -51,6 +57,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					'port_id' => array('=', $portID)
 				)
 			);
+			
+			// Log history
+			$portName = $qls->App->generateObjectPortName($objectID, $objectFace, $partitionDepth, $portID);
+			$actionString = 'Marked port as unpopulated: <strong>'.$portName.'</strong>';
+			$qls->App->logAction(3, 2, $actionString);
 		}
 	}
 	echo json_encode($validate->returnData);
