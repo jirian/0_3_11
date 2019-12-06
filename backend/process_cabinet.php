@@ -54,6 +54,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// Do not insert adjacency entry if the entry was cleared
 			if($adjCabinetID != 0) {
 				$qls->SQL->insert('app_cabinet_adj', array($attrLocalCabinet, $attrAdjCabinet), array($localCabinetID, $adjCabinetID));
+				
+				// Log history
+				$localCab = $qls->App->envTreeArray[$localCabinetID]['nameString'];
+				$adjCab = $qls->App->envTreeArray[$adjCabinetID]['name'];
+				$actionString = 'Cabinet adjacency: <strong>'.$localCab.'/'.$adjCab.'</strong>';
+				$qls->App->logAction(2, 1, $actionString);
+				
+			} else {
+				
+				// Log history
+				$localCab = $qls->App->envTreeArray[$localCabinetID]['nameString'];
+				$adjCabID = $qls->App->cabinetAdjacencyArray[$localCabinetID][$attrAdjCabinet];
+				$adjCab = $qls->App->envTreeArray[$adjCabID]['name'];
+				$actionString = 'Cabinet adjacency: <strong>'.$localCab.'/'.$adjCab.'</strong>';
+				$qls->App->logAction(2, 3, $actionString);
+				
 			}
 			
 		} else if($action == 'path') {
@@ -67,21 +83,63 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 			$attrAdjCabinet = $cablePath['cabinet_a_id'] == $localCabinetID ? 'cabinet_b_id' : 'cabinet_a_id';
 			$qls->SQL->update('app_cable_path', array($attrAdjCabinet => $adjCabinetID), array('id' => array('=', $pathID)));
+			
+			// Log history
+			$localCab = $qls->App->envTreeArray[$localCabinetID]['nameString'];
+			$cablePath = $qls->App->cablePathArray[$pathID];
+			$originalAdjCabinetID = ($cablePath['cabinet_a_id'] == $localCabinetID) ? $cablePath['cabinet_b_id'] : $cablePath['cabinet_a_id'];
+			$originalAdjCab = ($originalAdjCabinetID == 0) ? 'Empty' : $qls->App->envTreeArray[$originalAdjCabinetID]['name'];
+			$adjCab = $qls->App->envTreeArray[$adjCabinetID]['name'];
+			$actionString = 'Cable path peer: From <strong>'.$localCab.'/'.$originalAdjCab.'</strong> to <strong>'.$adjCab.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'distance') {
 			
 			$pathID = $data['pathID'];
 			// Convert distance from meters to millimeters
 			$distance = $data['distance']*1000;
 			$qls->SQL->update('app_cable_path', array('distance' => $distance), array('id' => array('=', $pathID)));
+			
+			// Log history
+			$cablePath = $qls->App->cablePathArray[$pathID];
+			$localCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_b_id'] : $cablePath['cabinet_a_id'];
+			$adjCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_a_id'] : $cablePath['cabinet_b_id'];
+			$localCab = $qls->App->envTreeArray[$localCabID]['nameString'];
+			$adjCab = ($adjCabID == 0) ? 'Empty' : $qls->App->envTreeArray[$adjCabID]['name'];
+			$originalLength = $qls->App->convertToHighestHalfMeter($cablePath['distance']);
+			$newLength = $qls->App->convertToHighestHalfMeter($distance);
+			$actionString = 'Cable path distance: <strong>'.$localCab.'/'.$adjCab.'</strong> from <strong>'.$originalLength.'m.</strong> to <strong>'.$newLength.'m.</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'notes') {
 			
 			$pathID = $data['pathID'];
 			$notes = $data['value'];
 			$qls->SQL->update('app_cable_path', array('notes' => $notes), array('id' => array('=', $pathID)));
+			
+			// Log history
+			$cablePath = $qls->App->cablePathArray[$pathID];
+			$localCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_b_id'] : $cablePath['cabinet_a_id'];
+			$adjCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_a_id'] : $cablePath['cabinet_b_id'];
+			$localCab = $qls->App->envTreeArray[$localCabID]['nameString'];
+			$adjCab = ($adjCabID == 0) ? 'Empty' : $qls->App->envTreeArray[$adjCabID]['name'];
+			$actionString = 'Cable path note: <strong>'.$localCab.'/'.$adjCab.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'delete') {
 			
 			$pathID = $data['pathID'];
 			$qls->SQL->delete('app_cable_path', array('id' => array('=', $pathID)));
+			
+			// Log history
+			$cablePath = $qls->App->cablePathArray[$pathID];
+			$localCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_b_id'] : $cablePath['cabinet_a_id'];
+			$adjCabID = ($cablePath['cabinet_a_id'] == 0) ? $cablePath['cabinet_a_id'] : $cablePath['cabinet_b_id'];
+			$localCab = $qls->App->envTreeArray[$localCabID]['nameString'];
+			$adjCab = ($adjCabID == 0) ? 'Empty' : $qls->App->envTreeArray[$adjCabID]['name'];
+			$actionString = 'Cable path: <strong>'.$localCab.'/'.$adjCab.'</strong>';
+			$qls->App->logAction(2, 3, $actionString);
+			
 		} else if($action == 'new') {
 			
 			$validate->returnData['success']['entranceMax'] = $cabinetSize;
@@ -89,6 +147,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$qls->SQL->insert('app_cable_path', array('cabinet_a_id', 'path_entrance_ru', 'distance'), array($cabinetID, $cabinetSize, 1000));
 			$validate->returnData['success']['newID'] = $qls->SQL->insert_id();
+			
+			// Log history
+			$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
+			$actionString = 'Blank cable path: <strong>'.$cabinetName.'</strong>';
+			$qls->App->logAction(2, 1, $actionString);
+			
 		} else if($action == 'RU') {
 			
 			$RUSize = $data['RUSize'];
@@ -99,15 +163,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$cabinetPath = $qls->SQL->fetch_assoc($query);
 				$validate->returnData['success']['action'] = 'pop';
 				$validate->returnData['success']['delta'] = $cabinetSize - $RUSize;
-				$qls->SQL->update('app_env_tree', array('size' => $RUSize), array('id' => array('=', $cabinetID)));
 			} else if ($RUSize > $cabinetSize) {
 				$validate->returnData['success']['action'] = 'push';
 				$validate->returnData['success']['delta'] = $RUSize - $cabinetSize;
-				$qls->SQL->update('app_env_tree', array('size' => $RUSize), array('id' => array('=', $cabinetID)));
 			} else if ($RUSize < $topOccupiedRU or $RUSize == $cabinetSize){
 				$errMsg = 'Invalid RU size.';
 				array_push($validate->returnData['error'], $errMsg);
 				$validate->returnData['success']['originalSize'] = $cabinetSize;
+			}
+			
+			if (!count($validate->returnData['error'])){
+				
+				$qls->SQL->update('app_env_tree', array('size' => $RUSize), array('id' => array('=', $cabinetID)));
+				
+				// Log history
+				$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
+				$originalRUSize = $qls->App->envTreeArray[$cabinetID]['size'];
+				$actionString = 'Cabinet RU: <strong>'.$cabinetName.'</strong> from <strong>'.$originalRUSize.'</strong> to <strong>'.$RUSize.'</strong>';
+				$qls->App->logAction(2, 2, $actionString);
+				
 			}
 		} else if($action == 'get') {
 			

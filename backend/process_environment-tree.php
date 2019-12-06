@@ -43,12 +43,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['nodeID'] = $qls->SQL->insert_id();
 			$validate->returnData['success']['nodeName'] = $nodeName;
 			
+			// Log history
+			$parentName = $qls->App->envTreeArray[$parentID]['nameString'];
+			$actionString = 'Added '.$nodeType.': <strong>'.$parentName.'.'.$nodeName.'</strong>';
+			$qls->App->logAction(2, 1, $actionString);
+			
 		} else if ($operation == 'rename_node') {
 			
 			$nodeID = $data['id'];
 			$nodeName = $data['name'];
 			
 			$qls->SQL->update('app_env_tree', array('name'=>$nodeName), 'id='.$nodeID);
+			
+			// Log history
+			$nodeType = $qls->App->envTreeArray[$nodeID]['type'];
+			$originalNodeName = $qls->App->envTreeArray[$nodeID]['nameString'];
+			$actionString = 'Renamed '.$nodeType.': From <strong>'.$originalNodeName.'</strong> to <strong>'.$nodeName.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
 			
 		} else if ($operation == 'move_node') {
 			
@@ -78,6 +89,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			if($permitted) {
 				$qls->SQL->update('app_env_tree', array('parent'=>$parentID), 'id='.$nodeID);
+				
+				// Log history
+				$nodeType = $qls->App->envTreeArray[$nodeID]['type'];
+				$nodeName = $qls->App->envTreeArray[$nodeID]['name'];
+				$originalParentID = $qls->App->envTreeArray[$nodeID]['parent'];
+				$originalParentName = ($originalParentID == '#') ? 'Root' : $qls->App->envTreeArray[$originalParentID]['nameString'];
+				$newParentName = ($parentID == '#') ? 'Root' : $qls->App->envTreeArray[$parentID]['nameString'];
+				$actionString = 'Moved '.$nodeType.': From <strong>'.$originalParentName.'.'.$nodeName.'</strong> to <strong>'.$newParentName.'.'.$nodeName.'</strong>';
+				$qls->App->logAction(2, 2, $actionString);
+				
 			} else {
 				$errMsg = 'Invalid node move.';
 				array_push($validate->returnData['error'], $errMsg);
@@ -118,6 +139,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// If no errors, delete the environment node.
 			if (!count($validate->returnData['error'])){
 				deleteNodes($nodeID, $qls);
+				
+				// Log history
+				$nodeType = $qls->App->envTreeArray[$nodeID]['type'];
+				$nodeName = $qls->App->envTreeArray[$nodeID]['nameString'];
+				$actionString = 'Deleted '.$nodeType.': <strong>'.$nodeName.'</strong>';
+				$qls->App->logAction(2, 3, $actionString);
+				
 			}
 			
 		}

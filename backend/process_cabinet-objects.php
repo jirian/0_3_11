@@ -102,6 +102,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$insertSlotY
 				)
 			);
+			
+			// Log history
+			$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
+			$actionString = 'Added new object: <strong>'.$cabinetName.'.'.$name.'</strong>';
+			$qls->App->logAction(2, 1, $actionString);
+			
 			//This tells the client what the new object_id is
 			$validate->returnData['success'] = $qls->SQL->insert_id();
 				
@@ -141,6 +147,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				'id = '.$objectID
 			);
 			
+			// Log history
+			$objectName = $qls->App->objectArray[$objectID]['nameString'];
+			$actionString = 'Moved object: <strong>'.$objectName.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'updateInsert') {
 			$objectID = $data['objectID'];
 			$parent_id = $data['parent_id'];
@@ -168,6 +179,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				),
 				'id = '.$objectID
 			);
+			
+			// Log history
+			$objectName = $qls->App->objectArray[$objectID]['nameString'];
+			$actionString = 'Moved insert: <strong>'.$objectName.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'edit') {
 			$name = $data['value'];
 			$objectID = $data['objectID'];
@@ -178,6 +195,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			);
 			
 			$validate->returnData['success'] = $name;
+			
+			// Log history
+			$objectName = $qls->App->objectArray[$objectID]['nameString'];
+			$actionString = 'Changed object name: From <strong>'.$objectName.'</strong> to <strong>'.$name.'</strong>';
+			$qls->App->logAction(2, 2, $actionString);
+			
 		} else if($action == 'delete') {
 			$objectID = $data['objectID'];
 			$safeToDelete = true;
@@ -216,10 +239,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 				//Delete object
 				$qls->SQL->delete('app_object', array('id'=>array('=', $objectID)));
+				
+				// Log history
+				$objectName = $qls->App->objectArray[$objectID]['nameString'];
+				$actionString = 'Delected object: <strong>'.$objectName.'</strong>';
+				$qls->App->logAction(2, 3, $actionString);
+				
 			} else {
 				$errorMsg = 'Object cannot be deleted.  Cables are connected to it.';
 				array_push($validate->returnData['error'], $errorMsg);
 			}
+			
 		}
 	}
 	echo json_encode($validate->returnData);

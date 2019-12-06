@@ -212,7 +212,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							while($csvLine = fgetcsv($csvFile)) {
 								$csvLineNumber++;
 								if($csvLineNumber > 1 and $csvLine[0] != '') {
-									buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, $importedTemplateArray, $existingTemplateArray);
+									buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, $importedTemplateArray, $existingTemplateArray, $qls);
 								}
 							}
 						} else if($csvFilename == '05 - Cabinet Objects.csv') {
@@ -822,7 +822,7 @@ function buildExistingTemplateArray(&$qls, $tableCategoryArray){
 	return $return;
 }
 
-function buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, &$importedTemplateArray, $existingTemplateArray){
+function buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, &$importedTemplateArray, $existingTemplateArray, &$qls){
 	$templateName = $csvLine[0];
 	$templateCategoryName = $csvLine[1];
 	//$templateOriginalTemplateName = ($GLOBALS['importType'] == 'edit') ? $csvLine[2] : '';
@@ -831,10 +831,16 @@ function buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, &$im
 	$templateFunction = $csvLine[4];
 	$templateRUSize = $csvLine[5];
 	$templateMountConfig = $csvLine[6];
-	$templateStructure = $csvLine[7];
+	$templateStructure = json_decode($csvLine[7], true);
 	$templateNameHash = md5(strtolower($templateName));
 	$templateCategoryNameHash = md5(strtolower($templateCategoryName));
 	$originalTemplateNameHash = md5(strtolower($templateOriginalTemplateName));
+	
+	// Necessary for transitioning from 0.1.3 to 0.1.4
+	foreach($templateStructure['structure'] as &$face) {
+		$qls->App->alterTemplatePartitionDataLayoutName($face);
+		$qls->App->alterTemplatePartitionDataDimensionUnits($face);
+	}
 	
 	$importedTemplateArray[$templateNameHash]['templateName'] = $templateName;
 	$importedTemplateArray[$templateNameHash]['templateNameHash'] = $templateNameHash;
@@ -846,7 +852,7 @@ function buildImportedTemplateArray($csvLine, $csvLineNumber, $csvFilename, &$im
 	$importedTemplateArray[$templateNameHash]['templateFunction'] = strtolower($templateFunction);
 	$importedTemplateArray[$templateNameHash]['templateRUSize'] = $templateRUSize;
 	$importedTemplateArray[$templateNameHash]['templateMountConfig'] = strtolower($templateMountConfig);
-	$importedTemplateArray[$templateNameHash]['templateStructure'] = json_decode($templateStructure, true);
+	$importedTemplateArray[$templateNameHash]['templateStructure'] = $templateStructure;
 	$importedTemplateArray[$templateNameHash]['line'] = $csvLineNumber;
 	$importedTemplateArray[$templateNameHash]['fileName'] = $csvFilename;
 	
