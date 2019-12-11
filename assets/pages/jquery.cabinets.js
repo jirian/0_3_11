@@ -1588,7 +1588,16 @@ $( document ).ready(function() {
 			'check_while_dragging': false
 		},
 		'state' : {
-			'key' : 'envNavigation'
+			'key' : 'envNavigation',
+			'filter': function(state){
+				// Select template requested by app
+				if($('#nodeID').length) {
+					var nodeID = $('#nodeID').val();
+					state.core.selected = [nodeID];
+					$('#nodeID').remove();
+				}
+				return state;
+			}
 		},
 		"types" : {
 			'default' : {

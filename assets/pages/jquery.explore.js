@@ -382,7 +382,7 @@ function getFloorplanObjectPeerTable(){
 
 function selectObject(parentObject){
 	var objID = $('#objID').val();
-	$(parentObject).find('[data-objectid='+objID+']').click();
+	$(parentObject).find('[data-template-object-id='+objID+']').children('.selectable:first').click();
 	$('#objID').remove();
 }
 
@@ -477,12 +477,9 @@ $( document ).ready(function() {
 					$(value).each(function(i, val){
 						// ---Start---
 						if('near' in val) {
-							var nearButtonType = val.nearFunction == 'Endpoint' ? 'btn-success' : 'btn-primary';
 							html += '<tr>';
 								html += '<td>';
-									html += '<button type="button" class="btn btn-block btn-sm '+nearButtonType+' waves-effect waves-light">';
 									html += val.near;
-									html += '</button>';
 								html += '</td>';
 								if('distance' in val) {
 									html += '<td rowspan="2" style="vertical-align:middle;">';
@@ -494,12 +491,9 @@ $( document ).ready(function() {
 							html += '</tr>';
 						}
 						if('far' in val) {
-							var farButtonType = val.farFunction == 'Endpoint' ? 'btn-success' : 'btn-primary';
 							html += '<tr>';
 								html += '<td>';
-									html += '<button type="button" class="btn btn-block btn-sm '+farButtonType+' waves-effect waves-light">';
 									html += val.far;
-									html += '</button>';
 								html += '</td>';
 							html += '</tr>';
 						}

@@ -22,14 +22,6 @@ $qls->Security->check_auth_page('user.php');
 <!-- Responsive datatable examples -->
 <link href="assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
-<!-- PathSelector css
-<link type="text/css" href="assets/plugins/pathSelector/style.css" rel="stylesheet">
--->
-	
-<style id="customStyle">
-<?php require_once('includes/content-custom_style.php'); ?>
-</style>
-
 <?php require 'includes/header_end.php'; ?>
 <?php require_once './includes/content-object_tree_modal.php'; ?>
 
@@ -123,7 +115,7 @@ $qls->Security->check_auth_page('user.php');
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-20">Locations and Cabinets</h4>
 				<div class="card">
-					<div class="card-header">Environment Tree</div>
+					<div class="card-header">Location Tree</div>
 					<div class="card-block">
 						<div class="card-blockquote">
 							<div id="ajaxTree"></div>

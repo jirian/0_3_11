@@ -26,8 +26,19 @@ function color_inverse($color){
 }
 ?>
 
+.noCategory {
+	background-color: lightgray;
+}
+
 #cablePathTable tbody tr {
 	cursor: pointer;
+}
+
+.objectBox {
+	margin-top: 5px;
+	border-radius: 3px;
+	padding: 3px;
+	border: 1px solid gray;
 }
 
 .cursorPointer {

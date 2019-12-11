@@ -19,9 +19,6 @@ require_once './includes/content-templates.php';
 <link href="assets/plugins/jquery.filer/css/jquery.filer.css" rel="stylesheet" />
 <link href="assets/plugins/jquery.filer/css/themes/jquery.filer-dragdropbox-theme.css" rel="stylesheet" />
 
-<style id="customStyle">
-<?php require_once('includes/content-custom_style.php'); ?>
-</style>
 <?php require 'includes/header_end.php'; ?>
 
 <!-- port name modal -->

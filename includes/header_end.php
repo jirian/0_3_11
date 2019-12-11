@@ -1,3 +1,7 @@
+	
+	<!-- Custom CSS -->
+	<style id="customStyle"><?php require_once('includes/content-custom_style.php'); ?></style>
+	
     <!-- App CSS -->
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->

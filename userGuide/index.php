@@ -102,18 +102,6 @@
 
                                             <p>This documentation will help you setup, maintain, and get the most out of your account.  If you have any questions, please contact <a href="mailto:support@patchcablemgr.com">support@patchcablemgr.com</a>.</p>
 
-                                            <h4>Requirements</h4>
-                                            <p>This short list of requirements is all you need to use PatchCableMgr in your organization.</p>
-                                            <ol>
-                                                <li><strong>Web Browser</strong></li>
-												<li><strong>Cable wraps</strong> to identify patch cable ends.  These can be purchased through PatchCableMgr or printed yourself.</li>
-                                                <li><strong>Mobile device (optional)</strong> with front facing camera and LED</li>
-                                            </ol>
-                                            <div class="intro2 clearfix">
-                                                <p><i class="fa fa-exclamation-triangle"></i> There are a few known bugs when working in IE11 which are still being worked out.
-                                                </p>
-                                            </div>
-
                                         </div>
                                     </div>
 
@@ -145,14 +133,20 @@
 											</p>
 										</div>
 									</li>
-									<li><strong>Live Account</strong>
-										<p>A live account is a clean slate for you to start building your environment with.  Live accounts are created with default templates and basic location structure.</p>
-										<p>To create a live account, click on the "Dashboard" button at the top of the <a href="https://patchcablemgr.com">landing page</a>.  This will bring you to a login form with a <a href="https://patchcablemgr.com/app/register.php">signup link</a> at the bottom.  Fill out the form and click "Join Now".  An unrestricted live account will be created and ready for you to login.</p>
+									<li><strong>Hosted Account</strong>
+										<p>A hosted account is hosted on PCM servers.  Everything related to server maintenance and support (server configuration, OS & app upgrades, SSL certificates, etc.) is handled by PCM.  Upon registration, a tenant is created with a unique domain name (ie. acme.patchcablemgr.com) and individual database to create an isolated environment.</p>
+										<p>To create a hosted account, navigate to the "<a href="https://patchcablemgr.com/#pricing">Plans</a>" section of the landing page and click the "Register" button at the bottom of the "Hosted" box, or click <a href="https://patchcablemgr.com/register.php">here</a> to go directly to the registration form.  Fill out the form and click "Join Now".  Your tenant environment will be created and you will be redirected to the login page.  An email will be sent to the address provided confirming your account.</p>
+										<div class="intro2 clearfix">
+											<p><i class="fa fa-exclamation-triangle"></i> A hosted account stores information on servers not owned by you or your organization.  This may violate the security policies of your organization.  Consult your organization before entering any information in a hosted account.  Consider using a self-hosted account if you are unsure.
+											</p>
+										</div>
 									</li>
-									<li><strong>Invitation</strong>
-										<p>PatchCableMgr supports role-based multiple user access.  When an administrator invites you to their organization, you will receive an email with a one time registration link.  Once you register, your account will be assigned to the organization for which you received the invitation from.  This allows you to view and manage the environment shared by other members of that organization.</p>
+									<li><strong>Self-Hosted Account</strong>
+										<p>A self-hosted account is hosted on your server.  Everything related to server maintenance and support is your responsibility.</p>
+										<p>To deploy a self-hosted PCM, follow the installation instructions <a href="https://patchcablemgr.com/#installation">here</a>.</p>
 									</li>
 								</ol>
+								<p>PatchCableMgr supports role-based multiple user access.  From administrator account you can send an invitation to members of your team allowing them to work in your PCM environment.</p>
                             </div>
                             <!-- end col -->
                         </div>
@@ -184,6 +178,8 @@
 									<li><strong>Dead Wood</strong> - Cables that only have one end connected to an object port.</li>
                                     <li><strong>Pending Delivery</strong> - Cables that have been purchased through PatchCableMgr and have not yet been delivered.</li>
                                 </ul>
+								<p>The <strong>Port Utilization</strong> table displays all devices deployed in your PCM environment and can help identify patch panel availability issues before they become a problem.</p>
+								<p>The <strong>History</strong> table displays and add/change/delete actions carried out by users.</p>
                             </div>
                             <!-- end col -->
                         </div>
@@ -223,7 +219,12 @@
 											<li><strong>Category</strong> - A category is user created and applies a color to the template as well as the ability to group similar templates together for easier access.</li>
 											<li><strong>Template Type</strong> - A stanadard template is one that can be installed in a cabinet by itself.  An insert is a template is installed in an existing object's enclosure partition.</li>
 											<li><strong>Template Size</strong> - Defines the Rack Unit size of the template.  Max is 25.</li>
-											<li><strong>Template Function</strong> - An endpoint template will always terminate a cable path (switch, router, server, etc.).  A passive template is part of the physical cable infrastructure (patch panel, fiber insert, etc.).</li>
+											<li><strong>Template Function</strong> - Defines the template as an endpoint or passive.
+												<ol>
+													<li>An endpoint template will always terminate a cable path (switch, router, server, etc.).</li>
+													<li>A passive template is part of the physical cable infrastructure (patch panel, fiber insert, etc.).</li>
+												</ol>
+											</li>
 											<li><strong>Mounting Configuration</strong> - A 2-post template will only be visible on one side of the installed cabinet and can have another 2-post template installed behind it.  A 4-post template will have a front and a back which occupy both sides of the cabinet it is installed in.</li>
 											<li><strong>Add/Remove Partition</strong> - Partitions allow for the template layout to accurately reflect the object it is modeling.  A horizontal partition spans the entire width of the partition it is created in and can grow vertically.  A vertical partition spance the full height of the partition it is created in and can grow horizontally.</li>
 											<li><strong>Partition Size</strong> - Horizontal partitions grow vertically in 0.5 RU increments.  Vertical partitions grow horizontally in increments equal to 10% of the entire template width.</li>
@@ -240,16 +241,23 @@
 											<li><strong>Port Type</strong> - The type of port for the selected connectable partition.  When connecting a cable end to an object port, the cable end type and port type must match.  The exception to this rule are SFP ports, which can accept any cable end type.</li>
 											<li><strong>Media Type</strong> - This configuration is exclusive to passive templates.  This refers to the cabling behind the passive object.  When trunking two passive objects, the media type must match.</li>
 											<li><strong>Enclosure Layout</strong> - This configuration is exclusive to enclosure partition types.  Enclosure layout columns and rows determine the slots available to install insert objects.</li>
+											<li><strong>Enclosure Tolerance</strong> - This configuration is exclusive to enclosure partition types.  A "Strict" enclosure will only accept inserts that have been created using an enclosure with the same partition and enclosure dimensions.  A "Loose" enclosure accepts inserts of any size, but some distortion may occur as the insert fills the enclosure space.  An insert must be of the same function (endpoint or passive) as the enclosure it is being installed in.</li>
 										</ul>
 									</li>
 									<li>
 										<h4>Preview:</h4>
-										<p class="columnContent">The preview card displays the template as it is created.  The "Front" and "Back" radio buttons toggle the face of the template being displayed.  A yellow highlight appears around the selected partition and indicates that any partition specific configuration will be applied to it.</p>
+										<p class="columnContent">The preview card displays the template as it is created.  The "Lock" checkbox determines if the preview box scrolls with the page keeping the template visible even when working at the end of the long list of properties.  The "Front" and "Back" radio buttons toggle the face of the template being displayed.  A yellow highlight appears around the selected partition and indicates that any partition specific configuration will be applied to it.</p>
 									</li>
 									<li>
 										<h4>Template Details:</h4>
 										<p class="columnContent">The Selected Template card displays information about the template selected in the Available Templates card.  It also allows for some configuration as well as the ability to delete a selected template.</p>
-										<p class="columnContent">The Available Templates card lists all templates grouped by category.  Front and Back radio buttons toggle the face of all available templates.  Clicking on an object will highlight the selected partition and display information in the Selected Template card.<br><br>The Import button opens a window that allows you to browse a catalog of templates published by PatchCableMgr.  Select a template and click "Import" to add it to your organization's list of available templates.</p>
+										<p class="columnContent">
+											The Available Templates card lists all templates grouped by category.  Front and Back radio buttons toggle the face of all available templates.  Clicking on an object will highlight the selected partition and display information in the Selected Template card.
+											<br><br>
+											The "Filter" field allows you to display only templates containing one or more strings of text.
+											<br><br>
+											The Import button opens a window that allows you to browse a catalog of templates published by PatchCableMgr.  Select a template and click "Import" to add it to your organization's list of available templates.
+										</p>
 									</li>
 								</ul>
 							</div>
@@ -267,13 +275,15 @@
 									<li><strong>Object Details</strong> - Display details about selected objects and their partitions.</li>
                                 </ol>
 								<h4>Locations and Cabinets:</h4>
-								<p class="columnContent">The Environment Tree card contains an editable tree of locations and cabinets.  Right click on a location to rename, delete, or create a new location, pod, or cabinet nested within it.
+								<p class="columnContent">The Location Tree card contains an editable tree of locations and cabinets.  Right click on a location to rename, delete, or create a new location, pod, or cabinet nested within it.
 									<br>
-									A location can represent a physical region, building, floor, or room.  Locations can only be nested under other locations.
+									A <strong>location</strong> can represent a physical region, building, floor, or room.  Locations can only be nested under other locations.
 									<br>
-									A pod represents a group of cabinets within a location.  Cabinets within the same pod can have left/right relationships with other cabinets.  Pods can only be nested under locations.
+									A <strong>pod</strong> represents a group of cabinets within a location.  Cabinets within the same pod can have left/right relationships with other cabinets.  Pods can only be nested under locations.
 									<br>
-									A cabinet represents a physical rack or cabinet that can contain objects.  Cabinets can be nested under locations or pods.
+									A <strong>cabinet</strong> represents a physical rack or cabinet that can contain objects.  Cabinets can be nested under locations or pods.
+									<br>
+									A <strong>floorplan</strong> represents the floor of a building.  Floor plans can be nested under locations.
 								</p>
 								<p class="columnContent">The Cabinet card allows for cabinet properties to be edited.
 									<br>
@@ -326,7 +336,7 @@
                                 </ul>
 								<h4>Locations and Cabinets:</h4>
 								<p class="columnContent">
-								The Environment Tree card contains a tree of locations and cabinets.
+								The Location Tree card contains a tree of locations and cabinets.
 								<br>
 								A location can represent a physical region, building, floor, or room.
 								<br>
@@ -374,7 +384,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <p class="columnContent">
-									The Scan page allows you to request and edit data about a unique cable end identifier (UCEI).  Clicking the Scan button displays the scan modal.  Either scan the barcode, or switch to manual input to enter the UCEI.
+									The Scan page allows you to request and edit data about a Unique Cable End Identifier (UCEI).  Clicking the Scan button displays the scan modal.  Either scan the barcode, or switch to manual input to enter the UCEI.
 									<br><br>
 									When a valid UCEI has been scanned and has already been initialized, details about the cable and its local and remote ends will be populated.  To connect a cable end to an object port select the location path, object, and port using the navigation dropdowns.
 									<br><br>

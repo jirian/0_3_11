@@ -37,7 +37,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
-	
+	$validationArray = array('initial', 'inventory');
+	$input = $data['requestedData'];
+	$reference = 'requested data';
+	$validate->validateInArray($input, $validationArray, $reference);
 }
 
 function buildInventoryData($connectorValue, $mediaValue, &$qls){
@@ -178,6 +181,8 @@ function buildUtilizationTable(&$qls){
 		$portTotal = $object['portTotal'];
 		if($portTotal > 0) {
 			$name = $object['nameString'];
+			$objID = $object['id'];
+			$nameWrapped = $qls->App->wrapObject($objID, $name);
 			$portPopulated = $object['portPopulated'];
 			$ratioPopulated = $portPopulated / $portTotal;
 			$percentPopulated = round($ratioPopulated * 100);
@@ -192,7 +197,7 @@ function buildUtilizationTable(&$qls){
 			
 			if($portTotal != 0) {
 				$table .= '<tr>';
-				$table .= '<td>'.$name.'</td>';
+				$table .= '<td>'.$nameWrapped.'</td>';
 				$table .= '<td>'.$portTotal.'</td>';
 				$table .= '<td>'.$portPopulated.'</td>';
 				$table .= '<td><span class="label label-pill '.$pillCategory.'">'.$percentPopulated.'%</span></td>';

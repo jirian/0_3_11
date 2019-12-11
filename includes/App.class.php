@@ -143,9 +143,11 @@ var $qls;
 		}
 		
 		$this->portTypeArray = array();
+		$this->portTypeValueArray = array();
 		$query = $qls->SQL->select('*', 'shared_object_portType');
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			$this->portTypeArray[$row['id']] = $row;
+			$this->portTypeValueArray[$row['value']] = $row;
 		}
 		
 		$this->mediaTypeArray = array();
@@ -381,10 +383,12 @@ var $qls;
 	}
 	
 	function generateObjectPortName($objID, $objFace, $objDepth, $objPort) {
+		
 		$obj = $this->objectArray[$objID];
 		$objName = $obj['nameString'];
 		$objTemplateID = $obj['template_id'];
 		$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+		error_log('Debug: '.$objTemplateID.'-'.$objFace.'-'.$objDepth);
 		if($objCompatibility['templateType'] == 'walljack') {
 			if(isset($this->peerArray[$objID][$objFace][$objDepth]['peerArray'])) {
 				$peerData = $this->peerArray[$objID][$objFace][$objDepth]['peerArray'];
@@ -1345,20 +1349,20 @@ var $qls;
 		$objSelected = $obj['selected'];
 		$return = '';
 		$return .= '<td>';
+			
 			if ($objectID != 0) {
-				$buttonClass = $function == 'Endpoint' ? 'btn-success' : 'btn-purple';
-				$return .= '<button id="'.$objectID.'" type="button" class="btn btn-block btn-sm '.$buttonClass.' waves-effect waves-light">';
-				$return .= $objSelected ? '<i class="ion-location"></i>&nbsp' : '';			
+				$elementArray = array();
 				foreach($objectElements as $elementIndex => $element){
-					$delimiter = $elementIndex < count($objectElements)-1 ? '.' : '';
-					$return .= $element.$delimiter;
+					array_push($elementArray, $element);
 				}
-				$return .= '</button>';
+				$objName = $objSelected ? '<i class="ion-location"></i>&nbsp' : '';
+				$objName .= implode('.', $elementArray);
 			} else {
-				$return .= '<button id="'.$objectID.'" type="button" class="btn btn-block btn-sm btn-danger waves-effect waves-light">';
-				$return .= 'None';
-				$return .= '</button>';
+				$objName = 'None';
 			}
+			
+			$return .= $this->wrapObject($objectID, $objName);
+			
 		$return .= '</td>';
 		return $return;
 	}
@@ -1942,6 +1946,38 @@ var $qls;
 			}
 		}
 		return true;
+	}
+	
+	function wrapObject($objID, $objName) {
+		$classArray = array('objectBox');
+		if($objID) {
+			$obj = $this->objectArray[$objID];
+			$parentID = $obj['env_tree_id'];
+			$templateID = $obj['template_id'];
+			$template = $this->templateArray[$templateID];
+			$templateFunction = $template['templateFunction'];
+			$categoryID = $template['templateCategory_id'];
+			$category = $this->categoryArray[$categoryID];
+			$categoryName = $category['name'];
+			$categoryClass = 'category'.$categoryName;
+			array_push($classArray, $categoryClass);
+			array_push($classArray, 'cursorPointer');
+		} else {
+			$parentID = 0;
+			array_push($classArray, 'noCategory');
+		}
+		
+		$class = implode(' ', $classArray);
+		
+		$buttonType = ($templateFunction == 'Endpoint') ? 'btn-success' : 'btn-purple';
+		$html = '';
+		$html .= ($objID) ? '<a href="/explore.php?parentID='.$parentID.'&objID='.$objID.'">' : '';
+		$html .= '<div class="'.$class.'">';
+		$html .= $objName;
+		$html .= '</div>';
+		$html .= ($objID) ? '</a>' : '';
+		
+		return $html;
 	}
 
 }

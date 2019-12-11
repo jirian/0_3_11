@@ -1558,11 +1558,12 @@ $( document ).ready(function() {
 				var faceOpposite = face == 0 ? 1 : 0;
 				
 				// Store the opposite face
-				var templateObjOpposite = $('#availableContainer'+faceOpposite).find('.stockObj [data-template-id="'+templateID+'"]');
-				console.log('Standard clone '+face+'-'+faceOpposite);
+				var templateObjOpposite = $('#availableContainer'+faceOpposite).find('[data-template-id="'+templateID+'"]');
+				var templateObjOppositeChild = $(templateObjOpposite).children()[0];
+				
 				// Clone front and rear to workspace
 				$('#previewObj'+face).html($(templateObjChild).clone());
-				$('#previewObj'+faceOpposite).html($(templateObjOpposite).clone());
+				$('#previewObj'+faceOpposite).html($(templateObjOppositeChild).clone());
 				var object = $('#previewObj'+face);
 				var objectOpposite = $('#previewObj'+faceOpposite);
 				
@@ -2339,7 +2340,7 @@ $( document ).ready(function() {
 		// Dropdown template category
 		$('#availableContainer0').find('[data-template-id='+templateID+']').closest('.categoryContainerEntire').children('.categoryTitle').click();
 		// Select template
-		$('#availableContainer0').find('[data-template-id='+templateID+']').click();
+		$('#availableContainer0').find('[data-template-id='+templateID+']').children(':first').click();
 		$('#templateID').remove();
 	}
 	

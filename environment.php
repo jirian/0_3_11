@@ -28,11 +28,6 @@ require_once './includes/templateFunctions.php';
 <link href="assets/plugins/jquery.filer/css/jquery.filer.css" rel="stylesheet" />
 <link href="assets/plugins/jquery.filer/css/themes/jquery.filer-dragdropbox-theme.css" rel="stylesheet" />
 
-
-<style id="customStyle">
-<?php require_once('includes/content-custom_style.php'); ?>
-</style>
-
 <?php require 'includes/header_end.php'; ?>
 <?php require_once './includes/content-object_tree_modal.php'; ?>
 
@@ -79,6 +74,9 @@ require_once './includes/templateFunctions.php';
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- Make server data available to client via hidden inputs -->
+<?php include_once('includes/content-build-serverData.php'); ?>
+
 <!-- Page-Title -->
 <div class="row">
     <div class="col-sm-12">
@@ -92,7 +90,7 @@ require_once './includes/templateFunctions.php';
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-20">Locations and Cabinets</h4>
 				<div class="card">
-					<div class="card-header">Environment Tree</div>
+					<div class="card-header">Location Tree</div>
 					<div class="card-block">
 						<div class="card-blockquote">
 							<div id="ajaxTree"></div>

@@ -264,7 +264,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
 				
-					$validate->returnData['success']['pathFull'] = buildPathFull($path);
+					$validate->returnData['success']['pathFull'] = $qls->App->buildPathFull($path);
 					$validate->returnData['success']['peerPortID'] = $peerPortID;
 					
 				}

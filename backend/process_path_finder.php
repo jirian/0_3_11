@@ -42,28 +42,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portTable[$row['value']] = $row;
 		}
 		
-		$compatibilityTable = array();
-		$query = $qls->SQL->select('*', 'app_object_compatibility');
-		while($row = $qls->SQL->fetch_assoc($query)) {
-			$compatibilityTable[$row['template_id']][$row['side']][$row['depth']] = $row;
-		}
-
-		$mediaTypeTable = array();
-		$query = $qls->SQL->select('*', 'shared_mediaType');
-		while($row = $qls->SQL->fetch_assoc($query)) {
-			$mediaTypeTable[$row['value']] = $row;
-		}
-		
 		$mediaCategoryTable = array();
 		$query = $qls->SQL->select('*', 'shared_mediaCategory');
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			$mediaCategoryTable[$row['value']] = $row;
-		}
-		
-		$mediaCategoryTypeTable = array();
-		$query = $qls->SQL->select('*', 'shared_mediaCategoryType');
-		while($row = $qls->SQL->fetch_assoc($query)) {
-			$mediaCategoryTypeTable[$row['value']] = $row;
 		}
 		
 		$envTreeTable = array();
@@ -79,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			if($row['id'] == $endpointAObjID) {
 				// If object is an endpoint
-				$endpointAObjFunction = $compatibilityTable[$row['template_id']][$endpointAObjFace][$endpointAObjDepth]['partitionFunction'];
+				$endpointAObjFunction = $qls->App->compatibilityArray[$row['template_id']][$endpointAObjFace][$endpointAObjDepth]['partitionFunction'];
 				if($endpointAObjFunction == 'Endpoint') {
 					// If object is an endpoint and trunked
 					$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointAObjID.' AND a_face = '.$endpointAObjFace.' AND a_depth = '.$endpointAObjDepth.') OR (b_id = '.$endpointAObjID.' AND b_face = '.$endpointAObjFace.' AND b_depth = '.$endpointAObjDepth.')');
@@ -101,7 +83,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 			} else {
 				// If object is an endpoint
-				$endpointBObjFunction = $compatibilityTable[$row['template_id']][$endpointBObjFace][$endpointBObjDepth]['partitionFunction'];
+				$endpointBObjFunction = $qls->App->compatibilityArray[$row['template_id']][$endpointBObjFace][$endpointBObjDepth]['partitionFunction'];
 				if($endpointBObjFunction == 'Endpoint') {
 					// If object is an endpoint and trunked
 					$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointBObjID.' AND a_face = '.$endpointBObjFace.' AND a_depth = '.$endpointBObjDepth.') OR (b_id = '.$endpointBObjID.' AND b_face = '.$endpointBObjFace.' AND b_depth = '.$endpointBObjDepth.')');
@@ -132,15 +114,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$endpointBObj['depth'] = $endpointBObjDepth;
 		$endpointBObj['port'] = $endpointBObjPortID;
 
-		$endpointAPortType = $compatibilityTable[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['portType'];
-		$endpointAMediaType = $compatibilityTable[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaType'];
-		$endpointAMediaCategory = $compatibilityTable[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategory'];
-		$endpointAMediaCategoryType = $compatibilityTable[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategoryType'];
+		$endpointAPortType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['portType'];
+		$endpointAMediaType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaType'];
+		$endpointAMediaCategory = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategory'];
+		$endpointAMediaCategoryType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategoryType'];
 		
-		$endpointBPortType = $compatibilityTable[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['portType'];
-		$endpointBMediaType = $compatibilityTable[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaType'];
-		$endpointBMediaCategory = $compatibilityTable[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategory'];
-		$endpointBMediaCategoryType = $compatibilityTable[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategoryType'];
+		$endpointBPortType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['portType'];
+		$endpointBMediaType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaType'];
+		$endpointBMediaCategory = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategory'];
+		$endpointBMediaCategoryType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategoryType'];
 		
 		// Build an array of queries to find compatible partitions
 		// depending on the selected endpoints.
@@ -181,12 +163,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		foreach($workingArray as $mediaTypeID => $workingMediaType) {
 			$compatibilityType = '';
-			$compatibilityType = ($mediaTypeID != 8 and $compatibilityType == '') ? $mediaTypeTable[$mediaTypeID]['name'] : $compatibilityType;
+			$compatibilityType = ($mediaTypeID != 8 and $compatibilityType == '') ? $qls->App->mediaTypeValueArray[$mediaTypeID]['name'] : $compatibilityType;
 			foreach($workingMediaType as $mediaCategoryID => $workingMediaCategory) {
 				$compatibilityType = ($mediaCategoryID != 5 and $compatibilityType == '') ? $mediaCategoryTable[$mediaCategoryID]['name'] : $compatibilityType;
 				foreach($workingMediaCategory as $mediaCategoryTypeID => $workingMediaCategoryTypeArray) {
 					foreach($workingMediaCategoryTypeArray as $workingMediaCategoryType) {
-						$compatibilityType = $compatibilityType == '' ? $mediaCategoryTypeTable[$mediaCategoryTypeID]['name'] : $compatibilityType;
+						$compatibilityType = $compatibilityType == '' ? $qls->App->mediaCategoryTypeArray[$mediaCategoryTypeID]['name'] : $compatibilityType;
 						if(!array_key_exists($compatibilityType, $compatibleTemplateArray)) {
 							$compatibleTemplateArray[$compatibilityType] = array();
 						}
@@ -344,11 +326,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$objCabinetID = $obj['env_tree_id'];
 				$localCabinetArray = array($objCabinetID => array(array('peerID' => $objCabinetID)));
 				
-				$localObjects = getReachableObjects($qls, $cabinetArray, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $localCabinetArray, 'local');	
+				$localObjects = getReachableObjects($qls, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $localCabinetArray, 'local');	
 				
-				$adjacentObjects = getReachableObjects($qls, $cabinetArray, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $cabinetAdjacencyArray, 'adjacent');	
+				$adjacentObjects = getReachableObjects($qls, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $cabinetAdjacencyArray, 'adjacent');	
 				
-				$pathObjects = getReachableObjects($qls, $cabinetArray, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $cablePathArray, 'path');	
+				$pathObjects = getReachableObjects($qls, $templateTable, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $cablePathArray, 'path');	
 
 				$reachableArray[count($reachableArray)-1]['reachableObjects'][$objID]['local'] = $localObjects;
 				$reachableArray[count($reachableArray)-1]['reachableObjects'][$objID]['adjacent'] = $adjacentObjects;
@@ -368,8 +350,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$portTypeID = $endpointAPortType > $portTypeID ? $endpointAPortType : $portTypeID;
 		$portTypeID = $endpointBPortType > $portTypeID ? $endpointBPortType : $portTypeID;
 		
-		$mediaCategoryTypeID = $portTable[$portTypeID]['category_type_id'];
-		$lengthUnit = ' '.$mediaCategoryTypeTable[$mediaCategoryTypeID]['unit_of_length'];
+		$mediaCategoryTypeID = $qls->App->portTypeValueArray[$portTypeID]['category_type_id'];
+		$lengthUnit = ' '.$qls->App->mediaCategoryTypeArray[$mediaCategoryTypeID]['unit_of_length'];
 
 		foreach($pathArray as &$path) {
 			foreach($path as &$pathElementPair) {
@@ -464,12 +446,14 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 	foreach($reachableArray[$target['id']] as $reachableCategory => $reachableGroup) {
 		
 		foreach($reachableGroup as $reachableObj) {
+			
 			$reachableObjID = $reachableObj['parent_id'] == 0 ? $reachableObj['id'] : $reachableObj['parent_id'];
 			if(!isset($peerParentArray[$reachableObjID])) {
 				$peerParentArray[$reachableObjID] = array();
 			}
 			// Reached target endpoint
 			if($reachableObj['id'] == $endpointBObj['id']) {
+				
 				if(isset($target['port'])) {
 					$nearPort = $target['port'];
 				} else {
@@ -477,17 +461,26 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 					$nearPort = $nearPortArray[0];
 				}
 				
-				$near = getObjectString($GLOBALS['templateTable'], $qls, $target['id'], $nearPort, $target['face'], $target['depth']);
-				$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
-				$far = getObjectString($GLOBALS['templateTable'], $qls, $endpointBObj['id'], $endpointBObj['port'], $endpointBObj['face'], $endpointBObj['depth']);
-				$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);
+				$nearObjName = $qls->App->generateObjectPortName($target['id'], $target['face'], $target['depth'], $nearPort);
+				$nearObjName = $qls->App->wrapObject($target['id'], $nearObjName);
+				$nearObj = $qls->App->objectArray[$target['id']];
+				$nearTemplateID = $nearObj['template_id'];
+				$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$target['face']][$target['depth']];
+				$nearPortTypeValue = $nearCompatibility['portType'];
+				$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue];
+				
+				$farObjName = $qls->App->generateObjectPortName($endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth'], $endpointBObj['port']);
+				$farObjName = $qls->App->wrapObject($endpointBObj['id'], $farObjName);
+				$farObj = $qls->App->objectArray[$target['id']];
+				$farTemplateID = $nearObj['template_id'];
+				$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$endpointBObj['face']][$endpointBObj['depth']];
+				$farPortTypeValue = $farCompatibility['portType'];
+				$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue];
 
 				array_push($workingArray, array(
-					'near' => $near['obj'],
-					'nearFunction' => $near['function'],
+					'near' => $nearObjName,
 					'nearPortType' => $nearPortType,
-					'far' =>  $far['obj'],
-					'farFunction' => $far['function'],
+					'far' =>  $farObjName,
 					'farPortType' => $farPortType,
 					'distance' => $reachableObj['dist'],
 					'pathType' => $reachableCategory,
@@ -626,7 +619,7 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 	return;
 }
 
-function getReachableObjects(&$qls, $cabinetArray, $templateTable, $objID, $objRU, $objSize, $cabinetID, $objectArray, $reachableCabinetArray, $type){
+function getReachableObjects(&$qls, $templateTable, $objID, $objRU, $objSize, $cabinetID, $objectArray, $reachableCabinetArray, $type){
 	$reachableObjects = array();
 	if(isset($reachableCabinetArray[$cabinetID])) {
 		foreach($reachableCabinetArray[$cabinetID] as $reachableCabinet) {
@@ -652,8 +645,8 @@ function getReachableObjects(&$qls, $cabinetArray, $templateTable, $objID, $objR
 							if($reachableCabinet['distance'] == 0) {
 								$distance = 'Unknown';
 							} else {
-								$cabinetSize = $cabinetArray[$cabinetID]['size'];
-								$reachableCabinetSize = $cabinetArray[$reachableCabinet['peerID']]['size'];
+								$cabinetSize = $qls->App->envTreeArray[$cabinetID]['size'];
+								$reachableCabinetSize = $qls->App->envTreeArray[$reachableCabinet['peerID']]['size'];
 								$distance = getDistance($reachableCabinetSize, 1, $reachableObjRU, $reachableObjSize, true);
 								$distance = $distance + getDistance($cabinetSize, 1, $objRU, $objSize, true);
 								$distance = $distance + $reachableCabinet['distance'];
