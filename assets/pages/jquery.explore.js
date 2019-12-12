@@ -230,7 +230,7 @@ function makeCableArrowsClickable(){
 	$('.cableArrow').on('click', function(){
 		var code39 = $(this).attr('data-Code39');
 		if(code39 != 0) {
-			window.location.href = '/app/scan.php?connectorCode='+code39;
+			window.location.href = '/scan.php?connectorCode='+code39;
 		}
 	});
 }
