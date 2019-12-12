@@ -197,7 +197,7 @@ else {
 							Cookie Domain:
 						</td>
 						<td>
-							<input type="text" name="cookie_domain" maxlength="255" value="<?php echo $_SESSION['cookie_domain']; ?>" />
+							<input type="text" name="cookie_domain" maxlength="255" value="<?php if (isset($_SESSION['cookie_domain'])) { echo $_SESSION['cookie_domain']; } else { echo $_SERVER['HTTP_HOST']; } ?>" />
 						</td>
 					</tr>
 				</table>
@@ -414,7 +414,7 @@ else {
 			</fieldset>
 		<br>
 		<div align="left">
-			Once you run this form you will be asked to download a file, download it and replace the same file located in the <b>/includes</b> directory with the one that is downloaded.
+			The installation will take a minute or two.  You will be automatically redirected to the login page upon completion.
 		</div>
 		<br>
 		<input type="submit" value="Install" />

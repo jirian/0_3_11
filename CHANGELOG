@@ -5,7 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
-	- Changes Introduced In 0.1.4
+	- Changes Introduced In 0.2.0
 	- Changes Introduced In 0.1.3
 	- Changes Introduced In 0.1.2
 	- Changes Introduced In 0.1.1
@@ -14,8 +14,11 @@ Contents
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-**Changes introduced in 0.1.4
+**Changes introduced in 0.2.0
 
+[Fix]		Pass Host header through proxy to app server.
+[Feature]	Objects displayed in cable paths are colored according to template category and are clickable.
+[Fix]		Template and floorplan images have been moved out of the app directory to prevent deletion during upgrade or restart.
 [Feature]	Added ability to define enclosure tolerance as strict or loose.
 [Feature]	Added ability to clone templates
 [Feature]	Improved markup for insert objects and connectable partitions for improved rendering.
