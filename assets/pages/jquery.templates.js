@@ -1198,7 +1198,9 @@ function updatePortNameDisplay(){
 	if($(document).data('portNameFormatAction') == 'edit') {
 		var portTotal = $(document).data('portTotalEdit');
 		var portNameFormat = $(document).data('portNameFormatEdit');
+		console.log('portTotal='+portTotal);
 	} else {
+		console.log('not edit');
 		var variables = getVariables();
 		var portLayoutX = $(variables['selectedObj']).data('valueX');
 		var portLayoutY = $(variables['selectedObj']).data('valueY');
@@ -2057,7 +2059,9 @@ $( document ).ready(function() {
 	
 	// Focus First Port Name Field
 	$('#portNameModal').on('shown.bs.modal', function (e){
+		
 		var invoker = $(e.relatedTarget);
+		console.log('modalShown '+$(invoker).data('portNameAction'));
 		$(document).data('portNameFormatAction', $(invoker).data('portNameAction'));
 		
 		setPortNameInput();

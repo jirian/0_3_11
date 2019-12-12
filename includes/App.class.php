@@ -1634,10 +1634,9 @@ var $qls;
 						// Class - connected
 						} else if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex])) {
 							array_push($classArray, 'populated');
-						}
 						
 						// Class - trunked
-						if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
+						} else if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
 							array_push($classArray, 'endpointTrunked');
 						}
 						

@@ -964,7 +964,13 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 		$objAPortNameArray = array($objAName, $portName, $portID);
 	} else {
 		$portRangeArray = explode('-', $objAPort);
-		$firstPort = $portRangeArray[0];
+		// Account for portnames with hyphens
+		$portLength = round(count($portRangeArray)/2, 0, PHP_ROUND_HALF_DOWN);
+		$firstPortArray = array();
+		for($x=0; $x<$portLength; $x++) {
+			array_push($firstPortArray, $portRangeArray[$x]);
+		}
+		$firstPort = implode('-', $firstPortArray);
 		$objAPortNameArray = array($objAName, $firstPort);
 	}
 	$objAPortName = implode('.', $objAPortNameArray);
@@ -984,7 +990,13 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 		$objBPortNameArray = array($objBName, $portName, $portID);
 	} else {
 		$portRangeArray = explode('-', $objBPort);
-		$firstPort = $portRangeArray[0];
+		// Account for portnames with hyphens
+		$portLength = round(count($portRangeArray)/2, 0, PHP_ROUND_HALF_DOWN);
+		$firstPortArray = array();
+		for($x=0; $x<$portLength; $x++) {
+			array_push($firstPortArray, $portRangeArray[$x]);
+		}
+		$firstPort = implode('-', $firstPortArray);
 		$objBPortNameArray = array($objBName, $firstPort);
 	}
 	$objBPortName = implode('.', $objBPortNameArray);

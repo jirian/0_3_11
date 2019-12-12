@@ -576,7 +576,7 @@ require_once './includes/content-templates.php';
 			<fieldset id="objectPortPrefix" class="dependantField partitionType connectable endpoint passive form-group">
 				<label>Port ID</label><br>
 				<div id="portNameDisplay"></div>
-				<button id="buttonPortNameConfigure" class="btn btn-sm waves-effect waves-light btn-primary" data-portNameAction="add" data-toggle="modal" data-target="#portNameModal" type="button">
+				<button id="buttonPortNameConfigure" class="btn btn-sm waves-effect waves-light btn-primary" data-port-name-action="add" data-toggle="modal" data-target="#portNameModal" type="button">
 					<span class="btn-label">
 						<i class="zmdi zmdi-edit"></i>
 					</span>

@@ -64,6 +64,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portNameFormat = json_decode($partitionData['portNameFormat'], true);
 			$portLayoutX = $partitionData['portLayoutX'];
 			$portLayoutY = $partitionData['portLayoutY'];
+			error_log('Debug: '.$portLayoutX.'x'.$portLayoutY);
 			$portTotal = $portLayoutX * $portLayoutY;
 			$portIndexFirst = 0;
 			$portIndexLast = $portTotal - 1;

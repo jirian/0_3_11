@@ -75,7 +75,7 @@
 				<strong>Port Range:&nbsp&nbsp</strong>
 			</td>
 			<td>
-				<span id="detailPortRange" class="objDetail no-modal" data-portNameAction="edit" data-toggle="modal" data-target="#portNameModal">-</span>
+				<span id="detailPortRange" class="objDetail no-modal" data-port-name-action="edit" data-toggle="modal" data-target="#portNameModal">-</span>
 			</td>
 		</tr>
 		<tr>
