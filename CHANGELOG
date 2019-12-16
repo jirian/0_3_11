@@ -16,6 +16,7 @@ Contents
 
 **Changes introduced in 0.2.0
 
+[Fix]		Relocated app images out of public directory.
 [Fix]		Fixed port name validation.
 [Fix]		Pass Host header through proxy to app server.
 [Feature]	Objects displayed in cable paths are colored according to template category and are clickable.
