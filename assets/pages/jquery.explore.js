@@ -365,16 +365,12 @@ function getFloorplanObjectPeerTable(){
 				$('#floorplanObj'+floorplanObjID).click();
 			}));
 			
-			$('#floorplanObjectTable').on( 'init.dt', function () {
-				console.log( 'Table initialisation complete: '+new Date().getTime() );
-			}).DataTable({
+			$('#floorplanObjectTable').DataTable({
 				'paging': false,
 				'info': false,
 				'scrollY': '200px',
 				'scrollCollapse': true
 			});
-			
-			$('#floorplanObjectTable_wrapper').children(':first').children(':first').remove();
 		}
 		
 		// App node selection
