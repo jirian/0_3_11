@@ -118,33 +118,6 @@ var $qls;
 			$mkdirSuccess = mkdir('/app/images/floorplanImages/', 0755);
 		}
 		
-		// Move images
-		$fileArray = scandir('/app/public/images/templateImages/');
-		foreach($fileArray as $filename) {
-			if($filename != '.' and $filename != '..') {
-				rename('/app/public/images/templateImages/'.$filename, '/app/images/templateImages/'.$filename);
-			}
-		}
-		$fileArray = scandir('/app/public/images/floorplanImages/');
-		foreach($fileArray as $filename) {
-			if($filename != '.' and $filename != '..') {
-				rename('/app/public/images/floorplanImages/'.$filename, '/app/images/floorplanImages/'.$filename);
-			}
-		}
-		
-		// Delete /app/public directories
-		if(!is_link('/app/public/images')) {
-			if(is_dir('/app/public/images/templateImages/')) {
-				rmdir('/app/public/images/templateImages/');
-			}
-			if(is_dir('/app/public/images/floorplanImages/')) {
-				rmdir('/app/public/images/floorplanImages/');
-			}
-			if(is_dir('/app/public/images/')) {
-				rmdir('/app/public/images/');
-			}
-		}
-		
 		// Create symbolic link
 		if(!is_dir('/app/public/images')) {
 			symlink('/app/images/', '/app/public/images');
