@@ -450,7 +450,7 @@
 									<br><br>
 									The Email Settings section allows you to configure how PCM will send emails for the invitation and password reset functions.  There are three methods of sending emails:
 									<ul>
-										<li><strong>Sendmail</strong> - This is the simplest method and uses the server's SENDMAIL service.  Emails sent using this method are less likely to be delivered depending on how the destination mail server is configured.</li>
+										<li><strong>PCM Proxy</strong> - This is the simplest method and uses PCM's email service to send eamils.</li>
 										<li><strong>SMTP</strong> - Using an anonymous SMTP relay server is an easy way to deliver emails assuming your organization allows for unauthenticated SMTP relay.</li>
 										<li><strong>SMTP (authenticated)</strong> - This method is the most successful way for PCM to deliver emails, but requires an account on an SMTP server.  Google allows for SMTP relay using gmail account.</li>
 									</ul>
