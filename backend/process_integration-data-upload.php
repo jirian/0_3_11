@@ -2422,25 +2422,34 @@ function findTemplateDeletes($importedTemplateArray, $existingTemplateArray){
 
 // Process Cabinets
 function insertCabinetAdds(&$qls, $cabinetAdds, &$importedCabinetArray, $existingCabinetArray){
+	
 	// Insert Adds
 	foreach($cabinetAdds as $cabinet) {
-		$name = $cabinet['name'];
-		error_log('Debug: cabinetName = '.$name);
 		$nameHash = $cabinet['nameHash'];
-		$parentNameHash = $cabinet['parentNameHash'];
-		if(array_key_exists($parentNameHash, $existingCabinetArray)) {
-			$parent = $existingCabinetArray[$parentNameHash]['id'];
-		} else if(array_key_exists($parentNameHash, $importedCabinetArray)) {
-			$parent = $importedCabinetArray[$parentNameHash]['id'];
-		} else {
-			$parent = '#';
-		}
+		
+		$name = $cabinet['name'];
+		$parent = '#';
 		$type = $cabinet['type'];
 		$size = $type == 'cabinet' ? $cabinet['size'] : 42;
 		$floorplanImg = $cabinet['floorplanImg'];
 		
 		$qls->SQL->insert('app_env_tree', array('name', 'parent', 'type', 'size', 'floorplan_img'), array($name, $parent, $type, $size, $floorplanImg));
 		$importedCabinetArray[$nameHash]['id'] = $qls->SQL->insert_id();
+	}
+	
+	// Update parent IDs... this must be done after all location nodes are inserted to account for out of order data.
+	foreach($cabinetAdds as $cabinet) {
+		$nameHash = $cabinet['nameHash'];
+		$importedCabinetID = $importedCabinetArray[$nameHash]['id'];
+		$parentNameHash = $cabinet['parentNameHash'];
+		
+		if(array_key_exists($parentNameHash, $importedCabinetArray)) {
+			$parentID = $importedCabinetArray[$parentNameHash]['id'];
+		} else {
+			$parentID = '#';
+		}
+		
+		$qls->SQL->update('app_env_tree', array('parent' => $parentID), array('id' => array('=', $importedCabinetID)));
 	}
 
 	foreach($importedCabinetArray as $cabinet) {

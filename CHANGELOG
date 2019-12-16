@@ -16,6 +16,7 @@ Contents
 
 **Changes introduced in 0.2.0
 
+[Fix]		Adjusted Restore function to account for out of order items in "03 - Cabinets.csv"
 [Fix]		Relocated app images out of public directory.
 [Fix]		Fixed port name validation.
 [Fix]		Pass Host header through proxy to app server.

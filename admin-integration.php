@@ -61,7 +61,7 @@ $qls->Security->check_auth_page('administrator.php');
 			<h4 class="header-title m-t-0 m-b-30">Manage Data</h4>
 			<button id="buttonDataExport" type="button" class="btn btn-success waves-effect waves-light">
 				<span class="btn-label"><i class="fa fa-upload"></i>
-				</span>Export
+				</span>Backup
 			</button>
 			<button id="buttonDataImport" type="button" class="btn btn-danger waves-effect waves-light" data-toggle="modal" data-target="#importModal">
 				<span class="btn-label"><i class="fa fa-download"></i>
