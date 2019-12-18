@@ -53,6 +53,7 @@ CREATE TABLE `{database_prefix}users`(
 	`mfa_secret` varchar(32) DEFAULT NULL,
 	`mfa_auth_token` varchar(40) DEFAULT NULL,
 	`scanMethod` tinyint(4) NOT NULL DEFAULT '0',
+	`scrollLock` tinyint(4) NOT NULL DEFAULT '1',
 	PRIMARY KEY(`id`),
 	INDEX `users_idx` (`username`),
 	INDEX `users_idx2` (`code`),
