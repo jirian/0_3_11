@@ -965,7 +965,9 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 	} else {
 		$portRangeArray = explode('-', $objAPort);
 		// Account for portnames with hyphens
-		$portLength = round(count($portRangeArray)/2, 0, PHP_ROUND_HALF_DOWN);
+		$portRangeArrayLength = count($portRangeArray);
+		//$portLength = round(count($portRangeArray)/2, 0, PHP_ROUND_HALF_DOWN);
+		$portLength = ($portRangeArrayLength > 1) ? round($portRangeArrayLength/2, 0, PHP_ROUND_HALF_DOWN) : 1;
 		$firstPortArray = array();
 		for($x=0; $x<$portLength; $x++) {
 			array_push($firstPortArray, $portRangeArray[$x]);
@@ -991,7 +993,8 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 	} else {
 		$portRangeArray = explode('-', $objBPort);
 		// Account for portnames with hyphens
-		$portLength = round(count($portRangeArray)/2, 0, PHP_ROUND_HALF_DOWN);
+		$portRangeArrayLength = count($portRangeArray);
+		$portLength = ($portRangeArrayLength > 1) ? round($portRangeArrayLength/2, 0, PHP_ROUND_HALF_DOWN) : 1;
 		$firstPortArray = array();
 		for($x=0; $x<$portLength; $x++) {
 			array_push($firstPortArray, $portRangeArray[$x]);
@@ -1900,7 +1903,7 @@ function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importe
 					$trunk['aPortID'] = $walljackPortIDArray[$portNameHash]++;
 					
 				} else {
-					$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
+					$errMsg = 'Port '.$trunk['portName'].' on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 				

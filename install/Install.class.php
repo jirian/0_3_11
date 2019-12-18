@@ -545,27 +545,57 @@ var $install_error = array();
 			}
 			
 			$object_compatibility = array(
-				"1, 0, 0, NULL, NULL, NULL, NULL, NULL, 'walljack', 'Connectable', 'Passive', NULL, 1, 8, '1', 1, NULL, NULL, NULL, NULL, NULL",
-				"2, 0, 0, 1, 1, 1, NULL, NULL, 'wap', 'Connectable', 'Endpoint', NULL, 1, 8, '1', 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]'",
-				"3, 0, 0, 1, 1, 1, NULL, NULL, 'device', 'Connectable', 'Endpoint', NULL, 1, 8, '1', 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]'"
+				"1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, 'walljack', 'Connectable', 'Passive', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '', NULL",
+				"2, 2, 0, 0, 1, 1, 1, NULL, NULL, 'wap', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"3, 3, 0, 0, 1, 1, 1, NULL, NULL, 'device', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"4, 5, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"5, 6, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"6, 8, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"7, 9, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"8, 12, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 5, 4, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"9, 13, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 6, 2, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"10, 10, 0, 0, 4, 1, 4, NULL, NULL, 'Insert', 'Connectable', 'Endpoint', 1, 4, 8, 5, 4, 'row', 0, 2, 2, '[{\"type\":\"static\",\"value\":\"\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"11, 11, 0, 1, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"12, 11, 0, 2, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"13\",\"count\":0,\"order\":1}]', NULL",
+				"13, 11, 0, 3, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"25\",\"count\":0,\"order\":1}]', NULL",
+				"14, 11, 0, 4, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"37\",\"count\":0,\"order\":1}]', NULL",
+				"15, 11, 0, 5, NULL, NULL, 0, 1, 1, 'Standard', 'Enclosure', 'Endpoint', NULL, NULL, 8, 5, NULL, 'column', 0.2, 2, 2, NULL, NULL",
+				"16, 11, 1, 2, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Con\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"17, 11, 1, 3, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Mgmt\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"18, 14, 0, 0, NULL, NULL, 0, 12, 1, 'Standard', 'Enclosure', 'Passive', NULL, NULL, NULL, NULL, NULL, 'column', 0, 10, 8, NULL, NULL"
 			);
-			
+
 			// Add object compatibility
 			foreach($object_compatibility as $object_compatibility_item) {
-				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_compatibility` (`template_id`,`side`,`depth`,`portLayoutX`,`portLayoutY`,`portTotal`,`encLayoutX`,`encLayoutY`,`templateType`,`partitionType`,`partitionFunction`,`portOrientation`,`portType`,`mediaType`,`mediaCategory`,`mediaCategoryType`,`direction`,`flex`,`hUnits`,`vUnits`,`portNameFormat`) VALUES({$object_compatibility_item})")) {
+				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_compatibility` (`id`, `template_id`, `side`, `depth`, `portLayoutX`, `portLayoutY`, `portTotal`, `encLayoutX`, `encLayoutY`, `templateType`, `partitionType`, `partitionFunction`, `portOrientation`, `portType`, `mediaType`, `mediaCategory`, `mediaCategoryType`, `direction`, `flex`, `hUnits`, `vUnits`, `portNameFormat`, `encTolerance`) VALUES({$object_compatibility_item})")) {
 					$this->test->output_error();
 				}
 			}
 			
 			$object_templates = array(
-				"'Walljack', NULL, 'walljack', NULL, 'Passive', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL",
-				"'WAP', NULL, 'wap', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL",
-				"'Device', NULL, 'device', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL"
+				"1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, 'walljack', 'Connectable', 'Passive', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '', NULL",
+				"2, 2, 0, 0, 1, 1, 1, NULL, NULL, 'wap', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"3, 3, 0, 0, 1, 1, 1, NULL, NULL, 'device', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"4, 5, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"5, 6, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"6, 8, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"7, 9, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"8, 12, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 5, 4, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"9, 13, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 6, 2, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"10, 10, 0, 0, 4, 1, 4, NULL, NULL, 'Insert', 'Connectable', 'Endpoint', 1, 4, 8, 5, 4, 'row', 0, 2, 2, '[{\"type\":\"static\",\"value\":\"\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"11, 11, 0, 1, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"12, 11, 0, 2, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"13\",\"count\":0,\"order\":1}]', NULL",
+				"13, 11, 0, 3, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"25\",\"count\":0,\"order\":1}]', NULL",
+				"14, 11, 0, 4, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"37\",\"count\":0,\"order\":1}]', NULL",
+				"15, 11, 0, 5, NULL, NULL, 0, 1, 1, 'Standard', 'Enclosure', 'Endpoint', NULL, NULL, 8, 5, NULL, 'column', 0.2, 2, 2, NULL, 'Loose'",
+				"16, 11, 1, 2, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Con\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"17, 11, 1, 3, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Mgmt\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
+				"18, 14, 0, 0, NULL, NULL, 0, 12, 1, 'Standard', 'Enclosure', 'Passive', NULL, NULL, NULL, NULL, NULL, 'column', 0, 10, 8, NULL, 'Loose'"
 			);
-			
+
 			// Add object templates
 			foreach($object_templates as $object_templates_item) {
-				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_templates` (`templateName`, `templateCategory_id`, `templateType`, `templateRUSize`, `templateFunction`, `templateMountConfig`, `templateEncLayoutX`, `templateEncLayoutY`, `templateHUnits`, `templateVUnits`, `templatePartitionData`, `frontImage`, `rearImage`) VALUES({$object_templates_item})")) {
+				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_templates` (`id`, `templateName`, `templateCategory_id`, `templateType`, `templateRUSize`, `templateFunction`, `templateMountConfig`, `templateEncLayoutX`, `templateEncLayoutY`, `templateHUnits`, `templateVUnits`, `templatePartitionData`, `frontImage`, `rearImage`) VALUES({$object_templates_item})")) {
 					$this->test->output_error();
 				}
 			}
