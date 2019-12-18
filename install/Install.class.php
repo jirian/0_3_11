@@ -525,21 +525,21 @@ var $install_error = array();
 			}
 			
 			$object_category = array(
-				"'Switch', '#d581d6', 0",
-				"'Router', '#d6819f', 0",
-				"'Server', '#d68d8d', 0",
-				"'Module', '#e59881', 0",
-				"'Linecard', '#81d6a1', 0",
-				"'Patch_Panel', '#a9a9a9', 1",
-				"'Cable_Mgmt', '#d3d3d3', 0",
-				"'Enclosure', '#95d681', 0",
-				"'MM_Fiber_Insert', '#81d6ce', 0",
-				"'SM_Fiber_Insert', '#d6d678', 0"
+				"1, 'Switch', '#d581d6', 0",
+				"2, 'Router', '#d6819f', 0",
+				"3, 'Server', '#d68d8d', 0",
+				"4, 'Module', '#e59881', 0",
+				"5, 'Linecard', '#81d6a1', 0",
+				"6, 'Patch_Panel', '#a9a9a9', 1",
+				"7, 'Cable_Mgmt', '#d3d3d3', 0",
+				"8, 'Enclosure', '#95d681', 0",
+				"9, 'MM_Fiber_Insert', '#81d6ce', 0",
+				"10, 'SM_Fiber_Insert', '#d6d678', 0"
 			);
 			
 			// Add object category
 			foreach($object_category as $object_category_item) {
-				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_category` (`name`, `color`, `defaultOption`) VALUES({$object_category_item})")) {
+				if (!$this->test->query("INSERT INTO `{$database_prefix}app_object_category` (`id`, `name`, `color`, `defaultOption`) VALUES({$object_category_item})")) {
 					$this->test->output_error();
 				}
 			}
@@ -559,10 +559,10 @@ var $install_error = array();
 				"12, 11, 0, 2, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"13\",\"count\":0,\"order\":1}]', NULL",
 				"13, 11, 0, 3, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"25\",\"count\":0,\"order\":1}]', NULL",
 				"14, 11, 0, 4, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"37\",\"count\":0,\"order\":1}]', NULL",
-				"15, 11, 0, 5, NULL, NULL, 0, 1, 1, 'Standard', 'Enclosure', 'Endpoint', NULL, NULL, 8, 5, NULL, 'column', 0.2, 2, 2, NULL, NULL",
+				"15, 11, 0, 5, NULL, NULL, 0, 1, 1, 'Standard', 'Enclosure', 'Endpoint', NULL, NULL, 8, 5, NULL, 'column', 0.2, 2, 2, NULL, 'Loose'",
 				"16, 11, 1, 2, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Con\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
 				"17, 11, 1, 3, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Mgmt\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"18, 14, 0, 0, NULL, NULL, 0, 12, 1, 'Standard', 'Enclosure', 'Passive', NULL, NULL, NULL, NULL, NULL, 'column', 0, 10, 8, NULL, NULL"
+				"18, 14, 0, 0, NULL, NULL, 0, 12, 1, 'Standard', 'Enclosure', 'Passive', NULL, NULL, NULL, NULL, NULL, 'column', 0, 10, 8, NULL, 'Loose'"
 			);
 
 			// Add object compatibility
@@ -573,24 +573,20 @@ var $install_error = array();
 			}
 			
 			$object_templates = array(
-				"1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, 'walljack', 'Connectable', 'Passive', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '', NULL",
-				"2, 2, 0, 0, 1, 1, 1, NULL, NULL, 'wap', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"3, 3, 0, 0, 1, 1, 1, NULL, NULL, 'device', 'Connectable', 'Endpoint', NULL, 1, 8, 1, 1, NULL, NULL, NULL, NULL, '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"4, 5, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"5, 6, 0, 0, 24, 1, 24, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 2, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"6, 8, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 1, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"7, 9, 0, 0, 24, 2, 48, NULL, NULL, 'Standard', 'Connectable', 'Passive', 1, 1, 2, 1, 1, 'column', 0, 10, 4, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"8, 12, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 5, 4, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"9, 13, 0, 0, 1, 6, 6, NULL, NULL, 'Insert', 'Connectable', 'Passive', 2, 2, 6, 2, 2, 'row', 0, 10, 8, '[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"10, 10, 0, 0, 4, 1, 4, NULL, NULL, 'Insert', 'Connectable', 'Endpoint', 1, 4, 8, 5, 4, 'row', 0, 2, 2, '[{\"type\":\"static\",\"value\":\"\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"11, 11, 0, 1, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"12, 11, 0, 2, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"13\",\"count\":0,\"order\":1}]', NULL",
-				"13, 11, 0, 3, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"25\",\"count\":0,\"order\":1}]', NULL",
-				"14, 11, 0, 4, 6, 2, 12, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 2, 1, 8, 5, 1, 'column', 0.2, 2, 2, '[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"37\",\"count\":0,\"order\":1}]', NULL",
-				"15, 11, 0, 5, NULL, NULL, 0, 1, 1, 'Standard', 'Enclosure', 'Endpoint', NULL, NULL, 8, 5, NULL, 'column', 0.2, 2, 2, NULL, 'Loose'",
-				"16, 11, 1, 2, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Con\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"17, 11, 1, 3, 1, 1, 1, NULL, NULL, 'Standard', 'Connectable', 'Endpoint', 1, 1, 8, 5, 1, 'row', 0.5, 1, 1, '[{\"type\":\"static\",\"value\":\"Mgmt\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]', NULL",
-				"18, 14, 0, 0, NULL, NULL, 0, 12, 1, 'Standard', 'Enclosure', 'Passive', NULL, NULL, NULL, NULL, NULL, 'column', 0, 10, 8, NULL, 'Loose'"
+				"1, 'Walljack', NULL, 'walljack', NULL, 'Passive', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
+				"2, 'WAP', NULL, 'wap', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
+				"3, 'Device', NULL, 'device', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
+				"4, '1RU_Cable_Mgmt', 7, 'Standard', 1, 'Endpoint', 0, NULL, NULL, NULL, NULL, '[[{\"portLayoutX\":0,\"portLayoutY\":0,\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Generic\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"vUnits\":2,\"hUnits\":10}]]', 'c4e7eb2d860f17b94042199509ca4b28.jpg', '1803d57fbe466a9ad297138d8f0e5adb.jpg'",
+				"5, '24P_RJ45_CAT5E', 6, 'Standard', 1, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"24\",\"valueY\":\"1\",\"vUnits\":2,\"hUnits\":10}]]', '47618b55d38fcaf9ad73be0ead312d68.jpg', '47618b55d38fcaf9ad73be0ead312d68.jpg'",
+				"6, '24P_RJ45_CAT6', 6, 'Standard', 1, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":\"2\",\"direction\":\"column\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"24\",\"valueY\":\"1\",\"vUnits\":2,\"hUnits\":10}]]', '47618b55d38fcaf9ad73be0ead312d68.jpg', '257aeaa17021b2cf1433c5600b6afbd9.jpg'",
+				"7, '2RU_Cable_Mgmt', 7, 'Standard', 2, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"portLayoutX\":0,\"portLayoutY\":0,\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Generic\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"vUnits\":4,\"hUnits\":10}]]', 'c4e7eb2d860f17b94042199509ca4b28.jpg', '777d0ce548d86a09597c611df7c176c5.jpg'",
+				"8, '48p_RJ45_Cat5e', 6, 'Standard', 2, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"24\",\"valueY\":\"2\",\"vUnits\":4,\"hUnits\":10}]]', '0e1b15f076088230505a14c5a6e010c0.jpg', 'dcc818257812e63aa373e870624f0026.jpg'",
+				"9, '48p_RJ45_Cat6', 6, 'Standard', 2, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":\"2\",\"direction\":\"column\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"24\",\"valueY\":\"2\",\"vUnits\":4,\"hUnits\":10}]]', '0e1b15f076088230505a14c5a6e010c0.jpg', '6398f2f394d353853304afdecae57a38.jpg'",
+				"12, '6P_LC_SM', 10, 'Insert', 4, 'Passive', NULL, 12, 1, 10, 8, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":\"2\",\"mediaType\":\"5\",\"direction\":\"row\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"6\",\"vUnits\":8,\"hUnits\":10}]]', '86257b172c9a706aa704abfdad4de53c.jpg', '6a9cb6747ea927516970a96390b8d913.jpg'",
+				"13, '6p_LC_OM4', 9, 'Insert', 4, 'Passive', NULL, 12, 1, 10, 8, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":\"2\",\"mediaType\":\"6\",\"direction\":\"row\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"6\",\"vUnits\":8,\"hUnits\":10}]]', 'f782af8c83a096a188ba333d0039aaf7.jpg', '91e69930de177114222ba8be2c5a4859.jpg'",
+				"10, 'C3850-NM-4-1G', 4, 'Insert', 1, 'Endpoint', NULL, 1, 1, 2, 2, '[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":\"4\",\"mediaType\":1,\"direction\":\"row\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"4\",\"valueY\":\"1\",\"vUnits\":2,\"hUnits\":2}]]', '7ae4f0a4040a7fe8f3a823b167952f26.jpg', NULL",
+				"11, 'C3850_48p', 1, 'Standard', 1, 'Endpoint', 1, NULL, NULL, NULL, NULL, '[[{\"portLayoutX\":0,\"portLayoutY\":0,\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Generic\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"row\",\"flex\":\"0\",\"children\":[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.2\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"6\",\"valueY\":\"2\",\"vUnits\":2,\"hUnits\":2},{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.2\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"13\",\"count\":0,\"order\":1}],\"valueX\":\"6\",\"valueY\":\"2\",\"vUnits\":2,\"hUnits\":2},{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.2\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"25\",\"count\":0,\"order\":1}],\"valueX\":\"6\",\"valueY\":\"2\",\"vUnits\":2,\"hUnits\":2},{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.2\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Gi1/0/\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"37\",\"count\":0,\"order\":1}],\"valueX\":\"6\",\"valueY\":\"2\",\"vUnits\":2,\"hUnits\":2},{\"portLayoutX\":0,\"portLayoutY\":0,\"partitionType\":\"Enclosure\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.2\",\"valueX\":1,\"valueY\":1,\"vUnits\":2,\"hUnits\":2}],\"vUnits\":2,\"hUnits\":10,\"encTolerance\":\"Loose\"}],[{\"portLayoutX\":0,\"portLayoutY\":0,\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Generic\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"row\",\"flex\":\"0\",\"children\":[{\"portLayoutX\":0,\"portLayoutY\":0,\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Generic\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0.1\",\"children\":[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"row\",\"flex\":\"0.5\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Con\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"1\",\"vUnits\":1,\"hUnits\":1},{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"row\",\"flex\":\"0.5\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Mgmt\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"1\",\"vUnits\":1,\"hUnits\":1}],\"vUnits\":2,\"hUnits\":1}],\"vUnits\":2,\"hUnits\":10}]]', 'ab97c853ba94a8ebb9d950f6867601de.jpg', 'fc78fde147cccc7597b959a8841c895d.jpg'",
+				"14, 'Fiber_Enclosure', 8, 'Standard', 4, 'Passive', 0, NULL, NULL, NULL, NULL, '[[{\"portLayoutX\":0,\"portLayoutY\":0,\"partitionType\":\"Enclosure\",\"portPrefix\":\"Port\",\"portNumber\":1,\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"valueX\":\"12\",\"valueY\":\"1\",\"vUnits\":8,\"hUnits\":10,\"encTolerance\":\"Loose\"}]]', 'NULL', NULL"
 			);
 
 			// Add object templates
