@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.2.1
 	- Changes Introduced In 0.2.0
 	- Changes Introduced In 0.1.3
 	- Changes Introduced In 0.1.2
@@ -13,6 +14,10 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.2.1
+
+[Enhancement]	Include template name and images when cloning
 
 **Changes introduced in 0.2.0
 

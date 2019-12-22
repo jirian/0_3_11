@@ -418,6 +418,8 @@ require_once './includes/content-templates.php';
 		<div class="card-box">
 			<h4 class="header-title m-t-0 m-b-30">Properties</h4>
 			<input id="inputSideCount" type="hidden" name="sideCount" value="0">
+			<input id="inputFrontImage" type="hidden" name="frontImage" value="">
+			<input id="inputRearImage" type="hidden" name="frontImage" value="">
 		
 			<!-- Name -->
 			<fieldset class="form-group">

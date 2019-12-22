@@ -42,6 +42,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$hUnits = isset($data['hUnits']) ? $data['hUnits'] : null;
 			$vUnits = isset($data['vUnits']) ? $data['vUnits'] : null;
 			$partitionData = json_encode($data['objects']);
+			$frontImage = ($data['frontImage'] != '') ? strtolower($data['frontImage']) : null;
+			$rearImage = ($data['rearImage'] != '') ? strtolower($data['rearImage']) : null;
 			
 			// Insert template data into DB
 			$qls->SQL->insert('app_object_templates', array(
@@ -55,7 +57,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					'templateEncLayoutY',
 					'templateHUnits',
 					'templateVUnits',
-					'templatePartitionData'
+					'templatePartitionData',
+					'frontImage',
+					'rearImage'
 				), array(
 					$name,
 					$category_id,
@@ -67,7 +71,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$encLayoutY,
 					$hUnits,
 					$vUnits,
-					$partitionData
+					$partitionData,
+					$frontImage,
+					$rearImage
 				)
 			);
 			
@@ -360,6 +366,28 @@ function validate($data, &$validate, &$qls){
 	
 	// Validate 'add' values
 	if ($data['action'] == 'add'){
+		
+		// Validate template images
+		$errorMsg = 'Invalid template image.';
+		$imageNameArray = array('frontImage', 'rearImage');
+		foreach($imageNameArray as $imageName) {
+			if(isset($data[$imageName])) {
+				$image = strtolower($data[$imageName]);
+				if($image != '') {
+					$imageArray = explode('.', $image);
+					if(count($imageArray) == 2) {
+						$imgExtensionArray = array('jpg', 'jpeg', 'png', 'gif');
+						$validate->validateMD5($imageArray[0], $errorMsg);
+						$validate->validateInArray($imageArray[1], $imgExtensionArray, 'template image');
+					} else {
+						array_push($validate->returnData['error'], $errorMsg);
+					}
+				}
+			} else {
+				array_push($validate->returnData['error'], $errorMsg);
+			}
+		}
+		
 		//Validate template name
 		if($validate->validateNameText($data['name'], 'template name')) {
 			//Validate templateName duplicate

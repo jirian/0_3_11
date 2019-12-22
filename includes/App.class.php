@@ -388,7 +388,7 @@ var $qls;
 		$objName = $obj['nameString'];
 		$objTemplateID = $obj['template_id'];
 		$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
-		error_log('Debug: '.$objTemplateID.'-'.$objFace.'-'.$objDepth);
+		
 		if($objCompatibility['templateType'] == 'walljack') {
 			if(isset($this->peerArray[$objID][$objFace][$objDepth]['peerArray'])) {
 				$peerData = $this->peerArray[$objID][$objFace][$objDepth]['peerArray'];
@@ -403,6 +403,9 @@ var $qls;
 									$peerPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
 									$peerPortTotal = $peerCompatibility['portTotal'];
 									$peerPortID = $port[1];
+									error_log('Debug: '.json_encode($peerPortNameFormat));
+									error_log('Debug: '.$peerPortID);
+									error_log('Debug: '.$peerPortTotal);
 									$peerPortName = $this->generatePortName($peerPortNameFormat, $peerPortID, $peerPortTotal);
 									$objPortNameArray = array($objName, $peerPortName);
 									$objectPortName = implode('.', $objPortNameArray);
@@ -416,6 +419,9 @@ var $qls;
 		} else {
 			$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
 			$portTotal = $objCompatibility['portTotal'];
+			//error_log('Debug: '.json_encode($peerPortNameFormat));
+			//error_log('Debug: '.$peerPortID);
+			//error_log('Debug: '.$peerPortTotal);
 			$objPortName = $this->generatePortName($portNameFormat, $objPort, $portTotal);
 			$objPortNameArray = array($objName, $objPortName);
 			$objectPortName = implode('.', $objPortNameArray);
@@ -457,7 +463,7 @@ var $qls;
 	 * @return string
 	 */
 	function generatePortName($portNameFormat, $index, $portTotal) {
-		
+		error_log(debug_backtrace()[1]['function']);
 		$portString = '';
 		$incrementalCount = 0;
 		$lowercaseIncrementArray = array();
@@ -1808,9 +1814,12 @@ var $qls;
 
 	function generateObjContainer($template, $face, $objClassArray, $objID=false, $categoryData=false, $cabinetView=false){
 		$templateID = $template['id'];
+		$templateName = $template['templateName'];
 		$templateType = $template['templateType'];
 		$templateRUSize = $template['templateRUSize'];
 		$templateFunction = $template['templateFunction'];
+		$templateFrontImage = $template['frontImage'];
+		$templateRearImage = $template['rearImage'];
 		$categoryID = $template['templateCategory_id'];
 		$categoryName = ($categoryData !== false) ? $categoryData['name'] : $this->categoryArray[$categoryID]['name'];
 		$parentHUnits = $template['templateHUnits'];
@@ -1823,14 +1832,18 @@ var $qls;
 		$objAttrArray['data-template-type'] = '"'.$templateType.'"';
 		$objAttrArray['data-object-face'] = $face;
 		$objAttrArray['data-template-id'] = $templateID;
+		$objAttrArray['data-template-name'] = $templateName;
 		$objAttrArray['data-ru-size'] = $templateRUSize;
 		$objAttrArray['data-template-function'] = '"'.$templateFunction.'"';
+		$objAttrArray['data-template-front-image'] = '"'.$templateFrontImage.'"';
+		$objAttrArray['data-template-rear-image'] = '"'.$templateRearImage.'"';
 		$objAttrArray['data-template-category-id'] = $categoryID;
 		$objAttrArray['data-template-category-name'] = $categoryName;
 		
 		// Object ID
 		if($objID) {
 			$objAttrArray['data-template-object-id'] = $objID;
+			$objAttrArray['data-template-object-name'] = $this->qls->App->objectArray[$objID]['name'];
 		}
 		
 		// Mount config

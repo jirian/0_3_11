@@ -1512,7 +1512,10 @@ $( document ).ready(function() {
 		var templateID = $('#selectedObjectID').val();
 		var templateSide = $(document).data('availableTemplateSide');
 		var templateObj = $('#availableContainer'+templateSide).find('[data-template-id="'+templateID+'"]');
+		var templateName = $(templateObj).data('templateName');
 		var templateType = $(templateObj).data('templateType');
+		var templateFrontImage = $(templateObj).data('templateFrontImage');
+		var templateRearImage = $(templateObj).data('templateRearImage');
 		
 		// Store template data
 		var RUSize = $(templateObj).data('ruSize');
@@ -1524,6 +1527,10 @@ $( document ).ready(function() {
 		
 		$('[name="objectTypeRadio"][value='+templateType+']').prop('checked', true);
 		$('[name="category"][value='+categoryID+']').prop('selected', true);
+		$('#inputName').val(templateName);
+		console.log(templateFrontImage);
+		$('#inputFrontImage').val(templateFrontImage);
+		$('#inputRearImage').val(templateRearImage);
 		
 		if(templateType == 'Insert') {
 			
@@ -1796,6 +1803,8 @@ $( document ).ready(function() {
 		data['type'] = $('input[name="objectTypeRadio"]:checked').val();
 		data['function'] = $('input[name="objectFunction"]:checked').val();
 		data['RUSize'] = $('#inputRU').val();
+		data['frontImage'] = $('#inputFrontImage').val();
+		data['rearImage'] = $('#inputRearImage').val();
 		data['objects'] = [];
 		if(data['type'] == 'Insert'){
 			var encLayoutX = parseInt($('#previewObj3').data('valueX'), 10);
@@ -1882,6 +1891,8 @@ $( document ).ready(function() {
 	// Object Type
 	$('input.objectType').on('change', function(){
 		var category = $('#inputCategory').find('option:selected').data('value');
+		$('inputFrontImage').val('');
+		$('inputRearImage').val('');
 		toggleObjectTypeDependencies();
 		
 		switch($(this).val()) {

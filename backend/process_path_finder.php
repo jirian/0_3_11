@@ -56,54 +56,67 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$parentTable[$row['id']] = $row['parent_id'];
 		}
 
-		// Create endpointA & B objects
-		$query = $qls->SQL->select('*', 'app_object', 'id = '.$endpointAObjID.' OR id = '.$endpointBObjID);
-		while($row = $qls->SQL->fetch_assoc($query)) {
-			if($row['id'] == $endpointAObjID) {
-				// If object is an endpoint
-				$endpointAObjFunction = $qls->App->compatibilityArray[$row['template_id']][$endpointAObjFace][$endpointAObjDepth]['partitionFunction'];
-				if($endpointAObjFunction == 'Endpoint') {
-					// If object is an endpoint and trunked
-					$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointAObjID.' AND a_face = '.$endpointAObjFace.' AND a_depth = '.$endpointAObjDepth.') OR (b_id = '.$endpointAObjID.' AND b_face = '.$endpointAObjFace.' AND b_depth = '.$endpointAObjDepth.')');
-					if($qls->SQL->num_rows($queryPeer)) {
-						// Create object to append to front of path array
-						$nearEndpointObject = getObjectString($templateTable, $qls, $endpointAObjID, $endpointAObjPortID, $endpointAObjFace, $endpointAObjDepth);
-						// Change endpoint to trunk peer
-						$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
-						$peerAttr = $endpointAObjID == $peerEntry['a_id'] ? 'b' : 'a';
-						$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
-						$endpointAObj = $qls->SQL->fetch_assoc($queryEndpoint);
-						$endpointAObjFace = $peerEntry[$peerAttr.'_face'];
-						$endpointAObjDepth = $peerEntry[$peerAttr.'_depth'];
-					} else {
-						$endpointAObj = $row;
-					}
-				} else {
-					$endpointAObj = $row;
-				}
+		// Create endpointA object
+		// If object is an endpoint
+		$aObj = $qls->App->objectArray[$endpointAObjID];
+		
+		$aObjTemplateID = $aObj['template_id'];
+		$aObjTemplate = $qls->App->templateArray[$aObjTemplateID];
+		$aObjFunction = $aObjTemplate['templateFunction'];
+		
+		//$endpointAObjFunction = $qls->App->compatibilityArray[$aObj['template_id']][$endpointAObjFace][$endpointAObjDepth]['partitionFunction'];
+		if($aObjFunction == 'Endpoint') {
+			// If object is an endpoint and trunked
+			$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointAObjID.' AND a_face = '.$endpointAObjFace.' AND a_depth = '.$endpointAObjDepth.') OR (b_id = '.$endpointAObjID.' AND b_face = '.$endpointAObjFace.' AND b_depth = '.$endpointAObjDepth.')');
+			if($qls->SQL->num_rows($queryPeer)) {
+				$farEndpointIsTrunked = true;
+				// Create object to append to front of path array
+				//$nearEndpointObject = getObjectString($templateTable, $qls, $endpointAObjID, $endpointAObjPortID, $endpointAObjFace, $endpointAObjDepth);
+				$nearEndpointName = $qls->App->generateObjectPortName($endpointAObjID, $endpointAObjFace, $endpointAObjDepth, $endpointAObjPortID);
+				$nearEndpointName = $qls->App->wrapObject($endpointAObjID, $nearEndpointName);
+				// Change endpoint to trunk peer
+				$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
+				$peerAttr = $endpointAObjID == $peerEntry['a_id'] ? 'b' : 'a';
+				$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
+				$endpointAObj = $qls->SQL->fetch_assoc($queryEndpoint);
+				$endpointAObjFace = $peerEntry[$peerAttr.'_face'];
+				$endpointAObjDepth = $peerEntry[$peerAttr.'_depth'];
 			} else {
-				// If object is an endpoint
-				$endpointBObjFunction = $qls->App->compatibilityArray[$row['template_id']][$endpointBObjFace][$endpointBObjDepth]['partitionFunction'];
-				if($endpointBObjFunction == 'Endpoint') {
-					// If object is an endpoint and trunked
-					$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointBObjID.' AND a_face = '.$endpointBObjFace.' AND a_depth = '.$endpointBObjDepth.') OR (b_id = '.$endpointBObjID.' AND b_face = '.$endpointBObjFace.' AND b_depth = '.$endpointBObjDepth.')');
-					if($qls->SQL->num_rows($queryPeer)) {
-						// Create object to append to front of path array
-						$farEndpointObject = getObjectString($templateTable, $qls, $endpointBObjID, $endpointBObjPortID, $endpointBObjFace, $endpointBObjDepth);
-						// Change endpoint to trunk peer
-						$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
-						$peerAttr = $endpointBObjID == $peerEntry['a_id'] ? 'b' : 'a';
-						$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
-						$endpointBObj = $qls->SQL->fetch_assoc($queryEndpoint);
-						$endpointBObjFace = $peerEntry[$peerAttr.'_face'];
-						$endpointBObjDepth = $peerEntry[$peerAttr.'_depth'];
-					} else {
-						$endpointBObj = $row;
-					}
-				} else {
-					$endpointBObj = $row;
-				}
+				$farEndpointIsTrunked = false;
+				$endpointAObj = $aObj;
 			}
+		} else {
+			$endpointAObj = $aObj;
+		}
+		
+		// If object is an endpoint
+		$bObj = $qls->App->objectArray[$endpointBObjID];
+		$bObjTemplateID = $bObj['template_id'];
+		$bObjTemplate = $qls->App->templateArray[$bObjTemplateID];
+		$bObjFunction = $bObjTemplate['templateFunction'];
+		//$endpointBObjFunction = $qls->App->compatibilityArray[$bObj['template_id']][$endpointBObjFace][$endpointBObjDepth]['partitionFunction'];
+		if($bObjFunction == 'Endpoint') {
+			// If object is an endpoint and trunked
+			$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointBObjID.' AND a_face = '.$endpointBObjFace.' AND a_depth = '.$endpointBObjDepth.') OR (b_id = '.$endpointBObjID.' AND b_face = '.$endpointBObjFace.' AND b_depth = '.$endpointBObjDepth.')');
+			if($qls->SQL->num_rows($queryPeer)) {
+				$farEndpointIsTrunked = true;
+				// Create object to append to front of path array
+				//$farEndpointObject = getObjectString($templateTable, $qls, $endpointBObjID, $endpointBObjPortID, $endpointBObjFace, $endpointBObjDepth);
+				$farEndpointName = $qls->App->generateObjectPortName($endpointBObjID, $endpointBObjFace, $endpointBObjDepth, $endpointBObjPortID);
+				$farEndpointName = $qls->App->wrapObject($endpointBObjID, $farEndpointName);
+				// Change endpoint to trunk peer
+				$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
+				$peerAttr = $endpointBObjID == $peerEntry['a_id'] ? 'b' : 'a';
+				$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
+				$endpointBObj = $qls->SQL->fetch_assoc($queryEndpoint);
+				$endpointBObjFace = $peerEntry[$peerAttr.'_face'];
+				$endpointBObjDepth = $peerEntry[$peerAttr.'_depth'];
+			} else {
+				$farEndpointIsTrunked = false;
+				$endpointBObj = $bObj;
+			}
+		} else {
+			$endpointBObj = $bObj;
 		}
 
 		$endpointAObj['face'] = $endpointAObjFace;
@@ -152,7 +165,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$compatibilityQuery = array('mediaType' => array('=', $endpointAMediaType));
 		}
 		
-		// Get compatible template IDs
+		// Categorize all template partitions by media type from most to least specific: mediaType(MM-OM4) to mediaCategoryType(fiber)
 		$compatibleTemplateArray = array();
 		
 		$query = $qls->SQL->select('*', 'app_object_compatibility', $compatibilityQuery);
@@ -210,14 +223,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		// Build array containing all compatible objects
 		$objectArray = array();
-		$queryObjects = $qls->SQL->select('*', 'app_object');
-		$objects = array();
-		while($row = $qls->SQL->fetch_assoc($queryObjects)) {
-			array_push($objects, $row);
-		}
+		//$queryObjects = $qls->SQL->select('*', 'app_object');
 		foreach($compatibleTemplateArray as $compatibilityType => $compatibilityArray) {
 			array_push($objectArray, array('pathType' => $compatibilityType, 'compatibleObjects' => array()));
-			foreach($objects as $object) {
+			foreach($qls->App->objectArray as $object) {
 				if(in_array($object['template_id'], $compatibilityArray) or $object['id'] == $endpointAObjID or $object['id'] == $endpointBObjID) {
 					$objectArray[count($objectArray)-1]['compatibleObjects'][$object['id']] = $object;
 				}
@@ -315,12 +324,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		foreach($objectArray as $objSet) {
 			array_push($reachableArray, array('pathType' => $objSet['pathType'], 'reachableObjects' => array()));
 			foreach($objSet['compatibleObjects'] as $obj) {
-				if($templateTable[$obj['template_id']]['templateType'] == 'Insert') {
+				$templateID = $obj['template_id'];
+				$template = $qls->App->templateArray[$templateID];
+				$templateType = $template['templateType'];
+				if($templateType == 'Insert') {
 					$objRU = getRU($obj['parent_id'], $qls);
 					$objSize = getSize($obj['parent_id'], $templateTable, $qls);
 				} else {
 					$objRU = $obj['RU'];
-					$objSize = $templateTable[$obj['template_id']]['templateRUSize'];
+					$objSize = $template['templateRUSize'];
 				}
 				$objID = $obj['id'];
 				$objCabinetID = $obj['env_tree_id'];
@@ -367,18 +379,31 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$pathElementPair['distance'] = $distanceString;
 			}
 
+			/*
 			if(isset($nearEndpointObject)) {
 				array_unshift($path, array(
 					'far' => $nearEndpointObject['obj'],
 					'farFunction' => $nearEndpointObject['function']
 				));
 			}
+			*/
+			
+			if($aObjFunction == 'Endpoint') {
+				if($nearEndpointIsTrunked) {
+					array_push($path, array(
+						'far' => $nearEndpointName,
+						'farFunction' => 'Endpoint'
+					));
+				}
+			}
 
-			if(isset($farEndpointObject)) {
-				array_push($path, array(
-				'near' => $farEndpointObject['obj'],
-				'nearFunction' => $farEndpointObject['function']
-				));
+			if($bObjFunction == 'Endpoint') {
+				if($farEndpointIsTrunked) {
+					array_push($path, array(
+						'near' => $farEndpointName,
+						'nearFunction' => 'Endpoint'
+					));
+				}
 			}
 		}
 	}
@@ -401,8 +426,14 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 		if(isset($GLOBALS['peerArray']['-'.$target['id']]['-'.$target['face']]['-'.$target['depth']])) {
 			$peerData = $GLOBALS['peerArray']['-'.$target['id']]['-'.$target['face']]['-'.$target['depth']];
 			// Get object string of peer just so we know the object function
-			$peer = getObjectString($GLOBALS['templateTable'], $qls, $peerData['peerID'], $target['port'], $peerData['peerFace'], $peerData['peerDepth']);
-			if($peer['function'] != 'Endpoint') {
+			$peerID = $peerData['peerID'];
+			$peerObj = $qls->App->objectArray[$peerID];
+			$peerTemplateID = $peerObj['template_id'];
+			$peerTemplate = $qls->App->templateArray[$peerTemplateID];
+			$peerFunction = $peerTemplate['templateFunction'];
+			//error_log('debug: here1');
+			//$peer = getObjectString($GLOBALS['templateTable'], $qls, $peerData['peerID'], $target['port'], $peerData['peerFace'], $peerData['peerDepth']);
+			if($peerFunction != 'Endpoint') {
 				if($peerData['peerID'] == $endpointBObj['id'] and $peerData['peerFace'] == $endpointBObj['face'] and $peerData['peerDepth'] == $endpointBObj['depth']) {
 					// add to pathArray
 				} else {
@@ -419,11 +450,23 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 					}
 					
 					if($proceed) {
-						$far = getObjectString($GLOBALS['templateTable'], $qls, $target['id'], $target['port'], $target['face'], $target['depth']);
+						$targetID = $target['id'];
+						$targetFace = $target['face'];
+						$targetDepth = $target['depth'];
+						$targetPort = $target['port'];
+						$targetObj = $qls->App->objectArray[$targetID];
+						$targetTemplateID = $targetObj['template_id'];
+						$targetTemplate = $qls->App->templateArray[$targetTemplateID];
+						$targetFunction = $targetTemplate['templateFunction'];
+						$targetName = $qls->App->generateObjectPortName($targetID, $targetFace, $targetDepth, $targetPort);
+						//error_log('debug: here2');
+						//$far = getObjectString($GLOBALS['templateTable'], $qls, $target['id'], $target['port'], $target['face'], $target['depth']);
 
 						array_push($workingArray, array(
-							'far' =>  $far['obj'],
-							'farFunction' => $far['function']
+							'far' => $targetName,
+							'farFunction' => $targetFunction
+							//'far' =>  $far['obj'],
+							//'farFunction' => $far['function']
 						));
 					
 						$newTarget = array(
@@ -442,171 +485,178 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 		}
 	}
 
+	//error_log('Debug: reachableArray = '.json_encode($reachableArray));
+	//error_log('Debug: targetID = '.$target['id']);
 	// Explore reachable objects
-	foreach($reachableArray[$target['id']] as $reachableCategory => $reachableGroup) {
-		
-		foreach($reachableGroup as $reachableObj) {
+	if(isset($reachableArray[$target['id']])) {
+		foreach($reachableArray[$target['id']] as $reachableCategory => $reachableGroup) {
 			
-			$reachableObjID = $reachableObj['parent_id'] == 0 ? $reachableObj['id'] : $reachableObj['parent_id'];
-			if(!isset($peerParentArray[$reachableObjID])) {
-				$peerParentArray[$reachableObjID] = array();
-			}
-			// Reached target endpoint
-			if($reachableObj['id'] == $endpointBObj['id']) {
+			foreach($reachableGroup as $reachableObj) {
 				
-				if(isset($target['port'])) {
-					$nearPort = $target['port'];
-				} else {
-					$nearPortArray = getAvailablePortArray($target['id'], $target['face'], $target['depth'], $qls);
-					$nearPort = $nearPortArray[0];
+				$reachableObjID = $reachableObj['parent_id'] == 0 ? $reachableObj['id'] : $reachableObj['parent_id'];
+				if(!isset($peerParentArray[$reachableObjID])) {
+					$peerParentArray[$reachableObjID] = array();
 				}
-				
-				$nearObjName = $qls->App->generateObjectPortName($target['id'], $target['face'], $target['depth'], $nearPort);
-				$nearObjName = $qls->App->wrapObject($target['id'], $nearObjName);
-				$nearObj = $qls->App->objectArray[$target['id']];
-				$nearTemplateID = $nearObj['template_id'];
-				$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$target['face']][$target['depth']];
-				$nearPortTypeValue = $nearCompatibility['portType'];
-				$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue];
-				
-				$farObjName = $qls->App->generateObjectPortName($endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth'], $endpointBObj['port']);
-				$farObjName = $qls->App->wrapObject($endpointBObj['id'], $farObjName);
-				$farObj = $qls->App->objectArray[$target['id']];
-				$farTemplateID = $nearObj['template_id'];
-				$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$endpointBObj['face']][$endpointBObj['depth']];
-				$farPortTypeValue = $farCompatibility['portType'];
-				$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue];
-
-				array_push($workingArray, array(
-					'near' => $nearObjName,
-					'nearPortType' => $nearPortType,
-					'far' =>  $farObjName,
-					'farPortType' => $farPortType,
-					'distance' => $reachableObj['dist'],
-					'pathType' => $reachableCategory,
-					'mediaType' => $mediaType
-				));
-				array_push($GLOBALS['pathArray'], $workingArray);
-				array_pop($workingArray);
-			// Reachable object cannot be the starting endpoint or itself
-			} else if($reachableObj['id'] != $endpointAObj['id'] and $reachableObj['id'] != $target['id']) {
-				
-				// Reachable object cannot be one that we've visited already
-				if(!in_array($reachableObj['id'], $visitedObjs)) {
+				// Reached target endpoint
+				if($reachableObj['id'] == $endpointBObj['id']) {
 					
-					array_push($visitedObjs, $reachableObj['id']);
-					// Reachable object should have a trunk peer to be considered
-					if(isset($GLOBALS['peerArray']['-'.$reachableObj['id']])) {
+					if(isset($target['port'])) {
+						$nearPort = $target['port'];
+					} else {
+						$nearPortArray = getAvailablePortArray($target['id'], $target['face'], $target['depth'], $qls);
+						$nearPort = $nearPortArray[0];
+					}
+					
+					$nearObjName = $qls->App->generateObjectPortName($target['id'], $target['face'], $target['depth'], $nearPort);
+					$nearObjName = $qls->App->wrapObject($target['id'], $nearObjName);
+					$nearObj = $qls->App->objectArray[$target['id']];
+					$nearTemplateID = $nearObj['template_id'];
+					$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$target['face']][$target['depth']];
+					$nearPortTypeValue = $nearCompatibility['portType'];
+					$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue];
+					
+					$farObjName = $qls->App->generateObjectPortName($endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth'], $endpointBObj['port']);
+					$farObjName = $qls->App->wrapObject($endpointBObj['id'], $farObjName);
+					$farObj = $qls->App->objectArray[$target['id']];
+					$farTemplateID = $nearObj['template_id'];
+					$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$endpointBObj['face']][$endpointBObj['depth']];
+					$farPortTypeValue = $farCompatibility['portType'];
+					$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue];
+
+					array_push($workingArray, array(
+						'near' => $nearObjName,
+						'nearPortType' => $nearPortType,
+						'far' =>  $farObjName,
+						'farPortType' => $farPortType,
+						'distance' => $reachableObj['dist'],
+						'pathType' => $reachableCategory,
+						'mediaType' => $mediaType
+					));
+					array_push($GLOBALS['pathArray'], $workingArray);
+					array_pop($workingArray);
+				// Reachable object cannot be the starting endpoint or itself
+				} else if($reachableObj['id'] != $endpointAObj['id'] and $reachableObj['id'] != $target['id']) {
+					
+					// Reachable object cannot be one that we've visited already
+					if(!in_array($reachableObj['id'], $visitedObjs)) {
 						
-						// Narrow down peer by reachable object face
-						foreach($GLOBALS['peerArray']['-'.$reachableObj['id']] as $objFace => $objFaceArray) {
+						array_push($visitedObjs, $reachableObj['id']);
+						// Reachable object should have a trunk peer to be considered
+						if(isset($GLOBALS['peerArray']['-'.$reachableObj['id']])) {
 							
-							// Narrow down peer by reachable object depth
-							foreach($objFaceArray as $objDepth => $peerData) {
+							// Narrow down peer by reachable object face
+							foreach($GLOBALS['peerArray']['-'.$reachableObj['id']] as $objFace => $objFaceArray) {
 								
-								$objFace = str_replace('-','',$objFace);
-								$objDepth = str_replace('-','',$objDepth);
-								
-								$peerIsEndpointB = $peerData['peerID'] == $endpointBObj['id'] and $peerData['peerFace'] == $endpointBObj['face'] and $peerData['peerDepth'] == $endpointBObj['depth'];
-								
-								//$nearPortArray = getAvailablePortArray($target['id'], $target['face'], $target['depth'], $qls);
-								$farPortArray = getAvailablePortArray($reachableObj['id'], $objFace, $objDepth, $qls);
-								$peerPortArray = getAvailablePortArray($peerData['peerID'], $peerData['peerFace'], $peerData['peerDepth'], $qls);
-								
-								$commonAvailablePort = 0;
-								$farPortFound = false;
-								foreach($farPortArray as $farPort) {
-									if(in_array($farPort, $peerPortArray)) {
-										$commonAvailablePort = $farPort;
-										$farPortFound = true;
-										break;
-									}
-								}
-								
-								// Near Object
-								//$nearPort = isset($target['port']) ? $target['port'] : $nearPortArray[0];
-								$nearPort = $target['port'];
-								$near = getObjectString($GLOBALS['templateTable'], $qls, $target['id'], $nearPort, $target['face'], $target['depth']);
-								$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
-								
-								// Far Object
-								$farPort = $peerIsEndpointB ? $endpointBObj['port'] : $commonAvailablePort;
-								$far = getObjectString($GLOBALS['templateTable'], $qls, $reachableObj['id'], $farPort, $objFace, $objDepth);
-								$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $reachableObj['id'], $objFace, $objDepth);
-								
-								// Reachable object cannot be an endpoint... how are we supposed to patch layer1 through a layer2-4 device?
-								if($far['function'] != 'Endpoint') {
+								// Narrow down peer by reachable object depth
+								foreach($objFaceArray as $objDepth => $peerData) {
 									
-									// Peer object cannot be one that we've visited already
-									if(!in_array($peerData['peerID'], $visitedObjs)) {
-										array_push($visitedObjs, $peerData['peerID']);
-										array_push($workingArray, array(
-											'near' => $near['obj'],
-											'nearFunction' => $near['function'],
-											'nearPortType' => $nearPortType,
-											'far' => $far['obj'],
-											'farFunction' => $far['function'],
-											'farPortType' => $farPortType,
-											'distance' => $reachableObj['dist'],
-											'pathType' => $reachableCategory,
-											'mediaType' => $mediaType
-										));
+									$objFace = str_replace('-','',$objFace);
+									$objDepth = str_replace('-','',$objDepth);
+									
+									$peerIsEndpointB = $peerData['peerID'] == $endpointBObj['id'] and $peerData['peerFace'] == $endpointBObj['face'] and $peerData['peerDepth'] == $endpointBObj['depth'];
+									
+									//$nearPortArray = getAvailablePortArray($target['id'], $target['face'], $target['depth'], $qls);
+									$farPortArray = getAvailablePortArray($reachableObj['id'], $objFace, $objDepth, $qls);
+									$peerPortArray = getAvailablePortArray($peerData['peerID'], $peerData['peerFace'], $peerData['peerDepth'], $qls);
+									
+									$commonAvailablePort = 0;
+									$farPortFound = false;
+									foreach($farPortArray as $farPort) {
+										if(in_array($farPort, $peerPortArray)) {
+											$commonAvailablePort = $farPort;
+											$farPortFound = true;
+											break;
+										}
+									}
+									
+									// Near Object
+									//$nearPort = isset($target['port']) ? $target['port'] : $nearPortArray[0];
+									$nearPort = $target['port'];
+									error_log('debug: here3');
+									$near = getObjectString($GLOBALS['templateTable'], $qls, $target['id'], $nearPort, $target['face'], $target['depth']);
+									$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
+									
+									// Far Object
+									$farPort = $peerIsEndpointB ? $endpointBObj['port'] : $commonAvailablePort;
+									error_log('debug: here4');
+									$far = getObjectString($GLOBALS['templateTable'], $qls, $reachableObj['id'], $farPort, $objFace, $objDepth);
+									$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $reachableObj['id'], $objFace, $objDepth);
+									
+									// Reachable object cannot be an endpoint... how are we supposed to patch layer1 through a layer2-4 device?
+									if($far['function'] != 'Endpoint') {
 										
-										if($peerIsEndpointB) {
-											$farPort = $endpointBObj['port'];
-											$far = getObjectString($GLOBALS['templateTable'], $qls, $endpointBObj['id'], $farPort, $endpointBObj['face'], $endpointBObj['depth']);
-											$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);									
+										// Peer object cannot be one that we've visited already
+										if(!in_array($peerData['peerID'], $visitedObjs)) {
+											array_push($visitedObjs, $peerData['peerID']);
 											array_push($workingArray, array(
+												'near' => $near['obj'],
+												'nearFunction' => $near['function'],
+												'nearPortType' => $nearPortType,
 												'far' => $far['obj'],
 												'farFunction' => $far['function'],
-												'farPortType' => $farPortType
+												'farPortType' => $farPortType,
+												'distance' => $reachableObj['dist'],
+												'pathType' => $reachableCategory,
+												'mediaType' => $mediaType
 											));
-											array_push($GLOBALS['pathArray'], $workingArray);
-											array_pop($workingArray);
-										} else {
-											if($peerData['peerIsEndpoint'] != true) {
-												// Evaluate the peer's cabinet to prevent path feedback loop
-												if($peerData['env_tree_id'] == $target['env_tree_id']) {
-													$proceed = true;
-												} else {
-													if(in_array($peerData['env_tree_id'], $visitedCabs)) {
-														$proceed = false;
-													} else {
+											
+											if($peerIsEndpointB) {
+												$farPort = $endpointBObj['port'];
+												error_log('debug: here5');
+												$far = getObjectString($GLOBALS['templateTable'], $qls, $endpointBObj['id'], $farPort, $endpointBObj['face'], $endpointBObj['depth']);
+												$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);									
+												array_push($workingArray, array(
+													'far' => $far['obj'],
+													'farFunction' => $far['function'],
+													'farPortType' => $farPortType
+												));
+												array_push($GLOBALS['pathArray'], $workingArray);
+												array_pop($workingArray);
+											} else {
+												if($peerData['peerIsEndpoint'] != true) {
+													// Evaluate the peer's cabinet to prevent path feedback loop
+													if($peerData['env_tree_id'] == $target['env_tree_id']) {
 														$proceed = true;
-														array_push($visitedCabs, $target['env_tree_id']);
-														array_push($visitedCabs, $reachableObj['env_tree_id']);
+													} else {
+														if(in_array($peerData['env_tree_id'], $visitedCabs)) {
+															$proceed = false;
+														} else {
+															$proceed = true;
+															array_push($visitedCabs, $target['env_tree_id']);
+															array_push($visitedCabs, $reachableObj['env_tree_id']);
+														}
 													}
-												}
-												
-												// Evaluate the peer's parent to prevent path feedback loop
-												if($proceed) {
-													if(in_array($peerData['parent_id'], $peerParentArray[$reachableObjID])) {
-														$proceed = false;
+													
+													// Evaluate the peer's parent to prevent path feedback loop
+													if($proceed) {
+														if(in_array($peerData['parent_id'], $peerParentArray[$reachableObjID])) {
+															$proceed = false;
+														}
 													}
-												}
-												
-												// 
-												if($proceed) {
-													$proceed = $farPortFound;
-												}
-												
-												if($peerData['parent_id'] != 0 and !in_array($peerData['parent_id'], $peerParentArray[$reachableObjID]) and $farPortFound) {
-													array_push($peerParentArray[$reachableObjID], $peerData['parent_id']);
-												}
-												
-												if($proceed) {
-													$newTarget = array(
-														'id' => $peerData['peerID'],
-														'face' => $peerData['peerFace'],
-														'depth' => $peerData['peerDepth'],
-														'port' => $farPort,
-														'env_tree_id' => $peerData['env_tree_id']
-													);
-													findPaths($qls, $reachableArray, $mediaType, $newTarget, $endpointAObj, $endpointBObj, $workingArray, $visitedObjs, $visitedCabs, $peerParentArray);
+													
+													// 
+													if($proceed) {
+														$proceed = $farPortFound;
+													}
+													
+													if($peerData['parent_id'] != 0 and !in_array($peerData['parent_id'], $peerParentArray[$reachableObjID]) and $farPortFound) {
+														array_push($peerParentArray[$reachableObjID], $peerData['parent_id']);
+													}
+													
+													if($proceed) {
+														$newTarget = array(
+															'id' => $peerData['peerID'],
+															'face' => $peerData['peerFace'],
+															'depth' => $peerData['peerDepth'],
+															'port' => $farPort,
+															'env_tree_id' => $peerData['env_tree_id']
+														);
+														findPaths($qls, $reachableArray, $mediaType, $newTarget, $endpointAObj, $endpointBObj, $workingArray, $visitedObjs, $visitedCabs, $peerParentArray);
+													}
 												}
 											}
+											array_pop($workingArray);
 										}
-										array_pop($workingArray);
 									}
 								}
 							}
