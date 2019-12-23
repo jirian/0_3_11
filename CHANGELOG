@@ -17,6 +17,7 @@ Contents
 
 **Changes introduced in 0.2.1
 
+[Fix]		Added validation for path finder
 [Enhancement]	Include template name and images when cloning
 
 **Changes introduced in 0.2.0
