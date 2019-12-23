@@ -412,9 +412,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
-	$error = [];
+	$endpointNameArray = array('endpointA', 'endpointB');
 	
-	return $error;
+	foreach($endpointNameArray as $endpointName) {
+		if(array_key_exists($endpointName, $data)) {
+			error_log('Debug: '.json_encode($data[$endpointName]));
+			foreach($data[$endpointName] as $endpointAttr => $endpointAttrValue) {
+				error_log('Debug: '.$endpointAttr);
+				$ref = $endpointName.' '.$endpointAttr;
+				$validate->validateID($endpointAttrValue, $ref);
+			}
+		}
+	}
+	
+	return;
 }
 
 function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $endpointBObj, $workingArray=array(), $visitedObjs=array(), $visitedCabs=array(), $peerParentArray=array()){
