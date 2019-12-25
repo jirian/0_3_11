@@ -1664,8 +1664,86 @@ var $qls;
 					$attrString = implode(' ', $attrArray);
 					$classString = implode(' ', $classArray);
 					
-					$html .= '<div class="'.$classString.'" '.$attrString.'></div>';
-					'<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
+					$html .='<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8mm"
+   height="8mm"
+   viewBox="0 0 8 8"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="RJ45.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="15.07"
+     inkscape:cx="25.095693"
+     inkscape:cy="16.547913"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289)">
+    <rect
+       id="rect3719"
+       width="7.9884152"
+       height="4.0732136"
+       x="0.01755695"
+       y="291.92606"
+       style="stroke-width:0.29391891"
+       ry="0" />
+    <rect
+       id="rect3719-9"
+       width="4.7579355"
+       height="4.3892388"
+       x="1.6415753"
+       y="290.93408"
+       style="stroke-width:0.23546831"
+       ry="0" />
+    <rect
+       id="rect3719-9-9"
+       width="2.7213287"
+       height="1.5976826"
+       x="2.7301064"
+       y="289.90353"
+       style="stroke-width:0.10743959"
+       ry="0" />
+  </g>
+</svg>';
+					//$html .= '<div class="'.$classString.'" '.$attrString.'><svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4"/></svg></div>';
+					//$html .='<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
 					$html .= '</div>';
 				}
 				$html .= "</div>";
