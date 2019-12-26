@@ -380,6 +380,378 @@ var $qls;
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			$this->historyFunctionArray[$row['value']] = $row;
 		}
+		
+		$this->portSFP = '<svg class="portSVG"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8mm"
+   height="8mm"
+   viewBox="0 0 8 8"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="SFP.svg"
+   enable-background="new"
+   inkscape:export-filename="C:\Users\User\Documents\PatchCableMgr\Port Icons\RJ45.SVG.png"
+   inkscape:export-xdpi="27.497019"
+   inkscape:export-ydpi="27.497019">
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 4 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="8 : 4 : 1"
+       inkscape:persp3d-origin="4 : 2.6666667 : 1"
+       id="perspective3768" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="28.12"
+     inkscape:cx="13.528844"
+     inkscape:cy="13.821105"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3788" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289)"
+     style="">
+    <rect
+       id="rect3822"
+       width="7.4083333"
+       height="5.8208566"
+       x="0.26458359"
+       y="290.12082"
+       style="stroke-width:0.57594633" />
+  </g>
+</svg>';
+		
+		$this->portSC = '<svg class="portSVG"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8mm"
+   height="8mm"
+   viewBox="0 0 8 8"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="SC.svg"
+   enable-background="new"
+   inkscape:export-filename="C:\Users\User\Documents\PatchCableMgr\Port Icons\RJ45.SVG.png"
+   inkscape:export-xdpi="27.497019"
+   inkscape:export-ydpi="27.497019">
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 4 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="8 : 4 : 1"
+       inkscape:persp3d-origin="4 : 2.6666667 : 1"
+       id="perspective3768" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="28.12"
+     inkscape:cx="13.528844"
+     inkscape:cy="16.666056"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3788" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289)"
+     style="">
+    <rect
+       id="rect3822"
+       width="3.4395833"
+       height="3.9687407"
+       x="0.26458332"
+       y="291.44376"
+       style="stroke-width:0.3240467" />
+    <rect
+       id="rect3822-6"
+       width="3.4395831"
+       height="3.9687407"
+       x="4.2333331"
+       y="291.44376"
+       style="stroke-width:0.32404667" />
+  </g>
+</svg>';
+		
+		$this->portLC = '<svg class="portSVG"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8mm"
+   height="8mm"
+   viewBox="0 0 8 8"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="LC.svg"
+   enable-background="new"
+   inkscape:export-filename="C:\Users\User\Documents\PatchCableMgr\Port Icons\RJ45.SVG.png"
+   inkscape:export-xdpi="27.497019"
+   inkscape:export-ydpi="27.497019">
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 4 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="8 : 4 : 1"
+       inkscape:persp3d-origin="4 : 2.6666667 : 1"
+       id="perspective3768" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="28.12"
+     inkscape:cx="13.528844"
+     inkscape:cy="16.666056"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3788" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289)"
+     style="">
+    <rect
+       id="rect3822"
+       width="3.7041667"
+       height="3.9687407"
+       x="0.26458332"
+       y="291.44376"
+       style="stroke-width:0.33627915" />
+    <rect
+       id="rect3822-6"
+       width="3.4395831"
+       height="3.9687407"
+       x="4.2333331"
+       y="291.44376"
+       style="stroke-width:0.32404667" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.26458332"
+       id="rect3859"
+       width="0.52916664"
+       height="0.26458332"
+       x="0"
+       y="291.70834" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.18708864"
+       id="rect3859-5"
+       width="0.26458326"
+       height="0.26458332"
+       x="3.7041667"
+       y="291.70834" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.26458332"
+       id="rect3859-1"
+       width="0.52916664"
+       height="0.26458332"
+       x="3.96875"
+       y="291.70834" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.26458332"
+       id="rect3859-16"
+       width="0.52916664"
+       height="0.26458332"
+       x="7.4083333"
+       y="291.70834" />
+    <rect
+       style="fill:#000000;stroke-width:0.24495655"
+       id="rect3888"
+       width="1.5875001"
+       height="0.79374999"
+       x="1.3229166"
+       y="290.64999" />
+    <rect
+       style="fill:#000000;stroke-width:0.22361372"
+       id="rect3888-9"
+       width="1.3229169"
+       height="0.79374999"
+       x="5.2916665"
+       y="290.64999" />
+  </g>
+</svg>';
+		
+		$this->portRJ45 = '<svg class="portSVG"
+		   xmlns:dc="http://purl.org/dc/elements/1.1/"
+		   xmlns:cc="http://creativecommons.org/ns#"
+		   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		   xmlns:svg="http://www.w3.org/2000/svg"
+		   xmlns="http://www.w3.org/2000/svg"
+		   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+		   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+		   width="8mm"
+		   height="8mm"
+		   viewBox="0 0 8 8"
+		   version="1.1"
+		   id="svg8"
+		   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+		   sodipodi:docname="RJ45.svg"
+		   enable-background="new"
+		   inkscape:export-filename="C:\Users\User\Documents\PatchCableMgr\Port Icons\RJ45.SVG.png"
+		   inkscape:export-xdpi="27.497019"
+		   inkscape:export-ydpi="27.497019">
+		  <defs
+			 id="defs2">
+			<inkscape:perspective
+			   sodipodi:type="inkscape:persp3d"
+			   inkscape:vp_x="0 : 4 : 1"
+			   inkscape:vp_y="0 : 1000 : 0"
+			   inkscape:vp_z="8 : 4 : 1"
+			   inkscape:persp3d-origin="4 : 2.6666667 : 1"
+			   id="perspective3768" />
+		  </defs>
+		  <sodipodi:namedview
+			 id="base"
+			 pagecolor="#ffffff"
+			 bordercolor="#666666"
+			 borderopacity="1.0"
+			 inkscape:pageopacity="0.0"
+			 inkscape:pageshadow="2"
+			 inkscape:zoom="28.12"
+			 inkscape:cx="13.528844"
+			 inkscape:cy="15.243581"
+			 inkscape:document-units="mm"
+			 inkscape:current-layer="layer1"
+			 showgrid="true"
+			 inkscape:window-width="1920"
+			 inkscape:window-height="986"
+			 inkscape:window-x="-11"
+			 inkscape:window-y="-11"
+			 inkscape:window-maximized="1">
+			<inkscape:grid
+			   type="xygrid"
+			   id="grid3788" />
+		  </sodipodi:namedview>
+		  <metadata
+			 id="metadata5">
+			<rdf:RDF>
+			  <cc:Work
+				 rdf:about="">
+				<dc:format>image/svg+xml</dc:format>
+				<dc:type
+				   rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+				<dc:title></dc:title>
+			  </cc:Work>
+			</rdf:RDF>
+		  </metadata>
+		  <g
+			 inkscape:label="Layer 1"
+			 inkscape:groupmode="layer"
+			 id="layer1"
+			 transform="translate(0,-289)"
+			 style="">
+			<path
+			   id="rect3786"
+			   style="stroke-width:0.25725371"
+			   d="m 2.6488445,289.85625 h 2.6428222 v 2.78887 H 2.6488445 Z m -1.3259279,1.26512 H 6.619476 v 3.66054 H 1.3229166 Z m -1.05833328,1.2702 H 7.6544754 v 3.53538 H 0.26458332 Z"
+			   inkscape:connector-curvature="0"
+			   inkscape:export-xdpi="27.497019"
+			   inkscape:export-ydpi="27.497019" />
+		  </g>
+		</svg>';
 	}
 	
 	function generateObjectPortName($objID, $objFace, $objDepth, $objPort) {
@@ -1664,84 +2036,29 @@ var $qls;
 					$attrString = implode(' ', $attrArray);
 					$classString = implode(' ', $classArray);
 					
-					$html .='<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="8mm"
-   height="8mm"
-   viewBox="0 0 8 8"
-   version="1.1"
-   id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="RJ45.svg">
-  <defs
-     id="defs2" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="15.07"
-     inkscape:cx="25.095693"
-     inkscape:cy="16.547913"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="986"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1" />
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-289)">
-    <rect
-       id="rect3719"
-       width="7.9884152"
-       height="4.0732136"
-       x="0.01755695"
-       y="291.92606"
-       style="stroke-width:0.29391891"
-       ry="0" />
-    <rect
-       id="rect3719-9"
-       width="4.7579355"
-       height="4.3892388"
-       x="1.6415753"
-       y="290.93408"
-       style="stroke-width:0.23546831"
-       ry="0" />
-    <rect
-       id="rect3719-9-9"
-       width="2.7213287"
-       height="1.5976826"
-       x="2.7301064"
-       y="289.90353"
-       style="stroke-width:0.10743959"
-       ry="0" />
-  </g>
-</svg>';
+					$html .='<div class="'.$classString.'" '.$attrString.'>';
+					switch($this->portTypeArray[$portTypeID]['name']) {
+						case 'RJ45':
+							$html .= $this->portRJ45;
+							break;
+							
+						case 'LC':
+							$html .= $this->portLC;
+							break;
+							
+						case 'SC':
+							$html .= $this->portSC;
+							break;
+							
+						case 'SFP':
+							$html .= $this->portSFP;
+							break;
+							
+						default:
+							$html .= $this->portSFP;
+							break;
+					}
+					$html .= '</div>';
 					//$html .= '<div class="'.$classString.'" '.$attrString.'><svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4"/></svg></div>';
 					//$html .='<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
 					$html .= '</div>';

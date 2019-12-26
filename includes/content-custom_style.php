@@ -87,20 +87,26 @@ function color_inverse($color){
 	width: 100%;
 }
 
-.port {
-	height: 8px;
+.portSVG {
+	height: auto;
 	width: 8px;
 	margin: auto;
-	box-sizing: border-box;
-	background-color: black;
+}
+
+.port {
+	display: flex;
+	flex-direction: row;
+	flex: 1;
 }
 
 .populated {
-	background-color: red;
+	//background-color: red;
+	fill: red !important;
 }
 
 .endpointTrunked {
-	background-color: gray;
+	//background-color: gray;
+	fill: gray;
 }
 
 .RU1 {
