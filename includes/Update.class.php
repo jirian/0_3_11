@@ -64,11 +64,24 @@ var $qls;
 			$this->update_012_to_013();
 		} else if($this->currentVersion == '0.1.3') {
 			$this->update_013_to_020();
+		} else if($this->currentVersion == '0.2.0') {
+			$this->update_020_to_021();
 		} else {
 			return true;
 		}
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+		/**
+	 * Update from version 0.2.0 to 0.2.1
+	 * @return Boolean
+	 */
+	function update_020_to_021() {
+		$incrementalVersion = '0.2.1';
+		
+		// Set app version to 0.2.1
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 	}
 	
 	/**
@@ -77,10 +90,6 @@ var $qls;
 	 */
 	function update_013_to_020() {
 		$incrementalVersion = '0.2.0';
-		
-		// Insert template RUSize must be same as parent template
-		// Insert partition v/hUnits may need to be based on full size instead of parent template v/hUnit values
-		// Add encTolerance field to partitionData JSON
 		
 		// Set app version to 0.2.0
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));

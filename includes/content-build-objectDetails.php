@@ -118,19 +118,23 @@
 				<span id="detailTemplateImage" class="objDetail">-</span>
 			</td>
 		</tr>
-		<tr>
-			<td class="objectDetailAlignRight" valign="top">
-				<strong>Clone:&nbsp&nbsp</strong>
-			</td>
-			<td width="100%">
-				<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light disabled" disabled>
-					<i class="fa fa-copy"></i>
-				</button>
-			</td>
-		</tr>
 	</table>
 	
-	<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-20">
-		<span class="btn-label"><i class="fa fa-times"></i></span>Delete
-	</button>
+	<div>
+		<button id="objFind" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-10 disabled" disabled data-toggle="modal" data-target="#modalTemplateWhereUsed">
+			<span class="btn-label"><i class="fa fa-map-marker"></i></span>Where Used
+		</button>
+	</div>
+	
+	<div>
+		<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-10 disabled" disabled>
+			<span class="btn-label"><i class="fa fa-copy"></i></span>Clone
+		</button>
+	</div>
+	
+	<div>
+		<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-10 disabled" disabled data-toggle="modal" data-target="#modalTemplateDeleteConfirm" >
+			<span class="btn-label"><i class="fa fa-times"></i></span>Delete
+		</button>
+	</div>
 </div>

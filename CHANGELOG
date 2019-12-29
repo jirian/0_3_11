@@ -17,9 +17,12 @@ Contents
 
 **Changes introduced in 0.2.1
 
-[Enhancement]	Ports are represented by icons.
-[Fix]		Added validation for path finder.
-[Enhancement]	Include template name and images when cloning.
+[Fix]		Added validation for path finder
+[Fix]		Resolved error message when switching cabinet face on 'Explore' page
+[Feature]	Template "Where Used"
+[Enhance]	Added icon to identify endpoint object boxes
+[Enhance]	Ports are represented by icons instead of generic squares
+[Enhance]	When cloning templates, include template name and images
 
 **Changes introduced in 0.2.0
 
@@ -27,8 +30,8 @@ Contents
 [Fix]		Relocated app images out of public directory.
 [Fix]		Fixed port name validation.
 [Fix]		Pass Host header through proxy to app server.
-[Feature]	Objects displayed in cable paths are colored according to template category and are clickable.
 [Fix]		Template and floorplan images have been moved out of the app directory to prevent deletion during upgrade or restart.
+[Feature]	Objects displayed in cable paths are colored according to template category and are clickable.
 [Feature]	Added ability to define enclosure tolerance as strict or loose.
 [Feature]	Added ability to clone templates
 [Feature]	Improved markup for insert objects and connectable partitions for improved rendering.
@@ -38,38 +41,38 @@ Contents
 
 [Fix]		Build->Templates: Ports not displaying in connected partitions.
 [Fix]		Build->Templates: Removed style border around enclosure input fields.
-[Feature]	Import template to appropriate category instead of default category.
 [Fix]		Prevent port orientation of non-connectable partitions from being editable in Build->Templates Template Details.
+[Feature]	Import template to appropriate category instead of default category.
 
 **Changes introduced in 0.1.2
 
 [Fix]		Added organization name validation
-[Feature]	Added ability to adjust server name, a server name is required for accepting user invitations.
 [Fix]		Resolved erroneous entitlement errors when entitlement is unlimited
-[Fix]		Resolved install bug stemming from syntax error introduced by addition of BottomLeft-Right port orientation.
-[Feature]	Added port orientation to object detail.
-[Feature]	Improved markup for template enclosures for improved rendering.
+[Fix]		Resolved install bug stemming from syntax error introduced by addition of BottomLeft-Right port orientation
+[Feature]	Added ability to adjust server name, a server name is required for accepting user invitations
+[Feature]	Added port orientation to object detail
+[Feature]	Improved markup for template enclosures for improved rendering
 
 **Changes introduced in 0.1.1
 
-[Fix]		Resolved broken SSL redirect.
-[Feature]	Added PCM email proxy functionality.
-[Feature]	Added entitlement functionality.
-[Fix]		Prevent ports from being connected to themselves.
-[Feature]	Added BottomLeft-Right port orientation.
-[Feature]	Added ability to edit template port orientation.
-[Fix]		Prevent templates from being imported with duplicate names.
-[Fix]		Accommodate importing data which does not specify an enclosure's "strict" property.
-[Fix]		Resolved issue with exporting cable path entries that have no peer cabinet.
-[Fix]		Resolved issue with cabinet adjacency entries persisting after being overwritten.
-[Fix]		Prevent duplicate location node names.
-[Fix]		Resolved issue with cable path and cabinet adjacency entries not being deleted along with cabinets.
-[Fix]		Resolved issue with data export "cabinet objects" cabinet face always being Front.
+[Fix]		Resolved broken SSL redirect
+[Fix]		Prevent ports from being connected to themselves
+[Fix]		Prevent templates from being imported with duplicate names
+[Fix]		Accommodate importing data which does not specify an enclosure's "strict" property
+[Fix]		Resolved issue with exporting cable path entries that have no peer cabinet
+[Fix]		Resolved issue with cabinet adjacency entries persisting after being overwritten
+[Fix]		Prevent duplicate location node names
+[Fix]		Resolved issue with cable path and cabinet adjacency entries not being deleted along with cabinets
+[Fix]		Resolved issue with data export "cabinet objects" cabinet face always being Front
+[Feature]	Added BottomLeft-Right port orientation
+[Feature]	Added ability to edit template port orientation
+[Feature]	Added PCM email proxy functionality
+[Feature]	Added entitlement functionality
 
 **Changes introduced in 0.1.0
 
-[Feature]	Added import/export capabilities for template/floorplan images, floorplan objects, and trunk peer data.
-[Fix]		Resolved issue with code upgrade overwriting database_info.php resulting in initial install page.
-[Fix]		Resolved login issue preventing user login caused by PHP session cleanup.  
-[Fix]		Resolved errors when creating connectable template.
-[Info]		Initial release.
+[Fix]		Resolved issue with code upgrade overwriting database_info.php resulting in initial install page
+[Fix]		Resolved login issue preventing user login caused by PHP session cleanup
+[Fix]		Resolved errors when creating connectable template
+[Feature]	Added import/export capabilities for template/floorplan images, floorplan objects, and trunk peer data
+[Info]		Initial release

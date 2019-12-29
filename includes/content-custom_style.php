@@ -87,26 +87,67 @@ function color_inverse($color){
 	width: 100%;
 }
 
-.portSVG {
-	height: auto;
-	width: 8px;
-	margin: auto;
+.port.RJ45 {
+	background-image: url("/assets/images/portIcons/RJ45-black.png");
+}
+
+.port.RJ45.populated {
+	background-image: url("/assets/images/portIcons/RJ45-red.png");
+}
+
+.port.RJ45.endpointTrunked {
+	background-image: url("/assets/images/portIcons/RJ45-gray.png");
+}
+
+.port.LC {
+	background-image: url("/assets/images/portIcons/LC-black.png");
+}
+
+.port.LC.populated {
+	background-image: url("/assets/images/portIcons/LC-red.png");
+}
+
+.port.LC.endpointTrunked {
+	background-image: url("/assets/images/portIcons/LC-gray.png");
+}
+
+.port.SC {
+	background-image: url("/assets/images/portIcons/SC-black.png");
+}
+
+.port.SC.populated {
+	background-image: url("/assets/images/portIcons/SC-red.png");
+}
+
+.port.SC.endpointTrunked {
+	background-image: url("/assets/images/portIcons/SC-gray.png");
+}
+
+.port.SFP {
+	background-image: url("/assets/images/portIcons/SFP-black.png");
+}
+
+.port.SFP.populated {
+	background-image: url("/assets/images/portIcons/SFP-red.png");
+}
+
+.port.SFP.endpointTrunked {
+	background-image: url("/assets/images/portIcons/SFP-gray.png");
 }
 
 .port {
-	display: flex;
-	flex-direction: row;
-	flex: 1;
+	height: 8px;
+	width: 8px;
+	margin: auto;
+	background-size: 8px 8px;
 }
 
 .populated {
 	//background-color: red;
-	fill: red !important;
 }
 
 .endpointTrunked {
 	//background-color: gray;
-	fill: gray;
 }
 
 .RU1 {

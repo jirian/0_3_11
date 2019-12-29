@@ -38,7 +38,7 @@ function generatePortType(&$qls){
 		if ($row['defaultOption'] == 1){
 			$default = 'selected';
 		}
-		$inputPortType .= '<option data-value="portType'.$row['name'].'" value="'.$row['value'].'" '.$default.'>'.$row['name'].'</option>';
+		$inputPortType .= '<option data-value="'.$row['name'].'" value="'.$row['value'].'" '.$default.'>'.$row['name'].'</option>';
 	}
 	return $inputPortType;
 }

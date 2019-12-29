@@ -403,6 +403,52 @@ require_once './includes/content-templates.php';
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- image upload modal -->
+<div id="modalTemplateDeleteConfirm" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelTemplateDeleteConfirm" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+				<h4 class="modal-title" id="modalLabelTemplateDeleteConfirm">Delete Template</h4>
+			</div>
+			<div class="modal-body">
+				Delete <strong id="deleteTemplateName"></strong>?
+			</div>
+			<div class="modal-footer">
+				<button id="confirmObjDelete" type="button" class="btn btn-secondary btn-danger waves-effect" data-toggle="modal" data-target="#modalTemplateDeleteConfirm">Confirm</button>
+				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- image upload modal -->
+<div id="modalTemplateWhereUsed" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLableTemplateWhereUsed" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+				<h4 class="modal-title" id="modalLableTemplateWhereUsed">Where Used</h4>
+			</div>
+			<div class="modal-body col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+				<h4 id="whereUsedTemplateName"></h4>
+				<div id="whereUsedResults" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>
 
