@@ -34,6 +34,28 @@ $qls->Security->check_auth_page('administrator.php');
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div id="cancelEntitlementModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="cancelEntitlementModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+                <h4 class="modal-title" id="cancelEntitlementModalLabel">Cancel Entitlement</h4>
+            </div>
+            <div class="modal-body">
+                Confirm cancelation.
+            </div>
+			<div class="modal-footer">
+				<button id="confirmEntitlementCancellation" type="button" class="btn btn-secondary btn-danger waves-effect" data-toggle="modal" data-target="#cancelEntitlementModal">Confirm</button>
+				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+			</div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- Page-Title -->
 <div class="row">
     <div class="col-sm-12">
@@ -131,27 +153,41 @@ $qls->Security->check_auth_page('administrator.php');
 			<h4 class="header-title m-t-0 m-b-30">Entitlement</h4>
 			<fieldset class="form-group">
 				<label>Entitlement ID</label>
-				<div>
+				<div style="overflow:hidden;">
 					<a href="#" id="inline-entitlement" data-type="text" data-pk="1" data-title="Enter entitlement ID"><?php echo $qls->App->entitlementArray['id']; ?></a>
 				</div>
 			</fieldset>
 			<fieldset class="form-group">
 				<dl class="dl-horizontal row">
 					<dt class="col-sm-6 text-truncate">Last Checked:</dt>
-					<dd class="col-sm-6" id="entitlementLastChecked"><?php echo $qls->App->formatTime($qls->App->entitlementArray['lastChecked']);?></dd>
+					<dd class="col-sm-6" id="entitlementLastChecked"><?php echo $qls->App->entitlementArray['lastCheckedFormatted'];?></dd>
+					<dt class="col-sm-6 text-truncate">Expires:</dt>
+					<dd class="col-sm-6" id="entitlementExpiration"><?php echo $qls->App->entitlementArray['expirationFormatted'];?></dd>
 					<dt class="col-sm-6">Status:</dt>
 					<dd class="col-sm-6" id="entitlementStatus"><?php echo $qls->App->entitlementArray['status'];?></dd>
 					<div id="entitlementEntitlementData">
 					<?php
 						foreach($qls->App->entitlementArray['data'] as $attribute) {
 							print('<dt class="col-sm-6">'.$attribute['friendlyName'].':</dt>');
-							print('<dd class="col-sm-6">'.$attribute['count'].' ('.$attribute['used'].')</dd>');
+							$count = $attribute['count'] ? $attribute['count'] : 'Unl.';
+							print('<dd class="col-sm-6">'.$count.' ('.$attribute['used'].' used)</dd>');
 						}
 					?>
 					</div>
 				</dl>
 			</fieldset>
-			<button id="entitlementCheck" type="button" class="btn btn-primary">Check Now</button>
+			
+			<div>
+				<button id="entitlementCheck" type="button" class="btn btn-sm btn-primary waves-effect waves-light m-t-10">
+					<span class="btn-label"><i class="fa fa-check"></i></span>Check
+				</button>
+			</div>
+			
+			<div>
+				<button id="entitlementCancel" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-10" data-toggle="modal" data-target="#cancelEntitlementModal" >
+					<span class="btn-label"><i class="fa fa-times"></i></span>Cancel
+				</button>
+			</div>
 			
 		</div>
 	</div>

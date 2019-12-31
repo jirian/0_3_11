@@ -82,6 +82,9 @@ var $qls;
 		
 		// Set app version to 0.2.1
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add "entitlement_expiration" column to "app_organization_data" table
+		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_expiration', 'int(40)', false, 0);
 	}
 	
 	/**

@@ -19,31 +19,46 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	if (!count($validate->returnData['error'])){
 		
-		if($data['action'] == 'update') {
+		$action = strtolower($data['action']);
+		
+		if($action == 'update') {
 			
-			$entitlementID = $data['value'];
-			$qls->SQL->update('app_organization_data', array('entitlement_id' => $data['value']), array('id' => array('=', 1)));
+			$entitlementID = strtolower($data['entitlementID']);
+			$qls->SQL->update('app_organization_data', array('entitlement_id' => $entitlementID), array('id' => array('=', 1)));
 			$qls->App->updateEntitlementData($entitlementID);
 			$qls->App->gatherEntitlementData();
 			$validate->returnData['success'] = $qls->App->entitlementArray;
 			
-		} else if($data['action'] == 'check') {
+		} else if($action == 'check') {
 			
 			$entitlementID = $qls->App->entitlementArray['id'];
 			$qls->App->updateEntitlementData($entitlementID);
 			$qls->App->gatherEntitlementData();
 			$validate->returnData['success'] = $qls->App->entitlementArray;
 			
+		} else if($action == 'cancel') {
+			$qls->App->cancelEntitlement();
+			$qls->App->gatherEntitlementData();
+			$validate->returnData['success'] = $qls->App->entitlementArray;
 		}
 	}
 	echo json_encode($validate->returnData);
 }
 
 function validate($data, &$validate, &$qls){
-	$actionsArray = array('update', 'check');
+	$actionsArray = array('update', 'check', 'cancel');
+	$action = strtolower($data['action']);
 	
 	//Validate action
-	$validate->validateInArray($data['action'], $actionsArray, 'action');
+	if($validate->validateInArray($action, $actionsArray, 'action')) {
+		
+		if($action == 'update') {
+			
+			// Validate entitlement ID
+			$entitlementID = strtolower($data['entitlementID']);
+			$validate->validateSHA($entitlementID, 'Invalid entitlement ID.');
+		}
+	}
 }
 
 ?>

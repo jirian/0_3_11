@@ -403,7 +403,7 @@ require_once './includes/content-templates.php';
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<!-- image upload modal -->
+<!-- delete template modal -->
 <div id="modalTemplateDeleteConfirm" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelTemplateDeleteConfirm" aria-hidden="true" style="display: none;">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">

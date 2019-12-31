@@ -1430,6 +1430,8 @@ var $qls;
 			$this->entitlementArray['id'] = $row['entitlement_id'];
 			$this->entitlementArray['lastChecked'] = $row['entitlement_last_checked'];
 			$this->entitlementArray['lastCheckedFormatted'] = $this->formatTime($row['entitlement_last_checked']);
+			$this->entitlementArray['expiration'] = $row['entitlement_expiration'];
+			$this->entitlementArray['expirationFormatted'] = $row['entitlement_expiration'] > 0 ? $this->formatTime($row['entitlement_expiration']) : 'N/A';
 			$this->entitlementArray['status'] = $row['entitlement_comment'];
 			$this->entitlementArray['data'] = array();
 			
@@ -1492,17 +1494,16 @@ var $qls;
 		return;
 	}
 	
-	function updateEntitlementData($entitlementID=false){
-		
-		$entitlementID = ($entitlementID) ? $entitlementID : $this->entitlementArray['id'];
+	function updateEntitlementData($entitlementID){
 		
 		// POST Request
-		$data = array('entitlementID' => $entitlementID);
+		$data = array(
+			'entitlementID' => $entitlementID
+		);
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);
 		
 		$ch = curl_init('https://patchcablemgr.com/public/process_entitlement.php');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
@@ -1519,10 +1520,50 @@ var $qls;
 			if($response = json_decode($responseJSON, true)) {
 				$updateValues = array(
 					'entitlement_last_checked' => time(),
+					'entitlement_expiration' => $response['expiration'],
 					'entitlement_data' => json_encode($response['data']),
 					'entitlement_comment' => $response['comment']
 				);
 				$this->qls->SQL->update('app_organization_data', $updateValues, array('id' => array('=', 1)));
+			}
+		}
+		
+		// Close cURL session handle
+		curl_close($ch);
+		
+		return;
+	}
+	
+	function cancelEntitlement(){
+		
+		$entitlementID = $this->entitlementArray['id'];
+		
+		// POST Request
+		$data = array(
+			'action' => 'cancel',
+			'entitlementID' => $entitlementID
+		);
+		$dataJSON = json_encode($data);
+		$POSTData = array('data' => $dataJSON);
+		
+		$ch = curl_init('https://patchcablemgr.com/public/process_subscription.php');
+		//curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
+		
+		// Submit the POST request
+		$responseJSON = curl_exec($ch);
+		
+		$this->qls->SQL->update('app_organization_data', array('entitlement_last_checked' => time()), array('id' => array('=', 1)));
+		
+		//Check for request errors.
+		if(!curl_errno($ch)) {
+			if($response = json_decode($responseJSON, true)) {
+				if(!count($response['error'])) {
+					$this->qls->SQL->update('app_organization_data', array('entitlement_comment' => 'canceled'), array('id' => array('=', 1)));
+				}
 			}
 		}
 		

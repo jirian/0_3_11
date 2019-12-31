@@ -22,13 +22,20 @@
  
  function updateEntitlementData(entitlementData) {
 	$('#entitlementLastChecked').html(entitlementData.lastCheckedFormatted);
+	$('#entitlementExpiration').html(entitlementData.expirationFormatted);
 	$('#entitlementStatus').html(entitlementData.status);
 	$('#entitlementEntitlementData').empty();
 	
 	$.each(entitlementData.data, function(index, value){
 		var attribute = '';
+		if(value.count == 0) {
+			var count = 'Unl.';
+		} else {
+			var count = value.count;
+		}
+		
 		attribute += '<dt class="col-sm-6">'+value.friendlyName+':</dt>';
-		attribute += '<dd class="col-sm-6">'+value.count+' ('+value.used+')</dd>';
+		attribute += '<dd class="col-sm-6">'+count+' ('+value.used+' used)</dd>';
 		$('#entitlementEntitlementData').append(attribute);
 	});
  }
@@ -190,6 +197,7 @@ $( document ).ready(function() {
 	$('#entitlementCheck').on('click', function(event){
 		event.preventDefault();
 		var entitlementButton = $(this);
+		var entitlementButtonHTML = $(entitlementButton).html();
 		$(entitlementButton).html('<i class="fa fa-spin fa-spinner"></i>Sending');
 		var entitlementID = $('#inline-entitlement').editable('getValue')['inline-entitlement'];
 
@@ -197,7 +205,7 @@ $( document ).ready(function() {
 		var data = {
 			entitlementID: entitlementID,
 			action: 'check'
-			};
+		};
 		data = JSON.stringify(data);
 		
 		//Retrieve object details
@@ -210,7 +218,31 @@ $( document ).ready(function() {
 			} else {
 				updateEntitlementData(responseJSON.success);
 			}
-			$(entitlementButton).html('Check Now');
+			$(entitlementButton).html(entitlementButtonHTML);
+		});
+	});
+	
+	$('#confirmEntitlementCancellation').on('click', function(event){
+		event.preventDefault();
+		var entitlementID = $('#inline-entitlement').editable('getValue')['inline-entitlement'];
+
+		//Collect object data
+		var data = {
+			entitlementID: entitlementID,
+			action: 'cancel'
+		};
+		data = JSON.stringify(data);
+		
+		//Retrieve object details
+		$.post("backend/process_entitlement.php", {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.comment);
+			} else {
+				updateEntitlementData(responseJSON.success);
+			}
 		});
 	});
 
@@ -263,7 +295,7 @@ $( document ).ready(function() {
 		mode: 'inline',
 		params: function(params){
 			var data = {
-				'value':params.value,
+				'entitlementID':params.value,
 				'action':'update'
 			};
 			params.data = JSON.stringify(data);
