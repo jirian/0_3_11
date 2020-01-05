@@ -411,9 +411,6 @@ var $qls;
 									$peerPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
 									$peerPortTotal = $peerCompatibility['portTotal'];
 									$peerPortID = $port[1];
-									error_log('Debug: '.json_encode($peerPortNameFormat));
-									error_log('Debug: '.$peerPortID);
-									error_log('Debug: '.$peerPortTotal);
 									$peerPortName = $this->generatePortName($peerPortNameFormat, $peerPortID, $peerPortTotal);
 									$objPortNameArray = array($objName, $peerPortName);
 									$objectPortName = implode('.', $objPortNameArray);
@@ -471,7 +468,6 @@ var $qls;
 	 * @return string
 	 */
 	function generatePortName($portNameFormat, $index, $portTotal) {
-		error_log(debug_backtrace()[1]['function']);
 		$portString = '';
 		$incrementalCount = 0;
 		$lowercaseIncrementArray = array();
@@ -1494,7 +1490,9 @@ var $qls;
 		return;
 	}
 	
-	function updateEntitlementData($entitlementID){
+	function updateEntitlementData($entitlementID=false){
+		
+		$entitlementID = ($entitlementID) ? $entitlementID : $this->entitlementArray['id'];
 		
 		// POST Request
 		$data = array(

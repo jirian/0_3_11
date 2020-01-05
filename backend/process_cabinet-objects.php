@@ -17,11 +17,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	if (!count($validate->returnData['error'])){
 		$action = $data['action'];
+		$objectID = $data['objectID'];
 		
 		if($action == 'add') {
 				
 			$cabinetID = $data['cabinetID'];
-			$objectTemplateID = $data['objectID'];
 			$name = $data['name'];
 			$RU = isset($data['RU']) ? $data['RU'] : 0;
 			$cabinetFace = $data['cabinetFace'];
@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					array(
 						'id' => array(
 							'=',
-							$objectTemplateID
+							$objectID
 						)
 					)
 				)
@@ -63,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$insertSlotY = isset($data['insertSlotY']) ? $data['insertSlotY'] : 0;
 			
 			if ($object['templateType'] == 'Insert') {
-				checkInsertCompatibility($parent_id, $parent_face, $parent_depth, $objectTemplateID, false, $qls, $validate);
+				checkInsertCompatibility($parent_id, $parent_face, $parent_depth, $objectID, false, $qls, $validate);
 				detectInsertCollision($parent_id, $parent_face, $parent_depth, $insertSlotX, $insertSlotY, $qls, $validate);
 			} else {
 				detectCollision($RUSize, $cabinetFace, $RU, $objectMountConfig, $cabinetID, $qls, $validate);
@@ -90,7 +90,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					'insertSlotY'
 				), array(
 					$cabinetID,
-					$objectTemplateID,
+					$objectID,
 					$name,
 					$RU,
 					$cabinetFront,
@@ -113,7 +113,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		} else if($action == 'updateObject') {
 			$cabinetID = $data['cabinetID'];
-			$objectID = $data['objectID'];
 			$RU = $data['RU'];
 			$cabinetFace = $data['cabinetFace'];
 			$objectTemplateID = $qls->SQL->fetch_row($qls->SQL->select('template_id', 'app_object', array('id' => array('=', $objectID))))[0];
@@ -153,7 +152,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->App->logAction(2, 2, $actionString);
 			
 		} else if($action == 'updateInsert') {
-			$objectID = $data['objectID'];
 			$parent_id = $data['parent_id'];
 			$parent_face = $data['parent_face'];
 			$parent_depth = $data['parent_depth'];
@@ -187,7 +185,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		} else if($action == 'edit') {
 			$name = $data['value'];
-			$objectID = $data['objectID'];
 			
 			$qls->SQL->update('app_object',
 				array('name' => $name),
@@ -202,7 +199,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->App->logAction(2, 2, $actionString);
 			
 		} else if($action == 'delete') {
-			$objectID = $data['objectID'];
 			$safeToDelete = true;
 			
 			// Check object for connections
@@ -379,91 +375,122 @@ function detectOverlap($RUSize, $RU, $cabinetID, &$qls, &$validate){
 }
 
 function validate(&$data, &$validate, &$qls){
-	switch($data['action']){
-		case 'add':
-		
-			// Validate cabinet ID
-			if($validate->validateID($data['cabinetID'], 'cabinet ID')) {
-				$name = $qls->App->findUniqueName($data['cabinetID'], 'object');
-				if($name === false) {
-					$errMsg = 'Unable to find unique name.';
-					array_push($validate->returnData['error'], $errMsg);
-				} else {
-					$data['name'] = $name;
-				}
-			}
 	
-			// Validate cabinet RU
-			if($data['RU'] != 0) {
-				$validate->validateID($data['RU'], 'cabinet RU');
-			}
+	// Validate objectID and action
+	$objectID = $data['objectID'];
+	$actionArray = array('add', 'delete', 'edit', 'updateObject', 'updateInsert');
+	$action = $data['action'];
+	if($validate->validateInArray($action, $actionArray, 'action') and $validate->validateID($objectID, 'object ID')) {
+	
+		switch($action){
+			case 'add':
+			
+				// Validate cabinet ID
+				if($validate->validateID($data['cabinetID'], 'cabinet ID')) {
+					$name = $qls->App->findUniqueName($data['cabinetID'], 'object');
+					if($name === false) {
+						$errMsg = 'Unable to find unique name.';
+						array_push($validate->returnData['error'], $errMsg);
+					} else {
+						$data['name'] = $name;
+					}
+				}
 		
-			// Validate objectID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-			// Validate entitlement
-			$query = $qls->SQL->select('id', 'app_object');
-			$objNum = $qls->SQL->num_rows($query) + 1;
-			
-			if(!$qls->App->checkEntitlement('object', $objNum)) {
-				$errMsg = 'Exceeded entitled object count.';
-				array_push($validate->returnData['error'], $errMsg);
-			}
-			
-		case 'delete':
-			// Validate objectID
-			$validate->validateID($data['objectID'], 'object ID');
-			break;
-			
-		case 'updateObject':
-			// Validate object ID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-			// Validate cabinet RU
-			$validate->validateRUSize($data['RU']);
-			break;
-			
-		case 'updateInsert':
-			// Validate object ID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-			// Validate parent ID
-			$validate->validateID($data['parent_id'], 'parent ID');
-			
-			// Validate parent ID
-			$validate->validateID($data['parent_depth'], 'parent depth');
-			
-			// Validate insert slot X
-			$validate->validateID($data['insertSlotX'], 'insert slot X');
-			
-			// Validate insert slot Y
-			$validate->validateID($data['insertSlotY'], 'insert slot Y');
-			break;
-			
-		case 'edit':
-			// Validate objectID
-			if($validate->validateID($data['objectID'], 'object ID')) {
+				// Validate cabinet RU
+				if($data['RU'] != 0) {
+					$validate->validateRUSize($data['RU'], 'cabinet RU');
+				}
 				
+				// Validate entitlement
+				$query = $qls->SQL->select('id', 'app_object');
+				$objNum = $qls->SQL->num_rows($query) + 1;
+				
+				if(!$qls->App->checkEntitlement('object', $objNum)) {
+					$errMsg = 'Exceeded entitled object count.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+				
+				// Validate cabinet face
+				$cabinetFace = $data['cabinetFace'];
+				$validate->validateObjectFace($cabinetFace);
+				
+				// Validate insert related input
+				if(isset($data['parent_id']) or isset($data['parent_face']) or isset($data['parent_depth']) or isset($data['insertSlotX']) or isset($data['insertSlotY'])) {
+					$parent_id = $data['parent_id'];
+					$parent_face = $data['parent_face'];
+					$parent_depth = $data['parent_depth'];
+					$insertSlotX = $data['insertSlotX'];
+					$insertSlotY = $data['insertSlotY'];
+					
+					$validate->validateID($parent_id, 'parent id');
+					$validate->validateObjectFace($parent_face, 'parent face');
+					$validate->validateID($parent_depth, 'parent depth');
+					$validate->validateID($insertSlotX, 'insert slot X');
+					$validate->validateID($insertSlotY, 'insert slot Y');
+				}
+				break;
+				
+			case 'delete':
+				break;
+				
+			case 'updateObject':
+			
+				// Validate cabinet ID
+				$cabinetID = $data['cabinetID'];
+				$validate->validateID($cabinetID, 'cabinet id');
+				
+				// Validate cabinet RU
+				$objectRU = $data['RU'];
+				$validate->validateRUSize($objectRU);
+				
+				// Validate cabinet face
+				$cabinetFace = $data['cabinetFace'];
+				$validate->validateObjectFace($cabinetFace);
+				
+				break;
+				
+			case 'updateInsert':
+				
+				// Validate insert related input
+				$parent_id = $data['parent_id'];
+				$parent_face = $data['parent_face'];
+				$parent_depth = $data['parent_depth'];
+				$insertSlotX = $data['insertSlotX'];
+				$insertSlotY = $data['insertSlotY'];
+				
+				$validate->validateID($parent_id, 'parent id');
+				$validate->validateObjectFace($parent_face, 'parent face');
+				$validate->validateID($parent_depth, 'parent depth');
+				$validate->validateID($insertSlotX, 'insert slot X');
+				$validate->validateID($insertSlotY, 'insert slot Y');
+				
+				break;
+				
+			case 'edit':
+			
 				// Validate object existence
 				$table = 'app_object';
-				$where = array('id' => array('=', $data['objectID']));
+				$where = array('id' => array('=', $objectID));
 				if($object = $validate->validateExistenceInDB($table, $where, 'Object does not exist.')) {
+					
 					$parentID = $object['parent_id'];
-					//Validate objectName
 					$cabinetID = $object['env_tree_id'];
+					
 					if($validate->validateNameText($data['value'], 'object name')) {
+						
+						$name = $data['value'];
 						$table = 'app_object';
 						if($parentID) {
-							$where = array('name' => array('=', $data['value']), 'AND', 'env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', $parentID));
+							$where = array('name' => array('=', $name), 'AND', 'env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', $parentID));
 						} else {
-							$where = array('name' => array('=', $data['value']), 'AND', 'env_tree_id' => array('=', $cabinetID));
+							$where = array('name' => array('=', $name), 'AND', 'env_tree_id' => array('=', $cabinetID));
 						}
 						$validate->validateDuplicate($table, $where, 'Duplicate object name found in the same cabinet.');
 					}
 				}
-			}
-			
-			break;
+				
+				break;
+		}
 	}
 	return;
 }

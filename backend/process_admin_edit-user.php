@@ -20,17 +20,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	if (!count($validate->returnData['error'])){
 		$userID = $data['userID'];
+		$userType = $data['userType'];
 		
 		if($data['action'] == 'role') {
 			$groupID = $data['groupID'];
 			
-			if($data['userType'] == 'active') {
+			if($userType == 'active') {
 				$qls->SQL->update('users', array('group_id' => $groupID), array('id' => array('=', $userID)));
-			} else if($data['userType'] == 'invitation') {
+			} else if($userType == 'invitation') {
 				$qls->SQL->update('invitations', array('group_id' => $groupID), array('id' => array('=', $userID)));
 			}
 		} else if($data['action'] == 'delete') {
-			if($data['userType'] == 'active') {
+			if($userType == 'active') {
 				if($userID != $qls->user_info['id']) {
 					$query = $qls->SQL->select('*', 'users', array('id' => array('=', $userID)));
 					if($qls->SQL->num_rows($query)) {
@@ -43,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$errMsg = 'Cannot remove yourself.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
-			} else if($data['userType'] == 'invitation') {
+			} else if($userType == 'invitation') {
 				$qls->SQL->delete('invitations', array('id' => array('=', $userID), 'AND', 'used' => array('=', 0)));
 			}
 		}
@@ -52,6 +53,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
+	
+	// Validate action
+	$actionArray = array('role', 'delete');
+	$action = $data['action'];
+	if($validate->validateInArray($action, $actionArray, 'action')) {
+		
+		if($action == 'role') {
+			$groupID = $data['groupID'];
+			$validate->validateID($groupID, 'groupID');
+		}
+	}
+	
+	// Validate userID
+	$userID = $data['userID'];
+	$validate->validateID($userID, 'userID');
+	
+	// Validate userType
+	$userTypeArray = array('active', 'invitation');
+	$userType = $data['userType'];
+	$validate->validateInArray($userType, $userTypeArray, 'user type');
+	
 	return;
 }
 

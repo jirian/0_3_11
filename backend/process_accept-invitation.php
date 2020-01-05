@@ -65,9 +65,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
-	$error = [];
+	$actionArray = array('accept', 'decline', 'revert');
+	$action = $data['action'];
 	
-	return $error;
+	if($validate->validateInArray($action, $actionArray, 'action')) {
+		if($action == 'accept' or $action == 'decline') {
+			$invitationCode = $data['invitationCode'];
+			'Invalid invitation Code.';
+			$validate->validateSHA($invitationCode, $errMsg);
+		}
+	}
+	
+	return;
 }
 
 function canDelete(&$qls, &$validate){

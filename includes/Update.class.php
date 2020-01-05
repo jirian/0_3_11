@@ -85,6 +85,9 @@ var $qls;
 		
 		// Add "entitlement_expiration" column to "app_organization_data" table
 		$this->qls->SQL->alter('app_organization_data', 'add', 'entitlement_expiration', 'int(40)', false, 0);
+		
+		// Allow Administrator role to remove users
+		$this->qls->SQL->update('masks', array('auth_admin_remove_user' => 1), array('name' => array('=', 'Administrator')));
 	}
 	
 	/**

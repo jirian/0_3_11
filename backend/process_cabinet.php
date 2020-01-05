@@ -29,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$attrLocalCabinet = $data['side'] == 'adjCabinetSelectL' ? 'right_cabinet_id' : 'left_cabinet_id';
 			$attrAdjCabinet = $data['side'] == 'adjCabinetSelectL' ? 'left_cabinet_id' : 'right_cabinet_id';
-			$localCabinetID = $data['cabinetID'];
+			$localCabinetID = $cabinetID;
 			$adjCabinetID = $data['adjCabinetID'];
 			
 			// Build array to loop through
@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		} else if($action == 'path') {
 			
-			$localCabinetID = $data['cabinetID'];
+			$localCabinetID = $cabinetID;
 			$adjCabinetID = $data['value'];
 			$pathID = $data['pathID'];
 
@@ -654,6 +654,7 @@ function validate($data, &$validate, &$qls){
 			//Validate cabinet ID
 			$cabinetID = $data['cabinetID'];
 			$validate->validateObjectID($cabinetID);
+			
 		} else if($action == 'adj') {
 			
 			//Validate cabinet ID

@@ -17,6 +17,8 @@ Contents
 
 **Changes introduced in 0.2.1
 
+[Fix]		Display template image in details box
+[Fix]		Allow Administrator role to remove users
 [Fix]		Added validation for path finder
 [Fix]		Resolved error message when switching cabinet face on 'Explore' page
 [Feature]	Template "Where Used"

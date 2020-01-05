@@ -201,7 +201,16 @@ function makeRackObjectsClickable(){
 				$('#detailPortOrientation').html(response.portOrientationName);
 				$('#detailPortType').html(response.portType);
 				$('#detailMediaType').html(response.mediaType);
-				
+				if(response.templateImgExists) {
+					$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
+					$('#elementTemplateImage').attr({
+						src:response.templateImgPath,
+						height:response.templateImgHeight + 'px',
+						width:response.templateImgWidth + '%'
+					});
+				} else {
+					$('#detailTemplateImage').html('None');
+				}
 				$('#objDelete').prop('disabled', false);
 				$('#inline-name').editable('option', 'disabled', false);
 				
