@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.2.2
 	- Changes Introduced In 0.2.1
 	- Changes Introduced In 0.2.0
 	- Changes Introduced In 0.1.3
@@ -14,6 +15,13 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.2.1
+
+[Fix]		Display template image as correct size when initially uploaded
+[Fix]		Changed port ID field order to reflect lower order incremental fields incrementing first
+[Fix]		Corrected issue with port IDs consisting of more than 3 incremental fields not incrementing as expected
+[Fix]		Corrected port ID validation
 
 **Changes introduced in 0.2.1
 

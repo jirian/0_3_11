@@ -322,10 +322,12 @@ class Validate {
 		if (!isset($input)){
 			$errorMsg = $reference ? $reference : 'Partition type is required.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		} else {
 			if ($input != 'Generic' and $input != 'Connectable' and $input != 'Enclosure'){
 				$errorMsg = $reference ? $reference : 'Invalid partition type.';
 				array_push($this->returnData['error'], $errorMsg);
+				return false;
 			}
 		}
 		return true;
@@ -439,10 +441,12 @@ class Validate {
 		if (!isset($input)){
 			$errorMsg = 'Port total is required.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		} else {
 			if (!preg_match('/^[0-9]|[1-9][0-9]?$/', $input)){
 				$errorMsg = 'Invalid port total.';
 				array_push($this->returnData['error'], $errorMsg);
+				return false;
 			}
 		}
 		return true;
@@ -898,26 +902,57 @@ class Validate {
 		return true;
 	}
 	
-	function validatePortNameFormat($input, $reference=false) {
+	function validatePortNameFormat($input, $portTotal, $reference=false) {
 		$portNameData = $input;
 		$success = true;
 		if(is_array($portNameData) and (count($portNameData) >=1 and count($portNameData) <= 5)) {
+			
+			$fieldLength = 1;
+			$hasIncremental = false;
+			$hasInfiniteIncremental = false;
+			
 			foreach($portNameData as $portNameField) {
 				$type = $portNameField['type'];
 				if($type == 'static') {
-					if(!$this->validatePortNameFieldStatic($portNameField['value'])) {
+					if(!$this->validatePortNameFieldStatic($portNameField['value'], $reference)) {
 						$success = false;
 					}
 				} else if($type == 'incremental') {
+					$hasIncremental = true;
 					if(!$this->validatePortNameFieldIncremental($portNameField['value'], $reference)) {
 						$success = false;
+					} else {
+						$fieldLength *= $portNameField['count'];
+						if($portNameField['count'] == 0) {
+							$hasInfiniteIncremental = true;
+						}
 					}
 				} else if($type == 'series') {
-					if(!$this->validatePortNameFieldSeries($portNameField['value'])) {
+					$hasIncremental = true;
+					if(!$this->validatePortNameFieldSeries($portNameField['value'], $reference)) {
 						$success = false;
+					} else {
+						$fieldLength *= count($portNameField['value']);
 					}
 				} else {
 					$errorMsg = 'Invalid port name field type.';
+					array_push($this->returnData['error'], $errorMsg);
+					$success = false;
+				}
+			}
+			
+			//
+			if($portTotal > 1) {
+				if($hasIncremental) {
+					if(!$hasInfiniteIncremental) {
+						if($fieldLength < $portTotal) {
+							$errorMsg = $reference ? $reference.' (Duplicate port IDs found)' : 'Duplicate port IDs found.  Try adding an incremental field with a "0" count.';
+							array_push($this->returnData['error'], $errorMsg);
+							$success = false;
+						}
+					}
+				} else {
+					$errorMsg = $reference ? $reference.' (Duplicate port IDs found)' : 'Duplicate port IDs found.  Try adding an incremental field.';
 					array_push($this->returnData['error'], $errorMsg);
 					$success = false;
 				}
@@ -936,9 +971,7 @@ class Validate {
 			//$depth++;
 			
 			//Validate partition type
-			if(!$this->validatePartitionType($input['partitionType'], $reference)) {
-				
-				$success = false;
+			if($this->validatePartitionType($input['partitionType'], $reference)) {
 				$partitionType = $input['partitionType'];
 				
 				if($partitionType == 'Connectable') {
@@ -965,8 +998,11 @@ class Validate {
 					
 					// Validate port name format
 					if($input['partitionType'] == 'Connectable') {
-						if(!$this->validatePortNameFormat($input['portNameFormat'], $reference)) {
-							$success = false;
+						if($success) {
+							$portTotal = $input['valueX'] * $input['valueY'];
+							if(!$this->validatePortNameFormat($input['portNameFormat'], $portTotal, $reference)) {
+								$success = false;
+							}
 						}
 					}
 					
@@ -988,6 +1024,8 @@ class Validate {
 					}
 					
 				}
+			} else {
+				$success = false;
 			}
 			
 			// Validate partition flex direction

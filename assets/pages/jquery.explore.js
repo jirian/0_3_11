@@ -665,7 +665,7 @@ $( document ).ready(function() {
 	
 	$('.sideSelectorCabinet').on('change', function(){
 		var cabinetFace = $(this).val();
-		var cabinetID = $('#cabinetHeader').attr('data-cabinetid');
+		var cabinetID = $(document).data('cabinetID');
 		var cabinetView = $(document).data('cabinetView');
 		$(document).data('cabinetFace', cabinetFace);
 		retrieveCabinet(cabinetID, cabinetFace, cabinetView);

@@ -61,7 +61,6 @@ function handleOrientationInput(){
 
 function setPartitionSizeInput(){
 	var variables = getVariables();
-	console.log($(document).data('templateSide'));
 	
 	// If selected object is not the parent container...
 	if(!$(variables['selectedObj']).hasClass('flex-container-parent')){
@@ -88,7 +87,6 @@ function setPartitionSizeInput(){
 			unitsTaken = workingUnitsTaken > unitsTaken ? workingUnitsTaken : unitsTaken;
 		});
 		var partitionMin = partitionStep * unitsTaken == 0 ? partitionStep :  partitionStep * unitsTaken;
-		console.log('partitionStep='+partitionStep+' flexUnits='+flexUnits);
 		var partitionSize = ((partitionStep * 10) * (flexUnits * 10)) / 100;
 		var partitionMax = partitionStep * (flexUnits + availableUnits);
 		
@@ -411,7 +409,10 @@ function makeRackObjectsClickable(){
 						width:response.templateImgWidth + '%'
 					});
 				} else {
-					$('#elementTemplateImage').hide();
+					$('#elementTemplateImage').attr({
+						height:response.templateImgHeight + 'px',
+						width:response.templateImgWidth + '%'
+					}).hide();
 				}
 				
 				// Object Category
@@ -883,7 +884,6 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 		$.each(templates, function(indexTemplate, valueTemplate){
 			var templateObj = $(valueTemplate);
 			var templateName = $(valueTemplate).data('templateName').toLowerCase();
-			console.log(templateName);
 			var match = true;
 			$.each(tags, function(indexTag, valueTag){
 				var tag = valueTag.toLowerCase();
@@ -895,7 +895,6 @@ function filterTemplates(containerElement, inputElement, categoryContainers){
 			});
 			
 			if(match) {
-				console.log('show');
 				$(templateObj).show().addClass('templateVisible');
 			}
 		});
@@ -1051,16 +1050,18 @@ function reloadTemplates(){
 function setPortNameFieldFocus(){
 	$('.portNameFields').off('focus');
 	$('.portNameFields').focus(function(){
-		$(document).data('focusedPortNameField', $(this));
-		handlePortNameOptions();
+		//$(document).data('focusedPortNameField', $(this));
+		//handlePortNameOptions();
 		var focusedPortNameField = $(this);
 		$('.portNameFields').removeClass('input-focused');
 		$(focusedPortNameField).addClass('input-focused');
+		handlePortNameOptions();
 	});
 }
 
 function handlePortNameOptions(){
-	var focusedPortNameField = $(document).data('focusedPortNameField');
+	//var focusedPortNameField = $(document).data('focusedPortNameField');
+	var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 	var valuePortNameType = $(focusedPortNameField).data('type');
 	$('#selectPortNameFieldType').children('option[value="'+valuePortNameType+'"]').prop('selected', true);
 	
@@ -1081,7 +1082,7 @@ function handlePortNameOptions(){
 		$('#selectPortNameFieldOrder').empty();
 		var x;
 		for(x=1; x<=numberOfIncrementals; x++) {
-			var optionString = convertNumToDeg(x);
+			var optionString = convertNumToDeg(x, numberOfIncrementals);
 			$('#selectPortNameFieldOrder').append('<option value="'+x+'">'+optionString+'</option>');
 		}
 		
@@ -1098,56 +1099,83 @@ function handlePortNameOptions(){
 	}
 }
 
-function convertNumToDeg(num){
-	if(num==1) {
-		string = '1st';
-	} else if(num==2) {
-		string = '2nd';
-	} else if(num==3) {
-		string = '3rd';
-	} else {
-		string = num+'th';
+function convertNumToDeg(num, total){
+	
+	// Invert the number... in a series of 3 incremental fields, the 3rd field in order will display as "1st"
+	var numArray = new Array(total);
+	for(x=0; x<total; x++) {
+		numArray[x] = x+1;
 	}
+	invertedNum = numArray[total - num];
+	
+	// Determine superscript
+	if(invertedNum==1) {
+		superScript = 'st';
+	} else if(invertedNum==2) {
+		superScript = 'nd';
+	} else if(invertedNum==3) {
+		superScript = 'rd';
+	} else {
+		superScript = 'th';
+	}
+	
+	// Smoosh it together
+	string = invertedNum + superScript;
 	
 	return string;
 }
 
 function reorderIncrementals(newOrder){
-	var focusedPortNameField = $(document).data('focusedPortNameField');
-	var originalOrder = parseInt($(focusedPortNameField).data('order'));
+	//var focusedPortNameField = $(document).data('focusedPortNameField');
+	
 	var incrementalElements = $('.portNameFields[data-type="incremental"], .portNameFields[data-type="series"]');
+	var numberOfIncrementals = $(incrementalElements).length;
+	var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
+	var originalOrder = parseInt($(focusedPortNameField).data('order'));
 	$(incrementalElements).each(function(){
 		
 		var currentOrder = parseInt($(this).data('order'));
-		if(newOrder > originalOrder) {
-			var adjustment = -1;
-		} else if(newOrder < originalOrder) {
-			var adjustment = 1;
-		}
 		
-		if(currentOrder < originalOrder && currentOrder >= newOrder) {
-			var x = currentOrder + adjustment;
-		} else if(currentOrder == originalOrder || currentOrder == newOrder){
-			var x = newOrder;
+		if(currentOrder > originalOrder) {
+			if(currentOrder > newOrder) {
+				var x = currentOrder;
+			} else if(currentOrder < newOrder) {
+				var x = currentOrder - 1;
+			} else {
+				var x = currentOrder - 1;
+			}
+		} else if(currentOrder < originalOrder) {
+			if(currentOrder > newOrder) {
+				var x = currentOrder + 1;
+			} else if(currentOrder < newOrder) {
+				var x = currentOrder;
+			} else {
+				var x = currentOrder + 1;
+			}
 		} else {
-			var x = currentOrder;
+			var x = newOrder;
 		}
 		
-		var y = convertNumToDeg(x);
+		var y = convertNumToDeg(x, numberOfIncrementals);
 		$(this).data('order', x);
 		$(this).prev('em').html(y);
 	});
 }
 
 function resetIncrementals(){
-	var focusedPortNameField = $(document).data('focusedPortNameField');
+	//var focusedPortNameField = $(document).data('focusedPortNameField');
+	var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 	var incrementalElements = $('.portNameFields[data-type="incremental"], .portNameFields[data-type="series"]');
+	var numberOfIncrementals = $(incrementalElements).length;
 	
 	// Set order to last if this is an unorderable field changing to an orderable field?
 	var selectedOrder = parseInt($(focusedPortNameField).data('order'));
+	
+	/*
 	if(selectedOrder == 0) {
-		$(focusedPortNameField).data('order', incrementalElements.length);
+		$(focusedPortNameField).data('order', numberOfIncrementals);
 	}
+	*/
 	
 	incrementalElements = incrementalElements.sort(function(a, b) {
 		return parseInt($(a).data('order')) - parseInt($(b).data('order'));
@@ -1155,7 +1183,7 @@ function resetIncrementals(){
 	
 	$(incrementalElements).each(function(index){
 		var newOrder = index+1;
-		var newOrderString = convertNumToDeg(newOrder);
+		var newOrderString = convertNumToDeg(newOrder, numberOfIncrementals);
 		$(this).data('order', newOrder);
 		$(this).prev().html(newOrderString);
 	});
@@ -1211,9 +1239,7 @@ function updatePortNameDisplay(){
 	if($(document).data('portNameFormatAction') == 'edit') {
 		var portTotal = $(document).data('portTotalEdit');
 		var portNameFormat = $(document).data('portNameFormatEdit');
-		console.log('portTotal='+portTotal);
 	} else {
-		console.log('not edit');
 		var variables = getVariables();
 		var portLayoutX = $(variables['selectedObj']).data('valueX');
 		var portLayoutY = $(variables['selectedObj']).data('valueY');
@@ -1237,6 +1263,7 @@ function updatePortNameDisplay(){
 		} else if ($(response.error).size() > 0){
 			displayErrorElement(response.error, $('#alertMsgPortName'));
 			$('#portNameDisplayConfig').html('Error');
+			$('#portNameDisplay').html('Error');
 		} else {
 			$('#alertMsgPortName').empty();
 			
@@ -1541,7 +1568,6 @@ $( document ).ready(function() {
 		$('[name="objectTypeRadio"][value='+templateType+']').prop('checked', true);
 		$('[name="category"][value='+categoryID+']').prop('selected', true);
 		$('#inputName').val(templateName);
-		console.log(templateFrontImage);
 		$('#inputFrontImage').val(templateFrontImage);
 		$('#inputRearImage').val(templateRearImage);
 		
@@ -2085,28 +2111,30 @@ $( document ).ready(function() {
 	$('#portNameModal').on('shown.bs.modal', function (e){
 		
 		var invoker = $(e.relatedTarget);
-		console.log('modalShown '+$(invoker).data('portNameAction'));
 		$(document).data('portNameFormatAction', $(invoker).data('portNameAction'));
 		
 		setPortNameInput();
 		updatePortNameDisplay();
 		setPortNameFieldFocus();
-		handlePortNameOptions();
-		$('.portNameFields').on('keyup', function(){
-			updateportNameFormat();
-			updatePortNameDisplay();
-		});
 		
 		if(!$('.portNameFields:focus').length) {
 			$('.portNameFields').first().focus();
 		}
+		
+		//handlePortNameOptions();
+		
+		$('.portNameFields').on('keyup', function(){
+			updateportNameFormat();
+			updatePortNameDisplay();
+		});
 	});
 	
 	// Port Naming Add Field
 	$('#buttonAddPortNameField').on('click', function(){
-		var fieldFocused = $(document).data('focusedPortNameField');
+		//var fieldFocused = $(document).data('focusedPortNameField');
+		var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 		var nameFieldHTML = $('<div class="col-sm-2 no-padding"><em>&nbsp</em><input type="text" class="portNameFields form-control" value="Port" data-type="static" data-count="0" data-order="0"></div>');
-		nameFieldHTML.insertAfter(fieldFocused.parent());
+		nameFieldHTML.insertAfter(focusedPortNameField.parent());
 		setPortNameFieldFocus();
 		handlePortNameOptions();
 		nameFieldHTML.children('input').focus();
@@ -2123,11 +2151,12 @@ $( document ).ready(function() {
 	
 	// Port Naming Remove Field
 	$('#buttonDeletePortNameField').on('click', function(){
-		var fieldFocused = $(document).data('focusedPortNameField');
+		//var fieldFocused = $(document).data('focusedPortNameField');
+		var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 		var portNameFields = $('.portNameFields');
-		var fieldFocusedIndex = $(portNameFields).index(fieldFocused);
+		var fieldFocusedIndex = $(portNameFields).index(focusedPortNameField);
 		
-		$(fieldFocused).parent().remove();
+		$(focusedPortNameField).parent().remove();
 		resetIncrementals();
 		$(portNameFields).eq(fieldFocusedIndex-1).focus();
 		handlePortNameFieldAddRemoveButtons();
@@ -2137,7 +2166,8 @@ $( document ).ready(function() {
 	
 	// Port Naming Type Selection
 	$('#selectPortNameFieldType').on('change', function(){
-		var focusedPortNameField = $(document).data('focusedPortNameField');
+		//var focusedPortNameField = $(document).data('focusedPortNameField');
+		var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 		var valuePortNameType = $(this).val();
 		
 		focusedPortNameField.data('type', valuePortNameType);
@@ -2159,7 +2189,8 @@ $( document ).ready(function() {
 	
 	// Port Naming Count
 	$('#inputPortNameFieldCount').on('change', function(){
-		var focusedPortNameField = $(document).data('focusedPortNameField');
+		//var focusedPortNameField = $(document).data('focusedPortNameField');
+		var focusedPortNameField = $('#portNameFieldContainer').find('.input-focused');
 		var valueCount = $(this).val();
 		focusedPortNameField.data('count', valueCount);
 		updateportNameFormat();

@@ -470,6 +470,8 @@ var $qls;
 	function generatePortName($portNameFormat, $index, $portTotal) {
 		$portString = '';
 		$incrementalCount = 0;
+		
+		// Create character arrays
 		$lowercaseIncrementArray = array();
 		$uppercaseIncrementArray = array();
 		for($x=97; $x<=122; $x++) {
@@ -479,6 +481,7 @@ var $qls;
 			array_push($uppercaseIncrementArray, chr($x));
 		}
 		
+		// Account for infinite count incrementals
 		foreach($portNameFormat as &$itemA) {
 			$type = $itemA['type'];
 			
@@ -495,15 +498,12 @@ var $qls;
 			$value = $itemB['value'];
 			$order = $itemB['order'];
 			$count = $itemB['count'];
-			$numerator = 0;
 			
 			if($type == 'static') {
 				$portString = $portString.$value;
 			} else if($type == 'incremental' or $type == 'series') {
-				
-				if($order == $incrementalCount) {
-					$numerator = 1;
-				} else if($order < $incrementalCount) {
+				$numerator = 1;
+				if($order < $incrementalCount) {
 					foreach($portNameFormat as $itemC) {
 						$typeC = $itemC['type'];
 						$orderC = $itemC['order'];
@@ -511,16 +511,20 @@ var $qls;
 						
 						if($typeC == 'incremental' or $typeC == 'series') {
 							if($order < $orderC) {
-								$numerator += $countC;
+								$numerator *= $countC;
 							}
 						}
 					}
 				}
 				
+				
+				
 				$howMuchToIncrement = floor($index / $numerator);
+				//error_log('Index:'.$index.' Order:'.$order.' howMuchToIncrement:'.$howMuchToIncrement.' numerator:'.$numerator);
 				if($howMuchToIncrement >= $count) {
 					$rollOver = floor($howMuchToIncrement / $count);
 					$howMuchToIncrement = $howMuchToIncrement - ($rollOver * $count);
+					//error_log('rollOver:'.$howMuchToIncrement);
 				}
 				
 				if($type == 'incremental') {
@@ -650,6 +654,7 @@ var $qls;
 		$return['function'] = $objCompatibility['partitionFunction'];
 		$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
 		$portTotal = $objCompatibility['portLayoutX']*$objCompatibility['portLayoutY'];
+		error_log('Debug: '.$objCompatibility['portNameFormat']);
 		$portName = $this->generatePortName($portNameFormat, $portID, $portTotal);
 		$templateType = $objCompatibility['templateType'];
 		
@@ -1365,7 +1370,7 @@ var $qls;
 				foreach($objectElements as $elementIndex => $element){
 					array_push($elementArray, $element);
 				}
-				$objName = $objSelected ? '<i class="fa fa-map-marker"></i>&nbsp;' : '';
+				$objName = $objSelected ? '<i class="fa fa-map-marker" title="Selected Object"></i>&nbsp;' : '';
 				$objName .= implode('.', $elementArray);
 			} else {
 				$objName = 'None';
@@ -2028,7 +2033,7 @@ var $qls;
 		
 		$class = implode(' ', $classArray);
 		
-		$endpointIcon = ($templateFunction == 'Endpoint') ? '<i class="fa fa-crosshairs"></i>&nbsp;' : '';
+		$endpointIcon = ($templateFunction == 'Endpoint') ? '<i class="fa fa-crosshairs" title="Endpoint"></i>&nbsp;' : '';
 		$html = '';
 		$html .= ($objID) ? '<a href="/explore.php?parentID='.$parentID.'&objID='.$objID.'">' : '';
 		$html .= '<div class="'.$class.'">';

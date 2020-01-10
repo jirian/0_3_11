@@ -426,7 +426,6 @@ function validate($data, &$validate, &$qls){
 		
 		if(is_array($data['objects']) and (count($data['objects']) >= 1 and count($data['objects']) <= 2)) {
 			foreach ($data['objects'] as $face) {
-				error_log('Debug: '.$face[0]);
 				$validate->validateTemplateJSON($face[0]);
 			}
 		} else {
@@ -481,7 +480,8 @@ function validate($data, &$validate, &$qls){
 						
 						if($compatibility['partitionType'] == 'Connectable') {
 							$portNameFormat = $data['value'];
-							$validate->validatePortNameFormat($portNameFormat);
+							$portTotal = $compatibility['portLayoutX'] * $compatibility['portLayoutY'];
+							$validate->validatePortNameFormat($portNameFormat, $portTotal);
 						} else {
 							$errorMsg = 'Invalid partition type.';
 							array_push($validate->returnData['error'], $errorMsg);

@@ -86,29 +86,20 @@ for($x=0; $x<2; $x++){
 			// Get cable connected to peer object
 			$cableID = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort]['localEndID'];
 			$cable = $qls->App->inventoryByIDArray[$cableID];
-			//$cbl = $qls->App->getCable($peer['id'], $objPort, $objFace, $objDepth);
-			//$workingNearCblAttrPrefix = $cbl['nearEnd'];
-			//$workingFarCblAttrPrefix = $cbl['farEnd'];
 			
 			// Add cable to working array
-			//$cblArray = array($cbl[$workingNearCblAttrPrefix.'_code39'], $cbl[$workingFarCblAttrPrefix.'_code39']);
 			$cblArray = array($cable['remoteEndCode39'], $cable['remoteEndCode39']);
 			
 			if ($x == 1) {
 				$cblArray = array_reverse($cblArray);
 			}
 			
-			//$length = calculateCableLength($mediaTypeTable, $mediaCategoryTypeTable, $cbl);
 			$length = $qls->App->calculateCableLength($cable['mediaType'], $cable['mediaType']);
 			
 			array_push($cblArray, $length);
 			array_push($workingArray, $cblArray);
 			
 			// Get object data connected to far end of the cable
-			//$objID = $cbl[$workingFarCblAttrPrefix.'_object_id'];
-			//$objPort = $cbl[$workingFarCblAttrPrefix.'_port_id'];
-			//$objFace = $cbl[$workingFarCblAttrPrefix.'_object_face'];
-			//$objDepth = $cbl[$workingFarCblAttrPrefix.'_object_depth'];
 			$objID = $cbl['remoteEndID'];
 			$objFace = $cbl['remoteEndFace'];
 			$objDepth = $cbl['remoteEndDepth'];

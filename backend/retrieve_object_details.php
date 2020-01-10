@@ -118,31 +118,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 		
 		$templateImgFilename = $objectFace == 0 ? $templateInfo['frontImage'] : $templateInfo['rearImage'];
+		
+		// Determine image dimensions
+		$RUHeight = 25;
+		$hUnits = $templateInfo['templateHUnits'];
+		$vUnits = $templateInfo['templateVUnits'];
+		$encX = $templateInfo['templateEncLayoutX'];
+		$encY = $templateInfo['templateEncLayoutY'];
+		if($templateInfo['templateType'] == 'Standard') {
+			$templateImgHeight = $RUSize * $RUHeight;
+			$templateImgWidth = 100;
+		} else if($templateInfo['templateType'] == 'Insert'){
+			$templateImgHeight = round((($RUHeight / 2) * $vUnits) / $encY);
+			$templateImgWidth = round(($hUnits * 10) / $encX);
+		}
+		
+		// Determine image state
 		if($templateImgFilename !== null) {
 			$templateImgExists = true;
 			$templateImgAction = 'update';
 			$templateImgPath = '/images/templateImages/'.$templateImgFilename;
-			$RUHeight = 25;
-			if($templateInfo['templateType'] == 'Standard') {
-				$templateImgHeight = $RUSize * $RUHeight;
-				$templateImgWidth = 100;
-			} else if($templateInfo['templateType'] == 'Insert'){
-				$hUnits = $templateInfo['templateHUnits'];
-				$vUnits = $templateInfo['templateVUnits'];
-				$encX = $templateInfo['templateEncLayoutX'];
-				$encY = $templateInfo['templateEncLayoutY'];
-				
-				////////////// HERE /////
-				
-				$templateImgHeight = round((($RUHeight / 2) * $vUnits) / $encY);
-				$templateImgWidth = round(($hUnits * 10) / $encX);
-			}
 		} else {
 			$templateImgExists = false;
 			$templateImgAction = 'upload';
 			$templateImgPath = '';
-			$templateImgHeight = 0;
-			$templateImgWidth = 0;
 		}
 		
 		// Compile response data

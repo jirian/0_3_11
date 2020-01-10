@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		 
 		// Submit the POST request
 		$result = curl_exec($ch);
+		error_log('Debug: '.$result);
 		
 		// Collect POST response
 		$importData = json_decode($result, true);

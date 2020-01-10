@@ -41,7 +41,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$portNameLast = $portName;
 				}
 			}
-			error_log($portNameListShort);
 			
 			$portNameListShort .= '...';
 			$portNameListLong .= '...';
@@ -60,11 +59,13 @@ function validate($data, &$validate){
 	$portNameFormat = $data['portNameFormat'];
 	$portTotal = $data['portTotal'];
 	
-	// Validate port name format
-	$validate->validatePortNameFormat($portNameFormat);
-	
 	// Validate port total
-	$validate->validatePortTotal($portTotal);
+	if($validate->validatePortTotal($portTotal)) {
+		
+		// Validate port name format
+		$validate->validatePortNameFormat($portNameFormat, $portTotal);
+		
+	}
 	
 	return;
 }
