@@ -66,6 +66,8 @@ var $qls;
 			$this->update_013_to_020();
 		} else if($this->currentVersion == '0.2.0') {
 			$this->update_020_to_021();
+		} else if($this->currentVersion == '0.2.1') {
+			$this->update_021_to_022();
 		} else {
 			return true;
 		}
@@ -73,7 +75,44 @@ var $qls;
 		return false;
 	}
 	
-		/**
+	/**
+	 * Update from version 0.2.1 to 0.2.2
+	 * @return Boolean
+	 */
+	function update_021_to_022() {
+		$incrementalVersion = '0.2.2';
+		
+		// Set app version to 0.2.2
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Fix port name format
+		$query = $this->qls->SQL->select('*', 'app_object_templates');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			if($row['templatePartitionData']) {
+				
+				$rowID = $row['id'];
+				$partitionDataJSON = $row['templatePartitionData'];
+				$partitionData = json_decode($partitionDataJSON, true);
+				
+				// Fix port name format
+				foreach($partitionData as &$face) {
+					$this->fixPortNameFormat($face);
+				}
+				
+				// Update object templates table
+				$partitionDataJSON = json_encode($partitionData);
+				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
+				
+				// Update object compatibility
+				foreach($partitionData as $side => &$face) {
+					$this->updateObjectCompatibility($partitionData, $rowID, $side);
+				}
+			}
+		}
+		
+	}
+	
+	/**
 	 * Update from version 0.2.0 to 0.2.1
 	 * @return Boolean
 	 */
@@ -388,6 +427,157 @@ var $qls;
 			$uniqueNameValue .= $characters[rand(0, $charactersLength - 1)];
 		}
 		return $uniqueNameValue;
+	}
+	
+	function fixPortNameFieldStatic(&$data){
+		$nameRegEx = '/^[a-zA-Z0-9-\/\\\_]$/';
+		$fieldValueArray = explode($data);
+		
+		foreach($fieldValueArray as &$fieldValueCharacter) {
+			if(!preg_match($nameRegEx, $fieldValueCharacter)){
+				$fieldValueCharacter = '_';
+			}
+		}
+		
+		$data = implode('', $fieldValuArray);
+	}
+	
+	function fixPortNameFieldIncremental(&$data){
+		$portNameFieldIncrementalRegEx = '/^[a-zA-Z]$|^[0-9]$|^[1-9][0-9]+$/';
+		
+		if(!preg_match($portNameFieldIncrementalRegEx, $data)){
+			$data = 1;
+		}
+		
+	}
+	
+	function fixPortNameFieldSeries(&$data){
+		$portNameFieldSeriesRegEx = '/^[a-zA-Z0-9\/\\\_]{0,250}$/';
+		
+		if(is_array($data) and (count($data) >= 1 and count($data) <= 100)) {
+			foreach($data as &$item) {
+				if (!preg_match($portNameFieldSeriesRegEx, $item)){
+					$item = '_';
+				}
+			}
+		}
+		
+	}
+	
+	function fixPortNameFormat(&$data){
+		foreach($data as &$partition) {
+			$partitionType = $partition['partitionType'];
+			if($partitionType == 'Connectable') {
+				
+				$portTotal = $data['valueX'] * $data['valueY'];
+				$portNameData = &$partition['portNameFormat'];
+				$success = true;
+				$fieldLength = 1;
+				$hasIncremental = false;
+				$hasInfiniteIncremental = false;
+				$incrementalCount = 0;
+				
+				foreach($portNameData as &$portNameField) {
+					$type = $portNameField['type'];
+					if($type == 'static') {
+						
+						$this->fixPortNameFieldStatic($portNameField['value']);
+						
+					} else if($type == 'incremental') {
+						
+						$incrementalCount++;
+						$hasIncremental = true;
+						$fieldLength *= $portNameField['count'];
+						
+						$this->fixPortNameFieldIncremental($portNameField['value']);
+						
+						if($portNameField['count'] == 0) {
+							$hasInfiniteIncremental = true;
+						}
+						
+					} else if($type == 'series') {
+						
+						$incrementalCount++;
+						$hasIncremental = true;
+						$fieldLength *= count($portNameField['value']);
+						
+						$this->fixPortNameFieldSeries($portNameField['value']);
+						
+					}
+				}
+				
+				// Check for duplicate port IDs
+				if($portTotal > 1) {
+					if($hasIncremental) {
+						if(!$hasInfiniteIncremental) {
+							if($fieldLength < $portTotal) {
+								$success = false;
+							} else {
+								// ... Could still be duplicates, better check 'em all.
+								$workingArray = array();
+								for($x = 0; $x < $portTotal; $x++) {
+									$portName = $this->qls->App->generatePortName($portNameData, $x, $portTotal);
+									if(in_array($portName, $workingArray)) {
+										$success = false;
+									}
+									array_push($workingArray, $portName);
+								}
+							}
+						}
+					} else {
+						$success = false;
+					}
+				}
+				
+				if(!$success) {
+					$newOrder = $incrementalCount + 1;
+					
+					$staticField = array(
+						'type' => 'static',
+						'value' => '_',
+						'count' => 0,
+						'order' => 0
+					);
+					
+					$incrementalField = array(
+						'type' => 'incremental',
+						'value' => 1,
+						'count' => 0,
+						'order' => $newOrder
+					);
+					
+					array_push($portNameData, $staticField);
+					array_push($portNameData, $incrementalField);
+				}
+				
+			}
+			
+			if(isset($partition['children'])) {
+				$this->fixPortNameFormat($partition['children']);
+			}
+		}
+		return true;
+	}
+	
+	function updateObjectCompatibility($data, $templateID, $side, &$depthCounter=0){
+		foreach($data as $partition) {
+			$partitionType = $partition['partitionType'];
+			if($partitionType == 'Connectable') {
+				
+				// Update object templates table
+				$portNameFormatJSON = json_encode($partition['portNameFormat']);
+				$this->qls->SQL->update('app_object_compatibility', array('portNameFormat' => $portNameFormatJSON), array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $side), 'AND', 'depth' => array('=', $depthCounter)));
+				
+				$depthCounter++;
+			} else {
+				
+				$depthCounter++;
+				if(isset($partition['children'])) {
+					$this->updateObjectCompatibility($partition['children'], $templateID, $side, $depthCounter);
+				}
+				
+			}
+		}
 	}
 	
 	function alterTemplatePartitionDataLayoutName(&$data){

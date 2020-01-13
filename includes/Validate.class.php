@@ -941,17 +941,35 @@ class Validate {
 				}
 			}
 			
-			//
+			// Check for duplicate port IDs
 			if($portTotal > 1) {
 				if($hasIncremental) {
 					if(!$hasInfiniteIncremental) {
 						if($fieldLength < $portTotal) {
-							$errorMsg = $reference ? $reference.' (Duplicate port IDs found)' : 'Duplicate port IDs found.  Try adding an incremental field with a "0" count.';
+							$errorMsg = $reference ? $reference.' (Duplicate port ID found)' : 'Duplicate port IDs found.  Try adding an incremental field with a "0" count.';
 							array_push($this->returnData['error'], $errorMsg);
 							$success = false;
+						} else {
+							// ... Could still be duplicates, better check 'em all.
+							$workingArray = array();
+							$duplicateFound = false;
+							for($x = 0; $x < $portTotal; $x++) {
+								$portName = $this->qls->App->generatePortName($portNameData, $x, $portTotal);
+								if(in_array($portName, $workingArray)) {
+									$duplicateFound = true;
+									$duplicatePortName = $portName;
+									$success = false;
+								}
+								array_push($workingArray, $portName);
+							}
+							if($duplicateFound) {
+								$errorMsg = $reference ? $reference.' (Duplicate port ID found)' : 'Duplicate port ID ('.$duplicatePortName.') found.  Try adding an incremental field with a "0" count.';
+								array_push($this->returnData['error'], $errorMsg);
+							}
 						}
 					}
 				} else {
+					// Greater than 1 port and no incremental fields?  ... must be duplicates.
 					$errorMsg = $reference ? $reference.' (Duplicate port IDs found)' : 'Duplicate port IDs found.  Try adding an incremental field.';
 					array_push($this->returnData['error'], $errorMsg);
 					$success = false;

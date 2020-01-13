@@ -636,45 +636,45 @@ var $qls;
 		$templateID = $obj['template_id'];
 		$categoryID = $this->templateArray[$templateID]['templateCategory_id'];
 		$return['categoryID'] = $categoryID;
-
-		// Retrieve port info
 		$objCompatibility = $this->compatibilityArray[$templateID][$objFace][$objDepth];
 		$templateType = $objCompatibility['templateType'];
-		
-		if($templateType == 'walljack') {
-			$peerEntry = $this->peerArrayWalljackEntry[$objID][$objFace][$objDepth][$portID];
-			$portID = $peerEntry['port'];
-			$peerObj = $this->objectArray[$peerEntry['id']];
-			$peerTemplateID = $peerObj['template_id'];
-			$objCompatibility = $this->compatibilityArray[$peerTemplateID][$peerEntry['face']][$peerEntry['depth']];
-		} else if($templateType == 'wap' or $templateType == 'device'){
-			$portName = 'NIC1';
+
+		// Retrieve port info
+		if($incPortName) {
+			
+			if($templateType == 'walljack') {
+				$peerEntry = $this->peerArrayWalljackEntry[$objID][$objFace][$objDepth][$portID];
+				$portID = $peerEntry['port'];
+				$peerObj = $this->objectArray[$peerEntry['id']];
+				$peerTemplateID = $peerObj['template_id'];
+				$objCompatibility = $this->compatibilityArray[$peerTemplateID][$peerEntry['face']][$peerEntry['depth']];
+			} else if($templateType == 'wap' or $templateType == 'device'){
+				$portName = 'NIC1';
+			}
+			
+			$return['function'] = $objCompatibility['partitionFunction'];
+			$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
+			$portTotal = $objCompatibility['portLayoutX']*$objCompatibility['portLayoutY'];
+			$portName = $this->generatePortName($portNameFormat, $portID, $portTotal);
+			$templateType = $objCompatibility['templateType'];
+			
+			if($templateType == 'Insert') {
+				$separator = $return['function'] == 'Passive' ? '.' : ''; 
+				$portName = $obj['name'] == '' ? $portName : $obj['name'].$separator.$portName;
+			}
+			array_unshift($return['obj'], $portName);
 		}
-		
-		$return['function'] = $objCompatibility['partitionFunction'];
-		$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
-		$portTotal = $objCompatibility['portLayoutX']*$objCompatibility['portLayoutY'];
-		error_log('Debug: '.$objCompatibility['portNameFormat']);
-		$portName = $this->generatePortName($portNameFormat, $portID, $portTotal);
-		$templateType = $objCompatibility['templateType'];
 		
 		if($templateType == 'Insert') {
-			$separator = $return['function'] == 'Passive' ? '.' : ''; 
-			$portName = $obj['name'] == '' ? $portName : $obj['name'].$separator.$portName;
-			
 			$query = $this->qls->SQL->select('*', 'app_object', array('id' => array('=', $obj['parent_id'])));
 			$obj = $this->qls->SQL->fetch_assoc($query);
-		}
-		
-		if($incPortName) {
-			array_unshift($return['obj'], $portName);
 		}
 		
 		$side = '';
 		if($this->templateArrray[$obj['template_id']]['templateMountConfig'] == 1){
 			$side = $objFace == 0 ? '(front)' : '(back)';
 		}
-		//array_unshift($return['obj'], $obj['name'].$side);
+		
 		array_unshift($return['obj'], $obj['name']);
 		
 		$objParentID = $obj['env_tree_id'];
@@ -685,13 +685,7 @@ var $qls;
 			$objParentID = $obj['parent'];
 		}
 		
-		foreach($return['obj'] as $index => $element) {
-			if($index < (count($return['obj'])-1)) {
-				$return['nameString'] .= $element.'.';
-			} else {
-				$return['nameString'] .= $element;
-			}
-		}
+		$return['nameString'] = implode('.', $return['obj']);
 		
 		return $return;
 	}
