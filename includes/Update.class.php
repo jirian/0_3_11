@@ -429,6 +429,10 @@ var $qls;
 		return $uniqueNameValue;
 	}
 	
+	/**
+	 * 0.2.2 - Fix static port name field
+	 * @return string
+	 */
 	function fixPortNameFieldStatic(&$data){
 		$nameRegEx = '/^[a-zA-Z0-9-\/\\\_]$/';
 		$fieldValueArray = explode($data);
@@ -439,9 +443,13 @@ var $qls;
 			}
 		}
 		
-		$data = implode('', $fieldValuArray);
+		$data = implode('', $fieldValueArray);
 	}
 	
+	/**
+	 * 0.2.2 - Fix incremental port name field
+	 * @return string
+	 */
 	function fixPortNameFieldIncremental(&$data){
 		$portNameFieldIncrementalRegEx = '/^[a-zA-Z]$|^[0-9]$|^[1-9][0-9]+$/';
 		
@@ -451,6 +459,10 @@ var $qls;
 		
 	}
 	
+	/**
+	 * 0.2.2 - Fix series port name field
+	 * @return string
+	 */
 	function fixPortNameFieldSeries(&$data){
 		$portNameFieldSeriesRegEx = '/^[a-zA-Z0-9\/\\\_]{0,250}$/';
 		
@@ -464,6 +476,10 @@ var $qls;
 		
 	}
 	
+	/**
+	 * 0.2.2 - Fix port name format
+	 * @return string
+	 */
 	function fixPortNameFormat(&$data){
 		foreach($data as &$partition) {
 			$partitionType = $partition['partitionType'];
