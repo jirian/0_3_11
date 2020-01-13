@@ -435,7 +435,7 @@ var $qls;
 	 */
 	function fixPortNameFieldStatic(&$data){
 		$nameRegEx = '/^[a-zA-Z0-9-\/\\\_]$/';
-		$fieldValueArray = explode($data);
+		$fieldValueArray = str_split($data);
 		
 		foreach($fieldValueArray as &$fieldValueCharacter) {
 			if(!preg_match($nameRegEx, $fieldValueCharacter)){
