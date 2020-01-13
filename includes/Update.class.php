@@ -104,8 +104,8 @@ var $qls;
 				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
 				
 				// Update object compatibility
-				foreach($partitionData as $side => &$face) {
-					$this->updateObjectCompatibility($partitionData, $rowID, $side);
+				foreach($partitionData as $side => $face) {
+					$this->updateObjectCompatibility($face, $rowID, $side);
 				}
 			}
 		}
