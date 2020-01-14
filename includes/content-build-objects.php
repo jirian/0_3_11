@@ -11,15 +11,19 @@ $cursorClass = (($page == 'templates.php') or ($page == 'retrieve_build-objects.
 $faceCount = ($page == 'retrieve_template-catalog.php') ? 1 : 2;
 
 for ($x=0; $x<$faceCount; $x++){
+	
 	$display = $x==0 ? '' : ' style="display:none;"';
 	$availableContainerID = ($page == 'retrieve_template-catalog.php') ? 'templateCatalogAvailableContainer' : 'availableContainer'.$x;
 	echo '<div id="'.$availableContainerID.'"'.$display.'>';
+	
 	foreach($templates as $category => $categoryTemplate) {
+
 		echo '<div class="categoryContainerEntire">';
 			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
 			echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
 			foreach ($categoryTemplate as $templateID => $templateOrganic) {
 				if (isset($templateOrganic['templatePartitionData'][$x])) {
+					
 					
 					$templateName = $templateOrganic['templateName'];
 					$partitionData = $templateOrganic['templatePartitionData'][$x];
@@ -94,9 +98,9 @@ for ($x=0; $x<$faceCount; $x++){
 													$cursorClass,
 													'insertDraggable'
 												);
-												$face = 0;
+												$templateFace = 0;
 												$objID = false;
-												echo $qls->App->generateObjContainer($templateOrganic, $face, $objClassArray, $objID, $categoryData);
+												echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $objID, $categoryData);
 												$rackObj = false;
 												echo $qls->App->buildStandard($partitionData, $rackObj);
 												echo '</div>';

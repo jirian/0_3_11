@@ -23,7 +23,6 @@ if(curl_errno($ch)) {
 		$categoryName = $categoryArray[$categoryID]['name'];
 		$template['categoryData'] = $categoryArray[$categoryID];
 		
-		
 		if($template['templatePartitionData']) {
 			$partitionDataJSON = $template['templatePartitionData'];
 			$partitionData = json_decode($partitionDataJSON, true);
@@ -36,6 +35,7 @@ if(curl_errno($ch)) {
 		}
 		
 		$templates[$categoryName][$templateID] = $template;
+
 	}
 	require_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-build-objects.php';
 }

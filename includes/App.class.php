@@ -1608,7 +1608,6 @@ var $qls;
 	}
 	
 	function buildStandard($data, $rackObj, $objID=false, $objFace=false, $cabinetView=false, &$depthCounter=0){
-		
 		$html = '';
 		$encInsert = false;
 		foreach($data as $element){
