@@ -477,6 +477,104 @@ var $qls;
 	}
 	
 	/**
+	 * 0.2.2 - Generate port name
+	 * @return string
+	 */
+	function generatePortName($portNameFormat, $index, $portTotal) {
+		$portString = '';
+		$incrementalCount = 0;
+		
+		// Create character arrays
+		$lowercaseIncrementArray = array();
+		$uppercaseIncrementArray = array();
+		for($x=97; $x<=122; $x++) {
+			array_push($lowercaseIncrementArray, chr($x));
+		}
+		for($x=65; $x<=90; $x++) {
+			array_push($uppercaseIncrementArray, chr($x));
+		}
+		
+		// Account for infinite count incrementals
+		foreach($portNameFormat as &$itemA) {
+			$type = $itemA['type'];
+			
+			if($type == 'incremental' or $type == 'series') {
+				$incrementalCount++;
+				if($itemA['count'] == 0) {
+					$itemA['count'] = $portTotal;
+				}
+			}
+		}
+		
+		foreach($portNameFormat as $itemB) {
+			$type = $itemB['type'];
+			$value = $itemB['value'];
+			$order = $itemB['order'];
+			$count = $itemB['count'];
+			
+			if($type == 'static') {
+				$portString = $portString.$value;
+			} else if($type == 'incremental' or $type == 'series') {
+				$numerator = 1;
+				if($order < $incrementalCount) {
+					foreach($portNameFormat as $itemC) {
+						$typeC = $itemC['type'];
+						$orderC = $itemC['order'];
+						$countC = $itemC['count'];
+						
+						if($typeC == 'incremental' or $typeC == 'series') {
+							if($order < $orderC) {
+								$numerator *= $countC;
+							}
+						}
+					}
+				}
+				
+				
+				
+				$howMuchToIncrement = floor($index / $numerator);
+				//error_log('Index:'.$index.' Order:'.$order.' howMuchToIncrement:'.$howMuchToIncrement.' numerator:'.$numerator);
+				if($howMuchToIncrement >= $count) {
+					$rollOver = floor($howMuchToIncrement / $count);
+					$howMuchToIncrement = $howMuchToIncrement - ($rollOver * $count);
+					//error_log('rollOver:'.$howMuchToIncrement);
+				}
+				
+				if($type == 'incremental') {
+					if(is_numeric($value)) {
+						$value = $value + $howMuchToIncrement;
+						$portString = $portString.$value;
+					} else {
+						$asciiValue = ord($value);
+						$asciiIndex = $asciiValue + $howMuchToIncrement;
+						if($asciiValue >= 65 && $asciiValue <= 90) {
+							// Uppercase
+							
+							while($asciiIndex > 90) {
+								$portString = $portString.$uppercaseIncrementArray[0];
+								$asciiIndex -= 26;
+							}
+							$portString = $portString.$uppercaseIncrementArray[$asciiIndex-65];
+						} else if($asciiValue >= 97 && $asciiValue <= 122) {
+							// Lowercase
+							while($asciiIndex > 122) {
+								$portString = $portString.$lowercaseIncrementArray[0];
+								$asciiIndex -= 26;
+							}
+							$portString = $portString.$lowercaseIncrementArray[$asciiIndex-97];
+						}
+					}
+					
+				} else if($type == 'series') {
+					$portString = $portString.$value[$howMuchToIncrement];
+				}
+			}
+		}
+			
+		return $portString;
+	}
+	
+	/**
 	 * 0.2.2 - Fix port name format
 	 * @return string
 	 */
@@ -485,7 +583,7 @@ var $qls;
 			$partitionType = $partition['partitionType'];
 			if($partitionType == 'Connectable') {
 				
-				$portTotal = $data['valueX'] * $data['valueY'];
+				$portTotal = $partition['valueX'] * $partition['valueY'];
 				$portNameData = &$partition['portNameFormat'];
 				$success = true;
 				$fieldLength = 1;
@@ -532,7 +630,7 @@ var $qls;
 								// ... Could still be duplicates, better check 'em all.
 								$workingArray = array();
 								for($x = 0; $x < $portTotal; $x++) {
-									$portName = $this->qls->App->generatePortName($portNameData, $x, $portTotal);
+									$portName = $this->generatePortName($portNameData, $x, $portTotal);
 									if(in_array($portName, $workingArray)) {
 										$success = false;
 									}
