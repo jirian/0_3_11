@@ -400,9 +400,7 @@ function validate($data, &$validate, &$qls){
 	
 	foreach($endpointNameArray as $endpointName) {
 		if(array_key_exists($endpointName, $data)) {
-			error_log('Debug: '.json_encode($data[$endpointName]));
 			foreach($data[$endpointName] as $endpointAttr => $endpointAttrValue) {
-				error_log('Debug: '.$endpointAttr);
 				$ref = $endpointName.' '.$endpointAttr;
 				$validate->validateID($endpointAttrValue, $ref);
 			}
@@ -506,15 +504,15 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 					$nearTemplateID = $nearObj['template_id'];
 					$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$target['face']][$target['depth']];
 					$nearPortTypeValue = $nearCompatibility['portType'];
-					$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue];
+					$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue]['name'];
 					
 					$farObjName = $qls->App->generateObjectPortName($endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth'], $endpointBObj['port']);
 					$farObjName = $qls->App->wrapObject($endpointBObj['id'], $farObjName);
-					$farObj = $qls->App->objectArray[$target['id']];
-					$farTemplateID = $nearObj['template_id'];
+					$farObj = $qls->App->objectArray[$endpointBObj['id']];
+					$farTemplateID = $farObj['template_id'];
 					$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$endpointBObj['face']][$endpointBObj['depth']];
 					$farPortTypeValue = $farCompatibility['portType'];
-					$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue];
+					$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue]['name'];
 
 					array_push($workingArray, array(
 						'near' => $nearObjName,
@@ -563,7 +561,12 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 									}
 									
 									// Near Object
-									$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
+									$nearObj = $qls->App->objectArray[$peerData['peerID']];
+									$nearTemplateID = $nearObj['template_id'];
+									$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$peerData['peerFace']][$peerData['peerDepth']];
+									$nearPortTypeValue = $nearCompatibility['portType'];
+									$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue]['name'];
+									//$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
 									
 									// Far Object
 									$farPort = $peerIsEndpointB ? $endpointBObj['port'] : $commonAvailablePort;
@@ -574,7 +577,10 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 									$farName = $qls->App->generateObjectPortName($reachableObj['id'], $objFace, $objDepth, $farPort);
 									$farName = $qls->App->wrapObject($reachableObj['id'], $farName);
 									
-									$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $reachableObj['id'], $objFace, $objDepth);
+									$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$objFace][$objDepth];
+									$farPortTypeValue = $farCompatibility['portType'];
+									$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue]['name'];
+									//$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $reachableObj['id'], $objFace, $objDepth);
 									
 									// Reachable object cannot be an endpoint... how are we supposed to patch layer1 through a layer2-4 device?
 									if($far['function'] != 'Endpoint') {
@@ -606,7 +612,10 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 												$peerFunction = $peerTemplate['templateFunction'];
 												$peerName = $qls->App->generateObjectPortName($peerID, $peerFace, $peerDepth, $peerPort);
 												$peerName = $qls->App->wrapObject($peerID, $peerName);
-												$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);									
+												$farCompatibility = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']];
+												$farPortTypeValue = $farCompatibility['portType'];
+												$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue]['name'];
+												//$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);									
 												
 												array_push($workingArray, array(
 													'far' => $peerName,

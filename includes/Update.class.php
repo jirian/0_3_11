@@ -103,9 +103,12 @@ var $qls;
 				$partitionDataJSON = json_encode($partitionData);
 				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
 				
+				if($rowID == 8) {
+					error_log('Debug (partitionData): '.json_encode($partitionData));
+				}
 				// Update object compatibility
-				foreach($partitionData as $side => $face) {
-					$this->updateObjectCompatibility($face, $rowID, $side);
+				foreach($partitionData as $side => $templateFace) {
+					$this->updateObjectCompatibility($templateFace, $rowID, $side);
 				}
 			}
 		}
@@ -677,6 +680,11 @@ var $qls;
 		foreach($data as $partition) {
 			$partitionType = $partition['partitionType'];
 			if($partitionType == 'Connectable') {
+				
+				if($templateID == 8) {
+					error_log('Debug: '.$templateID.'-'.$side.'-'.$depthCounter);
+					error_log(json_encode($partition['portNameFormat']));
+				}
 				
 				// Update object templates table
 				$portNameFormatJSON = json_encode($partition['portNameFormat']);
