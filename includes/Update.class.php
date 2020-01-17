@@ -94,21 +94,78 @@ var $qls;
 				$partitionDataJSON = $row['templatePartitionData'];
 				$partitionData = json_decode($partitionDataJSON, true);
 				
-				// Fix port name format
+				/*
+				// Find and fix duplicate port names within individual partitions
 				foreach($partitionData as &$face) {
 					$this->fixPortNameFormat($face);
 				}
+				unset($face);
+				*/
+				
+				// Find and fix duplicate port names throughout the entire template
+				$portCollection = array();
+				$fieldStatic = array(
+					'type' => 'static',
+					'value' => '',
+					'count' => 0,
+					'order' => 0
+				);
+				$fieldIncremental = array(
+					'type' => 'incremental',
+					'value' => 1,
+					'count' => 0,
+					'order' => 0
+				);
+				foreach($partitionData as &$face) {
+					foreach($face as &$partition) {
+						if($partition['partitionType'] == 'Connectable') {
+							
+							// Reset duplicate found flag
+							$duplicateFound = false;
+							
+							// Collect all port IDs for partition
+							$portNameFormat = $partition['portNameFormat'];
+							$portTotal = $partition['valueX'] * $partition['valueY'];
+							for($x=0; $x<$portTotal; $x++) {
+								$portName = $this->generatePortName($portNameFormat, $x, $portTotal);
+								if(in_array($portName, $portCollection)) {
+									$duplicateFound = true;
+								}
+								array_push($portCollection, $portName);
+							}
+							
+							// Oh shit, duplicate found... implement evasive maneuvers!  Whatever you do, DON'T PANIC!!!
+							if($duplicateFound) {
+								
+								// Get incremental count
+								$incrementalCount = 1;
+								foreach($portNameFormat as $field) {
+									$fieldType = $field['type'];
+									if($fieldType == 'series' or $fieldType == 'incremental') {
+										$incrementalCount++;
+									}
+								}
+								
+								// Patch up the casualty
+								$fieldStatic['value'] = '_'.$this->generateUniqueNameValue();
+								$fieldIncremental['order'] = $incrementalCount;
+								
+								// Deploy counter measures!!!
+								array_push($partition['portNameFormat'], $fieldStatic, $fieldInremental);
+							}
+						}
+					}
+					unset($partition);
+				}
+				unset($face);
 				
 				// Update object templates table
 				$partitionDataJSON = json_encode($partitionData);
 				$this->qls->SQL->update('app_object_templates', array('templatePartitionData' => $partitionDataJSON), array('id' => array('=', $rowID)));
 				
-				if($rowID == 8) {
-					error_log('Debug (partitionData): '.json_encode($partitionData));
-				}
 				// Update object compatibility
-				foreach($partitionData as $side => $templateFace) {
-					$this->updateObjectCompatibility($templateFace, $rowID, $side);
+				foreach($partitionData as $side => $face) {
+					$this->updateObjectCompatibility($face, $rowID, $side);
 				}
 			}
 		}
