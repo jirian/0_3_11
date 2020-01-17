@@ -22,6 +22,8 @@ Contents
 [Fix]		Changed port ID field order to reflect lower order incremental fields incrementing first
 [Fix]		Corrected issue with port IDs consisting of more than 3 incremental fields not incrementing as expected
 [Fix]		Corrected port ID validation
+[Fix]		Prevent duplicate port ID accross entire template
+[Fix]		Corrected display of half RU inserts
 [Fix]		Resolved database issue when switching cabinet side (Front/Back)
 
 **Changes introduced in 0.2.1

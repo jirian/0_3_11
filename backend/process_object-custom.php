@@ -425,8 +425,30 @@ function validate($data, &$validate, &$qls){
 		}
 		
 		if(is_array($data['objects']) and (count($data['objects']) >= 1 and count($data['objects']) <= 2)) {
+			
+			// Create array containing all portIDs for entire template
+			$portCollection = array();
 			foreach ($data['objects'] as $face) {
-				$validate->validateTemplateJSON($face[0]);
+				if($validate->validateTemplateJSON($face[0])) {
+					enumeratePortIDs($qls, $face, $portCollection);
+				}
+			}
+			
+			// Check that all port IDs are unique
+			$portCollectionWorking = array();
+			$portCollectionDuplicates = array();
+			foreach($portCollection as $port) {
+				if(in_array($port, $portCollectionWorking)) {
+					array_push($portCollectionDuplicates, $port);
+				}
+				array_push($portCollectionWorking, $port);
+			}
+			if(count($portCollectionDuplicates)) {
+				$duplicatePortStringLength = 3;
+				$duplicatePortString = implode(', ', array_slice($portCollectionDuplicates, 0, $duplicatePortStringLength));
+				$duplicatePortString .= (count($portCollectionDuplicates) > $duplicatePortStringLength) ? '...' : '';
+				$errorMsg = 'Template contains duplicate port IDs: '.$duplicatePortString;
+				array_push($validate->returnData['error'], $errorMsg);
 			}
 		} else {
 			$errorMsg = 'Invalid template JSON structure.';
@@ -474,14 +496,54 @@ function validate($data, &$validate, &$qls){
 						$validate->validateDuplicate($table, $where, $errorMsg);
 					}
 				} else if($data['attribute'] == 'portNameFormat') {
-					$query = $qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
-					if($qls->SQL->num_rows($query) == 1) {
-						$compatibility = $qls->SQL->fetch_assoc($query);
+					//$query = $qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
+					//if($qls->SQL->num_rows($query) == 1) {
+					if(isset($qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth])) {
+						//$compatibility = $qls->SQL->fetch_assoc($query);
+						$compatibility = $qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth];
 						
 						if($compatibility['partitionType'] == 'Connectable') {
 							$portNameFormat = $data['value'];
 							$portTotal = $compatibility['portLayoutX'] * $compatibility['portLayoutY'];
-							$validate->validatePortNameFormat($portNameFormat, $portTotal);
+							if($validate->validatePortNameFormat($portNameFormat, $portTotal)) {
+								
+								$portCollection = array();
+								foreach($qls->App->compatibilityArray[$templateID] as $face => $side) {
+									foreach($side as $depth => $partition) {
+										
+										if($partition['partitionType'] == 'Connectable') {
+											$portTotal = $partition['portLayoutX'] * $partition['portLayoutY'];
+											if($face == $templateFace and $depth == $templateDepth) {
+												$workingPortNameFormat = $portNameFormat;
+											} else {
+												$workingPortNameFormat = json_decode($partition['portNameFormat'], true);
+											}
+											
+											for($x=0; $x<$portTotal; $x++) {
+												$portName = $qls->App->generatePortName($workingPortNameFormat, $x, $portTotal);
+												array_push($portCollection, $portName);
+											}
+										}
+									}
+								}
+								
+								// Check that all port IDs are unique
+								$portCollectionWorking = array();
+								$portCollectionDuplicates = array();
+								foreach($portCollection as $port) {
+									if(in_array($port, $portCollectionWorking)) {
+										array_push($portCollectionDuplicates, $port);
+									}
+									array_push($portCollectionWorking, $port);
+								}
+								if(count($portCollectionDuplicates)) {
+									$duplicatePortStringLength = 3;
+									$duplicatePortString = implode(', ', array_slice($portCollectionDuplicates, 0, $duplicatePortStringLength));
+									$duplicatePortString .= (count($portCollectionDuplicates) > $duplicatePortStringLength) ? '...' : '';
+									$errorMsg = 'Template contains duplicate port IDs: '.$duplicatePortString;
+									array_push($validate->returnData['error'], $errorMsg);
+								}
+							}
 						} else {
 							$errorMsg = 'Invalid partition type.';
 							array_push($validate->returnData['error'], $errorMsg);
@@ -514,6 +576,22 @@ function validate($data, &$validate, &$qls){
 		array_push($validate->returnData['error'], $errorMsg);
 	}
 	return;
+}
+
+function enumeratePortIDs(&$qls, $data, &$portCollection){
+	foreach($data as $partition) {
+		if($partition['partitionType'] == 'Connectable') {
+			$portTotal = $partition['valueX'] * $partition['valueY'];
+			$portNameFormat = $partition['portNameFormat'];
+			for($x=0; $x<$portTotal; $x++) {
+				$portName = $qls->App->generatePortName($portNameFormat, $x, $portTotal);
+				array_push($portCollection, $portName);
+			}
+		} else if(count($partition['children'])) {
+			enumeratePortIDs($qls, $partition['children'], $portCollection);
+		}
+	}
+	return true;
 }
 
 ?>

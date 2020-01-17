@@ -1843,6 +1843,7 @@ var $qls;
 		
 		if($depth == 0) {
 			$flex = $flexDirection == 'column' ? $hUnits/10 : $vUnits*0.5;
+			$flex = 1;
 			array_push($classArray, 'flex-container-parent');
 		} else {
 			array_push($classArray, 'flex-container');
