@@ -983,10 +983,10 @@ class Validate {
 		return $success;
 	}
 	
-	function validateTemplateJSON($input, $depth=0, $reference=false) {
+	function validateTemplateJSON($input, &$depth=0, $reference=false) {
 		$success = true;
-		if($depth < 50) {
-			//$depth++;
+		if($depth < 100) {
+			$depth++;
 			
 			//Validate partition type
 			if($this->validatePartitionType($input['partitionType'], $reference)) {
@@ -1061,7 +1061,6 @@ class Validate {
 			
 			if (isset($input['children'])) {
 				foreach ($input['children'] as $children) {
-					$depth++;
 					if(!$this->validateTemplateJSON($children, $depth, $reference)) {
 						$success = false;
 					}

@@ -82,7 +82,7 @@ function setPartitionSizeInput(){
 		$(variables['selectedObj']).children().each(function(){
 			workingUnitsTaken = 0;
 			$(this).children().each(function(){
-				workingUnitsTaken += parseInt($(this).data(parentUnitAttr), 10);
+				workingUnitsTaken += parseInt($(this).data(selectedUnitAttr), 10);
 			});
 			unitsTaken = workingUnitsTaken > unitsTaken ? workingUnitsTaken : unitsTaken;
 		});
@@ -144,7 +144,6 @@ function resizePartition(inputValue){
 	var selectedUnitAttr = flexDirection == 'column' ? 'hUnits' : 'vUnits';
 	var parentFlexUnits = parseInt($(variables['selectedParent']).parent().data(selectedUnitAttr), 10);
 	var partitionFlexUnits = flexDirection == 'row' ? inputValue*2 : inputValue;
-	console.log('parentFlexUnits='+parentFlexUnits+' partitionFlexUnits='+partitionFlexUnits);
 	var partitionFlexSize = partitionFlexUnits/parentFlexUnits;
 	$(variables['selectedObj']).css('flex-grow', partitionFlexSize);
 	$(variables['selectedObj']).data(selectedUnitAttr, partitionFlexUnits);
@@ -176,7 +175,9 @@ function resetRUSize(){
 	
 	// Calculate the space taken by dependent partitions
 	var spaceTaken = 0;
-	if($(variables['obj']).children('.flex-container-parent').css('flex-direction') == 'column') {
+	//if($(variables['obj']).children('.flex-container-parent').css('flex-direction') == 'column') {
+	var containerParentDirection = $(variables['obj']).children('.flex-container-parent').data('direction');
+	if(containerParentDirection == 'column') {
 		$(variables['obj']).children('.flex-container-parent').children().each(function(){
 			spaceTaken += parseInt($(this).data('vUnits'), 10);
 		});
@@ -2307,7 +2308,7 @@ $( document ).ready(function() {
 	// Custom Partition Remove
 	$('[id^=customPartitionRemove]').on('click', function(){
 		var variables = getVariables();
-		var isParentChild = $(variables['selectedObj']).parent().hasClass('flex-container-parent');
+		var partitionDepth = $(variables['selectedObj']).parentsUntil('.flex-container-parent').length;
 		var isHorizontal = $(variables['selectedObj']).css('flex-direction') == 'row' ? true : false;
 		
 		// Check to see if the object being deleted is the only one.
@@ -2321,7 +2322,7 @@ $( document ).ready(function() {
 		}
 		$(variables['selectedObj']).remove();
 		
-		if(isParentChild && isHorizontal){
+		if(partitionDepth < 2 && isHorizontal){
 			resetRUSize();
 		}
 		

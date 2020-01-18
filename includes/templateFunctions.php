@@ -1,4 +1,5 @@
 <?php
+
 function buildInsert($data, $portType, $RUSize, $class='', $dataAttr='', $style='', $depthCounter=0){
 	$html = '';
 	foreach($data as $element){
