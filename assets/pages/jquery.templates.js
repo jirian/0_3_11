@@ -65,7 +65,7 @@ function setPartitionSizeInput(){
 	// If selected object is not the parent container...
 	if(!$(variables['selectedObj']).hasClass('flex-container-parent')){
 		var flexDirection = $(variables['selectedObj']).data('direction');
-		var partitionStep = flexDirection == 'column' ? 0.1 : 0.5;
+		var partitionStep = flexDirection == 'column' ? 1 : 0.5;
 		var selectedUnitAttr = flexDirection == 'column' ? 'hUnits' : 'vUnits';
 		var parentUnitAttr = flexDirection == 'column' ? 'vUnits' : 'hUnits';
 		var flexUnits = parseInt($(variables['selectedObj']).data(selectedUnitAttr), 10);
@@ -143,7 +143,8 @@ function resizePartition(inputValue){
 	var flexDirection = $(variables['selectedObj']).data('direction');
 	var selectedUnitAttr = flexDirection == 'column' ? 'hUnits' : 'vUnits';
 	var parentFlexUnits = parseInt($(variables['selectedParent']).parent().data(selectedUnitAttr), 10);
-	var partitionFlexUnits = flexDirection == 'row' ? inputValue*2 : inputValue*10;
+	var partitionFlexUnits = flexDirection == 'row' ? inputValue*2 : inputValue;
+	console.log('parentFlexUnits='+parentFlexUnits+' partitionFlexUnits='+partitionFlexUnits);
 	var partitionFlexSize = partitionFlexUnits/parentFlexUnits;
 	$(variables['selectedObj']).css('flex-grow', partitionFlexSize);
 	$(variables['selectedObj']).data(selectedUnitAttr, partitionFlexUnits);
@@ -1539,7 +1540,7 @@ $( document ).ready(function() {
 	$(document).data('availableTemplateSide', 0);
 	setObjectSize();
 	for(x=0; x<2; x++) {
-		buildObj(x, 10, 2, 'column');
+		buildObj(x, 24, 2, 'column');
 	}
 	setCategory();
 	
@@ -1990,7 +1991,7 @@ $( document ).ready(function() {
 				var variables = getVariables();
 				$('#inputPartitionTypeGeneric, #inputPartitionTypeConnectable, #inputPartitionTypeEnclosure').prop('disabled', false);
 				for(x=0; x<2; x++) {
-					buildObj(x, 10, 2, 'column');
+					buildObj(x, 24, 2, 'column');
 				}
 				
 				$(document).data('templateSide', 0);

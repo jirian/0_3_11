@@ -21,7 +21,7 @@
 					echo '<td class="RackUnit'.$x.'">';
 					if ($cabLoop == $cabinetSize) {
 						$activeObj = ($x==0) ? 'activeObj' : '';
-						echo '<div id="previewObj'.$x.'" class="'.$activeObj.' objBaseline" data-h-units="10" data-v-units="2"></div>';
+						echo '<div id="previewObj'.$x.'" class="'.$activeObj.' objBaseline" data-h-units="24" data-v-units="2"></div>';
 					}
 					echo '</td>';
 					echo '<td class="cabinetRailRU cabinetRailRight cabinet"></td>';

@@ -985,7 +985,7 @@ class Validate {
 	
 	function validateTemplateJSON($input, $depth=0, $reference=false) {
 		$success = true;
-		if($depth < 20) {
+		if($depth < 50) {
 			//$depth++;
 			
 			//Validate partition type

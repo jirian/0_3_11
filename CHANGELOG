@@ -25,6 +25,7 @@ Contents
 [Fix]		Prevent duplicate port ID accross entire template
 [Fix]		Corrected display of half RU inserts
 [Fix]		Resolved database issue when switching cabinet side (Front/Back)
+[Fix]		Increased template partition limit from 20 to 50
 
 **Changes introduced in 0.2.1
 
