@@ -17,6 +17,7 @@ function clearObjectDetails(){
 	$('#detailPortOrientation').html('-');
 	$('#detailPortType').html('-');
 	$('#detailMediaType').html('-');
+	$('#detailTemplateImage').html('-');
 		
 	//Disable the 'Delete' button in object details
 	$('#objDelete').prop('disabled', true);

@@ -142,7 +142,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						);
 						
 					} else if($partitionType == 'Enclosure') {
-						error_log(json_encode($element));
 						$columnArray = array(
 							'template_id',
 							'side',

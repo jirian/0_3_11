@@ -85,7 +85,7 @@ var $qls;
 		// Set app version to 0.2.2
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
-		// Fix port name format
+		
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
 			if($row['templatePartitionData']) {
@@ -94,17 +94,26 @@ var $qls;
 				$partitionDataJSON = $row['templatePartitionData'];
 				$partitionData = json_decode($partitionDataJSON, true);
 				
-				/*
-				// Find and fix duplicate port names within individual partitions
-				foreach($partitionData as &$face) {
-					$this->fixPortNameFormat($face);
-				}
-				unset($face);
-				*/
-				
 				// Find and fix duplicate port names throughout the entire template
 				foreach($partitionData as &$face) {
 					$this->findAndFixDuplicatePortIDs($face);
+				}
+				unset($face);
+				
+				// Adjust template hUnits from max 10 to max 24
+				foreach($partitionData as &$face) {
+					$this->adjustPartitionHUnits($face);
+				}
+				unset($face);
+				if($row['templateHUnits']) {
+					$templateHUnits = $row['templateHUnits'];
+					$templateHUnits = round(($templateHUnits/10)*24);
+					$this->qls->SQL->update('app_object_templates', array('templateHUnits' => $templateHUnits), array('id' => array('=', $rowID)));
+				}
+				
+				// Set enclosure tolerance if not already set
+				foreach($partitionData as &$face) {
+					$this->setEnclosureTolerance($face);
 				}
 				unset($face);
 				
@@ -119,6 +128,26 @@ var $qls;
 			}
 		}
 		
+		// Adjust compatibility table
+		$query = $this->qls->SQL->select('*', 'app_object_compatibility');
+		while ($row = $this->qls->SQL->fetch_assoc($query)){
+			
+			$rowID = $row['id'];
+			
+			// Adjust compatibility hUnits from max 10 to max 24
+			if($row['hUnits']) {
+				$hUnits = $row['hUnits'];
+				$newHUnits = round(($hUnits/10)*24);
+				$this->qls->SQL->update('app_object_compatibility', array('hUnits' => $newHUnits), array('id' => array('=', $rowID)));
+			}
+			
+			// Set enclosure tolerance to "Loose" if it is not set
+			if($row['partitionType'] == 'Enclosure') {
+				if(!$row['encTolerance']) {
+					$this->qls->SQL->update('app_object_compatibility', array('encTolerance' => 'Loose'), array('id' => array('=', $rowID)));
+				}
+			}
+		}
 	}
 	
 	/**
@@ -742,6 +771,49 @@ var $qls;
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * 0.2.2 - Find all partitions with duplicate port IDs and make them unique
+	 * @return boolean
+	 */
+	function adjustPartitionHUnits(&$partitionData, $parentHUnits=24){
+		foreach($partitionData as &$partition) {
+			// Adjust hUnits
+			$localHUnits = $partition['hUnits'];
+			$newLocalHUnits = round(($localHUnits/10)*24);
+			$partition['hUnits'] = $newLocalHUnits;
+			
+			// Adjust flex
+			$localDirection = $partition['direction'];
+			if($localDirection == 'column') {
+				$newFlex = $newLocalHUnits/$parentHUnits;
+				$parent['flex'] = $newFlex;
+			}
+			
+			if(isset($partition['children'])) {
+				$this->adjustPartitionHUnits($partition['children'], $localHUnits);
+			}
+		}
+	}
+	
+	/**
+	 * 0.2.2 - Find all enclosure partitions without tolerance set and set enclosure tolerance to "Loose"
+	 * @return boolean
+	 */
+	function setEnclosureTolerance(&$partitionData){
+		foreach($partitionData as &$partition) {
+			
+			if($partition['partitionType'] == 'Enclosure') {
+				if(!isset($partition['encTolerance'])) {
+					$partition['encTolerance'] = 'Loose';
+				}
+			}
+			
+			if(isset($partition['children'])) {
+				$this->setEnclosureTolerance($partition['children']);
+			}
+		}
 	}
 	
 	function updateObjectCompatibility($data, $templateID, $side, &$depthCounter=0){
