@@ -98,8 +98,55 @@
 						action: 'role',
 						userID: params.pk,
 						groupID: params.value,
-						userType: $(this).attr('data-userType'),
-						action: 'role'
+						userType: $(this).attr('data-userType')
+					};
+					params.data = JSON.stringify(data);
+					return params;
+				},
+				url: 'backend/process_admin_edit-user.php'
+			});
+			
+			// User status
+			var roleData = [
+				{'value':'yes','text':'Blocked'},
+				{'value':'no','text':'Unblocked'}
+			];
+
+			// Make user status editable
+			$('.editableUserStatus').editable({
+				showbuttons: false,
+				mode: 'inline',
+				source: roleData,
+				params: function(params){
+					var data = {
+						action: 'status',
+						userID: params.pk,
+						status: params.value,
+						userType: 'active'
+					};
+					params.data = JSON.stringify(data);
+					return params;
+				},
+				url: 'backend/process_admin_edit-user.php'
+			});
+			
+			// User MFA
+			var roleData = [
+				{'value':0,'text':'No'},
+				{'value':1,'text':'Yes'}
+			];
+
+			// Make user MFA editable
+			$('.editableUserMFA').editable({
+				showbuttons: false,
+				mode: 'inline',
+				source: roleData,
+				params: function(params){
+					var data = {
+						action: 'mfa',
+						userID: params.pk,
+						state: params.value,
+						userType: 'active'
 					};
 					params.data = JSON.stringify(data);
 					return params;

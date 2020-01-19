@@ -2,7 +2,6 @@
 define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
 $qls->Security->check_auth_page('administrator.php');
-require_once '../includes/path_functions.php';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	require_once '../includes/Validate.class.php';
@@ -21,8 +20,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	if (!count($validate->returnData['error'])){
 		$userID = $data['userID'];
 		$userType = $data['userType'];
+		$action = $data['action'];
 		
-		if($data['action'] == 'role') {
+		if($action == 'role') {
 			$groupID = $data['groupID'];
 			
 			if($userType == 'active') {
@@ -30,18 +30,26 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			} else if($userType == 'invitation') {
 				$qls->SQL->update('invitations', array('group_id' => $groupID), array('id' => array('=', $userID)));
 			}
-		} else if($data['action'] == 'delete') {
+		} else if($action == 'status') {
+			
+			$status = strtolower($data['status']);
+			$qls->SQL->update('users', array('blocked' => $status), array('id' => array('=',$userID)));
+			
+		} else if($action == 'mfa') {
+			
+			$mfa = $data['state'];
+			// Can only turn MFA off
+			if($mfa == 0) {
+				$qls->SQL->update('users', array('mfa' => $mfa), array('id' => array('=',$userID)));
+			}
+			
+		} else if($action == 'delete') {
 			if($userType == 'active') {
-				if($userID != $qls->user_info['id']) {
-					$query = $qls->SQL->select('*', 'users', array('id' => array('=', $userID)));
-					if($qls->SQL->num_rows($query)) {
-						$qls->Admin->remove_user($userID);
-					} else {
-						$errMsg = 'User ID does not exist.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
+				$query = $qls->SQL->select('*', 'users', array('id' => array('=', $userID)));
+				if($qls->SQL->num_rows($query)) {
+					$qls->Admin->remove_user($userID);
 				} else {
-					$errMsg = 'Cannot remove yourself.';
+					$errMsg = 'User ID does not exist.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 			} else if($userType == 'invitation') {
@@ -55,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 function validate($data, &$validate, &$qls){
 	
 	// Validate action
-	$actionArray = array('role', 'delete');
+	$actionArray = array('status', 'mfa', 'role', 'delete');
 	$action = $data['action'];
 	if($validate->validateInArray($action, $actionArray, 'action')) {
 		
@@ -63,11 +71,28 @@ function validate($data, &$validate, &$qls){
 			$groupID = $data['groupID'];
 			$validate->validateID($groupID, 'groupID');
 		}
+		
+		if($action == 'status') {
+			$status = $data['status'];
+			$statusArray = array('yes', 'no');
+			$validate->validateInArray($status, $statusArray, 'status');
+		}
+		
+		if($action == 'mfa') {
+			$mfa = $data['state'];
+			$mfaArray = array(0, 1);
+			$validate->validateInArray($mfa, $mfaArray, 'mfa');
+		}
 	}
 	
 	// Validate userID
 	$userID = $data['userID'];
-	$validate->validateID($userID, 'userID');
+	if($validate->validateID($userID, 'userID')) {
+		if($userID == $qls->user_info['id']) {
+			$errMsg = 'Cannot administer your own account.';
+			array_push($validate->returnData['error'], $errMsg);
+		}
+	}
 	
 	// Validate userType
 	$userTypeArray = array('active', 'invitation');

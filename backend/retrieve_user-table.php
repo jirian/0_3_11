@@ -1,7 +1,7 @@
 <?php
 define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
-$qls->Security->check_auth_page('user.php');
+$qls->Security->check_auth_page('administrator.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	require_once '../includes/Validate.class.php';
@@ -29,11 +29,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			$html .= '<tr>';
 			$html .= '<td>'.$row['username'].'</td>';
-			$html .= '<td>Active</td>';
-			if($row['mfa']) {
-				$html .= '<td>Yes</td>';
+			if($row['id'] != $qls->user_info['id']) {
+				$html .= '<td><a class="editableUserStatus" href="#" data-type="select" data-pk="'.$row['id'].'" data-value="'.$row['blocked'].'"></a></td>';
 			} else {
-				$html .= '<td>No</td>';
+				$html .= '<td>Unblocked</td>';
+			}
+			if($row['id'] != $qls->user_info['id']) {
+				$html .= '<td><a class="editableUserMFA" href="#" data-type="select" data-pk="'.$row['id'].'" data-value="'.$row['mfa'].'"></a></td>';
+			} else {
+				$html .= ($row['mfa']) ? '<td>Yes</td>' : '<td>No</td>';
 			}
 			if($row['id'] == $qls->user_info['id']) {
 				$html .= '<td>'.$groupArray[$row['group_id']]['name'].'</td>';

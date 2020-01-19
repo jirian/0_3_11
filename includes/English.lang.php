@@ -35,7 +35,7 @@ define('LOGOUT_LINK', '<a href="logout.php">logout</a>');
 define('KNOWLEDGE_LINK', '<a href="http://www.quadodo.net/s.php" target="_blank" class="main">Support Area</a>');
 
 // User is blocked?
-define('BLOCKED_ERROR', 'Sorry but you have been banned from this site.');
+define('BLOCKED_ERROR', 'Your account is blocked.');
 
 // System not completely installed
 define('SYSTEM_NOT_INSTALLED', 'The system is not installed. Please read the User Guide to find out how.');
@@ -128,7 +128,7 @@ define('LOGIN_USER_INFO_MISSING', 'The specified user information could not be f
 define('LOGIN_PASSWORDS_NOT_MATCHED', 'The password provided did not match that in the database.');
 define('LOGIN_USER_BLOCKED', 'You have been blocked from accessing this site.');
 define('LOGIN_ALREADY_LOGGED', 'You are already logged in! Please ' . LOGOUT_LINK . ' if you wish to login as another user.');
-define('LOGIN_NOT_ACTIVE_USER', 'Sorry but you must activate your account using the link in your email inbox.');
+define('LOGIN_NOT_ACTIVE_USER', 'Your account is blocked.');
 define('LOGIN_NOT_ACTIVE_ADMIN', 'Sorry but an administrator must activate your account before you can login.');
 define('LOGIN_MFA_FAILURE_ADMIN', 'Sorry but the second factor authentication failed.');
 
