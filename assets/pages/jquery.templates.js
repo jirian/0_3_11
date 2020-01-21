@@ -1473,7 +1473,7 @@ function handleScrollLock(){
 function buildInsertParent(RUSize, hUnits, vUnits, encLayoutX, encLayoutY){
 	var variables = getVariables();
 	var totalVUnits = RUSize * 2;
-	var flexRow = hUnits/10;
+	var flexRow = hUnits/24;
 	var flexCol = vUnits/totalVUnits;
 	var table = '';
 	

@@ -72,7 +72,7 @@ for ($x=0; $x<$faceCount; $x++){
 						$minRUSize = ceil($vUnits/2);
 						$totalVUnits = $minRUSize * 2;
 						$heightNumerator = $vUnits/$totalVUnits;
-						$flexWidth = $hUnits/10;
+						$flexWidth = $hUnits/24;
 						$flexHeight = $heightNumerator/$templateOrganic['templateEncLayoutY'];
 						$minRUSize = ceil($vUnits/2);
 						

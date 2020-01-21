@@ -586,7 +586,7 @@ function enumeratePortIDs(&$qls, $data, &$portCollection){
 				$portName = $qls->App->generatePortName($portNameFormat, $x, $portTotal);
 				array_push($portCollection, $portName);
 			}
-		} else if(count($partition['children'])) {
+		} else if(isset($partition['children'])) {
 			enumeratePortIDs($qls, $partition['children'], $portCollection);
 		}
 	}
