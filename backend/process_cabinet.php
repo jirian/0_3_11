@@ -19,7 +19,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	if (!count($validate->returnData['error'])){
 		$action = $data['action'];
 		$cabinetID = $data['cabinetID'];
-		$cabinet = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID))));
+		//$cabinet = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID))));
+		$cabinet = $qls->App->envTreeArray[$cabinetID];
 		$cabinetSize = $cabinet['size'];
 		$cabinetParentID = getCabinetParentID($cabinet['parent'], $qls);
 		$topObject = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)), array('RU', 'DESC'), array(0,1)));
@@ -183,6 +184,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->App->logAction(2, 2, $actionString);
 				
 			}
+		} else if($action == 'RUOrientation') {
+			
+			$RUOrientation = $data['value'];
+			$qls->SQL->update('app_env_tree', array('ru_orientation' => $RUOrientation), array('id' => array('=', $cabinetID)));
+			
 		} else if($action == 'get') {
 			
 			$cabinets = getChildCabinets($cabinetID, $cabinetParentID, $qls);
@@ -216,6 +222,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['cabSize'] = $cabinetSize;
 			$validate->returnData['success']['entranceMax'] = $cabinetSize;
 			$validate->returnData['success']['minRU'] = $topOccupiedRU;
+			$validate->returnData['success']['RUOrientation'] = $cabinet['ru_orientation'];
 			
 		} else if($action == 'getFloorplan') {
 			
@@ -644,7 +651,8 @@ function validate($data, &$validate, &$qls){
 		'trunkPeer',
 		'trunkFloorplanPeer',
 		'clearTrunkPeer',
-		'clearFloorplanTrunkPeer'
+		'clearFloorplanTrunkPeer',
+		'RUOrientation'
 	);
 	$action = $data['action'];
 	
@@ -734,6 +742,17 @@ function validate($data, &$validate, &$qls){
 				$errMsg = 'Cabinet does not exist.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
+		} else if($action == 'RUOrientation') {
+			
+			//Validate cabinet ID
+			$cabinetID = $data['cabinetID'];
+			$validate->validateObjectID($cabinetID);
+			
+			// Validate RU Orientation Value
+			$RUOrientation = $data['value'];
+			$RUOrientationArray = array(0, 1);
+			$validate->validateInArray($RUOrientation, $RUOrientationArray, 'RU orientation value');
+			
 		} else {
 			
 			// Validate cabinet ID

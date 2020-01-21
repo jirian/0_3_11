@@ -131,7 +131,7 @@
 			});
 			
 			// User MFA
-			var roleData = [
+			var mfaData = [
 				{'value':0,'text':'No'},
 				{'value':1,'text':'Yes'}
 			];
@@ -140,7 +140,7 @@
 			$('.editableUserMFA').editable({
 				showbuttons: false,
 				mode: 'inline',
-				source: roleData,
+				source: mfaData,
 				params: function(params){
 					var data = {
 						action: 'mfa',

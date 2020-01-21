@@ -94,6 +94,7 @@ createTemplates($qls);
 createCategories($qls);
 createConnections($qls);
 createTrunks($qls);
+createVersion();
 
 // Add database data
 $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Categories.csv', '01 - Categories.csv');
@@ -104,6 +105,7 @@ $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Cabinet Objects.csv', '0
 $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Object Inserts.csv', '06 - Object Inserts.csv');
 $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Connections.csv', '07 - Connections.csv');
 $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Trunks.csv', '08 - Trunks.csv');
+$zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Version.txt', 'Version.txt');
 $zip->addFile($_SERVER['DOCUMENT_ROOT'].'/userDownloads/README.txt', 'README.txt');
 
 // Identify template images in use
@@ -171,6 +173,7 @@ unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Cabinet Objects.csv');
 unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Object Inserts.csv');
 unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Connections.csv');
 unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Trunks.csv');
+unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Version.txt');
 unlink($_SERVER['DOCUMENT_ROOT'].'/userDownloads/export.zip');
 
 exit;
@@ -184,7 +187,6 @@ function createCabinets(&$qls){
 		'RU Size',
 		'Adj Left',
 		'Adj Right',
-		'*Original Cabinet',
 		'**Floorplan Image'
 	);
 
@@ -202,7 +204,6 @@ function createCabinets(&$qls){
 			$size,
 			$adjLeft,
 			$adjRight,
-			$location['nameString'],
 			$floorplanImg
 		);
 		$csvArray[$location['nameString']] = $line;
@@ -258,7 +259,6 @@ function createObjects(&$qls, $objectArray){
 		'**Template',
 		'RU',
 		'Cabinet Face',
-		'*Original Object',
 		'**Flooplan Object X',
 		'**Flooplan Object Y'
 	);
@@ -299,7 +299,6 @@ function createObjects(&$qls, $objectArray){
 			$template,
 			$bottomRU,
 			$cabinetFace,
-			$original,
 			$posLeft,
 			$posTop
 		);
@@ -322,8 +321,7 @@ function createObjectInserts(&$qls, $objectArray, $insertArray, $templateEnclosu
 		'**Face',
 		'**Slot',
 		'Insert Name',
-		'**Insert Template',
-		'*Original Insert'
+		'**Insert Template'
 	);
 	fputcsv($fileObjectInserts, $csvHeader);
 
@@ -368,9 +366,7 @@ function createObjectInserts(&$qls, $objectArray, $insertArray, $templateEnclosu
 								$insertTemplateName = $qls->App->templateArray[$insertTemplateID]['templateName'];
 								array_push($line, $insertName);
 								array_push($line, $insertTemplateName);
-								array_push($line, $objectNameString.'.'.$faceString.'.'.$slotID.'.'.$insertName);
 							} else {
-								array_push($line, '');
 								array_push($line, '');
 								array_push($line, '');
 							}
@@ -403,7 +399,6 @@ function createTemplates(&$qls){
 	$csvHeader = array(
 		'Name',
 		'Category',
-		'*Original Template',
 		'**Type',
 		'**Function',
 		'**RU Size',
@@ -450,7 +445,6 @@ function createTemplates(&$qls){
 			$line = array(
 				$templateName,
 				$templateCategoryName,
-				$templateName,
 				$templateType,
 				$templateFunction,
 				$templateRUSize,
@@ -476,8 +470,7 @@ function createCategories(&$qls){
 	$csvHeader = array(
 		'Name',
 		'Color',
-		'Default',
-		'*Original Category'
+		'Default'
 	);
 	fputcsv($fileCategories, $csvHeader);
 
@@ -491,8 +484,7 @@ function createCategories(&$qls){
 		$line = array(
 			$categoryName,
 			$categoryColor,
-			$categoryDefault,
-			$categoryName
+			$categoryDefault
 		);
 		
 		$csvArray[$categoryName] = $line;
@@ -753,4 +745,11 @@ function createTrunks(&$qls){
 	
 	fclose($fileTrunks);
 }
+
+function createVersion(){
+	$fileVersion = fopen($_SERVER['DOCUMENT_ROOT'].'/userDownloads/Version.txt', 'w');
+	fwrite($fileVersion, PCM_VERSION);
+	fclose($fileVersion);
+}
+
 ?>

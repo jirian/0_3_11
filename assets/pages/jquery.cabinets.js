@@ -1392,6 +1392,31 @@ $( document ).ready(function() {
 					$('#cabinetSizeInput').editable('setValue', response.success.cabSize);
 					$('#cabinetSizeInput').editable('option', 'min', response.success.minRU);
 					
+					// Cabinet RU Orientation
+					var ruOrientationData = [
+						{'value':0,'text':'Bottom-Up'},
+						{'value':1,'text':'Top-Down'}
+					];
+
+					// Make cabinet RU orientation editable
+					$('#cabinetRUOrientationInput').editable('destroy');
+					$('#cabinetRUOrientationInput').editable({
+						showbuttons: false,
+						mode: 'inline',
+						source: ruOrientationData,
+						params: function(params){
+							var data = {
+								action: 'RUOrientation',
+								cabinetID: cabinetID,
+								value: params.value
+							};
+							params.data = JSON.stringify(data);
+							return params;
+						},
+						url: 'backend/process_cabinet.php'
+					});
+					$('#cabinetRUOrientationInput').editable('setValue', response.success.RUOrientation);
+					
 					//Build cable path table
 					var tableData = '';
 					$(response.success.path).each(function(index, path){

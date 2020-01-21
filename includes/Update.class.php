@@ -85,6 +85,8 @@ var $qls;
 		// Set app version to 0.2.2
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
+		// Add "ru_orientation" column to "app_env_tree" table
+		$this->qls->SQL->alter('app_env_tree', 'add', 'ru_orientation', 'tinyint', true, 0);
 		
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
 		while ($row = $this->qls->SQL->fetch_assoc($query)){
