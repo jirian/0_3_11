@@ -171,6 +171,7 @@ CREATE TABLE `{database_prefix}app_env_tree` (
   `type` varchar(255) NOT NULL,
   `size` int(11) NOT NULL DEFAULT '42',
   `floorplan_img` varchar(40) DEFAULT NULL,
+  `ru_orientation` tinyint NULL DEFAULT '0',
   PRIMARY KEY(`id`)
 );
 
