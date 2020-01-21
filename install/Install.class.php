@@ -626,7 +626,7 @@ var $install_error = array();
 			$entitlementLastChecked = 0;
 			$entitlementDataArray = array('cabinetCount' => 5, 'objectCount' => 20, 'connectionCount' => 40, 'userCount' => 2);
 			$entitlementData = json_encode($entitlementDataArray);
-			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`, `entitlement_last_checked`, `entitlement_data`, `entitlement_comment`) VALUES('Acme, Inc.', '".$this->app_version."', 'None', ".$entitlementLastChecked.", '".$entitlementData."', 'Never checked.')")) {
+			if (!$this->test->query("INSERT INTO `{$database_prefix}app_organization_data` (`name`, `version`, `entitlement_id`, `entitlement_last_checked`, `entitlement_data`, `entitlement_comment`, `entitlement_expiration`) VALUES('Acme, Inc.', '".$this->app_version."', 'None', ".$entitlementLastChecked.", '".$entitlementData."', 'Never checked.', 0)")) {
 				$this->test->output_error();
 			}
 			
