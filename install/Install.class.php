@@ -507,7 +507,7 @@ var $install_error = array();
 			
 			// Add environment tree data
 			foreach($env_tree as $env_tree_item) {
-				if (!$this->test->query("INSERT INTO `{$database_prefix}app_env_tree` (`name`, `parent`, `type`, `size`, `floorplan_img`) VALUES({$env_tree_item})")) {
+				if (!$this->test->query("INSERT INTO `{$database_prefix}app_env_tree` (`name`, `parent`, `type`, `size`, `floorplan_img`, `ru_orientation`) VALUES({$env_tree_item})")) {
 					$this->test->output_error();
 				}
 			}
