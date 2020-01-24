@@ -115,7 +115,6 @@ $qls->Security->check_auth_page('operator.php');
 										<a href="#" id="cabinetSizeInput" data-type="number" data-pk="" data-value=""></a>
 									</td>
 								</tr>
-								<!-- In development
 								<tr>
 									<td class="objectDetailAlignRight">
 										<strong>RU Orientation:&nbsp&nbsp</strong>
@@ -124,7 +123,6 @@ $qls->Security->check_auth_page('operator.php');
 										<a href="#" id="cabinetRUOrientationInput" data-type="select" data-pk="" data-value=""></a>
 									</td>
 								</tr>
-								-->
 							</table>
 							<!-- Cable path table -->
 							<h4 class="header-title m-t-20">Cable Paths:</h4>

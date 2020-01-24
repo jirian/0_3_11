@@ -936,6 +936,23 @@ function initializeImageUpload(floorplanID){
     });
 }
 
+function renumberCabinet(){
+	var RUOrientation = $('#cabinetHeader').data('ruOrientation');
+	var cabSize = $('.cabinetRU').length;
+	$('.cabinetRU').each(function(){
+		elemIndex = $(this).index();
+		RUNumber = cabSize - elemIndex;
+		if(RUOrientation == 0) {
+			console.log(RUNumber);
+			$(this).children('.leftRail').html(RUNumber);
+			$(this).children('.droppable').data('cabinetru', RUNumber);
+		} else {
+			$(this).children('.leftRail').html(elemIndex + 1);
+			$(this).children('.droppable').data('cabinetru', RUNumber);
+		}
+	});
+}
+
 $( document ).ready(function() {
 	
 	$('#btnImageUpload').on('click', function(event){
@@ -1374,18 +1391,25 @@ $( document ).ready(function() {
 						},
 						success: function(response) {
 							var response = $.parseJSON(response);
-							if (response.error != ''){
+							if (response.error.length){
 								displayError(response.error);
 								$('#cabinetSizeInput').editable('setValue', response.success.originalSize);
 							} else {
-								var firstVisible = $('.cabinetRU:visible').index();
-								if (response.success.action == 'pop') {
-									var end = firstVisible + response.success.delta;
-									$('.cabinetRU').slice(firstVisible, end).hide();
-								} else if (response.success.action == 'push') {
-									var start = firstVisible - response.success.delta;
-									$('.cabinetRU').slice(start, firstVisible).show();
+								var RUOrientation = $('#cabinetHeader').data('ruOrientation');
+								var rackUnitHTML = '';
+								rackUnitHTML += '<tr class="cabinet cabinetRU">';
+								rackUnitHTML += '<td class="cabinet cabinetRail leftRail">42</td>';
+								rackUnitHTML += '<td class="droppable ui-droppable" rowspan="1" data-cabinetru="42"></td>';
+								rackUnitHTML += '<td class="cabinet cabinetRail rightRail"></td>';
+								rackUnitHTML += '</tr>';
+								
+								if(RUOrientation == 0) {
+									$('#cabinetTable').prepend(rackUnitHTML);
+								} else {
+									$('#cabinetTable').append(rackUnitHTML);
 								}
+								
+								renumberCabinet();
 							}
 						}
 					});
@@ -1413,9 +1437,16 @@ $( document ).ready(function() {
 							params.data = JSON.stringify(data);
 							return params;
 						},
-						url: 'backend/process_cabinet.php'
+						url: 'backend/process_cabinet.php',
+						success: function(response) {
+							var response = $.parseJSON(response);
+							if (response.error.length){
+								displayError(response.error);
+							} else {
+								$('#cabinetHeader').data('ruOrientation', response.success.RUOrientation);
+							}
+						}
 					});
-					$('#cabinetRUOrientationInput').editable('setValue', response.success.RUOrientation);
 					
 					//Build cable path table
 					var tableData = '';

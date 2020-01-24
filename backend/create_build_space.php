@@ -8,15 +8,38 @@ $node_id = $_POST['id'];
 $cabinetFace = $_POST['face'];
 $cabinetView = $_POST['view'];
 $cabinetFace = $cabinetFace == 0 ? 'cabinet_front' : 'cabinet_back';
-$node_info = $qls->SQL->select('*', 'app_env_tree', 'id='.$node_id);
-$node_info = $qls->SQL->fetch_assoc($node_info);
-$node_id = $node_info['id'];
+/* $node_info = $qls->SQL->select('*', 'app_env_tree', 'id='.$node_id);
+$node_info = $qls->SQL->fetch_assoc($node_info); */
+$node_info = $qls->App->envTreeArray[$node_id];
+//$node_id = $node_info['id'];
+$ruOrientation = $node_info['ru_orientation'];
 $node_name = $node_info['name'];
 $cabinetSize = $node_info['size'];
 
 //Retreive cabinet object info
 $object = array();
 $insert = array();
+foreach($qls->App->objectByCabinetArray[$node_id] as $objID) {
+	$obj = $qls->App->objectArray[$objID];
+	if($obj[$cabinetFace] !== null) {
+		$templateID = $obj['template_id'];
+		$template = $qls->App->templateArray[$templateID];
+		if($template['templateType'] == 'Standard') {
+			$RU = $obj['RU'];
+			$object[$RU] = $obj;
+			$object[$RU]['face'] = $obj[$cabinetFace];
+		} else {
+			$parentID = $obj['parent_id'];
+			$parentFace = $obj['parent_face'];
+			$parentDepth = $obj['parent_depth'];
+			$insertSlotX = $obj['insertSlotX'];
+			$insertSlotY = $obj['insertSlotY'];
+			$insert[$parentID][$parentFace][$parentDepth][$insertSlotX][$insertSlotY] = $obj;
+		}
+	}
+}
+
+/*
 $results = $qls->SQL->select('*', 'app_object', 'env_tree_id = '.$node_id.' AND '.$cabinetFace.' IS NOT NULL');
 
 while ($row = $qls->SQL->fetch_assoc($results)){
@@ -27,6 +50,7 @@ while ($row = $qls->SQL->fetch_assoc($results)){
 		$insert[$row['parent_id']][$row['parent_face']][$row['parent_depth']][$row['insertSlotX']][$row['insertSlotY']] = $row;
 	}
 }
+*/
 
 //Retreive categories
 $category = array();
@@ -91,15 +115,22 @@ $cursorClass = ($page == 'explore') ? 'cursorPointer' : 'cursorGrab';
 //Cabinet
 /////////////////////////////
 -->
-	<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="<?php echo $node_id; ?>"><?php echo $node_name; ?></div>
+	<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="<?php echo $node_id; ?>" data-ru-orientation="<?php echo $ruOrientation; ?>"><?php echo $node_name; ?></div>
 	<input id="cabinetID" type="hidden" value="<?php echo $node_id; ?>">
 	<input id="objectID" type="hidden" value="">
 	<table id="cabinetTable" class="cabinet">
 	<?php
 		$skipCounter = 0;
-		for ($cabLoop=50; $cabLoop>0; $cabLoop--){?>
-			<tr class="cabinet cabinetRU" <?php if($cabLoop>$cabinetSize){echo 'style="display:none"';}?>>
-				<td class="cabinet cabinetRail leftRail"><?php echo $cabLoop;?></td>
+		for ($cabLoop=$cabinetSize; $cabLoop>0; $cabLoop--){
+			
+			if($ruOrientation == 0) {
+				$RUNumber = $cabLoop;
+			} else {
+				$RUNumber = $cabinetSize - ($cabLoop - 1);
+			}
+	?>
+			<tr class="cabinet cabinetRU">
+				<td class="cabinet cabinetRail leftRail"><?php echo $RUNumber;?></td>
 				<?php
 					if (array_key_exists($cabLoop, $object)){
 						$objName = $object[$cabLoop]['name'];

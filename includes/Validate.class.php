@@ -512,10 +512,12 @@ class Validate {
 		if (!isset($input)){
 			$errorMsg = 'Object ID is required.';
 			array_push($this->returnData['error'], $errorMsg);
+			return false;
 		} else {
 			if (!preg_match('/^[0-9]+$/', $input)){
 				$errorMsg = 'Invalid object ID.';
 				array_push($this->returnData['error'], $errorMsg);
+				return false;
 			}
 		}
 		return true;

@@ -188,6 +188,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$RUOrientation = $data['value'];
 			$qls->SQL->update('app_env_tree', array('ru_orientation' => $RUOrientation), array('id' => array('=', $cabinetID)));
+			$validate->returnData['success']['RUOrientation'] = $RUOrientation;
 			
 		} else if($action == 'get') {
 			

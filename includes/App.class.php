@@ -91,15 +91,23 @@ var $qls;
 		// Generate object... object...
 		$this->objectArray = array();
 		$this->objectByTemplateArray = array();
+		$this->objectByCabinetArray = array();
 		$query = $this->qls->SQL->select('*', 'app_object');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
 			$objID = $row['id'];
 			$this->objectArray[$objID] = $row;
+			
 			$templateID = $row['template_id'];
 			if(!isset($this->objectByTemplateArray[$templateID])) {
 				$this->objectByTemplateArray[$templateID] = array();
 			}
 			array_push($this->objectByTemplateArray[$templateID], $objID);
+			
+			$cabinetID = $row['env_tree_id'];
+			if(!isset($this->objectByCabinetArray[$cabinetID])) {
+				$this->objectByCabinetArray[$cabinetID] = array();
+			}
+			array_push($this->objectByCabinetArray[$cabinetID], $objID);
 		}
 		
 		// Add full path names for each object... this is dependant on envTreeArray, templateArray, and objectArray
