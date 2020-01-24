@@ -200,9 +200,14 @@
 					</li>
 					<?php } ?>
 					
-					<li>
-                        <a href="explore.php"><i class="zmdi zmdi-globe-alt"></i> <span> Explore </span> </a>
-                    </li>
+					
+					<li class="has-submenu">
+						<a href="#"><i class="zmdi zmdi-globe-alt"></i><span> Explore </span> </a>
+						<ul class="submenu">
+							<li><a href="explore.php">Cabinet</a></li>
+							<li><a href="diagram.php">Diagram</a></li>
+						</ul>
+					</li>
 
 					<?php
 						if($userGroup == 'Administrator' or $userGroup == 'Admin' or $userGroup == 'Operator') {

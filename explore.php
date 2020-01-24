@@ -111,7 +111,7 @@ text-align: left;
 <!-- Page-Title -->
 <div class="row">
     <div class="col-sm-12">
-        <h4 class="page-title">Explore</h4>
+        <h4 class="page-title">Explore - Cabinet</h4>
     </div>
 </div>
 

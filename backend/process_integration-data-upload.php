@@ -699,20 +699,11 @@ function buildImportedInsertArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 	$slotID = strtolower($csvLine[2]);
 	$insertName = $csvLine[3];
 	$templateName = $csvLine[4];
-	//$originalInsert = ($GLOBALS['importType'] == 'edit') ? strtolower($csvLine[5]) : '';
-	//$originalInsert = '';
-/* 	$originalInsertArray = explode('.', $originalInsert);
-	$originalInsertName = array_pop($originalInsertArray);
-	$originalInsertSlotID = array_pop($originalInsertArray);
-	$originalInsertFace = array_pop($originalInsertArray);
-	$originalInsertObjectNameString = implode('.', $originalInsertArray); */
 	
 	if($templateName !='') {
 		$insertNameString = $objectNameString.'.'.$face.'.'.$slotID.'.'.$insertName;
 		$objectNameHash = md5(strtolower($objectNameString));
 		$insertNameHash = md5(strtolower($insertNameString));
-		//$originalInsertHash = md5($originalInsert);
-		//$originalInsertObjectNameHash = md5(strtolower($originalInsertObjectNameString));
 		$templateNameHash = md5(strtolower($templateName));
 		
 		if(!array_key_exists($insertNameHash, $importedInsertArray)) {
@@ -726,15 +717,7 @@ function buildImportedInsertArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 			$importedInsertArray[$insertNameHash]['insertName'] = $insertName;
 			$importedInsertArray[$insertNameHash]['insertNameString'] = $insertNameString;
 			$importedInsertArray[$insertNameHash]['insertNameHash'] = $insertNameHash;
-			/* $importedInsertArray[$insertNameHash]['originalInsert'] = $originalInsert;
-			$importedInsertArray[$insertNameHash]['originalInsertHash'] = $originalInsertHash;
-			$importedInsertArray[$insertNameHash]['originalInsertName'] = $originalInsertName;
-			$importedInsertArray[$insertNameHash]['originalInsertSlotID'] = $originalInsertSlotID;
-			$importedInsertArray[$insertNameHash]['originalInsertFace'] = $originalInsertFace;
-			$importedInsertArray[$insertNameHash]['originalInsertObjectNameString'] = $originalInsertObjectNameString;
-			$importedInsertArray[$insertNameHash]['originalInsertObjectNameHash'] = $originalInsertObjectNameHash; */
 			$importedInsertArray[$insertNameHash]['templateNameHash'] = $templateNameHash;
-			//$importedInsertArray[$insertNameHash]['id'] = $originalInsert ? $existingInsertArray[$originalInsertHash]['id'] : null;
 		} else {
 			$errMsg = 'Duplicate insert name on line '.$csvLineNumber.' of '.$csvFilename;
 			array_push($validate->returnData['error'], $errMsg);
@@ -1403,11 +1386,11 @@ function validateImportedObjects($importedObjectArray, $existingObjectArray, $im
 	}
 }
 
-function validateImportedInserts($importedInsertArray, $existingInsertArray, $importedObjectArray, $importedTemplateArray, &$validate){
+function validateImportedInserts(&$importedInsertArray, $existingInsertArray, $importedObjectArray, $importedTemplateArray, &$validate){
 	$arrayOriginalHashes = array();
 	$allowedFaceArray = array('front', 'rear');
 	
-	foreach($importedInsertArray as $insert) {
+	foreach($importedInsertArray as &$insert) {
 		$objectNameHash = $insert['objectNameHash'];
 		$objectFace = strtolower($insert['objectFace']);
 		$slotID = $insert['slotID'];
@@ -1427,7 +1410,19 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 		$objectFaceValidated = $validate->validateInArray($objectFace, $allowedFaceArray, 'cabinet face on line '.$csvLineNumber.' of "'.$csvFilename.'".');
 		
 		// Validate Slot ID
-		$slotIDValidated = $validate->validateSlotID($slotID, 'slot ID on line '.$csvLineNumber.' of "'.$csvFilename.'".');
+		if($validate->validateSlotID($slotID, 'slot ID on line '.$csvLineNumber.' of "'.$csvFilename.'".')) {
+			$encString = 'enc';
+			$slotString = 'slot';
+			$slotID = ltrim($slotID, $encString);
+			$slotPos = strpos($slotID, $slotString);
+			$slotID = substr_replace($slotID, '-', $slotPos, strlen($slotString));
+			$slotIDArray = explode('-', $slotID);
+			$insert['slotDepth'] = $slotIDArray[0];
+			$insert['slotCoord'] = $slotIDArray[1];
+		} else {
+			$insert['slotDepth'] = false;
+			$insert['slotCoord'] = false;
+		}
 		
 		// Validate Name
 		$validate->validateNameText($insertName, 'Insert name on line '.$csvLineNumber.' of "'.$csvFilename.'".');
@@ -1445,38 +1440,39 @@ function validateImportedInserts($importedInsertArray, $existingInsertArray, $im
 		$parent = $importedObjectArray[$objectNameHash];
 		$parentTemplate = $importedTemplateArray[$parent['templateNameHash']];
 		$insertTemplate = $importedTemplateArray[$templateNameHash];
-		preg_match_all("/\d+|[a-b]+/", $slotID, $matches);
-		$depth = $matches[0][0];
+		$depth = $insert['slotDepth'];
 		$face = $objectFace == 'front' ? 0 : 1;
 		$compatible = true;
 		
-		if($parentPartition = retrievePartition($parentTemplate['templatePartitionData'][$face], $depth)) {
-			if($insertTemplate['templateFunction'] != $parentTemplate['templateFunction']) {
-				$compatible = false;
-			}
-			
-			// Check to see if the enclosure "strict" property is present...
-			// this is an added feature so it may not be if importing from older versions
-			if(isset($parentTemplate['encStrict'])) {
+		if($depth) {
+			if($parentPartition = retrievePartition($parentTemplate['templatePartitionData'][$face], $depth)) {
+				if($insertTemplate['templateFunction'] != $parentTemplate['templateFunction']) {
+					$compatible = false;
+				}
 				
-				// Is the enclosure configured as "strict"?
-				if($parentTemplate['encStrict'] == 'yes') {
+				// Check to see if the enclosure "strict" property is present...
+				// this is an added feature so it may not be if importing from older versions
+				if(isset($parentTemplate['encStrict'])) {
 					
-					// Check that the insert is compatible
-					if($insertTemplate['templateEncLayoutX'] != $parentPartition['encLayoutX']) {
-						$compatible = false;
-					} else if($insertTemplate['templateEncLayoutY'] != $parentPartition['encLayoutY']) {
-						$compatible = false;
-					} else if($insertTemplate['templateHUnits'] != $parentPartition['hunits']) {
-						$compatible = false;
-					} else if($insertTemplate['templateVUnits'] != $parentPartition['vunits']) {
-						$compatible = false;
+					// Is the enclosure configured as "strict"?
+					if($parentTemplate['encStrict'] == 'yes') {
+						
+						// Check that the insert is compatible
+						if($insertTemplate['templateEncLayoutX'] != $parentPartition['encLayoutX']) {
+							$compatible = false;
+						} else if($insertTemplate['templateEncLayoutY'] != $parentPartition['encLayoutY']) {
+							$compatible = false;
+						} else if($insertTemplate['templateHUnits'] != $parentPartition['hunits']) {
+							$compatible = false;
+						} else if($insertTemplate['templateVUnits'] != $parentPartition['vunits']) {
+							$compatible = false;
+						}
 					}
 				}
+			} else {
+				$errMsg = 'Could not find partition for insert on line '.$csvLineNumber.' of "'.$csvFilename.'".';
+				array_push($validate->returnData['error'], $errMsg);
 			}
-		} else {
-			$errMsg = 'Could not find partition for insert on line '.$csvLineNumber.' of "'.$csvFilename.'".';
-			array_push($validate->returnData['error'], $errMsg);
 		}
 		
 		if(!$compatible) {
@@ -2138,11 +2134,11 @@ function insertInsertAdds(&$qls, &$importedInsertArray, $importedObjectArray, $i
 		
 		$name = $insert['insertName'];
 		$parentFace = $insert['parent_face'];
-		$slotID = $insert['slotID'];
-		preg_match_all("/\d+|[a-b]+/", $slotID, $matches);
-		$depth = $matches[0][0];
-		$slotY = ord($matches[0][1]) - 97;
-		$slotX = $matches[0][2] - 1;
+		$slotCoord = $insert['slotCoord'];
+		preg_match_all("/\d+|[a-z]+/", $slotCoord, $matches);
+		$depth = $insert['slotDepth'];
+		$slotY = ord($matches[0][0]) - 97;
+		$slotX = $matches[0][1] - 1;
 		$RU = 0;
 		$cabinetFace = $parent['cabinetFace'];
 		if($cabinetFace == 'front') {

@@ -130,7 +130,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$templateImgWidth = 100;
 		} else if($templateInfo['templateType'] == 'Insert'){
 			$templateImgHeight = round((($RUHeight / 2) * $vUnits) / $encY);
-			$templateImgWidth = round(($hUnits * 10) / $encX);
+			$templateImgWidth = round((($hUnits / 24) * 100) * (1 / $encX));
 		}
 		
 		// Determine image state

@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.0
 	- Changes Introduced In 0.2.2
 	- Changes Introduced In 0.2.1
 	- Changes Introduced In 0.2.0
@@ -15,6 +16,11 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.0
+
+[Fix]		Resolved issue with inserts not importing correctly when installed in enclosures with more than 2 rows
+[Fix]		Corrected tempate image size when displaying insert template details
 
 **Changes introduced in 0.2.2
 
