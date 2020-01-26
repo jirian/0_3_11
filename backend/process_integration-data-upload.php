@@ -250,7 +250,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						} else if($csvFilename == 'Version.txt') {
 							$versionString = fgets($csvFile, 100);
 							if(preg_match('/^\d+\.\d+\.\d+$/', $versionString)) {
-								if(!version_compare($versionString, '0.2.2', 'ge')) {
+								if(!version_compare($versionString, '0.2.3', 'ge')) {
 									$errMsg = 'Incompatible version.';
 									array_push($validate->returnData['error'], $errMsg);
 								}
@@ -390,9 +390,10 @@ function buildImportedCabinetArray($csvLine, $csvLineNumber, $csvFilename, &$imp
 	$cabinetName = $csvLine[0];
 	$cabinetType = $csvLine[1];
 	$cabinetSize = $csvLine[2];
-	$cabinetLeft = $csvLine[3];
-	$cabinetRight = $csvLine[4];
-	$floorplanImg = $csvLine[5];
+	$cabinetOrientation = $csvLine[3];
+	$cabinetLeft = $csvLine[4];
+	$cabinetRight = $csvLine[5];
+	$floorplanImg = $csvLine[6];
 	$importedCabinetNameHash = md5(strtolower($cabinetName));
 	$cabinetParent = explode('.', $cabinetName);
 	$name = array_pop($cabinetParent);
@@ -419,6 +420,7 @@ function buildImportedCabinetArray($csvLine, $csvLineNumber, $csvFilename, &$imp
 	$importedCabinetArray[$importedCabinetNameHash]['parentNameHash'] = $cabinetParentHash;
 	$importedCabinetArray[$importedCabinetNameHash]['type'] = $cabinetType != '' ? $cabinetType : null;
 	$importedCabinetArray[$importedCabinetNameHash]['size'] = $cabinetSize != '' ? $cabinetSize : null;
+	$importedCabinetArray[$importedCabinetNameHash]['orientation'] = $cabinetOrientation != '' ? strtolower($cabinetOrientation) : null;
 	$importedCabinetArray[$importedCabinetNameHash]['left'] = $cabinetLeft != '' ? $cabinetLeft : null;
 	$importedCabinetArray[$importedCabinetNameHash]['leftHash'] = $cabinetLeft != '' ? md5(strtolower($cabinetLeft)) : null;
 	$importedCabinetArray[$importedCabinetNameHash]['right'] = $cabinetRight != '' ? $cabinetRight : null;
@@ -991,6 +993,7 @@ function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, 
 		$cabinetNameHash = $cabinet['nameHash'];
 		$cabinetType = $cabinet['type'];
 		$cabinetSize = $cabinet['size'];
+		$cabinetOrientation = $cabinet['orientation'];
 		$cabinetLeft = $cabinet['left'];
 		$cabinetRight = $cabinet['right'];
 		$csvLineNumber = $cabinet['line'];
@@ -1014,6 +1017,10 @@ function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, 
 			
 			// Validate RU Size
 			$validate->validateRUSize($cabinetSize, 'Invalid RU size on line '.$csvLineNumber.' of "'.$csvFilename.'".');
+			
+			// Validate RU Orientation
+			$orientationArray = array('bottomup', 'topdown');
+			$validate->validateInArray($cabinetOrientation, $orientationArray, 'RU Orientation');
 			
 			if($cabinetSize < $topOccupiedRU) {
 				$errMsg = 'Cabinet RU size on line '.$csvLineNumber.' of "'.$csvFilename.'" is less than the top occupied RU.';
@@ -1948,10 +1955,18 @@ function insertCabinetAdds(&$qls, &$importedCabinetArray, $existingCabinetArray)
 		$name = $cabinet['name'];
 		$parent = '#';
 		$type = $cabinet['type'];
-		$size = $type == 'cabinet' ? $cabinet['size'] : 42;
+		$orientation = $cabinet['orientation'];
 		$floorplanImg = $cabinet['floorplanImg'];
 		
-		$qls->SQL->insert('app_env_tree', array('name', 'parent', 'type', 'size', 'floorplan_img'), array($name, $parent, $type, $size, $floorplanImg));
+		if($type == 'cabinet') {
+			$size = $cabinet['size'];
+			$orientation = ($orientation == 'bottomup') ? 0 : 1;
+		} else {
+			$size = 42;
+			$orientation = 0;
+		}
+		
+		$qls->SQL->insert('app_env_tree', array('name', 'parent', 'type', 'size', 'ru_orientation', 'floorplan_img'), array($name, $parent, $type, $size, $orientation, $floorplanImg));
 		$cabinet['id'] = $qls->SQL->insert_id();
 	}
 	unset($cabinet);

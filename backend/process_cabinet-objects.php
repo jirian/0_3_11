@@ -139,7 +139,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				return;
 			}
 			
-			//Update DB entry
+			// Update DB entry
 			$qls->SQL->update('app_object', array(
 				'RU' => $RU
 				),

@@ -69,7 +69,7 @@ var $qls;
 		} else if($this->currentVersion == '0.2.1') {
 			$this->update_021_to_022();
 		} else if($this->currentVersion == '0.2.2') {
-			$this->update_022_to_030();
+			$this->update_022_to_023();
 		} else {
 			return true;
 		}
@@ -78,16 +78,14 @@ var $qls;
 	}
 	
 		/**
-	 * Update from version 0.2.2 to 0.3.0
+	 * Update from version 0.2.2 to 0.2.3
 	 * @return Boolean
 	 */
-	function update_022_to_030() {
-		$incrementalVersion = '0.3.0';
+	function update_022_to_023() {
+		$incrementalVersion = '0.2.3';
 		
-		// Set app version to 0.3.0
+		// Set app version to 0.2.3
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
-		
-		$this->qls->SQL->alter('app_env_tree', 'add', 'ru_orientation', 'tinyint', true, 0);
 		
 	}
 	

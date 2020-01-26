@@ -2050,5 +2050,58 @@ var $qls;
 		
 		return $html;
 	}
-
+	
+	function getCabinetOccupiedRUs($cabinetID, $RUOrientation=false) {
+		
+		// Cabinet Data
+		$cabinet = $this->qls->App->envTreeArray[$cabinetID];
+		$cabinetSize = $cabinet['size'];
+		$RUOrientation = ($RUOrientation !== false) ? $RUOrientation : $cabinet['ru_orientation'];
+		
+		if(count($this->qls->App->objectByCabinetArray[$cabinetID])) {
+			
+			// Top Object Data
+			$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)), array('RU', 'DESC'), array(0,1));
+			$topObj = $this->qls->SQL->fetch_assoc($query);
+			$topObjOccupiedRU = $topObj['RU'];
+			$firstOccupiedRU = $topObjOccupiedRU;
+			
+			// Bottom Object Data
+			$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', 0)), array('RU', 'ASC'), array(0,1));
+			$bottomObj = $this->qls->SQL->fetch_assoc($query);
+			$bottomObjOccupiedRU = $bottomObj['RU'];
+			$bottomObjTemplateID = $bottomObj['template_id'];
+			$bottomObjTemplate = $this->templateArray[$bottomObjTemplateID];
+			$bottomObjRUSize = $bottomObjTemplate['templateRUSize'];
+			
+			$firstOccupiedRU = $topObjOccupiedRU;
+			$lastOccupiedRU = $bottomObjOccupiedRU - ($bottomObjRUSize - 1);
+			
+			$bottomUpMin = $firstOccupiedRU;
+			$topDownMin = ($cabinetSize + 1) - ($cabinetSize - ($cabinetSize - $lastOccupiedRU));
+			$orientationSpecificMin = ($RUOrientation == 0) ? $bottomUpMin : $topDownMin;
+		} else {
+			$firstOccupiedRU = $lastOccupiedRU = $topDownMin = $bottomUpMin = $orientationSpecificMin = 0;
+		}
+		
+		return array('RUOrientation' => $RUOrientation, 'firstOccupiedRU' => $firstOccupiedRU+0, 'lastOccupiedRU' => $lastOccupiedRU+0, 'topDownMin' => $topDownMin+0, 'bottomUpMin' => $bottomUpMin+0, 'orientationSpecificMin' => $orientationSpecificMin+0);
+	}
+	
+	function buildTrunkFlatPath($objectID, $objectFace, $objectDepth) {
+		$obj = $this->objectArray[$objectID];
+		$objTemplateID = $obj['template_id'];
+		$objTemplate = $this->templateArray[$objTemplateID];
+		$objCompatibility = $this->compatibilityArray[$templateID][$objectFace][$objectDepth];
+		$portNameFormat = $objCompatibility['portNameFormat'];
+		$portX =  $objCompatibility['portLayoutX'];
+		$portY =  $objCompatibility['portLayoutY'];
+		$portTotal = $portX * $portY;
+		$firstPortID = 0;
+		$lastPortID = $portTotal - 1;
+		$lastPort = $this->generatePortName($portNameFormat, $lastPortID, $portTotal);
+		$flatPath = $this->generateObjectPortName($objectID, $objectFace, $objectDepth, $firstPortID);
+		error_log(json_encode($portNameFormat).'-'.$lastPortID.'-'.$portTotal);
+		$flatPath .= '&#8209;'.$lastPort;
+		return $flatPath;
+	}
 }

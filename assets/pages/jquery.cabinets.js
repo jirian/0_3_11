@@ -536,11 +536,134 @@ function determineRevert(obj, expandDroppable){
 	}
 }
 
+function makeRackUnitsDroppable(target){
+	$(target).droppable({
+		tolerance: 'pointer',
+		accept: '.draggable, .initialDraggable',
+		drop: function(event, ui){
+			var data = {};
+			var dataSecondary = {};
+			var cabinetRU = parseInt($(this).data('cabinetru'));
+			var objectRUSize = parseInt($(ui.draggable).data('ruSize'));
+			var droppableIndex = $('.droppable').index($(this));
+			var currentCabinetFace = $('#currentCabinetFace').val();
+			var cabinetID = $('#cabinetID').val();
+			var validDrop = true;
+			data['cabinetID'] = cabinetID;
+			data['cabinetFace'] = currentCabinetFace;
+			data['objectFace'] = ui.draggable.data('objectFace');
+			data['RU'] = cabinetRU;
+			dataSecondary['cabinetID'] = cabinetID;
+			
+			//If object came from stock, then append the clone.  Otherwise append the object.
+			if (ui.draggable.hasClass('stockObj')){
+				var object = ui.draggable.clone();
+				data['objectID'] = ui.draggable.data('templateId');
+				data['action'] = 'add';
+			} else {
+				var object = ui.draggable;
+				data['objectID'] = ui.draggable.data('templateObjectId');
+				data['action'] = 'updateObject';
+			}
+			
+			//Write object info to DB
+			data = JSON.stringify(data);
+			$.ajax({
+				url: 'backend/process_cabinet-objects.php',
+				method: 'POST',
+				data: {'data':data},
+				success: function(result){
+					var response = JSON.parse(result);
+					if (response.active == 'inactive'){
+						window.location.replace("/");
+					} else if ($(response.error).size() > 0){
+						displayError(response.error);
+						validDrop = false;
+					} else if (response.success != ''){
+						$('#objectID').val(response.success);
+					}
+					
+					// Update RUSize Minimum
+					dataSecondary['action'] = 'updateCabinetRUMin';
+					dataSecondary = JSON.stringify(dataSecondary);
+					$.ajax({
+						url: 'backend/process_cabinet.php',
+						method: 'POST',
+						data: {'data':dataSecondary},
+						success: function(resultSecondary){
+							var responseSecondary = JSON.parse(resultSecondary);
+							if (responseSecondary.active == 'inactive'){
+								window.location.replace("/");
+							} else if ($(responseSecondary.error).size() > 0){
+								displayError(responseSecondary.error);
+							} else if ($(responseSecondary.success.RUData).length) {
+								$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
+							}
+						},
+						async: false
+					});
+				},
+				async: false
+			});
+			
+			if(!validDrop){
+				$(ui.draggable).addClass('revert');
+				return false;
+			} else {
+				$(ui.draggable).addClass('valid');
+			}
+			
+			//If object came from stock, then set cabinetObjectID to the ID retreived from the insert
+			//else, set it to its current value.
+			if (ui.draggable.hasClass('stockObj')){
+				var cabinetObjectID = $('#objectID').val();
+			} else {
+				var cabinetObjectID = ui.draggable.data('templateObjectId');
+				removeObject($(ui.draggable));
+			}
+			
+			//Adjust droppable table to fit dropped object
+			insertObject(droppableIndex, objectRUSize);
+			
+			//Create object where it was dropped.
+			$(this).append(object
+				.removeClass('stockObj')
+				//Mark object as being racked in cabinet and landing in a valid dropZone
+				.addClass('rackObj')
+				.css({
+					'left':0,
+					'top':0,
+					'width':'auto'
+				})
+				.show()
+				.attr('data-template-object-id', cabinetObjectID)
+				.draggable({
+					delay: 200,
+					helper: 'clone',
+					zIndex: 1000,
+					cursorAt: {
+						top:10
+					},
+					start: function(){
+						var cabinetRUObject = $(this).parent();
+						var dragStartWidth = $(cabinetRUObject).width();
+						var dragStartHeight = $(cabinetRUObject).height();
+						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
+					},
+					revert: function(){
+						return determineRevert($(this), true);
+					}
+				})
+			);
+			makeRackObjectsClickable();
+			initializeInsertDroppable();
+		}
+    }).removeClass('newDroppable');
+}
+
 function loadCabinetBuild(){
 	initializeInsertDroppable();
 	makeRackObjectsClickable();
-	//Make the objects height fill the <td> container
-	//setObjectSize($('.rackObj:not(.insert)'));
 	
     $('.draggable').draggable({
 		delay: 200,
@@ -604,105 +727,8 @@ function loadCabinetBuild(){
 		}
 	});
 
-    $('.droppable').droppable({
-		tolerance: 'pointer',
-		accept: '.draggable, .initialDraggable',
-		drop: function(event, ui){
-			var data = {};
-			var cabinetRU = parseInt($(this).data('cabinetru'));
-			var objectRUSize = parseInt($(ui.draggable).data('ruSize'));
-			var droppableIndex = $('.droppable').index($(this));
-			var currentCabinetFace = $('#currentCabinetFace').val();
-			var validDrop = true;
-			data['cabinetID'] = $('#cabinetID').val();
-			data['cabinetFace'] = currentCabinetFace;
-			data['objectFace'] = ui.draggable.data('objectFace');
-			data['RU'] = cabinetRU;
-			
-			//If object came from stock, then append the clone.  Otherwise append the object.
-			if (ui.draggable.hasClass('stockObj')){
-				var object = ui.draggable.clone();
-				data['objectID'] = ui.draggable.data('templateId');
-				data['action'] = 'add';
-			} else {
-				var object = ui.draggable;
-				data['objectID'] = ui.draggable.data('templateObjectId');
-				data['action'] = 'updateObject';
-			}
-			
-			//Write object info to DB
-			data = JSON.stringify(data);
-			$.ajax({
-				url: 'backend/process_cabinet-objects.php',
-				method: 'POST',
-				data: {'data':data},
-				success: function(result){
-					var responseJSON = JSON.parse(result);
-					if (responseJSON.active == 'inactive'){
-						window.location.replace("/");
-					} else if ($(responseJSON.error).size() > 0){
-						displayError(responseJSON.error);
-						validDrop = false;
-					} else if (responseJSON.success != ''){
-						$('#objectID').val(responseJSON.success);
-					}
-				},
-				async: false
-			});
-			
-			if(!validDrop){
-				$(ui.draggable).addClass('revert');
-				return false;
-			} else {
-				$(ui.draggable).addClass('valid');
-			}
-			
-			//If object came from stock, then set cabinetObjectID to the ID retreived from the insert
-			//else, set it to its current value.
-			if (ui.draggable.hasClass('stockObj')){
-				var cabinetObjectID = $('#objectID').val();
-			} else {
-				var cabinetObjectID = ui.draggable.data('templateObjectId');
-				removeObject($(ui.draggable));
-			}
-			
-			//Adjust droppable table to fit dropped object
-			insertObject(droppableIndex, objectRUSize);
-			
-			//Create object where it was dropped.
-			$(this).append(object
-				.removeClass('stockObj')
-				//Mark object as being racked in cabinet and landing in a valid dropZone
-				.addClass('rackObj')
-				.css({
-					'left':0,
-					'top':0,
-					'width':'auto'
-				})
-				.show()
-				.attr('data-template-object-id', cabinetObjectID)
-				.draggable({
-					delay: 200,
-					helper: 'clone',
-					zIndex: 1000,
-					cursorAt: {
-						top:10
-					},
-					start: function(){
-						var cabinetRUObject = $(this).parent();
-						var dragStartWidth = $(cabinetRUObject).width();
-						var dragStartHeight = $(cabinetRUObject).height();
-						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
-					},
-					revert: function(){
-						return determineRevert($(this), true);
-					}
-				})
-			);
-			makeRackObjectsClickable();
-			initializeInsertDroppable();
-		}
-    });
+	makeRackUnitsDroppable($('.droppable'));
+
 }
 
 function filterTemplates(){
@@ -1285,12 +1311,18 @@ $( document ).ready(function() {
 	initializeEditable();
 
 	$('#objDelete').click(function(){
+		var cabinetID = $('#cabinetID').val();
 		var objectID = $('#selectedObjectID').val();
 		var object = $('#cabinetTable').find('[data-template-object-id='+objectID+']');
 		
 		var data = {
 			objectID: objectID,
 			action: 'delete'
+		};
+		
+		var dataSecondary = {
+			cabinetID: cabinetID,
+			action: 'updateCabinetRUMin'
 		};
 		
 		data = JSON.stringify(data);
@@ -1305,6 +1337,25 @@ $( document ).ready(function() {
 					removeObject(object);
 					$(object).remove();
 					clearObjectDetails();
+					
+					// Update RUSize Minimum
+					dataSecondary = JSON.stringify(dataSecondary);
+					$.ajax({
+						url: 'backend/process_cabinet.php',
+						method: 'POST',
+						data: {'data':dataSecondary},
+						success: function(resultSecondary){
+							var responseSecondary = JSON.parse(resultSecondary);
+							if (responseSecondary.active == 'inactive'){
+								window.location.replace("/");
+							} else if ($(responseSecondary.error).size() > 0){
+								displayError(responseSecondary.error);
+							} else if ($(responseSecondary.success.RUData).length) {
+								$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
+							}
+						},
+						async: false
+					});
 				}
 			}
 		);
@@ -1404,7 +1455,7 @@ $( document ).ready(function() {
 								var rackUnitHTML = '';
 								rackUnitHTML += '<tr class="cabinet cabinetRU">';
 								rackUnitHTML += '<td class="cabinet cabinetRail leftRail">42</td>';
-								rackUnitHTML += '<td class="droppable ui-droppable" rowspan="1" data-cabinetru="42"></td>';
+								rackUnitHTML += '<td class="newDroppable droppable ui-droppable" rowspan="1" data-cabinetru="42"></td>';
 								rackUnitHTML += '<td class="cabinet cabinetRail rightRail"></td>';
 								rackUnitHTML += '</tr>';
 								
@@ -1438,11 +1489,12 @@ $( document ).ready(function() {
 								}
 								
 								renumberCabinet();
+								makeRackUnitsDroppable($('.newDroppable'));
 							}
 						}
 					});
 					$('#cabinetSizeInput').editable('setValue', response.success.cabSize);
-					$('#cabinetSizeInput').editable('option', 'min', response.success.minRU);
+					$('#cabinetSizeInput').editable('option', 'min', response.success.RUData.orientationSpecificMin);
 					
 					// Cabinet RU Orientation
 					var ruOrientationData = [
@@ -1460,7 +1512,7 @@ $( document ).ready(function() {
 							var data = {
 								action: 'RUOrientation',
 								cabinetID: cabinetID,
-								value: params.value
+								value: parseInt(params.value, 10)
 							};
 							params.data = JSON.stringify(data);
 							return params;
@@ -1472,7 +1524,7 @@ $( document ).ready(function() {
 								displayError(response.error);
 							} else {
 								$('#cabinetHeader').data('ruOrientation', response.success.RUOrientation);
-								$('#cabinetSizeInput').editable('option', 'min', response.success.minRU);
+								$('#cabinetSizeInput').editable('option', 'min', response.success.RUData.orientationSpecificMin);
 								renumberCabinet();
 							}
 						}

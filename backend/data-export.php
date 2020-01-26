@@ -185,6 +185,7 @@ function createCabinets(&$qls){
 		'Name',
 		'Type',
 		'RU Size',
+		'RU Orientation',
 		'Adj Left',
 		'Adj Right',
 		'**Floorplan Image'
@@ -195,6 +196,14 @@ function createCabinets(&$qls){
 	$csvArray = array();
 	foreach($qls->App->envTreeArray as $location) {
 		$size = $location['type'] == 'cabinet' ? $location['size'] : '';
+		if($location['type'] == 'cabinet') {
+			$size = $location['size'];
+			$orientation = ($location['ru_orientation'] == 0) ? 'BottomUp' : 'TopDown';
+		} else {
+			$size = '';
+			$orientation = '';
+		}
+		
 		$floorplanImg = $location['type'] == 'floorplan' ? $location['floorplan_img'] : '';
 		$adjLeft = isset($envAdjArray[$location['id']]) ? $qls->App->envTreeArray[$envAdjArray[$location['id']]['left']]['nameString'] : '';
 		$adjRight = isset($envAdjArray[$location['id']]) ? $qls->App->envTreeArray[$envAdjArray[$location['id']]['right']]['nameString'] : '';
@@ -202,6 +211,7 @@ function createCabinets(&$qls){
 			$location['nameString'],
 			$location['type'],
 			$size,
+			$orientation,
 			$adjLeft,
 			$adjRight,
 			$floorplanImg

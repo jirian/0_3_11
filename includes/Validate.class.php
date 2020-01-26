@@ -523,6 +523,21 @@ class Validate {
 		return true;
 	}
 	
+	function validateCabinetID($input) {
+		if (!isset($input)){
+			$errorMsg = 'Cabinet ID is required.';
+			array_push($this->returnData['error'], $errorMsg);
+			return false;
+		} else {
+			if (!preg_match('/^[0-9]+$/', $input)){
+				$errorMsg = 'Invalid cabinet ID.';
+				array_push($this->returnData['error'], $errorMsg);
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	function validateObjectName($input, $reference) {
 		if (!isset($input)){
 			$errorMsg = 'Object Name is required.';

@@ -33,7 +33,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$bottomOccupiedRU = $bottomObj['RU'] + $bottomRUSize;
 		$RUDiff = $cabinetSize - $bottomOccupiedRU;
 		$TopBottomMinRU = ($cabinetSize - $RUDiff) + 1;
-		error_log('Debug: '.$cabinetSize.'-'.$bottomOccupiedRU.'-'.$RUDiff);
 		
 		if($action == 'adj') {
 			
@@ -166,35 +165,32 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		} else if($action == 'RU') {
 			
 			$RUSize = $data['RUSize'];
-			$validate->returnData['success']['ID'] = $cabinetID;
 			$validate->returnData['success']['size'] = $RUSize;
-			$validate->returnData['success']['topOccupiedRU'] = $topOccupiedRU;
 			$validate->returnData['success']['originalSize'] = $cabinetSize;
-			if ($RUSize < $cabinetSize and $RUSize >= $topOccupiedRU) {
-				$cabinetPath = $qls->SQL->fetch_assoc($query);
-				$validate->returnData['success']['action'] = 'pop';
-				$validate->returnData['success']['delta'] = $cabinetSize - $RUSize;
-			} else if ($RUSize > $cabinetSize) {
-				$validate->returnData['success']['action'] = 'push';
-				$validate->returnData['success']['delta'] = $RUSize - $cabinetSize;
-			} else {
-				if($RUOrientation == 0) {
-					if ($RUSize < $bottomTopMinRU or $RUSize == $cabinetSize){
-						$errMsg = 'Invalid RU size.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
-				} else {
-					if ($RUSize < $topBottomMinRU or $RUSize == $cabinetSize){
-						$errMsg = 'Invalid RU size.';
-						array_push($validate->returnData['error'], $errMsg);
-					}
-				}
+			$occupiedRUs = $qls->App->getCabinetOccupiedRUs($cabinetID);
+			
+			if($RUSize < $occupiedRUs['orientationSpecificMin']) {
+				$errMsg = 'Invalid RU size.';
+				array_push($validate->returnData['error'], $errMsg);
 			}
 			
-			if (!count($validate->returnData['error'])){
+			if(!count($validate->returnData['error'])){
 				
 				$qls->SQL->update('app_env_tree', array('size' => $RUSize), array('id' => array('=', $cabinetID)));
 				
+				if($RUOrientation) {
+					$RUDiff = $cabinetSize - $RUSize;
+					foreach($qls->App->objectByCabinetArray[$cabinetID] as $objID) {
+						$obj = $qls->App->objectArray[$objID];
+						$objTemplateID = $obj['template_id'];
+						$objTemplate = $qls->App->templateArray[$objTemplateID];
+						if($objTemplate['templateType'] == 'Standard') {
+							$objRU = $obj['RU'];
+							$newObjRU = $objRU - $RUDiff;
+							$qls->SQL->update('app_object', array('RU' => $newObjRU), array('id' => array('=', $objID)));
+						}
+					}
+				}
 				// Log history
 				$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
 				$originalRUSize = $qls->App->envTreeArray[$cabinetID]['size'];
@@ -207,13 +203,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$RUOrientation = $data['value'];
 			$qls->SQL->update('app_env_tree', array('ru_orientation' => $RUOrientation), array('id' => array('=', $cabinetID)));
 			$validate->returnData['success']['RUOrientation'] = $RUOrientation;
-			if($RUOrientation == 0) {
-				$validate->returnData['success']['minRU'] = $topOccupiedRU;
-			} else {
-				$RUDiff = $cabinetSize - $bottomOccupiedRU;
-				$minRU = $cabinetSize - $RUDiff;
-				$validate->returnData['success']['minRU'] = $minRU;
-			}
+			$validate->returnData['success']['RUData'] = $qls->App->getCabinetOccupiedRUs($cabinetID, $RUOrientation);
 			
 		} else if($action == 'get') {
 			
@@ -248,13 +238,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['cabSize'] = $cabinetSize;
 			$validate->returnData['success']['entranceMax'] = $cabinetSize;
 			$validate->returnData['success']['RUOrientation'] = $RUOrientation;
+			$validate->returnData['success']['RUData'] = $qls->App->getCabinetOccupiedRUs($cabinetID);
 			
-			if($RUOrientation == 0) {
-				$validate->returnData['success']['minRU'] = $bottomTopMinRU;
-			} else {
-				$validate->returnData['success']['minRU'] = $topBottomMinRU;
-			}
-			
+		} else if($action == 'updateCabinetRUMin') {
+			$validate->returnData['success']['RUData'] = $qls->App->getCabinetOccupiedRUs($cabinetID);
 		} else if($action == 'getFloorplan') {
 			
 			// Retrieve floorplan data
@@ -476,7 +463,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				);
 			}
 			
-			$validate->returnData['success']['trunkFlatPath'] = buildTrunkFlatPath($objectID, $objectFace, $objectDepth, $qls);
+			$validate->returnData['success']['trunkFlatPath'] = $qls->App->buildTrunkFlatPath($objectID, $objectFace, $objectDepth);
+			
 		} else if($action == 'trunkFloorplanPeer') {
 			
 			$objectID = $data['objectID'];
@@ -682,28 +670,54 @@ function validate($data, &$validate, &$qls){
 		'trunkFloorplanPeer',
 		'clearTrunkPeer',
 		'clearFloorplanTrunkPeer',
-		'RUOrientation'
+		'RUOrientation',
+		'updateCabinetRUMin'
 	);
 	$action = $data['action'];
 	
 	if($validate->validateInArray($action, $actionArray, 'process action')) {
-		if($action == 'get' or $action == 'getFloorplan' or $action == 'getFloorplanObjectPeerTable') {
+		
+		$cabinetIDValidationArray = array(
+			'get',
+			'getFloorplan',
+			'getFloorplanObjectPeerTable',
+			'updateCabinetRUMin',
+			'adj',
+			'RU',
+			'new',
+			'RUOrientation'
+		);
+		
+		$cabinetValidationArray = array(
+			'adj',
+			'RUOrientation',
+			'RU',
+			'updateCabinetRUMin'
+		);
+		
+		if(in_array($action, $cabinetIDValidationArray)) {
 			
 			//Validate cabinet ID
 			$cabinetID = $data['cabinetID'];
-			$validate->validateObjectID($cabinetID);
+			$validCabinetID = $validate->validateCabinetID($cabinetID);
+		}
+		
+		if(in_array($action, $cabinetValidationArray)) {
 			
-		} else if($action == 'adj') {
-			
-			//Validate cabinet ID
-			$cabinetID = $data['cabinetID'];
-			$validate->validateObjectID($cabinetID);
-			$result = $qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID)));
-			if ($qls->SQL->num_rows($result) == 0) {
-				$errMsg = 'Cabinet does not exist.';
-				array_push($validate->returnData['error'], $errMsg);
+			if($validCabinetID) {
+				if(isset($qls->App->envTreeArray[$cabinetID])) {
+					if($qls->App->envTreeArray[$cabinetID]['type'] != 'cabinet') {
+						$errMsg = 'Not a cabinet.';
+						array_push($validate->returnData['error'], $errMsg);
+					}
+				} else {
+					$errMsg = 'Cabinet does not exist.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
 			}
-
+		}
+		
+		if($action == 'adj') {
 			
 			//Validate side
 			$sideArray = array('adjCabinetSelectL', 'adjCabinetSelectR');
@@ -763,10 +777,6 @@ function validate($data, &$validate, &$qls){
 			$validate->validateObjectID($objectID);
 		} else if($action == 'RU' or $action == 'new') {
 			
-			//Validate cabinet ID
-			$cabinetID = $data['cabinetID'];
-			$validate->validateObjectID($cabinetID);
-			
 			$result = $qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID)));
 			if ($qls->SQL->num_rows($result) == 0) {
 				$errMsg = 'Cabinet does not exist.';
@@ -774,29 +784,11 @@ function validate($data, &$validate, &$qls){
 			}
 		} else if($action == 'RUOrientation') {
 			
-			//Validate cabinet ID
-			$cabinetID = $data['cabinetID'];
-			$validate->validateObjectID($cabinetID);
-			
 			// Validate RU Orientation Value
 			$RUOrientation = $data['value'];
 			$RUOrientationArray = array(0, 1);
 			$validate->validateInArray($RUOrientation, $RUOrientationArray, 'RU orientation value');
 			
-		} else {
-			
-			// Validate cabinet ID
-			$cabinetID = $data['cabinetID'];
-			$validate->validateObjectID($cabinetID);
-			$result = $qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID)));
-			if ($qls->SQL->num_rows($result) == 0) {
-				$errMsg = 'Cabinet does not exist.';
-				array_push($validate->returnData['error'], $errMsg);
-			}
-			
-			// Validate cabinet name
-			$cabinetName = $data['name'];
-			$validate->validateNameText($cabinetName, 'cabinet name');
 		}
 	}
 }
