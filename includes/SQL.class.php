@@ -99,6 +99,7 @@ var $qls;
 	}
 
 	function fetch_assoc($result) {
+		//error_log('Debug: '.debug_backtrace()[1]['function']);
 	    return $this->current_layer->fetch_assoc($result);
 	}
 

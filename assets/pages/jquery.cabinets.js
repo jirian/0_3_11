@@ -689,11 +689,9 @@ function loadCabinetBuild(){
 						top:10
 					},
 					start: function(){
-						console.log($(this).prop("tagName"));
 						var cabinetRUObject = $(this).parent();
 						var dragStartWidth = $(cabinetRUObject).width();
 						var dragStartHeight = $(cabinetRUObject).height();
-						console.log('Width='+dragStartWidth+' Height='+dragStartHeight);
 						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
 					},
 					revert: function(){
@@ -943,7 +941,6 @@ function renumberCabinet(){
 		elemIndex = $(this).index();
 		RUNumber = cabSize - elemIndex;
 		if(RUOrientation == 0) {
-			console.log(RUNumber);
 			$(this).children('.leftRail').html(RUNumber);
 			$(this).children('.droppable').data('cabinetru', RUNumber);
 		} else {
@@ -1374,6 +1371,7 @@ $( document ).ready(function() {
 				if (response.error != ''){
 					displayError(response.error);
 				} else {
+					
 					//Initialize cabinet size input
 					$('#cabinetSizeInput').editable('destroy');
 					$('#cabinetSizeInput').editable({
@@ -1395,6 +1393,13 @@ $( document ).ready(function() {
 								displayError(response.error);
 								$('#cabinetSizeInput').editable('setValue', response.success.originalSize);
 							} else {
+								var origSize = parseInt(response.success.originalSize);
+								var newSize = parseInt(response.success.size);
+								if(newSize > origSize) {
+									var cabAdjustment = 'grow';
+								} else {
+									var cabAdjustment = 'shrink';
+								}
 								var RUOrientation = $('#cabinetHeader').data('ruOrientation');
 								var rackUnitHTML = '';
 								rackUnitHTML += '<tr class="cabinet cabinetRU">';
@@ -1403,10 +1408,33 @@ $( document ).ready(function() {
 								rackUnitHTML += '<td class="cabinet cabinetRail rightRail"></td>';
 								rackUnitHTML += '</tr>';
 								
-								if(RUOrientation == 0) {
-									$('#cabinetTable').prepend(rackUnitHTML);
+								// Get difference between new and original cabinet size
+								if(cabAdjustment == 'grow') {
+									var sizeDiff = newSize - origSize;
 								} else {
-									$('#cabinetTable').append(rackUnitHTML);
+									var sizeDiff = origSize - newSize;
+								}
+								
+								// Grow or shrink cabinet
+								for(x=0; x<sizeDiff; x++) {
+									console.log('grow/shrink loopX = '+x);
+									if(RUOrientation == 0) {
+										
+										// Bottom-To-Top
+										if(cabAdjustment == 'grow') {
+											$('#cabinetTable').prepend(rackUnitHTML);
+										} else {
+											$('.cabinet.cabinetRU').first().remove();
+										}
+									} else {
+										
+										// Top-To-Bottom
+										if(cabAdjustment == 'grow') {
+											$('#cabinetTable').append(rackUnitHTML);
+										} else {
+											$('.cabinet.cabinetRU').last().remove();
+										}
+									}
 								}
 								
 								renumberCabinet();
@@ -1444,9 +1472,12 @@ $( document ).ready(function() {
 								displayError(response.error);
 							} else {
 								$('#cabinetHeader').data('ruOrientation', response.success.RUOrientation);
+								$('#cabinetSizeInput').editable('option', 'min', response.success.minRU);
+								renumberCabinet();
 							}
 						}
 					});
+					$('#cabinetRUOrientationInput').editable('setValue', response.success.RUOrientation);
 					
 					//Build cable path table
 					var tableData = '';

@@ -19,22 +19,24 @@ $cabinetSize = $node_info['size'];
 //Retreive cabinet object info
 $object = array();
 $insert = array();
-foreach($qls->App->objectByCabinetArray[$node_id] as $objID) {
-	$obj = $qls->App->objectArray[$objID];
-	if($obj[$cabinetFace] !== null) {
-		$templateID = $obj['template_id'];
-		$template = $qls->App->templateArray[$templateID];
-		if($template['templateType'] == 'Standard') {
-			$RU = $obj['RU'];
-			$object[$RU] = $obj;
-			$object[$RU]['face'] = $obj[$cabinetFace];
-		} else {
-			$parentID = $obj['parent_id'];
-			$parentFace = $obj['parent_face'];
-			$parentDepth = $obj['parent_depth'];
-			$insertSlotX = $obj['insertSlotX'];
-			$insertSlotY = $obj['insertSlotY'];
-			$insert[$parentID][$parentFace][$parentDepth][$insertSlotX][$insertSlotY] = $obj;
+if(isset($qls->App->objectByCabinetArray[$node_id])) {
+	foreach($qls->App->objectByCabinetArray[$node_id] as $objID) {
+		$obj = $qls->App->objectArray[$objID];
+		if($obj[$cabinetFace] !== null) {
+			$templateID = $obj['template_id'];
+			$template = $qls->App->templateArray[$templateID];
+			if($template['templateType'] == 'Standard') {
+				$RU = $obj['RU'];
+				$object[$RU] = $obj;
+				$object[$RU]['face'] = $obj[$cabinetFace];
+			} else {
+				$parentID = $obj['parent_id'];
+				$parentFace = $obj['parent_face'];
+				$parentDepth = $obj['parent_depth'];
+				$insertSlotX = $obj['insertSlotX'];
+				$insertSlotY = $obj['insertSlotY'];
+				$insert[$parentID][$parentFace][$parentDepth][$insertSlotX][$insertSlotY] = $obj;
+			}
 		}
 	}
 }

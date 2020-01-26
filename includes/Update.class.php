@@ -87,6 +87,8 @@ var $qls;
 		// Set app version to 0.3.0
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
+		$this->qls->SQL->alter('app_env_tree', 'add', 'ru_orientation', 'tinyint', true, 0);
+		
 	}
 	
 	/**

@@ -19,12 +19,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	if (!count($validate->returnData['error'])){
 		$action = $data['action'];
 		$cabinetID = $data['cabinetID'];
-		//$cabinet = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_env_tree', array('id' => array('=', $cabinetID))));
 		$cabinet = $qls->App->envTreeArray[$cabinetID];
 		$cabinetSize = $cabinet['size'];
+		$RUOrientation = $cabinet['ru_orientation'];
 		$cabinetParentID = getCabinetParentID($cabinet['parent'], $qls);
 		$topObject = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)), array('RU', 'DESC'), array(0,1)));
+		$bottomObj = $qls->SQL->fetch_assoc($qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', 0)), array('RU', 'ASC'), array(0,1)));
+		$bottomTemplate = $qls->App->templateArray[$bottomObj['template_id']];
+		$bottomRUSize = $bottomTemplate['templateRUSize'];
+		
 		$topOccupiedRU = $topObject['RU'];
+		$bottomTopMinRU = $topOccupiedRU;
+		$bottomOccupiedRU = $bottomObj['RU'] + $bottomRUSize;
+		$RUDiff = $cabinetSize - $bottomOccupiedRU;
+		$TopBottomMinRU = ($cabinetSize - $RUDiff) + 1;
+		error_log('Debug: '.$cabinetSize.'-'.$bottomOccupiedRU.'-'.$RUDiff);
 		
 		if($action == 'adj') {
 			
@@ -160,6 +169,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['ID'] = $cabinetID;
 			$validate->returnData['success']['size'] = $RUSize;
 			$validate->returnData['success']['topOccupiedRU'] = $topOccupiedRU;
+			$validate->returnData['success']['originalSize'] = $cabinetSize;
 			if ($RUSize < $cabinetSize and $RUSize >= $topOccupiedRU) {
 				$cabinetPath = $qls->SQL->fetch_assoc($query);
 				$validate->returnData['success']['action'] = 'pop';
@@ -167,10 +177,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			} else if ($RUSize > $cabinetSize) {
 				$validate->returnData['success']['action'] = 'push';
 				$validate->returnData['success']['delta'] = $RUSize - $cabinetSize;
-			} else if ($RUSize < $topOccupiedRU or $RUSize == $cabinetSize){
-				$errMsg = 'Invalid RU size.';
-				array_push($validate->returnData['error'], $errMsg);
-				$validate->returnData['success']['originalSize'] = $cabinetSize;
+			} else {
+				if($RUOrientation == 0) {
+					if ($RUSize < $bottomTopMinRU or $RUSize == $cabinetSize){
+						$errMsg = 'Invalid RU size.';
+						array_push($validate->returnData['error'], $errMsg);
+					}
+				} else {
+					if ($RUSize < $topBottomMinRU or $RUSize == $cabinetSize){
+						$errMsg = 'Invalid RU size.';
+						array_push($validate->returnData['error'], $errMsg);
+					}
+				}
 			}
 			
 			if (!count($validate->returnData['error'])){
@@ -189,6 +207,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$RUOrientation = $data['value'];
 			$qls->SQL->update('app_env_tree', array('ru_orientation' => $RUOrientation), array('id' => array('=', $cabinetID)));
 			$validate->returnData['success']['RUOrientation'] = $RUOrientation;
+			if($RUOrientation == 0) {
+				$validate->returnData['success']['minRU'] = $topOccupiedRU;
+			} else {
+				$RUDiff = $cabinetSize - $bottomOccupiedRU;
+				$minRU = $cabinetSize - $RUDiff;
+				$validate->returnData['success']['minRU'] = $minRU;
+			}
 			
 		} else if($action == 'get') {
 			
@@ -222,8 +247,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['cabName'] = $cabinet['name'];
 			$validate->returnData['success']['cabSize'] = $cabinetSize;
 			$validate->returnData['success']['entranceMax'] = $cabinetSize;
-			$validate->returnData['success']['minRU'] = $topOccupiedRU;
-			$validate->returnData['success']['RUOrientation'] = $cabinet['ru_orientation'];
+			$validate->returnData['success']['RUOrientation'] = $RUOrientation;
+			
+			if($RUOrientation == 0) {
+				$validate->returnData['success']['minRU'] = $bottomTopMinRU;
+			} else {
+				$validate->returnData['success']['minRU'] = $topBottomMinRU;
+			}
 			
 		} else if($action == 'getFloorplan') {
 			
@@ -469,12 +499,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$peerDepth = $peerArray[3];
 						$peerPort = $peerArray[4];
 						
-						error_log('valueArray: '.$peerID.'-'.$peerFace.'-'.$peerDepth.'-'.$peerPort);
 						if($walljackPeerEntry['id'] == $peerID and $walljackPeerEntry['face'] == $peerFace and $walljackPeerEntry['depth'] == $peerDepth and $walljackPeerEntry['port'] == $peerPort) {
 							$delete = false;
 						}
 					}
-					error_log($delete ? 'true' : 'false');
+					
 					if($delete) {
 						array_push($deleteArray, $walljackPeerEntry);
 					}
