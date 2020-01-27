@@ -222,6 +222,7 @@ var $permissions = array(
 		    $this->remove_user_error = ADMIN_REMOVE_USER_NO_AUTH;
 		    return false;
 		}
+		error_log('Debug: '.$this->remove_user_error);
 	}
 
 	/**

@@ -691,6 +691,7 @@
 		 */
 		zoom: function(scale, opts) {
 			// Shuffle arguments
+			
 			if (typeof scale === 'object') {
 				opts = scale;
 				scale = null;

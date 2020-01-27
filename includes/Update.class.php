@@ -87,6 +87,9 @@ var $qls;
 		// Set app version to 0.2.3
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
+		// Allow Administrator role to remove users
+		$this->qls->SQL->update('masks', array('auth_admin_remove_user' => 1), array('name' => array('=', 'Administrator')));
+		
 	}
 	
 	/**

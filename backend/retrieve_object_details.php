@@ -60,11 +60,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$peerIDArray = array();
 		
 		if($partitionType == 'Connectable'){
-			require_once '../includes/path_functions.php';
+			
 			$portNameFormat = json_decode($partitionData['portNameFormat'], true);
 			$portLayoutX = $partitionData['portLayoutX'];
 			$portLayoutY = $partitionData['portLayoutY'];
-			error_log('Debug: '.$portLayoutX.'x'.$portLayoutY);
 			$portTotal = $portLayoutX * $portLayoutY;
 			$portIndexFirst = 0;
 			$portIndexLast = $portTotal - 1;
@@ -75,11 +74,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$portNameLast = '';
 			}
 			$portRange = $portNameFirst.$portNameLast;
-			$portProperties = getPortProperties($qls);
-			$portType = $portProperties['portType'][$partitionData['portType']];
+			$portType = $qls->App->portTypeValueArray[$partitionData['portType']]['name'];
 			$portOrientationID = $partitionData['portOrientation'];
 			$portOrientationName = $portOrientationID ? $qls->App->portOrientationArray[$portOrientationID]['name'] : 'N/A';
-			$mediaType = $partitionData['partitionFunction'] == 'Passive' ? $portProperties['mediaType'][$partitionData['mediaType']] : 'N/A';
+			$mediaType = $partitionData['partitionFunction'] == 'Passive' ? $qls->App->mediaTypeValueArray[$partitionData['mediaType']]['name'] : 'N/A';
 			$encTolerance = 'N/A';
 			
 			// Get peer information
@@ -97,17 +95,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			if($peerIsFloorplanObject) {
 				$trunkFlatPath = 'Floorplan object(s)';
 			} else {
-				$trunkFlatPath = buildTrunkFlatPath($objectID, $objectFace, $partitionDepth, $qls);
+				$trunkFlatPath = $qls->App->getTrunkFlatPath($objectID, $objectFace, $partitionDepth);
 			}
 			$trunkable = true;
+			
 		} else if($partitionType == 'Enclosure'){
+			
 			$encTolerance = $partitionData['encTolerance'];
 			$portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = 'N/A';
 			$trunkable = $portOrientationID = false;
+			
 		} else {
+			
 			// Generic partition... these won't be in the compatibility table so catch them with an else
 			$partitionType = $portRange = $portType = $portOrientationName = $mediaType = $trunkFlatPath = $encTolerance = 'N/A';
 			$trunkable = $portOrientationID = false;
+			
 		}
 		
 		if($templateInfo['templateType'] == 'Standard') {

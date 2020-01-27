@@ -402,7 +402,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['floorplanObjectPeerTable'] = $floorplanObjectPeerTable;
 		} else if($action == 'trunkPeer') {
 			
-			require_once '../includes/path_functions.php';
+			//require_once '../includes/path_functions.php';
 			
 			$valueArray = explode('-', $data['value']);
 			$elementType = $valueArray[0];
@@ -463,7 +463,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				);
 			}
 			
-			$validate->returnData['success']['trunkFlatPath'] = $qls->App->buildTrunkFlatPath($objectID, $objectFace, $objectDepth);
+			$validate->returnData['success']['trunkFlatPath'] = $qls->App->buildTrunkFlatPath($elementID, $elementFace, $elementDepth);
 			
 		} else if($action == 'trunkFloorplanPeer') {
 			
@@ -631,24 +631,41 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 			$trunkFlatPath = count($value) ? 'Yes' : 'No';
 			$validate->returnData['success']['trunkFlatPath'] = $trunkFlatPath;
+			
 		} else if($action == 'clearTrunkPeer') {
 			
-			require_once '../includes/path_functions.php';
 			$objectID = $data['objectID'];
 			$objectFace = $data['objectFace'];
 			$objectDepth = $data['objectDepth'];
 			
-			$query = $qls->SQL->select('id', 'app_object_peer', '(a_id = '.$objectID.' AND a_face = '.$objectFace.' AND a_depth = '.$objectDepth.') OR (b_id = '.$objectID.' AND b_face = '.$objectFace.' AND b_depth = '.$objectDepth.')');
-			$objectPeerEntry = $qls->SQL->fetch_assoc($query);
-			$objectPeerEntryID = $objectPeerEntry['id'];
-			$qls->SQL->delete('app_object_peer', array('id' => array('=', $objectPeerEntryID)));
+			//$query = $qls->SQL->select('id', 'app_object_peer', '(a_id = '.$objectID.' AND a_face = '.$objectFace.' AND a_depth = '.$objectDepth.') OR (b_id = '.$objectID.' AND b_face = '.$objectFace.' AND b_depth = '.$objectDepth.')');
+			//$objectPeerEntry = $qls->SQL->fetch_assoc($query);
+			$objectPeerEntry = $qls->App->peerArray[$objectID][$objectFace][$objectDepth];
+			$peerID = $objectPeerEntry['peerID'];
+			$peerFace = $objectPeerEntry['peerFace'];
 			
-			$validate->returnData['success']['trunkFlatPath'] = buildTrunkFlatPath($objectID, $objectFace, $objectDepth, $qls);
+			if($objectPeerEntry['floorplanPeer']) {
+				$qls->SQL->delete('app_object_peer', array('a_id' => array('=', $objectID), 'AND', 'a_face' => array('=', $objectFace), 'AND', 'a_depth' => array('=', $objectDepth)));
+				$qls->SQL->delete('app_object_peer', array('b_id' => array('=', $objectID), 'AND', 'b_face' => array('=', $objectFace), 'AND', 'b_depth' => array('=', $objectDepth)));
+			} else {
+				$objectPeerEntryID = $objectPeerEntry['id'];
+				$qls->SQL->delete('app_object_peer', array('id' => array('=', $objectPeerEntryID)));
+			}
+			
+			
+			
+			
+			$validate->returnData['success']['trunkFlatPath'] = 'None';
+			$validate->returnData['success']['peerID'] = $peerID;
+			$validate->returnData['success']['peerFace'] = $peerFace;
+			
 		} else if($action == 'clearFloorplanTrunkPeer') {
+			
 			$objectID = $data['objectID'];
 			
 			$qls->SQL->delete('app_object_peer', array('a_id' => array('=', $objectID)));
 			$validate->returnData['success']['trunkFlatPath'] = 'None';
+			
 		}
 	}
 	echo json_encode($validate->returnData);

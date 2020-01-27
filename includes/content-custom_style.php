@@ -92,7 +92,7 @@ function color_inverse($color){
 }
 
 .port.RJ45.populated {
-	background-image: url("/assets/images/portIcons/RJ45-red.png");
+	background-image: url("/assets/images/portIcons/RJ45-red.png") !important;
 }
 
 .port.RJ45.endpointTrunked {
@@ -104,7 +104,7 @@ function color_inverse($color){
 }
 
 .port.LC.populated {
-	background-image: url("/assets/images/portIcons/LC-red.png");
+	background-image: url("/assets/images/portIcons/LC-red.png") !important;
 }
 
 .port.LC.endpointTrunked {
@@ -116,7 +116,7 @@ function color_inverse($color){
 }
 
 .port.SC.populated {
-	background-image: url("/assets/images/portIcons/SC-red.png");
+	background-image: url("/assets/images/portIcons/SC-red.png") !important;
 }
 
 .port.SC.endpointTrunked {
@@ -128,7 +128,7 @@ function color_inverse($color){
 }
 
 .port.SFP.populated {
-	background-image: url("/assets/images/portIcons/SFP-red.png");
+	background-image: url("/assets/images/portIcons/SFP-red.png") !important;
 }
 
 .port.SFP.endpointTrunked {

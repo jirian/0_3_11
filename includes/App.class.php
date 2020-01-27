@@ -1700,8 +1700,25 @@ var $qls;
 							array_push($classArray, 'populated');
 						
 						// Class - trunked
-						} else if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
-							array_push($classArray, 'endpointTrunked');
+						}
+						
+						if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
+							if($this->peerArray[$objID][$objFace][$objDepth]['floorplanPeer'] == 0) {
+								array_push($classArray, 'endpointTrunked');
+							} else {
+								//array_push($this->peerArray[$row['a_id']][$row['a_face']][$row['a_depth']]['peerArray'][$row['b_id']][$row['b_face']][$row['b_depth']], array((int)$row['a_port'], (int)$row['b_port']));
+								foreach($this->peerArray[$objID][$objFace][$objDepth]['peerArray'] as $peerID) {
+									foreach($peerID as $peerFace) {
+										foreach($peerFace as $peerDepth) {
+											foreach($peerDepth as $peerEntry) {
+												if($portIndex == $peerEntry[0]) {
+													array_push($classArray, 'endpointTrunked');
+												}
+											}
+										}
+									}
+								}
+							}
 						}
 						
 						// Attr - code39
@@ -2087,21 +2104,72 @@ var $qls;
 		return array('RUOrientation' => $RUOrientation, 'firstOccupiedRU' => $firstOccupiedRU+0, 'lastOccupiedRU' => $lastOccupiedRU+0, 'topDownMin' => $topDownMin+0, 'bottomUpMin' => $bottomUpMin+0, 'orientationSpecificMin' => $orientationSpecificMin+0);
 	}
 	
-	function buildTrunkFlatPath($objectID, $objectFace, $objectDepth) {
-		$obj = $this->objectArray[$objectID];
+	function getTrunkFlatPath($objectID, $objectFace, $objectDepth){
+		if(isset($this->peerArray[$objectID][$objectFace][$objectDepth])) {
+			$peerRecord = $this->peerArray[$objectID][$objectFace][$objectDepth];
+			$peerID = $peerRecord['peerID'];
+			$peerFace = $peerRecord['peerFace'];
+			$peerDepth = $peerRecord['peerDepth'];
+			error_log('Debug: '.$peerID.'-'.$peerFace.'-'.$peerDepth);
+			$flatPath = $this->buildTrunkFlatPath($peerID, $peerFace, $peerDepth);
+		} else {
+			$flatPath = 'None';
+		}
+		
+		return $flatPath;
+	}
+	
+	function buildTrunkFlatPath($objID, $objFace, $objDepth){
+		
+		// Peer object variables
+		$obj = $this->objectArray[$objID];
+		$objName = $obj['name'];
 		$objTemplateID = $obj['template_id'];
-		$objTemplate = $this->templateArray[$objTemplateID];
-		$objCompatibility = $this->compatibilityArray[$templateID][$objectFace][$objectDepth];
-		$portNameFormat = $objCompatibility['portNameFormat'];
-		$portX =  $objCompatibility['portLayoutX'];
-		$portY =  $objCompatibility['portLayoutY'];
-		$portTotal = $portX * $portY;
-		$firstPortID = 0;
-		$lastPortID = $portTotal - 1;
-		$lastPort = $this->generatePortName($portNameFormat, $lastPortID, $portTotal);
-		$flatPath = $this->generateObjectPortName($objectID, $objectFace, $objectDepth, $firstPortID);
-		error_log(json_encode($portNameFormat).'-'.$lastPortID.'-'.$portTotal);
-		$flatPath .= '&#8209;'.$lastPort;
+		
+		// Partition variables
+		$partitionCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+		$templateType = $partitionCompatibility['templateType'];
+		$partitionFunction = $partitionCompatibility['partitionFunction'];
+		
+		$portNameFormat = json_decode($partitionCompatibility['portNameFormat'], true);
+		$portTotal = $partitionCompatibility['portLayoutX']*$partitionCompatibility['portLayoutY'];
+		$firstIndex = 0;
+		$lastIndex = $portTotal - 1;
+		$firstPortName = $this->generatePortName($portNameFormat, $firstIndex, $portTotal);
+		$lastPortName = $this->generatePortName($portNameFormat, $lastIndex, $portTotal);
+		$portRange = $firstPortName.'&nbsp;&#8209;&nbsp;'.$lastPortName;
+		
+		// Port
+		if($templateType == 'Insert') {
+			if($partitionFunction == 'Endpoint') {
+				$portString = $objName.$portRange;
+			} else {
+				$portString = '.&#8203;'.$objName.'.&#8203;'.$portRange;
+			}
+		} else {
+			$portString = '.&#8203;'.$portRange;
+		}
+		
+		// Peer
+		if($templateType == 'Insert') {
+			$parentID = $obj['parent_id'];
+			$this->objectArray[$parentID];
+		}
+		$objectString = $objName;
+		
+		//Locations
+		$locationString = '';
+		$envNodeID = $obj['env_tree_id'];
+		$rootEnvNode = false;
+		while(!$rootEnvNode) {
+			$envNode = $this->envTreeArray[$envNodeID];
+			$envNodeID = $envNode['parent'];
+			$rootEnvNode = ($envNodeID == '#' or !isset($this->envTreeArray[$envNodeID])) ? true : false;
+			$locationString = $envNode['name'].'.&#8203;'.$locationString;
+		}
+		
+		$flatPath = $locationString.$objectString.$portString;
+		
 		return $flatPath;
 	}
 }

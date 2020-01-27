@@ -47,7 +47,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			if($userType == 'active') {
 				$query = $qls->SQL->select('*', 'users', array('id' => array('=', $userID)));
 				if($qls->SQL->num_rows($query)) {
+					error_log('Debug: here');
 					$qls->Admin->remove_user($userID);
+					error_log($qls->Admin->remove_user_error);
 				} else {
 					$errMsg = 'User ID does not exist.';
 					array_push($validate->returnData['error'], $errMsg);

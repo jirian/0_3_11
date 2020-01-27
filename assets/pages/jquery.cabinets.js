@@ -1189,6 +1189,12 @@ $( document ).ready(function() {
 					
 				if(selectedObjectType == 'floorplan') {
 					getFloorplanObjectPeerTable();
+				} else {
+					$('[data-template-object-id='+objectID+']').find('[data-depth='+objectDepth+']').find('.port').addClass('endpointTrunked');
+					var peerArray = value.split('-');
+					var peerID = peerArray[1];
+					var peerDepth = peerArray[3];
+					$('[data-template-object-id='+peerID+']').find('[data-depth='+peerDepth+']').find('.port').addClass('endpointTrunked');
 				}
 			}
 		});
@@ -1221,12 +1227,12 @@ $( document ).ready(function() {
 		
 		data = JSON.stringify(data);
 		
-		$.post('backend/process_cabinet.php', {data:data}, function(response){
-			var responseJSON = JSON.parse(response);
-			if (responseJSON.active == 'inactive'){
+		$.post('backend/process_cabinet.php', {data:data}, function(responseJSON){
+			var response = JSON.parse(responseJSON);
+			if (response.active == 'inactive'){
 				window.location.replace("/");
-			} else if ($(responseJSON.error).size() > 0){
-				displayError(responseJSON.error);
+			} else if ($(response.error).size() > 0){
+				displayError(response.error);
 			} else {
 				
 				$('#objectTreeModal').modal('hide');
@@ -1234,11 +1240,15 @@ $( document ).ready(function() {
 				if(selectedObjectType == 'cabinet') {
 					$('#detailTrunkedTo')
 					.children('a')
-					.html(responseJSON.success.trunkFlatPath)
+					.html(response.success.trunkFlatPath)
 					.data('peerIDArray', []);
+					
+					// Clear trunked style
+					$('[data-template-object-id='+objectID+']').find('[data-depth='+objectDepth+']').find('.port').removeClass('endpointTrunked');
+					$('[data-template-object-id='+response.success.peerID+']').find('[data-depth='+response.success.peerFace+']').find('.port').removeClass('endpointTrunked');
 				} else if(selectedObjectType == 'floorplan') {
 					$('#floorplanTrunkedTo')
-					.html(responseJSON.success.trunkFlatPath)
+					.html(response.success.trunkFlatPath)
 					.data('peerIDArray', []);
 					getFloorplanObjectPeerTable();
 				}
