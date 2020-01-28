@@ -87,12 +87,6 @@ var $qls;
 		// Set app version to 0.2.3
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
-		$query = $this->qls->SQL->query("SHOW COLUMNS FROM `qls_app_env_tree` LIKE 'ru_orientation'");
-		if(!$this->qls->SQL->num_rows($query)) {
-			$this->qls->SQL->alter('app_env_tree', 'add', 'ru_orientation', 'tinyint', true, 0);
-			error_log('Debug: "ru_orientation" table not found');
-		}
-		
 		// Allow Administrator role to remove users
 		$this->qls->SQL->update('masks', array('auth_admin_remove_user' => 1), array('name' => array('=', 'Administrator')));
 		
