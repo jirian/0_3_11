@@ -1,7 +1,7 @@
 <?php
 define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
-require_once '../includes/path_functions.php';
+//require_once '../includes/path_functions.php';
 $qls->Security->check_auth_page('user.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -31,6 +31,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$type = $floorplanObjectTemplate['templateType'];
 		$peerIDArray = array();
 		$objPortArray = array();
+		error_log('Debug: '.$type);
 		if($type == 'walljack' or $type == 'wap') {
 			$trunkable = true;
 			$trunkFlatPath = count($peerArray) ? 'Yes' : 'No';

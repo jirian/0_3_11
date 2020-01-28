@@ -595,6 +595,9 @@ var $install_error = array();
 			}
 			
 			$object_templates = array(
+				"1, 'Walljack', NULL, 'walljack', NULL, 'Passive', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
+				"2, 'WAP', NULL, 'wap', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
+				"3, 'Device', NULL, 'device', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL",
 				"4,	'48p_RJ45_Cat6',	6,	'Standard',	2,	'Passive',	0,	NULL,	NULL,	NULL,	NULL,	'[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":1,\"portType\":1,\"mediaType\":1,\"direction\":\"column\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"24\",\"valueY\":\"2\",\"vUnits\":4,\"hUnits\":24}]]',	'105137c8ec469aecd387cef6ef807dc0.jpg',	NULL",
 				"5,	'6p_LC_OM4',	9,	'Insert',	4,	'Passive',	NULL,	12,	1,	24,	8,	'[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":\"2\",\"mediaType\":\"6\",\"direction\":\"row\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"6\",\"vUnits\":8,\"hUnits\":24}]]',	'f782af8c83a096a188ba333d0039aaf7.jpg',	NULL",
 				"6,	'6p_LC_OS1',	10,	'Insert',	4,	'Passive',	NULL,	12,	1,	24,	8,	'[[{\"encLayoutX\":1,\"encLayoutY\":1,\"partitionType\":\"Connectable\",\"portOrientation\":\"2\",\"portType\":\"2\",\"mediaType\":\"5\",\"direction\":\"row\",\"flex\":\"0\",\"portNameFormat\":[{\"type\":\"static\",\"value\":\"Port\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}],\"valueX\":\"1\",\"valueY\":\"6\",\"vUnits\":8,\"hUnits\":24}]]',	'86257b172c9a706aa704abfdad4de53c.jpg',	NULL",

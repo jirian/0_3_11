@@ -90,6 +90,20 @@ var $qls;
 		// Allow Administrator role to remove users
 		$this->qls->SQL->update('masks', array('auth_admin_remove_user' => 1), array('name' => array('=', 'Administrator')));
 		
+		// Previous version did not include floorplan templates during install... so let's fix that
+		$floorplanTemplateArray = array(
+			1 => array(1, 'Walljack', NULL, 'walljack', NULL, 'Passive', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL),
+			2 => array(2, 'WAP', NULL, 'wap', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL),
+			3 => array(3, 'Device', NULL, 'device', NULL, 'Endpoint', NULL, NULL, NULL, NULL, NULL, '', 'NULL', NULL)
+		);
+		foreach($floorplanTemplateArray as $floorplanTemplateID => $floorplanTemplateValues) {
+			$query = $this->qls->SQL->select('*', 'app_object_templates', array('id' => array('=', $floorplanTemplateID)));
+			if(!$this->qls->SQL->num_rows($query)) {
+				$columns = array('id', 'templateName', 'templateCategory_id', 'templateType', 'templateRUSize', 'templateFunction', 'templateMountConfig', 'templateEncLayoutX', 'templateEncLayoutY', 'templateHUnits', 'templateVUnits', 'templatePartitionData', 'frontImage', 'rearImage');
+				$this->qls->SQL->insert('app_object_templates', $columns, $floorplanTemplateValues);
+			}
+		}
+		
 	}
 	
 	/**
