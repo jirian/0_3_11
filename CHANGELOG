@@ -5,7 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
-	- Changes Introduced In 0.3.0
+	- Changes Introduced In 0.2.3
 	- Changes Introduced In 0.2.2
 	- Changes Introduced In 0.2.1
 	- Changes Introduced In 0.2.0
@@ -17,10 +17,14 @@ Contents
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-**Changes introduced in 0.3.0
+**Changes introduced in 0.2.3
 
 [Fix]		Resolved issue with inserts not importing correctly when installed in enclosures with more than 2 rows
 [Fix]		Corrected tempate image size when displaying insert template details
+[Fix]		Corrected issue with floorplan images covering floorplan controls
+[Fix]		Adjusted permissions to allow Administrators to remove users
+[Fix]		Adjusted permissions to allow users to change settings and password
+[Feature]	Added ability to configure cabinet RU numbering direction
 
 **Changes introduced in 0.2.2
 

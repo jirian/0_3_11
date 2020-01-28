@@ -1,7 +1,7 @@
 <?php
 define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
-$qls->Security->check_auth_page('administrator.php');
+$qls->Security->check_auth_page('user.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	require_once '../includes/Validate.class.php';

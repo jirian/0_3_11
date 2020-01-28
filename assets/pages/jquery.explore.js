@@ -181,7 +181,7 @@ function makeFloorplanObjectsClickable(){
 		} else {
 			var firstObjTableEntry = $('#floorplanObjectTableContainer').find('tr[data-id="'+objectID+'"]').first();
 			var portID = firstObjTableEntry.attr('data-portID');
-			console.log(portID);
+			
 			if(portID !== 'null') {
 				portID = parseInt(portID, 10);
 			} else {
@@ -190,7 +190,6 @@ function makeFloorplanObjectsClickable(){
 		}
 		
 		$(document).data('clickedObjPortID', portID);
-		console.log('portID: '+portID);
 		if(portID != null) {
 			processPortSelection();
 		}
@@ -236,7 +235,6 @@ function makeCableArrowsClickable(){
 }
 
 function processPortSelection(){
-	console.log('processPortSelection');
 	var objID = $(document).data('clickedObjID');
 	var objFace = $(document).data('clickedObjFace');
 	var partitionDepth = $(document).data('clickedObjPartitionDepth');
@@ -418,10 +416,6 @@ $( document ).ready(function() {
 		var optionText = $('#selectPort').find(':selected').text();
 		var portFlagPattern = /\[[\w\,]*\w\]/g;
 		var portFlagArray = portFlagPattern.exec(optionText);
-		//const regex1 = RegExp('\[[\w\,]*\w\]', 'g');
-		//var regex1Result = regex1.exec(optionText);
-		//var regex1ResultString = regex1Result[0];
-		//console.log(optionText+' = '+regex1ResultString.substring(1, regex1ResultString.length - 1));
 		if(portPopulated) {
 			$('#port-'+objID+'-'+objFace+'-'+partitionDepth+'-'+portID).addClass('populated');
 			if(portFlagArray != null) {
@@ -443,13 +437,7 @@ $( document ).ready(function() {
 				var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
 				var portFlagContentsArray = portFlagContents.split(',');
 				var PIndex = portFlagContentsArray.indexOf('P');
-				console.log('PIndex = '+PIndex+' length = '+portFlagContentsArray.length);
 				portFlagContentsArray.splice(PIndex, 1);
-				/* $.each(portFlagContentsArray, function(index, value) {
-					if(value == 'P') {
-						portFlagContentsArray = portFlagContentsArray.slice();
-					}
-				}); */
 				var newPortFlagContents = portFlagContentsArray.join(',');
 				$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
 			}

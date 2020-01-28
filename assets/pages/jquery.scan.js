@@ -506,7 +506,6 @@ function configureApp(){
             }
             self._accessByPath(self.state, path, value);
 
-            console.log(JSON.stringify(self.state));
             App.detachListeners();
             Quagga.stop();
             App.init();

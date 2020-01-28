@@ -16,6 +16,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	}
 	
 	if (!count($validate->returnData['error'])){
+		
+		// Minimum Compatible Version
+		$minCompatibleVersion = '0.2.3';
+		
 		$uploader = new Uploader();
 		$filename = md5(time().$_SERVER['REMOTE_ADDR']);
 		$data = $uploader->upload($_FILES['files'], array(
@@ -250,7 +254,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						} else if($csvFilename == 'Version.txt') {
 							$versionString = fgets($csvFile, 100);
 							if(preg_match('/^\d+\.\d+\.\d+$/', $versionString)) {
-								if(!version_compare($versionString, '0.2.3', 'ge')) {
+								if(!version_compare($versionString, $minCompatibleVersion, 'ge')) {
 									$errMsg = 'Incompatible version.';
 									array_push($validate->returnData['error'], $errMsg);
 								}
