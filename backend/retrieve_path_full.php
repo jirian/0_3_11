@@ -26,11 +26,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		// Functions required to create $path
 		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/path_functions.php';
 		// Create $path
-		if($connectorCode39) {
-			include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_cable_path.php';
-		} else {
+		//if($connectorCode39) {
+			//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_cable_path.php';
+		//} else {
 			include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
-		}
+		//}
 		
 		$validate->returnData['success'] = $qls->App->buildPathFull($path);
 		//error_log('-=END RETRIEVE PATH FULL=-');

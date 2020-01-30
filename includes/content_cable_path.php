@@ -1,20 +1,9 @@
 <?php
 // Requires $connectorCode39
+$connectorID = base_convert($connectorCode39, 36, 10);
 
 $path = array();
 $workingArray = array();
-
-$mediaTypeTable = array();
-$query = $qls->SQL->select('*', 'shared_mediaType');
-while($row = $qls->SQL->fetch_assoc($query)) {
-	$mediaTypeTable[$row['value']] = $row;
-}
-
-$mediaCategoryTypeTable = array();
-$query = $qls->SQL->select('*', 'shared_mediaCategoryType');
-while($row = $qls->SQL->fetch_assoc($query)) {
-	$mediaCategoryTypeTable[$row['value']] = $row;
-}
 
 // Get cable.
 $query = $qls->SQL->select('*', 'app_inventory', array('a_code39' => array('=', $connectorCode39), 'OR', 'b_code39' => array('=', $connectorCode39)));
@@ -27,27 +16,32 @@ if($qls->SQL->num_rows($query)>0){
 	return false;
 }
 
+if(isset($qls->App->inventoryByIDArray[$connectorID])) {
+	$rootCable = $qls->App->inventoryByIDArray[$connectorID];
+}
+
 // Build the first near object
-$objID = $rootCable[$nearCblAttrPrefix.'_object_id'];
-$objPort = $rootCable[$nearCblAttrPrefix.'_port_id'];
-$objFace = $rootCable[$nearCblAttrPrefix.'_object_face'];
-$objDepth = $rootCable[$nearCblAttrPrefix.'_object_depth'];
+$objID = $rootCable['local_object_id'];
+$objPort = $rootCable['local_object_port'];
+$objFace = $rootCable['local_object_face'];
+$objDepth = $rootCable['local_object_depth'];
 
 // Near object
 $object = $qls->App->getObject($objID, $objPort, $objFace, $objDepth);
 array_push($workingArray, $object);
 
-$length = calculateCableLength($mediaTypeTable, $mediaCategoryTypeTable, $rootCable);
+$length = $qls->App->calculateCableLength($rootCable['mediaType'], $rootCable['length'], true);
+//$length = calculateCableLength($mediaTypeTable, $mediaCategoryTypeTable, $rootCable);
 
 // Cable
-$cblArray = array($rootCable[$nearCblAttrPrefix.'_code39'], $rootCable[$farCblAttrPrefix.'_code39'], $length);
+$cblArray = array($rootCable['localEndCode39'], $rootCable['remoteEndCode39'], $length);
 array_push($workingArray, $cblArray);
 
 // Build the first far object
-$objID = $rootCable[$farCblAttrPrefix.'_object_id'];
-$objPort = $rootCable[$farCblAttrPrefix.'_port_id'];
-$objFace = $rootCable[$farCblAttrPrefix.'_object_face'];
-$objDepth = $rootCable[$farCblAttrPrefix.'_object_depth'];
+$objID = $rootCable['remote_object_id'];
+$objPort = $rootCable['remote_object_port'];
+$objFace = $rootCable['remote_object_face'];
+$objDepth = $rootCable['remote_object_depth'];
 
 // Far object
 $object = $qls->App->getObject($objID, $objPort, $objFace, $objDepth);
@@ -88,7 +82,7 @@ for($x=0; $x<2; $x++){
 			$cable = $qls->App->inventoryByIDArray[$cableID];
 			
 			// Add cable to working array
-			$cblArray = array($cable['remoteEndCode39'], $cable['remoteEndCode39']);
+			$cblArray = array($cable['localEndCode39'], $cable['remoteEndCode39']);
 			
 			if ($x == 1) {
 				$cblArray = array_reverse($cblArray);
@@ -126,10 +120,10 @@ for($x=0; $x<2; $x++){
 	
 	// Now that we've discovered the far side of the scanned cable,
 	// let's turn our attention to the near side.
-	$objID = $rootCable[$nearCblAttrPrefix.'_object_id'];
-	$objPort = $rootCable[$nearCblAttrPrefix.'_port_id'];
-	$objFace = $rootCable[$nearCblAttrPrefix.'_object_face'];
-	$objDepth = $rootCable[$nearCblAttrPrefix.'_object_depth'];
+	$objID = $rootCable['local_object_id'];
+	$objPort = $rootCable['local_object_port'];
+	$objFace = $rootCable['local_object_face'];
+	$objDepth = $rootCable['local_object_depth'];
 }
 
 ?>

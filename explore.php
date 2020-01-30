@@ -186,8 +186,10 @@ text-align: left;
 						<i id="btnZoomOut" class="fa fa-search-minus fa-2x"></i>
 						<i id="btnZoomIn" class="fa fa-search-plus fa-2x"></i>
 						<i id="btnZoomReset" class="fa fa-refresh fa-2x"></i>
-						<div id="floorplanContainer" style="position: relative;">
-							<img id="imgFloorplan" src=""></img>
+						<div>
+							<div id="floorplanContainer" style="position: relative;">
+								<img id="imgFloorplan" src=""></img>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -376,6 +378,10 @@ text-align: left;
 													Find Path
 												</button>
 											</div>
+											<button id="buttonVisioExport" type="button" class="btn btn-success waves-effect waves-light">
+												<span class="btn-label"><i class="fa fa-upload"></i>
+												</span>Export to Visio
+											</button>
 											<div class="row">
 												<div id="containerFullPath"></div>
 											</div>

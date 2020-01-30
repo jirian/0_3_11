@@ -385,6 +385,12 @@ function selectObject(parentObject){
 }
 
 $( document ).ready(function() {
+	
+	// Export to Viso button
+	$('#buttonVisioExport').on('click', function(){
+		window.open('/backend/export-visio.php');
+	});
+	
 	// Handle path finder button
 	$(document).data('portClickedFlag', false);
 	$(document).data('clickedObjPortID', null);

@@ -3,6 +3,19 @@
 $path = array();
 $workingArray = array();
 
+if($connectorCode39) {
+	$connectorID = base_convert($connectorCode39, 36, 10) + 0;
+	error_log('Debug: '.$connectorID);
+	$rootCable = $qls->App->inventoryByID[$connectorID];
+	
+	$objID = $rootCable['local_object_id'];
+	$objPort = $rootCable['local_object_port'];
+	$objFace = $rootCable['local_object_face'];
+	$objDepth = $rootCable['local_object_depth'];
+} else {
+	
+}
+
 $rootObjID = $objID;
 $rootObjFace = $objFace;
 $rootObjDepth = $objDepth;
@@ -27,7 +40,7 @@ $object['selected'] = true;
 array_push($workingArray, $object);
 
 // Cable
-//error_log('getCable(31): '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
+error_log('getCable(31): '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
 $cbl = $qls->App->getCable($objID, $objPort, $objFace, $objDepth);
 if($cbl) {
 	$workingNearCblAttrPrefix = $cbl['nearEnd'];
@@ -85,7 +98,7 @@ for($x=0; $x<2; $x++){
 			array_push($workingArray, $object);
 			
 			// Get cable connected to peer object
-			//error_log('getCable(89): '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
+			error_log('getCable(89): '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
 			$cbl = $qls->App->getCable($objID, $objPort, $objFace, $objDepth);
 			$workingNearCblAttrPrefix = $cbl['nearEnd'];
 			$workingFarCblAttrPrefix = $cbl['farEnd'];

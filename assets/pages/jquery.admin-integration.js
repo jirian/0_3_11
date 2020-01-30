@@ -137,7 +137,7 @@ $( document ).ready(function() {
 	$("#fileDataImport").filer(filerData);
 
 	$('#buttonDataExport').on('click', function(){
-		window.open('/backend/data-export.php');
+		window.open('/backend/export-backup.php');
 	});
 
 });
