@@ -188,7 +188,7 @@ var $qls;
 		$this->inventoryByIDArray = array();
 		$query = $this->qls->SQL->select('*', 'app_inventory');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
-			array_push($this->inventoryAllArray, $row);
+			$this->inventoryAllArray[$row['id']] = $row;
 			if($row['a_object_id'] != 0) {
 				$this->inventoryArray[$row['a_object_id']][$row['a_object_face']][$row['a_object_depth']][$row['a_port_id']] = array(
 					'rowID' => $row['id'],
@@ -529,14 +529,11 @@ var $qls;
 					}
 				}
 				
-				
-				
 				$howMuchToIncrement = floor($index / $numerator);
-				//error_log('Index:'.$index.' Order:'.$order.' howMuchToIncrement:'.$howMuchToIncrement.' numerator:'.$numerator);
+				
 				if($howMuchToIncrement >= $count) {
 					$rollOver = floor($howMuchToIncrement / $count);
 					$howMuchToIncrement = $howMuchToIncrement - ($rollOver * $count);
-					//error_log('rollOver:'.$howMuchToIncrement);
 				}
 				
 				if($type == 'incremental') {
@@ -791,7 +788,7 @@ var $qls;
 		}
 	}
 
-	function getCable($objID, $portID, $objFace, $objDepth){
+/* 	function getCable($objID, $portID, $objFace, $objDepth){
 		//Build the cable
 		$cbl = $this->qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$objID.' AND a_port_id = '.$portID.' AND a_object_face = '.$objFace.' AND a_object_depth = '.$objDepth.') OR (b_object_id = '.$objID.' AND b_port_id = '.$portID.' AND b_object_face = '.$objFace.' AND b_object_depth = '.$objDepth.')');
 		
@@ -809,7 +806,7 @@ var $qls;
 		}
 		
 		return $cbl;
-	}
+	} */
 	
 	function retrievePorts($objID, $objFace, $objDepth, $objPort) {
 		$obj = $this->objectArray[$objID];
@@ -1306,17 +1303,18 @@ var $qls;
 		$this->qls->SQL->insert('app_history', $columns, $values);
 	}
 	
-	function buildPathFull($path){
+	function buildPathFull($path, $connectorCode39){
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
 		foreach($path as $objectIndex => $object) {
 			
 			// First path object
 			if($objectIndex == 0) {
-				if($object[1][0] != '') {
+				if($object[1][0] != null) {
 					$htmlPathFull .= '<tr>';
 					$htmlPathFull .= $this->buildObject($object[0]);
-					$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+					//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+					$htmlPathFull .= $this->displayTrunk();
 					$htmlPathFull .= '</tr>';
 					$htmlPathFull .= '<tr>';
 					$htmlPathFull .= $this->buildObject($object[2]);
@@ -1332,7 +1330,8 @@ var $qls;
 				$htmlPathFull .= '<tr>';
 				$htmlPathFull .= $this->buildObject($object[0]);
 				if($object[1][0] != '') {
-					$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+					//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+					$htmlPathFull .= $this->displayTrunk();
 					$htmlPathFull .= '</tr>';
 					$htmlPathFull .= '<tr>';
 					$htmlPathFull .= $this->buildObject($object[2]);
@@ -1344,7 +1343,8 @@ var $qls;
 			} else {
 				$htmlPathFull .= '<tr>';
 				$htmlPathFull .= $this->buildObject($object[0]);
-				$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+				//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
+				$htmlPathFull .= $this->displayTrunk();
 				$htmlPathFull .= '</tr>';
 				$htmlPathFull .= '<tr>';
 				$htmlPathFull .= $this->buildObject($object[2]);
@@ -1353,7 +1353,8 @@ var $qls;
 			if ($objectIndex < count($path)-1) {
 				$htmlPathFull .= '<tr>';
 					$htmlPathFull .= '<td style="text-align:center;">';
-					$htmlPathFull .= $this->displayTrunk();
+					//$htmlPathFull .= $this->displayTrunk();
+					$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
 					$htmlPathFull .= '</td>';
 				$htmlPathFull .= '</tr>';
 			}
@@ -1390,14 +1391,15 @@ var $qls;
 	}
 	
 	function buildCable($topCode39, $btmCode39, $connectorCode39, $length){
+		error_log('Debug: '.$topCode39.' - '.$btmCode39.' - '.$connectorCode39);
 		$return = '';
-		$return .= '<td rowspan="2" style="vertical-align:middle;">';
+		//$return .= '<td rowspan="2" style="vertical-align:middle;">';
 			$scanned = $topCode39 == $connectorCode39 ? true : false;
 			$return .= $this->displayArrow('top', $scanned, $topCode39);
 			$return .= $length;
 			$scanned = $btmCode39 == $connectorCode39 ? true : false;
 			$return .= $this->displayArrow('btm', $scanned, $btmCode39);
-		$return .= '</td>';
+		//$return .= '</td>';
 		return $return;
 	}
 	
@@ -1419,11 +1421,13 @@ var $qls;
 	
 	function displayTrunk(){
 		$trunk = '';
+		$trunk .= '<td rowspan="2" style="vertical-align:middle;">';
 		$trunk .= '<svg width="20" height="40">';
 		$trunk .= '<g>';
 		$trunk .= '<path stroke="#000000" fill="#ffffff" transform="rotate(-90 10,20)" d="m-6.92393,20.00586l9.84279,-8.53669l0,4.26834l14.26478,0l0,-4.26834l9.84279,8.53669l-9.84279,8.53665l0,-4.26832l-14.26478,0l0,4.26832l-9.84279,-8.53665z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null"/>';
 		$trunk .= '</g>';
 		$trunk .= '</svg>';
+		$trunk .= '</td>';
 		return $trunk;
 	}
 	
@@ -2110,7 +2114,6 @@ var $qls;
 			$peerID = $peerRecord['peerID'];
 			$peerFace = $peerRecord['peerFace'];
 			$peerDepth = $peerRecord['peerDepth'];
-			error_log('Debug: '.$peerID.'-'.$peerFace.'-'.$peerDepth);
 			$flatPath = $this->buildTrunkFlatPath($peerID, $peerFace, $peerDepth);
 		} else {
 			$flatPath = 'None';

@@ -11,7 +11,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 		// Objects
 		foreach($qls->App->objectArray as $object) {
 			if(strpos(strtolower($object['name']), strtolower($term)) !== false) {
-				$obj = $qls->App->getObject($object['id'], 0, 0, 0, false);
+				$obj = $qls->App->objectArray[$object['id']];
 				$label = 'Explore - '.$obj['nameString'];
 				$objID = $object['id'];
 				$parentID = $object['env_tree_id'];

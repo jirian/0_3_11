@@ -201,14 +201,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							}
 						} else {
 							if($objEntry['a_id'] or $objEntry['b_id']) {
-								error_log('204: '.$objAttr);
 								clearTableInventory($qls, $objAttr, $objEntry['id']);
 							} else {
 								$qls->SQL->delete('app_inventory', array('id' => array('=', $objEntry['id'])));
 							}
 							
 							if($elementEntry['a_id'] or $elementEntry['b_id']) {
-								error_log('210: '.$elementAttr);
 								clearTableInventory($qls, $elementAttr, $elementEntry['id']);
 							} else {
 								$qls->SQL->delete('app_inventory', array('id' => array('=', $elementEntry['id'])));
@@ -218,7 +216,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$objAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'a' : 'b';
 						
 						if($objEntry['a_id'] or $objEntry['b_id']) {
-							error_log('220: '.$objAttr);
 							clearTableInventory($qls, $objAttr, $objEntry['id']);
 						} else {
 							$qls->SQL->delete('app_inventory', array('id' => array('=', $objEntry['id'])));
@@ -228,7 +225,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$elementAttr = $elementEntry['a_object_id'] == $elementID and $elementEntry['a_object_face'] == $elementFace and $elementEntry['a_object_depth'] == $elementDepth and $elementEntry['a_port_id'] == $elementPort ? 'a' : 'b';
 						
 						if($elementEntry['a_id'] or $elementEntry['b_id']) {
-							error_log('228: '.$elementAttr);
 							clearTableInventory($qls, $elementAttr, $elementEntry['id']);
 						} else {
 							$qls->SQL->delete('app_inventory', array('id' => array('=', $elementEntry['id'])));

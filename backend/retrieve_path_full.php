@@ -23,17 +23,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objFace = isset($data['objFace']) ? $data['objFace'] : false;
 		$objDepth = isset($data['partitionDepth']) ? $data['partitionDepth'] : false;
 		
-		// Functions required to create $path
-		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/path_functions.php';
-		// Create $path
-		//if($connectorCode39) {
-			//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_cable_path.php';
-		//} else {
-			include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
-		//}
 		
-		$validate->returnData['success'] = $qls->App->buildPathFull($path);
-		//error_log('-=END RETRIEVE PATH FULL=-');
+		
+		// Create $path
+		//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
+		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
+		
+		//error_log(json_encode($path));
+		
+		$validate->returnData['success'] = $qls->App->buildPathFull($path, $connectorCode39);
 	}
 	echo json_encode($validate->returnData);
 }
