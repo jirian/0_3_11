@@ -81,15 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$elementPort = (int)$valueArray[4];
 				}
 				$connectorID = $data['connectorID'];
-				//$query = $qls->SQL->select('*', 'app_inventory', array('a_id' => array('=', $connectorID), 'OR', 'b_id' => array('=', $connectorID)));
-				//$cable = $qls->SQL->fetch_assoc($query);
 				$cable = $qls->App->inventoryByIDArray[$connectorID];
-				//$connectorAttributePrefix = $cable['a_id'] == $connectorID ? 'a' : 'b';
-				//$inverseConnectorAttributePrefix = $connectorAttributePrefix == 'a' ? 'b' : 'a';
-				//$peerID = $cable[$inverseConnectorAttributePrefix.'_object_id'];
-				//$peerFace = $cable[$inverseConnectorAttributePrefix.'_object_face'];
-				//$peerDepth = $cable[$inverseConnectorAttributePrefix.'_object_depth'];
-				//$peerPort = $cable[$inverseConnectorAttributePrefix.'_port_id'];
 				$peerID = $cable['remote_object_id'];
 				$peerFace = $cable['remote_object_face'];
 				$peerDepth = $cable['remote_object_depth'];
@@ -185,6 +177,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$peerPortID = 'port-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
 					}
 					
+					// Retrieve old peer port ID so it can have the "populated" class cleared
+					if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+						$inventoryEntry = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+						$oldPeerPortID = 'port-'.$inventoryEntry['id'].'-'.$inventoryEntry['face'].'-'.$inventoryEntry['depth'].'-'.$inventoryEntry['port'];
+					} else {
+						$oldPeerPortID = false;
+					}
+					
 					// Find which ports are already connected
 					if($objEntry and $elementEntry) {
 						$objAttr = $objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort ? 'a' : 'b';
@@ -258,10 +258,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					}
 					
-					include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
+					include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
 				
 					$validate->returnData['success']['pathFull'] = $qls->App->buildPathFull($path, false);
 					$validate->returnData['success']['peerPortID'] = $peerPortID;
+					$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
 					
 				}
 				

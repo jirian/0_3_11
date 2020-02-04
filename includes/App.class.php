@@ -1022,17 +1022,21 @@ var $qls;
 				
 				$objectMediaCategory = $objectCompatibility['mediaCategory'];
 				$objectPortType = $objectCompatibility['portType'];
+				$objectPartitionFunction = $objectCompatibility['partitionFunction'];
 				
 				// Media category must be compatible (Copper, Singlmode, Multimode)
 				if($elementMediaCategory == $objectMediaCategory) {
+					//error_log('mediaCategory');
 					$isCompatible = true;
 					
 				// Port type must be compatible
-				} else if($elementPortType == $objectPortType) {
+				} else if($elementPortType == $objectPortType and ($elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint')) {
+					//error_log('portType');
 					$isCompatible = true;
 					
 				// If either port type is SFP, then they are compatible
 				} else if($elementPortType == 4 or $objectPortType == 4) {
+					//error_log('SFP');
 					$isCompatible = true;
 					
 				// Failing all of that, not compatible
@@ -2135,6 +2139,7 @@ var $qls;
 	}
 	
 	function wrapObject($objID, $objName) {
+		$objName = str_replace('-', '&#8209;', $objName);
 		$classArray = array('objectBox');
 		if($objID) {
 			$obj = $this->objectArray[$objID];
@@ -2169,11 +2174,11 @@ var $qls;
 	function getCabinetOccupiedRUs($cabinetID, $RUOrientation=false) {
 		
 		// Cabinet Data
-		$cabinet = $this->qls->App->envTreeArray[$cabinetID];
+		$cabinet = $this->envTreeArray[$cabinetID];
 		$cabinetSize = $cabinet['size'];
 		$RUOrientation = ($RUOrientation !== false) ? $RUOrientation : $cabinet['ru_orientation'];
 		
-		if(count($this->qls->App->objectByCabinetArray[$cabinetID])) {
+		if(isset($this->objectByCabinetArray[$cabinetID])) {
 			
 			// Top Object Data
 			$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)), array('RU', 'DESC'), array(0,1));

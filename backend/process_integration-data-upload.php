@@ -1956,7 +1956,7 @@ function insertCabinetAdds(&$qls, &$importedCabinetArray, $existingCabinetArray)
 	foreach($importedCabinetArray as &$cabinet) {
 		$nameHash = $cabinet['nameHash'];
 		
-		$name = str_replace('-', '&#8209;', $cabinet['name']);
+		$name = $cabinet['name'];
 		$insert['insertName']
 		$parent = '#';
 		$type = $cabinet['type'];
@@ -2099,7 +2099,7 @@ function insertObjectAdds(&$qls, &$importedObjectArray, $importedCabinetArray, $
 	foreach($importedObjectArray as &$object) {
 		$objectType = $object['type'];
 		$cabinetID = $importedCabinetArray[$object['cabinetNameHash']]['id'];
-		$name = str_replace('-', '&#8209;', $object['objectName']);
+		$name = $object['objectName'];
 		$posLeft = $object['posLeft'];
 		$posTop = $object['posTop'];
 		
@@ -2152,7 +2152,7 @@ function insertInsertAdds(&$qls, &$importedInsertArray, $importedObjectArray, $i
 		$template = $importedTemplateArray[$insert['templateNameHash']];
 		$templateID = $template['id'];
 		
-		$name = str_replace('-', '&#8209;', $insert['insertName']);
+		$name = $insert['insertName'];
 		$parentFace = $insert['parent_face'];
 		$slotCoord = $insert['slotCoord'];
 		preg_match_all("/\d+|[a-z]+/", $slotCoord, $matches);

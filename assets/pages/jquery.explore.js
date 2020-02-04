@@ -391,12 +391,14 @@ function portDesignation(elem, action, flag) {
 	
 	if(action == 'add') {
 		if(portFlagArray != null) {
-			var portFlagString = portFlagArray[0];
-			var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
-			var portFlagContentsArray = portFlagContents.split(',');
-			portFlagContentsArray.push(flag);
-			var newPortFlagContents = portFlagContentsArray.join(',');
-			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
+			if(!$.inArray(flag, portFlagArray)) {
+				var portFlagString = portFlagArray[0];
+				var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
+				var portFlagContentsArray = portFlagContents.split(',');
+				portFlagContentsArray.push(flag);
+				var newPortFlagContents = portFlagContentsArray.join(',');
+				$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
+			}
 		} else {
 			$('#selectPort').find(':selected').text(optionText+' ['+flag+']');
 		}
@@ -408,7 +410,12 @@ function portDesignation(elem, action, flag) {
 			var PIndex = portFlagContentsArray.indexOf('P');
 			portFlagContentsArray.splice(PIndex, 1);
 			var newPortFlagContents = portFlagContentsArray.join(',');
-			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
+			if(newPortFlagContents.length) {
+				var newPortFlagString = '['+newPortFlagContents+']';
+			} else {
+				var newPortFlagString = '';
+			}
+			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, newPortFlagString));
 		}
 	}
 	
@@ -682,10 +689,12 @@ $( document ).ready(function() {
 			} else if ($(responseJSON.error).size() > 0){
 				displayError(responseJSON.error);
 			} else {
-				var optionText = $('#selectPort').find(':selected').text();
 				$('#port-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).removeClass('populated');
 				if($('#'+responseJSON.success.peerPortID).length) {
 					$('#'+responseJSON.success.peerPortID).removeClass('populated');
+				}
+				if(responseJSON.success.oldPeerPortID) {
+					$('#'+responseJSON.success.oldPeerPortID).removeClass('populated');
 				}
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
 				portDesignation(interfaceSelectionElem, 'remove', 'C');
