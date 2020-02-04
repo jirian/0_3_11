@@ -194,6 +194,26 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		while($cabinet = $qls->SQL->fetch_assoc($queryCabinets)) {
 			$cabinetArray[$cabinet['id']] = $cabinet;
 		}
+		
+		// Build array containing all peer relationships
+		// indexed as $peerArray[<objID>][<objFace>][<objDepth>]
+		$peerArray = array();
+		$queryPeers = $qls->SQL->select('*', 'app_object_peer');
+		while($peer = $qls->SQL->fetch_assoc($queryPeers)) {
+			$peerEndpoints = array(array('a','b'), array('b','a'));
+			foreach($peerEndpoints as $endpointAttr) {
+				$peerAttr = $endpointAttr[1];
+				$endpointAttr = $endpointAttr[0];
+				$peerArray['-'.$peer[$endpointAttr.'_id']]['-'.$peer[$endpointAttr.'_face']]['-'.$peer[$endpointAttr.'_depth']] = array(
+					'peerID' => $peer[$peerAttr.'_id'],
+					'peerFace' => $peer[$peerAttr.'_face'],
+					'peerDepth' => $peer[$peerAttr.'_depth'],
+					'peerIsEndpoint' => $peer[$peerAttr.'_endpoint'] == 1 ? true : false,
+					'env_tree_id' => $qls->App->objectArray[$peer[$peerAttr.'_id']]['env_tree_id'],
+					'parent_id' => $qls->App->objectArray[$peer[$peerAttr.'_id']]['parent_id']
+				);
+			}
+		}
 
 		// Build array containing all compatible objects
 		$objectArray = array();
@@ -404,32 +424,29 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 	$targetName = $qls->App->wrapObject($targetID, $targetName);
 	
 	// Explore target trunk peer
-	if($targetID == $endpointAObj['id'] and !in_array($targetID, $visitedObjs)) {
+	if($target['id'] == $endpointAObj['id'] and !in_array($target['id'], $visitedObjs)) {
 		array_push($visitedObjs, $target['id']);
 		
 		// Target must have a trunk peer
-		if(isset($qls->App->peerArray[$targetID][$targetFace][$targetDepth])) {
-			$peerData = $qls->App->peerArray[$targetID][$targetFace][$targetDepth];
+		if(isset($GLOBALS['peerArray']['-'.$target['id']]['-'.$target['face']]['-'.$target['depth']])) {
+			$peerData = $GLOBALS['peerArray']['-'.$target['id']]['-'.$target['face']]['-'.$target['depth']];
 			
 			// Get object string of peer just so we know the object function
 			$peerID = $peerData['peerID'];
-			$peerFace = $peerData['peerFace'];
-			$peerDepth = $peerData['peerDepth'];
 			$peerObj = $qls->App->objectArray[$peerID];
 			$peerTemplateID = $peerObj['template_id'];
 			$peerTemplate = $qls->App->templateArray[$peerTemplateID];
 			$peerFunction = $peerTemplate['templateFunction'];
-			$peerCabinetID = $peerObj['env_tree_id'];
 			
 			if($peerFunction != 'Endpoint') {
-				if($peerID == $endpointBObj['id'] and $peerFace == $endpointBObj['face'] and $peerDepth == $endpointBObj['depth']) {
+				if($peerData['peerID'] == $endpointBObj['id'] and $peerData['peerFace'] == $endpointBObj['face'] and $peerData['peerDepth'] == $endpointBObj['depth']) {
 					// add to pathArray
 				} else {
 					// Evaluate the peer's cabinet to prevent path feedback loop
-					if($peerObj['env_tree_id'] == $target['env_tree_id']) {
+					if($peerData['env_tree_id'] == $target['env_tree_id']) {
 						$proceed = true;
 					} else {
-						if(in_array($peerCabinetID, $visitedCabs)) {
+						if(in_array($peerData['env_tree_id'], $visitedCabs)) {
 							$proceed = false;
 						} else {
 							$proceed = true;
@@ -445,11 +462,11 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 						));
 					
 						$newTarget = array(
-							'id' => $peerID,
-							'face' => $peerFace,
-							'depth' => $peerDepth,
+							'id' => $peerData['peerID'],
+							'face' => $peerData['peerFace'],
+							'depth' => $peerData['peerDepth'],
 							'port' => $target['port'],
-							'env_tree_id' => $peerCabinetID
+							'env_tree_id' => $peerData['env_tree_id']
 						);
 						
 						findPaths($qls, $reachableArray, $mediaType, $newTarget, $endpointAObj, $endpointBObj, $workingArray, $visitedObjs, $visitedCabs, $peerParentArray);
@@ -516,27 +533,22 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 					if(!in_array($reachableObj['id'], $visitedObjs)) {
 						
 						array_push($visitedObjs, $reachableObj['id']);
-						
 						// Reachable object should have a trunk peer to be considered
-						if(isset($qls->App->peerArray[$reachableObj['id']])) {
+						if(isset($GLOBALS['peerArray']['-'.$reachableObj['id']])) {
 							
 							// Narrow down peer by reachable object face
-							foreach($qls->App->peerArray[$reachableObj['id']] as $objFace => $objFaceArray) {
+							foreach($GLOBALS['peerArray']['-'.$reachableObj['id']] as $objFace => $objFaceArray) {
 								
 								// Narrow down peer by reachable object depth
 								foreach($objFaceArray as $objDepth => $peerData) {
 									
-									$peerID = $peerData['peerID'];
-									$peerFace = $peerData['peerFace'];
-									$peerDepth = $peerData['peerDepth'];
-									
 									$objFace = str_replace('-','',$objFace);
 									$objDepth = str_replace('-','',$objDepth);
 									
-									$peerIsEndpointB = $peerID == $endpointBObj['id'] and $peerFace == $endpointBObj['face'] and $peerDepth == $endpointBObj['depth'];
+									$peerIsEndpointB = $peerData['peerID'] == $endpointBObj['id'] and $peerData['peerFace'] == $endpointBObj['face'] and $peerData['peerDepth'] == $endpointBObj['depth'];
 									
 									$farPortArray = getAvailablePortArray($reachableObj['id'], $objFace, $objDepth, $qls);
-									$peerPortArray = getAvailablePortArray($peerID, $peerFace, $peerDepth, $qls);
+									$peerPortArray = getAvailablePortArray($peerData['peerID'], $peerData['peerFace'], $peerData['peerDepth'], $qls);
 									
 									$commonAvailablePort = 0;
 									$farPortFound = false;
@@ -549,12 +561,12 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 									}
 									
 									// Near Object
-									$peerObj = $qls->App->objectArray[$peerID];
-									$peerCabinetID = $pearObj['env_tree_id'];
-									$nearTemplateID = $peerObj['template_id'];
-									$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$peerFace][$peerDepth];
+									$nearObj = $qls->App->objectArray[$peerData['peerID']];
+									$nearTemplateID = $nearObj['template_id'];
+									$nearCompatibility = $qls->App->compatibilityArray[$nearTemplateID][$peerData['peerFace']][$peerData['peerDepth']];
 									$nearPortTypeValue = $nearCompatibility['portType'];
 									$nearPortType = $qls->App->portTypeValueArray[$nearPortTypeValue]['name'];
+									//$nearPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $target['id'], $target['face'], $target['depth']);
 									
 									// Far Object
 									$farPort = $peerIsEndpointB ? $endpointBObj['port'] : $commonAvailablePort;
@@ -568,13 +580,14 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 									$farCompatibility = $qls->App->compatibilityArray[$farTemplateID][$objFace][$objDepth];
 									$farPortTypeValue = $farCompatibility['portType'];
 									$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue]['name'];
+									//$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $reachableObj['id'], $objFace, $objDepth);
 									
 									// Reachable object cannot be an endpoint... how are we supposed to patch layer1 through a layer2-4 device?
 									if($far['function'] != 'Endpoint') {
 										
 										// Peer object cannot be one that we've visited already
-										if(!in_array($peerID, $visitedObjs)) {
-											array_push($visitedObjs, $peerID);
+										if(!in_array($peerData['peerID'], $visitedObjs)) {
+											array_push($visitedObjs, $peerData['peerID']);
 											array_push($workingArray, array(
 												'near' => $targetName,
 												'nearFunction' => $targetFunction,
@@ -602,6 +615,7 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 												$farCompatibility = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']];
 												$farPortTypeValue = $farCompatibility['portType'];
 												$farPortType = $qls->App->portTypeValueArray[$farPortTypeValue]['name'];
+												//$farPortType = getPortType($qls, $GLOBALS['compatibilityTable'], $GLOBALS['portTable'], $endpointBObj['id'], $endpointBObj['face'], $endpointBObj['depth']);									
 												
 												array_push($workingArray, array(
 													'far' => $peerName,
@@ -611,15 +625,12 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 												array_push($GLOBALS['pathArray'], $workingArray);
 												array_pop($workingArray);
 											} else {
-												if(!$peerData['peerEndpoint']) {
-													
-													$peerParentID = $nearObj['parent_id'];
-													
+												if($peerData['peerIsEndpoint'] != true) {
 													// Evaluate the peer's cabinet to prevent path feedback loop
-													if($neerCabinetID == $target['env_tree_id']) {
+													if($peerData['env_tree_id'] == $target['env_tree_id']) {
 														$proceed = true;
 													} else {
-														if(in_array($neerCabinetID, $visitedCabs)) {
+														if(in_array($peerData['env_tree_id'], $visitedCabs)) {
 															$proceed = false;
 														} else {
 															$proceed = true;
@@ -630,7 +641,7 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 													
 													// Evaluate the peer's parent to prevent path feedback loop
 													if($proceed) {
-														if(in_array($peerParentID, $peerParentArray[$reachableObjID])) {
+														if(in_array($peerData['parent_id'], $peerParentArray[$reachableObjID])) {
 															$proceed = false;
 														}
 													}
@@ -640,17 +651,17 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 														$proceed = $farPortFound;
 													}
 													
-													if($peerParentID != 0 and !in_array($peerParentID, $peerParentArray[$reachableObjID]) and $farPortFound) {
-														array_push($peerParentArray[$reachableObjID], $peerParentID);
+													if($peerData['parent_id'] != 0 and !in_array($peerData['parent_id'], $peerParentArray[$reachableObjID]) and $farPortFound) {
+														array_push($peerParentArray[$reachableObjID], $peerData['parent_id']);
 													}
 													
 													if($proceed) {
 														$newTarget = array(
-															'id' => $peerID,
-															'face' => $peerFace,
-															'depth' => $peerDepth,
+															'id' => $peerData['peerID'],
+															'face' => $peerData['peerFace'],
+															'depth' => $peerData['peerDepth'],
 															'port' => $farPort,
-															'env_tree_id' => $peerObj['env_tree_id']
+															'env_tree_id' => $peerData['env_tree_id']
 														);
 														findPaths($qls, $reachableArray, $mediaType, $newTarget, $endpointAObj, $endpointBObj, $workingArray, $visitedObjs, $visitedCabs, $peerParentArray);
 													}

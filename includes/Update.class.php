@@ -77,7 +77,19 @@ var $qls;
 		return false;
 	}
 	
-		/**
+	/**
+	 * Update from version 0.2.3 to 0.2.4
+	 * @return Boolean
+	 */
+	function update_023_to_024() {
+		$incrementalVersion = '0.2.4';
+		
+		// Set app version to 0.2.4
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+	}
+	
+	/**
 	 * Update from version 0.2.2 to 0.2.3
 	 * @return Boolean
 	 */

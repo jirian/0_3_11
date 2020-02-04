@@ -384,6 +384,37 @@ function selectObject(parentObject){
 	$('#objID').remove();
 }
 
+function portDesignation(elem, action, flag) {
+	var optionText = $(elem).text();
+	var portFlagPattern = /\[[\w\,]*\w\]/g;
+	var portFlagArray = portFlagPattern.exec(optionText);
+	
+	if(action == 'add') {
+		if(portFlagArray != null) {
+			var portFlagString = portFlagArray[0];
+			var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
+			var portFlagContentsArray = portFlagContents.split(',');
+			portFlagContentsArray.push(flag);
+			var newPortFlagContents = portFlagContentsArray.join(',');
+			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
+		} else {
+			$('#selectPort').find(':selected').text(optionText+' ['+flag+']');
+		}
+	} else {
+		if(portFlagArray != null) {
+			var portFlagString = portFlagArray[0];
+			var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
+			var portFlagContentsArray = portFlagContents.split(',');
+			var PIndex = portFlagContentsArray.indexOf('P');
+			portFlagContentsArray.splice(PIndex, 1);
+			var newPortFlagContents = portFlagContentsArray.join(',');
+			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
+		}
+	}
+	
+	
+}
+
 $( document ).ready(function() {
 	
 	// Export to Viso button
@@ -419,34 +450,13 @@ $( document ).ready(function() {
 		var portID = $(document).data('clickedObjPortID');
 		var portPopulated = $(this).is(':checked');
 		
-		var optionText = $('#selectPort').find(':selected').text();
-		var portFlagPattern = /\[[\w\,]*\w\]/g;
-		var portFlagArray = portFlagPattern.exec(optionText);
+		var interfaceSelectionElem = $('#selectPort').find(':selected');
 		if(portPopulated) {
 			$('#port-'+objID+'-'+objFace+'-'+partitionDepth+'-'+portID).addClass('populated');
-			if(portFlagArray != null) {
-				var portFlagString = portFlagArray[0];
-				var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
-				var portFlagContentsArray = portFlagContents.split(',');
-				portFlagContentsArray.push('P');
-				var newPortFlagContents = portFlagContentsArray.join(',');
-				$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
-			} else {
-				$('#selectPort').find(':selected').text(optionText+' [P]');
-			}
+			portDesignation(interfaceSelectionElem, 'add', 'P');
 		} else {
 			$('#port-'+objID+'-'+objFace+'-'+partitionDepth+'-'+portID).removeClass('populated');
-			$('#selectPort').find(':selected').text(optionText.replace(' *', ''));
-			
-			if(portFlagArray != null) {
-				var portFlagString = portFlagArray[0];
-				var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
-				var portFlagContentsArray = portFlagContents.split(',');
-				var PIndex = portFlagContentsArray.indexOf('P');
-				portFlagContentsArray.splice(PIndex, 1);
-				var newPortFlagContents = portFlagContentsArray.join(',');
-				$('#selectPort').find(':selected').text(optionText.replace(portFlagString, '['+newPortFlagContents+']'));
-			}
+			portDesignation(interfaceSelectionElem, 'remove', 'P');
 		}
 		
 		var data = {
@@ -634,7 +644,8 @@ $( document ).ready(function() {
 				if($('#'+responseJSON.success.peerPortID).length) {
 					$('#'+responseJSON.success.peerPortID).addClass('populated');
 				}
-				$('#selectPort').find(':selected').text(optionText+' *');
+				var interfaceSelectionElem = $('#selectPort').find(':selected');
+				portDesignation(interfaceSelectionElem, 'add', 'C');
 				$('#checkboxPopulated').prop("checked", true);
 				$('#checkboxPopulated').prop("disabled", true);
 				$('#containerFullPath').html(responseJSON.success.pathFull);
@@ -676,7 +687,8 @@ $( document ).ready(function() {
 				if($('#'+responseJSON.success.peerPortID).length) {
 					$('#'+responseJSON.success.peerPortID).removeClass('populated');
 				}
-				$('#selectPort').find(':selected').text(optionText.replace(' *', ''));
+				var interfaceSelectionElem = $('#selectPort').find(':selected');
+				portDesignation(interfaceSelectionElem, 'remove', 'C');
 				$('#checkboxPopulated').prop("checked", false);
 				$('#checkboxPopulated').prop("disabled", false);
 				$('#containerFullPath').html(responseJSON.success.pathFull);

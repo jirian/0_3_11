@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.2.4
 	- Changes Introduced In 0.2.3
 	- Changes Introduced In 0.2.2
 	- Changes Introduced In 0.2.1
@@ -16,6 +17,12 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.2.4
+
+[Fix]		Corrected issue with floorplan images covering floorplan controls ("Explore" page)
+[Fix]		Corrected port designation to display flag instead of "*" when changed
+[Fix]		Corrected inability to connect SC ports to LC ports
 
 **Changes introduced in 0.2.3
 

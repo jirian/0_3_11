@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		if($action == 'add') {
 				
 			$cabinetID = $data['cabinetID'];
-			$name = $data['name'];
+			$name = str_replace('-', '&#8209;', $data['name']);
 			$RU = isset($data['RU']) ? $data['RU'] : 0;
 			$cabinetFace = $data['cabinetFace'];
 			$object = $qls->SQL->fetch_assoc(
@@ -184,7 +184,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->App->logAction(2, 2, $actionString);
 			
 		} else if($action == 'edit') {
-			$name = $data['value'];
+			$name = str_replace('-', '&#8209;', $data['value']);
 			
 			$qls->SQL->update('app_object',
 				array('name' => $name),

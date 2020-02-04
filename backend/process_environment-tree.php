@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$parentID = $data['parent'];
 			$nodeType = $data['type'];
-			$nodeName = $data['name'];
+			$nodeName = str_replace('-', '&#8209;', $data['name']);
 			
 			$attrArray = array('parent', 'name', 'type');
 			$valueArray = array($parentID, $nodeName, $nodeType);
@@ -51,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		} else if ($operation == 'rename_node') {
 			
 			$nodeID = $data['id'];
-			$nodeName = $data['name'];
+			$nodeName = str_replace('-', '&#8209;', $data['name']);
 			
 			$qls->SQL->update('app_env_tree', array('name'=>$nodeName), 'id='.$nodeID);
 			

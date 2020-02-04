@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 							$objectValue = explode('-', $object['data']['globalID']);
 							$nodeID = $objectValue[1];
 							
-							$treePorts = $qls->App->buildTreePorts($nodeID, false, false, $cablePortType, $cableMediaType);
+							$treePorts = $qls->App->buildTreePorts($nodeID, false, $cablePortType, $cableMediaType);
 							$treeArray = array_merge($treeArray, $treePorts);
 						}
 					}
@@ -119,13 +119,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 						}
 						
 						if($includePorts) {
-							$treePorts = $qls->App->buildTreePorts($nodeID, $objectPortType, $objectPartitionFunction, false, false);
+							$treePorts = $qls->App->buildTreePorts($nodeID, $objectCompatibility, false, false);
 							$treeArray = array_merge($treeArray, $treePorts);
 						}
 					}
 				}
 			}
 		} else if($scope == 'floorplanObject') {
+			
+			$objID = $_GET['objID'];
+			$objFace = $_GET['objFace'];
+			$objDepth = $_GET['objDepth'];
+			$objPort = $_GET['objPort'];
+			
+			$object = $qls->App->objectArray[$objID];
+			
+			$templateID = $object['template_id'];
+			
+			$objectCompatibility = $qls->App->compatibilityArray[$templateID][$objFace][$objDepth];
 			
 			$objectPortType = 1;
 			$objectPartitionFunction = 'Passive';
@@ -146,7 +157,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 							$nodeValue = explode('-', $node['data']['globalID']);
 							$nodeID = $nodeValue[1];
 							
-							$treePorts = $qls->App->buildTreePorts($nodeID, $objectPortType, $objectPartitionFunction, false, false, true);
+							$treePorts = $qls->App->buildTreePorts($nodeID, $objectCompatibility, false, false, true);
 							$treeArray = array_merge($treeArray, $treePorts);
 						}
 					}

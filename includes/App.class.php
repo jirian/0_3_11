@@ -399,7 +399,6 @@ var $qls;
 	}
 	
 	function generateObjectPortName($objID, $objFace, $objDepth, $objPort) {
-		
 		$obj = $this->objectArray[$objID];
 		$objName = $obj['nameString'];
 		$objTemplateID = $obj['template_id'];
@@ -916,8 +915,8 @@ var $qls;
 				$value = implode('-', $value);
 				
 				array_push($treeArray, array(
-					'id' => 'O'.$objectNode['id'],
-					'text' => $objectNode['name'],
+					'id' => 'O'.$objectID,
+					'text' => $objectName,
 					'parent' => $cabinetID,
 					'type' => 'object',
 					'objectType' => $objectType,
@@ -929,14 +928,15 @@ var $qls;
 		return $treeArray;
 	}
 	
-	function buildTreePorts($nodeID, $objectPortType, $objectPartitionFunction, $cablePortType, $cableMediaType, $forTrunk=false){
+	function buildTreePorts($nodeID, $objectCompatibility, $cablePortType, $cableMediaType, $forTrunk=false){
+		
 		$treeArray = array();
 		$element = $this->objectArray[$nodeID];
 		
-		if(!$forTrunk) {
-			$whereArray = array('template_id' => array('=', $element['template_id']));
-		} else {
+		if($forTrunk) {
 			$whereArray = array('template_id' => array('=', $element['template_id']), 'AND', 'partitionFunction' => array('<>', 'Endpoint'));
+		} else {
+			$whereArray = array('template_id' => array('=', $element['template_id']));
 		}
 		
 		// Retrieve selected object partitions
@@ -1005,6 +1005,7 @@ var $qls;
 		foreach($elementArray as $elementItem) {
 			$elementPortType = $elementItem['portType'];
 			$elementMediaCategory = $mediaTypeArray[$elementItem['mediaType']]['category_id'];
+			$elementMediaCategory = $elementItem['mediaCategory'];
 			$elementPartitionFunction = $elementItem['partitionFunction'];
 			
 			if($cablePortType) {
@@ -1017,9 +1018,29 @@ var $qls;
 				$cableMediaCategory = $mediaTypeArray[$cableMediaType]['category_id'];
 				
 				$isCompatible = ($elementPortType == $cablePortType or $elementPortType == 4) and ($elementMediaCategory == $cableMediaCategory or $elementPartitionFunction == 'Endpoint') ? true : false;
-			} else if($objectPortType) {
+			} else if($objectCompatibility) {
 				
-				$isCompatible = ($elementPortType == $objectPortType or $elementPortType == 4 or $objectPortType == 4) and ($elementMediaCategory == $objectMediaCategory or $elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint') ? true : false;
+				$objectMediaCategory = $objectCompatibility['mediaCategory'];
+				$objectPortType = $objectCompatibility['portType'];
+				
+				// Media category must be compatible (Copper, Singlmode, Multimode)
+				if($elementMediaCategory == $objectMediaCategory) {
+					$isCompatible = true;
+					
+				// Port type must be compatible
+				} else if($elementPortType == $objectPortType) {
+					$isCompatible = true;
+					
+				// If either port type is SFP, then they are compatible
+				} else if($elementPortType == 4 or $objectPortType == 4) {
+					$isCompatible = true;
+					
+				// Failing all of that, not compatible
+				} else {
+					$isCompatible = false;
+				}
+				
+				//$isCompatible = ($elementPortType == $objectPortType or $elementPortType == 4 or $objectPortType == 4) and ($elementMediaCategory == $objectMediaCategory or $elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint') ? true : false;
 			}
 			
 			if($forTrunk and isset($this->peerArrayStandard[$nodeID][$elementItem['side']][$elementItem['depth']])) {
@@ -1255,7 +1276,7 @@ var $qls;
 		$mediaCategoryTypeName = strtolower($mediaCategoryType['name']);
 		
 		if($length == 0) {
-			$lengthString = 'unknown';
+			$lengthString = 'Unk. Length';
 			$includeUnit = false;
 		} else if($mediaCategoryTypeName == 'copper') {
 			// Convert to feet
@@ -1304,11 +1325,85 @@ var $qls;
 	}
 	
 	function buildPathFull($path, $connectorCode39){
+		
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
 		foreach($path as $objectIndex => $object) {
+			$objType = $object['type'];
 			
-			// First path object
+			switch($objType) {
+				
+				case 'object':
+					if($objectIndex) {
+						if($path[$objectIndex+1]['type'] == 'trunk') {
+							//$topTableTag = '<tr><td>';
+							$bottomTableTag = '</td>';
+						} else {
+							//$topTableTag = '<td>';
+							$bottomTableTag = '</td></tr>';
+						}
+					} else {
+						//$topTableTag = '<tr><td>';
+						$bottomTableTag = '</td>';
+					}
+					$topTableTag = '<tr><td>';
+					//$bottomTableTag = '</td></tr>';
+					$htmlPathFull .= $topTableTag;
+					$objID = $object['data']['id'];
+					$objFace = $object['data']['face'];
+					$objDepth = $object['data']['depth'];
+					$objPort = $object['data']['port'];
+					$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+					$objBox = $this->wrapObject($objID, $objName);
+					
+					//$htmlPathFull .= '<tr><td>';
+					$htmlPathFull .= $objBox;
+					//$htmlPathFull .= '</td></tr>';
+					$htmlPathFull .= $bottomTableTag;
+					break;
+				
+				case 'connector':
+					$htmlPathFull .= '<tr><td>';
+					$connectorTypeID = $object['data']['connectorType'];
+					
+					if($connectorTypeID != 0) {
+						$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+						$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+						$htmlPathFull .= '</div>';
+					} else {
+						$connectorTypeName = 'Unk';
+						$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
+						$htmlPathFull .= '</div>';
+					}
+					$htmlPathFull .= '</td><td></td></tr>';
+					break;
+					
+				case 'cable':
+					$htmlPathFull .= '<tr><td>';
+					$cableTypeID = $object['data']['mediaTypeID'];
+					if($cableTypeID != 0) {
+						$cableTypeName = $mediaTypeClass = $this->mediaTypeValueArray[$cableTypeID]['name'];
+					} else {
+						$cableTypeName = 'Unk. Media Type';
+						$mediaTypeClass = 'Unk';
+					}
+					$cableLength = $object['data']['length'];
+					$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
+					//$htmlPathFull .= '<div>';
+					$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
+					//$htmlPathFull .= '</div>';
+					$htmlPathFull .= '</div>';
+					$htmlPathFull .= '</td><td></td></tr>';
+					break;
+					
+				case 'trunk':
+					$htmlPathFull .= '<td rowspan="2">';
+					$htmlPathFull .= '<div title="Trunk" class="trunk">';
+					$htmlPathFull .= '</td>';
+					break;
+			}
+			
+			/* // First path object
 			if($objectIndex == 0) {
 				if($object[1][0] != null) {
 					$htmlPathFull .= '<tr>';
@@ -1357,7 +1452,7 @@ var $qls;
 					$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
 					$htmlPathFull .= '</td>';
 				$htmlPathFull .= '</tr>';
-			}
+			} */
 		}
 		$htmlPathFull .= '</table>';
 		
@@ -1391,15 +1486,14 @@ var $qls;
 	}
 	
 	function buildCable($topCode39, $btmCode39, $connectorCode39, $length){
-		error_log('Debug: '.$topCode39.' - '.$btmCode39.' - '.$connectorCode39);
+		
 		$return = '';
-		//$return .= '<td rowspan="2" style="vertical-align:middle;">';
-			$scanned = $topCode39 == $connectorCode39 ? true : false;
-			$return .= $this->displayArrow('top', $scanned, $topCode39);
-			$return .= $length;
-			$scanned = $btmCode39 == $connectorCode39 ? true : false;
-			$return .= $this->displayArrow('btm', $scanned, $btmCode39);
-		//$return .= '</td>';
+		$scanned = $topCode39 == $connectorCode39 ? true : false;
+		$return .= $this->displayArrow('top', $scanned, $topCode39);
+		$return .= $length;
+		$scanned = $btmCode39 == $connectorCode39 ? true : false;
+		$return .= $this->displayArrow('btm', $scanned, $btmCode39);
+		
 		return $return;
 	}
 	
@@ -1744,7 +1838,7 @@ var $qls;
 					$classString = implode(' ', $classArray);
 					
 					$html .= '<div class="'.$classString.'" '.$attrString.'></div>';
-					'<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
+					//$html .='<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
 					$html .= '</div>';
 				}
 				$html .= "</div>";

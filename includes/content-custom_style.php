@@ -36,6 +36,7 @@ function color_inverse($color){
 
 .objectBox {
 	margin-top: 5px;
+	margin-bottom: 5px;
 	border-radius: 3px;
 	padding: 3px;
 	border: 1px solid gray;
@@ -87,6 +88,37 @@ function color_inverse($color){
 	width: 100%;
 }
 
+.trunk {
+	background-image: url("/assets/images/cableIcons/trunk.png");
+	height: 40px;
+	width: 30px;
+	margin: auto;
+	background-size: 30px 40px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	text-align: center;
+}
+
+.cable.Unk {
+	background-image: url("/assets/images/cableIcons/Unk-black.png");
+}
+
+.cable.SM-OS1 {
+	background-image: url("/assets/images/cableIcons/SM-yellow.png");
+}
+
+.cable.MM-OM3, .cable.MM-OM4 {
+	background-image: url("/assets/images/cableIcons/MM-Aqua.png");
+}
+
+.cable.Cat5e, .cable.Cat6, .cable.Cat6a {
+	background-image: url("/assets/images/cableIcons/Eth-green.png");
+}
+
+.port.Unk {
+	background-image: url("/assets/images/portIcons/Unk-black.png");
+}
+
 .port.RJ45 {
 	background-image: url("/assets/images/portIcons/RJ45-black.png");
 }
@@ -135,11 +167,31 @@ function color_inverse($color){
 	background-image: url("/assets/images/portIcons/SFP-gray.png");
 }
 
+background-image: url("/assets/images/portIcons/RJ45-black.png");
+.port {
+	height: 20px;
+	width: 20px;
+	margin: auto;
+	background-size: 8px 8px;
+	background-repeat: no-repeat;
+}
+
 .port {
 	height: 8px;
 	width: 8px;
 	margin: auto;
 	background-size: 8px 8px;
+	background-repeat: no-repeat;
+}
+
+.cable {
+	height: 40px;
+	width: 100%;
+	margin: auto;
+	background-size: 20px 100%;
+	background-repeat: no-repeat;
+	background-position: center center;
+	text-align: center;
 }
 
 .populated {

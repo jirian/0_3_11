@@ -207,8 +207,9 @@ function createCabinets(&$qls){
 		$floorplanImg = $location['type'] == 'floorplan' ? $location['floorplan_img'] : '';
 		$adjLeft = isset($envAdjArray[$location['id']]) ? $qls->App->envTreeArray[$envAdjArray[$location['id']]['left']]['nameString'] : '';
 		$adjRight = isset($envAdjArray[$location['id']]) ? $qls->App->envTreeArray[$envAdjArray[$location['id']]['right']]['nameString'] : '';
+		$name = str_replace('&#8209;', '-', $location['nameString']);
 		$line = array(
-			$location['nameString'],
+			$name,
 			$location['type'],
 			$size,
 			$orientation,
@@ -284,7 +285,7 @@ function createObjects(&$qls, $objectArray){
 	foreach($objectArray as $object) {
 		$templateID = $object['template_id'];
 		$floorplanObj = (isset($floorplanObjTemplateArray[$templateID])) ? true : false;
-		$name = $object['name'];
+		$name = str_replace('&#8209;', '-', $object['name']);
 		$cabinet = $qls->App->envTreeArray[$object['env_tree_id']]['nameString'];
 		$template = $floorplanObj ? $floorplanObjTemplateArray[$templateID] : $qls->App->templateArray[$templateID]['templateName'];
 		$RUSize = $floorplanObj ? '' : $qls->App->templateArray[$templateID]['templateRUSize'];
@@ -350,6 +351,7 @@ function createObjectInserts(&$qls, $objectArray, $insertArray, $templateEnclosu
 			$slotY = $object['insertSlotY'];
 			$cabinetNameString = $qls->App->envTreeArray[$cabinetID]['nameString'];
 			$objectNameString = $cabinetNameString.'.'.$objectName;
+			$objectNameString = str_replace('&#8209;', '-', $objectNameString);
 		
 			foreach($templateEnclosureArray[$templateID] as $face=>$templateFace) {
 				$faceString = $face == 0 ? 'Front' : 'Rear';

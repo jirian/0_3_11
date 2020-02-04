@@ -378,10 +378,12 @@ text-align: left;
 													Find Path
 												</button>
 											</div>
+											<!--
 											<button id="buttonVisioExport" type="button" class="btn btn-success waves-effect waves-light">
 												<span class="btn-label"><i class="fa fa-upload"></i>
 												</span>Export to Visio
 											</button>
+											-->
 											<div class="row">
 												<div id="containerFullPath"></div>
 											</div>
