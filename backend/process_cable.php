@@ -167,20 +167,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$elementEntry = false;
 						if($objEntry) {
 							$elementAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'b' : 'a';
-							$peerPortID = 'port-'.$objEntry[$elementAttr.'_object_id'].'-'.$objEntry[$elementAttr.'_object_face'].'-'.$objEntry[$elementAttr.'_object_depth'].'-'.$objEntry[$elementAttr.'_port_id'];
+							$peerPortID = '4-'.$objEntry[$elementAttr.'_object_id'].'-'.$objEntry[$elementAttr.'_object_face'].'-'.$objEntry[$elementAttr.'_object_depth'].'-'.$objEntry[$elementAttr.'_port_id'];
 						} else {
-							$peerPortID = 'port-0-0-0-0';
+							$peerPortID = '4-0-0-0-0';
 						}
 					} else {
 						$query = $qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$elementID.' AND a_object_face = '.$elementFace.' AND a_object_depth = '.$elementDepth.' AND a_port_id = '.$elementPort.') OR (b_object_id = '.$elementID.' AND b_object_face = '.$elementFace.' AND b_object_depth = '.$elementDepth.' AND b_port_id = '.$elementPort.')');
 						$elementEntry = $qls->SQL->num_rows($query) ? $qls->SQL->fetch_assoc($query) : false;
-						$peerPortID = 'port-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
+						$peerPortID = '4-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
 					}
 					
 					// Retrieve old peer port ID so it can have the "populated" class cleared
 					if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
 						$inventoryEntry = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
-						$oldPeerPortID = 'port-'.$inventoryEntry['id'].'-'.$inventoryEntry['face'].'-'.$inventoryEntry['depth'].'-'.$inventoryEntry['port'];
+						$oldPeerPortID = '4-'.$inventoryEntry['id'].'-'.$inventoryEntry['face'].'-'.$inventoryEntry['depth'].'-'.$inventoryEntry['port'];
 					} else {
 						$oldPeerPortID = false;
 					}

@@ -12,8 +12,20 @@ if($connectorCode39) {
 	$objPort = $rootCable['local_object_port'];
 }
 
+$selectedObjID = $objID;
+$selectedObjFace = $objFace;
+$selectedObjDepth = $objDepth;
+$selectedObjPort = $objPort;
+
 if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
+	$isTrunked = true;
 	$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
+	if($peer['floorplanPeer']) {
+		$isTrunked = isFloorplanTrunked($peer, $objPort);
+	}
+}
+
+if($isTrunked) {
 	$reverseObjID = $peer['peerID'];
 	$reverseObjFace = $peer['peerFace'];
 	$reverseObjDepth = $peer['peerDepth'];
@@ -25,7 +37,6 @@ if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
 		'data' => array()
 	);
 	array_push($path, $workingArray);
-	
 } else {
 	$reverseObjID = 0;
 	$reverseObjFace = 0;
@@ -41,13 +52,15 @@ for($x=0; $x<2; $x++){
 	while($objID){
 		
 		// Object
+		$selected = ($objID == $selectedObjID and $objFace == $selectedObjFace and $objDepth == $selectedObjDepth and $objPort == $selectedObjPort) ? true : false;
 		$workingArray = array(
 			'type' => 'object',
 			'data' => array(
 				'id' => $objID,
 				'face' => $objFace,
 				'depth' => $objDepth,
-				'port' => $objPort
+				'port' => $objPort,
+				'selected' => $selected
 			)
 		);
 		if($x == 0) {
@@ -135,10 +148,17 @@ for($x=0; $x<2; $x++){
 					array_unshift($path, $workingArray);
 				}
 				
+				$isTrunked = false;
 				if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
-					
+					$isTrunked = true;
 					// Remote Object Peer
 					$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
+					if($peer['floorplanPeer']) {
+						$isTrunked = isFloorplanTrunked($peer, $objPort);
+					}
+				}
+				
+				if($isTrunked) {
 					$objID = $peer['peerID'];
 					$objFace = $peer['peerFace'];
 					$objDepth = $peer['peerDepth'];
@@ -153,7 +173,6 @@ for($x=0; $x<2; $x++){
 					} else {
 						array_unshift($path, $workingArray);
 					}
-					
 				} else {
 					
 					// No trunk peer found
@@ -198,6 +217,23 @@ for($x=0; $x<2; $x++){
 	$objFace = $reverseObjFace;
 	$objDepth = $reverseObjDepth;
 	$objPort = $reversePortID;
+}
+
+function isFloorplanTrunked($peer, $portID) {
+	error_log('Debug: '.json_encode($peer));
+	$isTrunked = false;
+	foreach($peer['peerArray'] as $peerObjID => $peerObj) {
+		foreach($peerObj as $peerFaceID => $peerFace) {
+			foreach($peerFace as $peerDepthID => $peerDepth) {
+				foreach($peerDepth as $peerPortArray) {
+					if($peerPortArray[0] == $portID) {
+						$isTrunked = true;
+					}
+				}
+			}
+		}
+	}
+	return $isTrunked;
 }
 
 ?>

@@ -90,10 +90,10 @@ function color_inverse($color){
 
 .trunk {
 	background-image: url("/assets/images/cableIcons/trunk.png");
-	height: 40px;
+	height: 50px;
 	width: 30px;
 	margin: auto;
-	background-size: 30px 40px;
+	background-size: 30px 100%;
 	background-repeat: no-repeat;
 	background-position: center center;
 	text-align: center;

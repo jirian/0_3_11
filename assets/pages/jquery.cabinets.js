@@ -1183,7 +1183,7 @@ $( document ).ready(function() {
 			} else {
 				$(trunkPathContainer)
 					.html(responseJSON.success.trunkFlatPath)
-					.data('peerIDArray', value);
+					.data('peerIDArray', [value]);
 				$('#objectTreeModal')
 					.modal('hide');
 					

@@ -136,7 +136,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			
 			$templateID = $object['template_id'];
 			
-			$objectCompatibility = $qls->App->compatibilityArray[$templateID][$objFace][$objDepth];
+			//$objectCompatibility = $qls->App->compatibilityArray[$templateID][$objFace][$objDepth];
+			$objectCompatibility = $qls->App->compatibilityArray[1][0][0];
 			
 			$objectPortType = 1;
 			$objectPartitionFunction = 'Passive';

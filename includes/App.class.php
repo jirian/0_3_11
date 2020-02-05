@@ -1004,20 +1004,27 @@ var $qls;
 		
 		foreach($elementArray as $elementItem) {
 			$elementPortType = $elementItem['portType'];
-			$elementMediaCategory = $mediaTypeArray[$elementItem['mediaType']]['category_id'];
 			$elementMediaCategory = $elementItem['mediaCategory'];
 			$elementPartitionFunction = $elementItem['partitionFunction'];
 			
 			if($cablePortType) {
-				$mediaTypeArray = array();
-				$query = $this->qls->SQL->select('*', 'shared_mediaType');
-				while($row = $this->qls->SQL->fetch_assoc($query)) {
-					$mediaTypeArray[$row['value']] = $row;
+				
+				$cableMediaCategory = $this->mediaTypeArray[$cableMediaType]['category_id'];
+				
+				// Media category must be compatible (Copper, Singlmode, Multimode)
+				if($elementMediaCategory == $cableMediaCategory and $elementPortType == $cablePortType) {
+					$isCompatible = true;
+					
+				} else if($elementPartitionFunction == 'Endpoint' and $elementPortType == $cablePortType) {
+					$isCompatible = true;
+					
+				} else if($elementPortType == 4) {
+					$isCompatible = true;
+					
+				} else {
+					$isCompatible = false;
 				}
 				
-				$cableMediaCategory = $mediaTypeArray[$cableMediaType]['category_id'];
-				
-				$isCompatible = ($elementPortType == $cablePortType or $elementPortType == 4) and ($elementMediaCategory == $cableMediaCategory or $elementPartitionFunction == 'Endpoint') ? true : false;
 			} else if($objectCompatibility) {
 				
 				$objectMediaCategory = $objectCompatibility['mediaCategory'];
@@ -1026,17 +1033,17 @@ var $qls;
 				
 				// Media category must be compatible (Copper, Singlmode, Multimode)
 				if($elementMediaCategory == $objectMediaCategory) {
-					//error_log('mediaCategory');
+					
 					$isCompatible = true;
 					
 				// Port type must be compatible
 				} else if($elementPortType == $objectPortType and ($elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint')) {
-					//error_log('portType');
+					
 					$isCompatible = true;
 					
 				// If either port type is SFP, then they are compatible
 				} else if($elementPortType == 4 or $objectPortType == 4) {
-					//error_log('SFP');
+					
 					$isCompatible = true;
 					
 				// Failing all of that, not compatible
@@ -1044,7 +1051,6 @@ var $qls;
 					$isCompatible = false;
 				}
 				
-				//$isCompatible = ($elementPortType == $objectPortType or $elementPortType == 4 or $objectPortType == 4) and ($elementMediaCategory == $objectMediaCategory or $elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint') ? true : false;
 			}
 			
 			if($forTrunk and isset($this->peerArrayStandard[$nodeID][$elementItem['side']][$elementItem['depth']])) {
@@ -1340,29 +1346,24 @@ var $qls;
 				case 'object':
 					if($objectIndex) {
 						if($path[$objectIndex+1]['type'] == 'trunk') {
-							//$topTableTag = '<tr><td>';
 							$bottomTableTag = '</td>';
 						} else {
-							//$topTableTag = '<td>';
 							$bottomTableTag = '</td></tr>';
 						}
 					} else {
-						//$topTableTag = '<tr><td>';
 						$bottomTableTag = '</td>';
 					}
 					$topTableTag = '<tr><td>';
-					//$bottomTableTag = '</td></tr>';
 					$htmlPathFull .= $topTableTag;
 					$objID = $object['data']['id'];
 					$objFace = $object['data']['face'];
 					$objDepth = $object['data']['depth'];
 					$objPort = $object['data']['port'];
+					$selected = $object['data']['selected'];
 					$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-					$objBox = $this->wrapObject($objID, $objName);
+					$objBox = $this->wrapObject($objID, $objName, $selected);
 					
-					//$htmlPathFull .= '<tr><td>';
 					$htmlPathFull .= $objBox;
-					//$htmlPathFull .= '</td></tr>';
 					$htmlPathFull .= $bottomTableTag;
 					break;
 				
@@ -1393,9 +1394,7 @@ var $qls;
 					}
 					$cableLength = $object['data']['length'];
 					$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
-					//$htmlPathFull .= '<div>';
 					$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
-					//$htmlPathFull .= '</div>';
 					$htmlPathFull .= '</div>';
 					$htmlPathFull .= '</td><td></td></tr>';
 					break;
@@ -1406,57 +1405,6 @@ var $qls;
 					$htmlPathFull .= '</td>';
 					break;
 			}
-			
-			/* // First path object
-			if($objectIndex == 0) {
-				if($object[1][0] != null) {
-					$htmlPathFull .= '<tr>';
-					$htmlPathFull .= $this->buildObject($object[0]);
-					//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
-					$htmlPathFull .= $this->displayTrunk();
-					$htmlPathFull .= '</tr>';
-					$htmlPathFull .= '<tr>';
-					$htmlPathFull .= $this->buildObject($object[2]);
-					$htmlPathFull .= '</tr>';
-				} else {
-					$firstObject = count($path) == 1 ? $object[0] : $object[2];
-					$htmlPathFull .= '<tr>';
-					$htmlPathFull .= $this->buildObject($firstObject);
-					$htmlPathFull .= '</tr>';
-				}
-			// Last path object
-			} else if($objectIndex == count($path)-1) {
-				$htmlPathFull .= '<tr>';
-				$htmlPathFull .= $this->buildObject($object[0]);
-				if($object[1][0] != '') {
-					//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
-					$htmlPathFull .= $this->displayTrunk();
-					$htmlPathFull .= '</tr>';
-					$htmlPathFull .= '<tr>';
-					$htmlPathFull .= $this->buildObject($object[2]);
-					$htmlPathFull .= '</tr>';
-				} else {
-					$htmlPathFull .= '</tr>';
-				}
-			// Neither first nor last path object
-			} else {
-				$htmlPathFull .= '<tr>';
-				$htmlPathFull .= $this->buildObject($object[0]);
-				//$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
-				$htmlPathFull .= $this->displayTrunk();
-				$htmlPathFull .= '</tr>';
-				$htmlPathFull .= '<tr>';
-				$htmlPathFull .= $this->buildObject($object[2]);
-				$htmlPathFull .= '</tr>';
-			}
-			if ($objectIndex < count($path)-1) {
-				$htmlPathFull .= '<tr>';
-					$htmlPathFull .= '<td style="text-align:center;">';
-					//$htmlPathFull .= $this->displayTrunk();
-					$htmlPathFull .= $this->buildCable($object[1][0], $object[1][1], $connectorCode39, $object[1][2]);
-					$htmlPathFull .= '</td>';
-				$htmlPathFull .= '</tr>';
-			} */
 		}
 		$htmlPathFull .= '</table>';
 		
@@ -1728,7 +1676,7 @@ var $qls;
 		foreach($data as $element){
 			
 			$partitionType = $element['partitionType'];
-			$html .= $this->generatePartition($element, $depthCounter);
+			$html .= $this->generatePartition($element, $objID, $objFace, $depthCounter);
 			
 			switch($partitionType){
 				case 'Generic':
@@ -1762,6 +1710,9 @@ var $qls;
 
 	function buildConnectable($element, $objID, $objFace, $objDepth){
 		
+		$objID = $objID ? $objID : 0;
+		$objFace = $objFace ? $objFace : 0;
+		
 		$portX = $element['valueX'];
 		$portY = $element['valueY'];
 		$portTypeID = $element['portType'];
@@ -1790,8 +1741,8 @@ var $qls;
 					);
 					if($objID) {
 						
-						// Attr - portID
-						$attrAssocArray['id'] = 'port-'.$objID.'-'.$objFace.'-'.$objDepth.'-'.$portIndex;
+						// GlobalID
+						$globalID = 'port-4-'.$objID.'-'.$objFace.'-'.$objDepth.'-'.$portIndex;
 						
 						// Class - populated
 						if(isset($this->populatedPortArray[$objID][$objFace][$objDepth][$portIndex])) {
@@ -1841,7 +1792,7 @@ var $qls;
 					$attrString = implode(' ', $attrArray);
 					$classString = implode(' ', $classArray);
 					
-					$html .= '<div class="'.$classString.'" '.$attrString.'></div>';
+					$html .= '<div id="'.$globalID.'" class="'.$classString.'" '.$attrString.'></div>';
 					//$html .='<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
 					$html .= '</div>';
 				}
@@ -1908,7 +1859,10 @@ var $qls;
 		return $portIndex;
 	}
 
-	function generatePartition($partition, $depth){
+	function generatePartition($partition, $objID, $objFace, $depth){
+		$objID = $objID ? $objID : 0;
+		$objFace = $objFace ? $objFace : 0;
+		$globalID = 'part-3-'.$objID.'-'.$objFace.'-'.$depth.'-0';
 		
 		$objAttrArray = array();
 		
@@ -1985,7 +1939,7 @@ var $qls;
 		$objAttr = implode(' ', $objAttrWorkingArray);
 		$objClass = implode(' ', $classArray);
 		
-		$html = '<div class="'.$objClass.'" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" '.$objAttr.'>';
+		$html = '<div id="'.$globalID.'" class="'.$objClass.'" style="flex:'.$flex.'; flex-direction:'.$flexDirection.';" '.$objAttr.'>';
 		
 		return $html;
 	}
@@ -2022,6 +1976,9 @@ var $qls;
 		if($objID) {
 			$objAttrArray['data-template-object-id'] = $objID;
 			$objAttrArray['data-template-object-name'] = $this->qls->App->objectArray[$objID]['name'];
+			$globalID = 'obj-2-'.$objID.'-0-0-0';
+		} else {
+			$globalID = 'obj-2-'.$templateID.'-0-0-0';
 		}
 		
 		// Mount config
@@ -2079,7 +2036,7 @@ var $qls;
 		$objClass = implode(' ', $objClassArray);
 		$objStyle = implode('', $objStyleArray);
 		
-		$html = '<div style="'.$objStyle.'" class="'.$objClass.'"'.$dataAttr.'>';
+		$html = '<div id="'.$globalID.'" style="'.$objStyle.'" class="'.$objClass.'"'.$dataAttr.'>';
 		
 		return $html;
 	}
@@ -2138,7 +2095,7 @@ var $qls;
 		return true;
 	}
 	
-	function wrapObject($objID, $objName) {
+	function wrapObject($objID, $objName, $selected=false) {
 		$objName = str_replace('-', '&#8209;', $objName);
 		$classArray = array('objectBox');
 		if($objID) {
@@ -2161,10 +2118,11 @@ var $qls;
 		$class = implode(' ', $classArray);
 		
 		$endpointIcon = ($templateFunction == 'Endpoint') ? '<i class="fa fa-crosshairs" title="Endpoint"></i>&nbsp;' : '';
+		$selectedIcon = $selected ? '<i class="fa fa-map-marker" title="Selected"></i>&nbsp;' : '';
 		$html = '';
 		$html .= ($objID) ? '<a href="/explore.php?parentID='.$parentID.'&objID='.$objID.'">' : '';
 		$html .= '<div class="'.$class.'">';
-		$html .= $endpointIcon.$objName;
+		$html .= $endpointIcon.$selectedIcon.$objName;
 		$html .= '</div>';
 		$html .= ($objID) ? '</a>' : '';
 		
