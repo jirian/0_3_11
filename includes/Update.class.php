@@ -70,6 +70,8 @@ var $qls;
 			$this->update_021_to_022();
 		} else if($this->currentVersion == '0.2.2') {
 			$this->update_022_to_023();
+		} else if($this->currentVersion == '0.2.3') {
+			$this->update_023_to_024();
 		} else {
 			return true;
 		}
