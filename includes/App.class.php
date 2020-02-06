@@ -1776,11 +1776,14 @@ var $qls;
 							$connection = $this->inventoryArray[$objID][$objFace][$objDepth][$portIndex];
 							$inventoryID = $connection['localEndID'];
 							$code39 = $this->inventoryByIDArray[$inventoryID]['localEndCode39'];
-							$attrAssocArray['data-Code39'] = $code39;
+							$attrAssocArray['data-code39'] = $code39;
 							
 							// Connected Object GlobalID
 							$connectedGlobalID = 'port-4-'.$connection['id'].'-'.$connection['face'].'-'.$connection['depth'].'-'.$connection['port'];
 							$attrAssocArray['data-connected-global-id'] = $connectedGlobalID;
+						} else {
+							$attrAssocArray['data-code39'] = 0;	
+							$attrAssocArray['data-connected-global-id'] = 'port-4-0-0-0-0';
 						}
 						
 						// Attr - title

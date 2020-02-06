@@ -238,7 +238,47 @@ function makePortsHoverable(){
 	resizeCanvas();
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).hover(function(){
-			console.log($(this).data('connectedGlobalId'));
+			
+			var connectedGlobalID = $(this).data('connectedGlobalId');
+			if($('#'+connectedGlobalID).length) {
+				var connectedPort = $('#'+connectedGlobalID);
+				
+				var canvasLeft = $('#canvasBuildSpace').offset().left;
+				var canvasTop = $('#canvasBuildSpace').offset().top;
+				
+				var thisPortLeft = $(this).offset().left;
+				var thisPortTop = $(this).offset().top;
+				var thisPortWidth = $(this).width();
+				var thisPortHeight = $(this).height();
+				
+				var connectedPortLeft = $(connectedPort).offset().left;
+				var connectedPortTop = $(connectedPort).offset().top;
+				var connectedPortWidth = $(connectedPort).width();
+				var connectedPortHeight = $(connectedPort).height();
+				
+				var connectedLeft = connectedPortLeft - canvasLeft + (connectedPortWidth / 2);
+				var connectedTop = connectedPortTop - canvasTop  + (connectedPortHeight / 2);
+				
+				
+				var thisLeft = thisPortLeft - canvasLeft + (thisPortWidth / 2);
+				var thisTop = thisPortTop - canvasTop + (thisPortHeight / 2);
+				
+				
+				var context = $('#canvasBuildSpace')[0].getContext('2d');
+				context.beginPath();
+				context.moveTo(thisLeft, thisTop);
+				context.strokeStyle = 'blue';
+				context.lineWidth = '2';
+				//context.strokeRect(left, top, 10, 10);
+				context.lineTo(connectedLeft, connectedTop);
+				context.stroke();
+			}
+			
+		}, function(){
+			var context = $('#canvasBuildSpace')[0].getContext('2d');
+			var canvasHeight = $('#canvasBuildSpace').height();
+			var canvasWidth = $('#canvasBuildSpace').height();
+			context.clearRect(0, 0, canvasWidth, canvasHeight);
 		});
 	});
 }
@@ -436,26 +476,32 @@ function portDesignation(elem, action, flag) {
 	
 }
 
-$( document ).ready(function() {
-	
-	// Cabinet Canvse
-	var htmlCanvas = document.getElementById('canvasBuildSpace');
-	var context = htmlCanvas.getContext('2d');
-	function initializeCanvas() {
+function initializeCanvas() {
 	// Register an event listener to call the resizeCanvas() function 
 	// each time the window is resized.
 	window.addEventListener('resize', resizeCanvas, false);
-	// Draw canvas border for the first time.
-	function resizeCanvas() {
-	htmlCanvas.width = window.innerWidth;
-	htmlCanvas.height = window.innerHeight;
-	function redraw() {
+	resizeCanvas();
+}
+
+function resizeCanvas() {
+	$('#canvasBuildSpace').attr('width', $('#buildSpaceContent').width());
+	$('#canvasBuildSpace').attr('height', $('#buildSpaceContent').height());
+	redraw();
+}
+
+function redraw() {
+	var context = $('#canvasBuildSpace')[0].getContext('2d');
 	context.strokeStyle = 'blue';
 	context.lineWidth = '5';
-	context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+	context.strokeRect(0, 0, $('#buildSpaceContent').width(), $('#buildSpaceContent').height());
 }
-}
-}
+
+$( document ).ready(function() {
+	
+	// Cabinet Canvs
+	var htmlCanvas = document.getElementById('canvasBuildSpace');
+	var context = htmlCanvas.getContext('2d');
+	initializeCanvas();
 
 // Display custom canvas. In this case it's a blue, 5 pixel 
 // border that resizes along with the browser window.
