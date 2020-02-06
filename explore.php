@@ -216,6 +216,7 @@ text-align: left;
 								</select>
 							</div>
 						</div>
+						<canvas id="canvasBuildSpace" height="50px" width="50px" style="position:absolute;"></canvas>
 						<div id="buildSpaceContent">Please select a cabinet from the Environment Tree.</div>
 					</div>
 				</div>

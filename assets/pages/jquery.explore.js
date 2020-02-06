@@ -234,6 +234,17 @@ function makeCableArrowsClickable(){
 	});
 }
 
+function makePortsHoverable(){
+	resizeCanvas();
+	$('#buildSpaceContent').find('.port').each(function(){
+		$(this).hover(function(){
+			console.log($(this).data('connectedGlobalId'));
+		});
+	});
+}
+
+
+
 function processPortSelection(){
 	var objID = $(document).data('clickedObjID');
 	var objFace = $(document).data('clickedObjFace');
@@ -314,6 +325,8 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 		
 		//Make the objects height fill the <td> container
 		setObjectSize($('.rackObj:not(.insert)'));
+		
+		makePortsHoverable();
 		
 		if($('#objID').length) {
 			selectObject($('#cabinetTable'));
@@ -424,6 +437,34 @@ function portDesignation(elem, action, flag) {
 }
 
 $( document ).ready(function() {
+	
+	// Cabinet Canvse
+	var htmlCanvas = document.getElementById('canvasBuildSpace');
+	var context = htmlCanvas.getContext('2d');
+	function initializeCanvas() {
+	// Register an event listener to call the resizeCanvas() function 
+	// each time the window is resized.
+	window.addEventListener('resize', resizeCanvas, false);
+	// Draw canvas border for the first time.
+	function resizeCanvas() {
+	htmlCanvas.width = window.innerWidth;
+	htmlCanvas.height = window.innerHeight;
+	function redraw() {
+	context.strokeStyle = 'blue';
+	context.lineWidth = '5';
+	context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+}
+}
+}
+
+// Display custom canvas. In this case it's a blue, 5 pixel 
+// border that resizes along with the browser window.
+
+
+// Runs each time the DOM window resize event fires.
+// Resets the canvas dimensions to match window,
+// then draws the new borders accordingly.
+
 	
 	// Export to Viso button
 	$('#buttonVisioExport').on('click', function(){

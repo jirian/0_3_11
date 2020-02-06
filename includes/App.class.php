@@ -1751,15 +1751,12 @@ var $qls;
 						// Class - connected
 						} else if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex])) {
 							array_push($classArray, 'populated');
-						
-						// Class - trunked
 						}
 						
 						if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
 							if($this->peerArray[$objID][$objFace][$objDepth]['floorplanPeer'] == 0) {
 								array_push($classArray, 'endpointTrunked');
 							} else {
-								//array_push($this->peerArray[$row['a_id']][$row['a_face']][$row['a_depth']]['peerArray'][$row['b_id']][$row['b_face']][$row['b_depth']], array((int)$row['a_port'], (int)$row['b_port']));
 								foreach($this->peerArray[$objID][$objFace][$objDepth]['peerArray'] as $peerID) {
 									foreach($peerID as $peerFace) {
 										foreach($peerFace as $peerDepth) {
@@ -1776,9 +1773,14 @@ var $qls;
 						
 						// Attr - code39
 						if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex])) {
-							$inventoryID = $this->inventoryArray[$objID][$objFace][$objDepth][$portIndex]['localEndID'];
+							$connection = $this->inventoryArray[$objID][$objFace][$objDepth][$portIndex];
+							$inventoryID = $connection['localEndID'];
 							$code39 = $this->inventoryByIDArray[$inventoryID]['localEndCode39'];
-							$attrArray['data-Code39'] = $code39;
+							$attrAssocArray['data-Code39'] = $code39;
+							
+							// Connected Object GlobalID
+							$connectedGlobalID = 'port-4-'.$connection['id'].'-'.$connection['face'].'-'.$connection['depth'].'-'.$connection['port'];
+							$attrAssocArray['data-connected-global-id'] = $connectedGlobalID;
 						}
 						
 						// Attr - title
@@ -1793,7 +1795,6 @@ var $qls;
 					$classString = implode(' ', $classArray);
 					
 					$html .= '<div id="'.$globalID.'" class="'.$classString.'" '.$attrString.'></div>';
-					//$html .='<div title="'.$portPrefix.($obj['portNumber']+$portIndex).'"></div>';
 					$html .= '</div>';
 				}
 				$html .= "</div>";
