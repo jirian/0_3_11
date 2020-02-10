@@ -72,11 +72,28 @@ var $qls;
 			$this->update_022_to_023();
 		} else if($this->currentVersion == '0.2.3') {
 			$this->update_023_to_024();
+		} else if($this->currentVersion == '0.2.4') {
+			$this->update_024_to_030();
 		} else {
 			return true;
 		}
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.2.4 to 0.3.0
+	 * @return Boolean
+	 */
+	function update_024_to_030() {
+		$incrementalVersion = '0.3.0';
+		
+		// Set app version to 0.3.0
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add "connectionStyle" column to "users" table
+		$this->qls->SQL->alter('users', 'add', 'connectionStyle', 'SMALLINT(6)', false, 0);
+		
 	}
 	
 	/**

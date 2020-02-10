@@ -74,17 +74,27 @@ $qls->Security->check_auth_page('user.php');
 			<div class="m-b-30">
 				<h4 class="m-t-0 header-title"><b>Template Scroll</b></h4>
 				<div class="checkbox">
-					<?php
-						if($qls->user_info['scrollLock']) {
-							$scrollLockState = 'checked';
-						} else {
-							$scrollLockState = '';
-						}
-					?>
-					<input id="checkboxTemplateScroll" type="checkbox" <?php echo $scrollLockState; ?>>
+					<input id="checkboxTemplateScroll" type="checkbox" <?php echo ($qls->user_info['scrollLock'] == 1) ? 'checked' : ''; ?>>
 					<label for="checkboxTemplateScroll">
 						Lock
 					</label>
+				</div>
+			</div>
+			<div class="m-b-30">
+				<h4 class="m-t-0 header-title"><b>Connection Style</b></h4>
+				<div class="checkbox">
+					<div class="radio">
+						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioAngled" value="0" <?php echo ($qls->user_info['connectionStyle'] == 0) ? 'checked' : ''; ?>>
+						<label for="connectionRadioAngled">Angled</label>
+					</div>
+					<div class="radio">
+						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioStraight" value="1" <?php echo ($qls->user_info['connectionStyle'] == 1) ? 'checked' : ''; ?>>
+						<label for="connectionRadioStraight">Straight</label>
+					</div>
+					<div class="radio">
+						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioCurved" value="2" <?php echo ($qls->user_info['connectionStyle'] == 2) ? 'checked' : ''; ?>>
+						<label for="connectionRadioCurved">Curved</label>
+					</div>
 				</div>
 			</div>
 		</div>

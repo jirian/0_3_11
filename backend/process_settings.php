@@ -35,6 +35,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->SQL->update('users', array('scrollLock' => $scrollLock), array('id' => array('=', $qls->user_info['id'])));
 				$validate->returnData['success'] = 'Template scroll has been updated.';
 				break;
+				
+			case 'connectionStyle':
+				$connectionStyle = $data['value'];
+				$qls->SQL->update('users', array('connectionStyle' => $connectionStyle), array('id' => array('=', $qls->user_info['id'])));
+				$validate->returnData['success'] = 'Connection Style has been updated.';
+				break;
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -42,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 function validate($data, &$validate, &$qls){
 	
-	$propertyArray = array('timezone', 'scanMethod', 'scrollLock');
+	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle');
 	
 	if($validate->validateInArray($data['property'], $propertyArray, 'property')) {
 		
@@ -60,10 +66,15 @@ function validate($data, &$validate, &$qls){
 		} else if($data['property'] == 'scrollLock'){
 			
 			if(!is_bool($data['value'])) {
-				
 				$errMsg = 'Invalid value.';
 				array_push($validate->returnData['error'], $errMsg);
-				
+			}
+		} else if($data['property'] == 'scrollLock'){
+			$connectionStyleArray = array(0, 1, 2);
+			
+			if(!in_array($data['value'], $connectionStyleArray)) {
+				$errMsg = 'Invalid value.';
+				array_push($validate->returnData['error'], $errMsg);
 			}
 		}
 		

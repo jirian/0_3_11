@@ -1882,7 +1882,7 @@ var $qls;
 		$objAttrArray['data-h-units'] = $hUnits;
 		$objAttrArray['data-v-units'] = $vUnits;
 		
-		$classArray = array();
+		$classArray = array('partition');
 		
 		if($partitionType == 'Generic') {
 			
@@ -1908,6 +1908,24 @@ var $qls;
 			$objAttrArray['data-value-x'] = $valueX;
 			$objAttrArray['data-value-y'] = $valueY;
 			$objAttrArray['data-port-name-format'] = '\''.$portNameFormatString.'\'';
+			
+			// Find trunk peer if it exists
+			if(isset($this->peerArray[$objID][$objFace][$depth])) {
+				$peer = $this->peerArray[$objID][$objFace][$depth];
+				if(!$peer['floorplanPeer']) {
+					$peerID = $peer['peerID'];
+					$peerFace = $peer['peerFace'];
+					$peerDepth = $peer['peerDepth'];
+					
+					$peerGlobalID = 'part-3-'.$peerID.'-'.$peerFace.'-'.$peerDepth.'-0';
+				} else {
+					$peerGlobalID = 'part-3-0-0-0-0';
+				}
+			} else {
+				$peerGlobalID = 'part-3-0-0-0-0';
+			}
+			
+			$objAttrArray['data-peer-global-id'] = $peerGlobalID;
 			
 			array_push($classArray, 'selectable');
 			

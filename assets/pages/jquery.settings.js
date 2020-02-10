@@ -70,4 +70,27 @@ $( document ).ready(function() {
 			}
 		});
 	});
+	
+	// Connection Style
+	$('.radioConnectionStyle').on('change', function(){
+		var value = $('.radioConnectionStyle:checked').val();
+		
+		var data = {
+			property: 'connectionStyle',
+			value: value
+		};
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_settings.php', {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success);
+			}
+		});
+	});
+	
 });
