@@ -6,7 +6,6 @@ $qls->Security->check_auth_page('user.php');
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	require_once '../includes/Validate.class.php';
 	$validate = new Validate($qls);
-	$validate->returnData['success'] = array();
 	
 	if ($validate->returnData['active'] == 'inactive') {
 		echo json_encode($validate->returnData);
@@ -30,6 +29,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$ruOrientation = $node_info['ru_orientation'];
 		$node_name = $node_info['name'];
 		$cabinetSize = $node_info['size'];
+		
+		// Retreive ancestor info
+		$locationID = $node_info['parent'];
+		$ancestorFlatArray = array();
+		$ancestorNestedArray = array();
+		$counter = 0;
+		do {
+			$counter++;
+			$locationParentID = $qls->App->envTreeArray[$locationID]['parent'];
+			$locationName = $qls->App->envTreeArray[$locationID]['name'];
+			$workingArray = array(
+				'id' => $locationID,
+				'parentID' => $locationParentID,
+				'name' => $locationName
+			);
+			array_push($ancestorFlatArray, $workingArray);
+			$locationID = $locationParentID;
+		} while($locationID != '#' and $counter < 50);
+		$ancestorFlatArrayCount = count($ancestorFlatArray);
+		for($x=0; $x<$ancestorFlatArrayCount; $x++) {
+			
+		}
+		
+		$validate->returnData['data']['ancestorArray'] = $ancestorArray;
 
 		//Retreive cabinet object info
 		$object = array();
@@ -56,41 +79,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 		}
 
-		//Retreive categories
-		$category = array();
-		$categoryInfo = $qls->SQL->select('*', 'app_object_category');
-		while ($categoryRow = $qls->SQL->fetch_assoc($categoryInfo)){
-			$category[$categoryRow['id']]['name'] = $categoryRow['name'];
-		}
-
-		//Retreive port orientation
-		$portOrientation = array();
-		$results = $qls->SQL->select('*', 'shared_object_portOrientation');
-		while ($row = $qls->SQL->fetch_assoc($results)){
-			$portOrientation[$row['id']]['name'] = $row['name'];
-		}
-
-		//Retreive port type
-		$portType = array();
-		$results = $qls->SQL->select('*', 'shared_object_portType');
-		while ($row = $qls->SQL->fetch_assoc($results)){
-			$portType[$row['id']]['name'] = $row['name'];
-		}
-
-		//Retreive media type
-		$mediaType = array();
-		$results = $qls->SQL->select('*', 'shared_mediaType');
-		while ($row = $qls->SQL->fetch_assoc($results)){
-			$mediaType[$row['value']]['name'] = $row['name'];
-		}
-
 		//Retreive rackable objects
 		$objectTemplate = array();
 		$results = $qls->SQL->select('*', 'app_object_templates');
 		while ($row = $qls->SQL->fetch_assoc($results)){
 			$objectTemplate[$row['id']] = $row;
 			$objectTemplate[$row['id']]['partitionData'] = json_decode($row['templatePartitionData'], true);
-			$objectTemplate[$row['id']]['categoryName'] = $category[$row['templateCategory_id']]['name'];
+			//$objectTemplate[$row['id']]['categoryName'] = $category[$row['templateCategory_id']]['name'];
+			$objectTemplate[$row['id']]['categoryName'] = $qls->App->categoryArray[$row['templateCategory_id']]['name'];
 			unset($objectTemplate[$row['id']]['templatePartitionData']);
 		}
 
@@ -192,7 +188,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$html .= '<div class="cab-height cabinet-blank"></div>';
 		$html .= '<div class="cab-height cabinet-foot"></div>';
 		
-		$validate->returnData['success']['html'] = $html;
+		$validate->returnData['data']['html'] = $html;
 	}
 	echo json_encode($validate->returnData);
 }

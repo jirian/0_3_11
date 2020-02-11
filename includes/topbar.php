@@ -203,6 +203,10 @@
 					<li>
                         <a href="explore.php"><i class="zmdi zmdi-globe-alt"></i> <span> Explore </span> </a>
                     </li>
+					
+					<li>
+                        <a href="diagram.php"><i class="zmdi zmdi-globe-alt"></i> <span> Diagram </span> </a>
+                    </li>
 
 					<?php
 						if($userGroup == 'Administrator' or $userGroup == 'Admin' or $userGroup == 'Operator') {

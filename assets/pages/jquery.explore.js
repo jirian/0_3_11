@@ -499,7 +499,7 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 		} else if ($(response.error).size() > 0){
 			displayError(response.error);
 		} else {
-			$('#buildSpaceContent').html(response.success.html);
+			$('#buildSpaceContent').html(response.data.html);
 			makeRackObjectsClickable();
 		
 			//Make the objects height fill the <td> container

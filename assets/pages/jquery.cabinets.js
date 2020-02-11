@@ -524,7 +524,7 @@ function retrieveCabinet(cabinetID, cabinetFace){
 		} else if ($(response.error).size() > 0){
 			displayError(response.error);
 		} else {
-			$('#buildSpaceContent').html(response.success.html);
+			$('#buildSpaceContent').html(response.data.html);
 			loadCabinetBuild();
 			//Re-highlight select cabinet object when switching cabinet side.
 			if (objID) {
