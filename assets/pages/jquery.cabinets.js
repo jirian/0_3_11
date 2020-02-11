@@ -506,11 +506,30 @@ function initializeInsertDroppable(){
 
 function retrieveCabinet(cabinetID, cabinetFace){
 	var objID = $('#selectedObjectID').val();
-	$('#buildSpaceContent').load('backend/create_build_space.php?page=build', {id:cabinetID, face:cabinetFace, view:'port'}, function(){
-		loadCabinetBuild();
-		//Re-highlight select cabinet object when switching cabinet side.
-		if (objID) {
-			$('[data-template-object-id="'+objID+'"]').find('.flex-container-parent:first').addClass('rackObjSelected');
+	
+	//Collect object data
+	var data = {
+		id: cabinetID,
+		face: cabinetFace,
+		view: 'port',
+		page: 'environment'
+	};
+	data = JSON.stringify(data);
+	
+	//Retrieve object details
+	$.post("backend/create_build_space.php", {data:data}, function(responseJSON){
+		var response = JSON.parse(responseJSON);
+		if (response.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(response.error).size() > 0){
+			displayError(response.error);
+		} else {
+			$('#buildSpaceContent').html(response.success.html);
+			loadCabinetBuild();
+			//Re-highlight select cabinet object when switching cabinet side.
+			if (objID) {
+				$('[data-template-object-id="'+objID+'"]').find('.flex-container-parent:first').addClass('rackObjSelected');
+			}
 		}
 	});
 }

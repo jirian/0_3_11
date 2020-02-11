@@ -43,10 +43,6 @@ function clearSelectionDetails(){
 	$('#checkboxPopulated').prop("disabled", true);
 	$('#checkboxPopulated').prop("checked", false);
 	$('#selectPort').empty();
-	
-	//Reset selected object input value so it doesn't get highlighted again
-	//$(document).data('clickedObjID', '');
-	//$(document).data('clickedObjPortID', 0);
 }
 
 function makeRackObjectsClickable(){
@@ -485,17 +481,36 @@ function setObjectSize(obj){
 }
 
 function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
-	$('#buildSpaceContent').load('backend/create_build_space.php?page=explore', {id:cabinetID, face:cabinetFace, view:cabinetView}, function(){
-		makeRackObjectsClickable();
+	
+	//Collect object data
+	var data = {
+		id: cabinetID,
+		face: cabinetFace,
+		view: cabinetView,
+		page: 'explore'
+	};
+	data = JSON.stringify(data);
+	
+	//Retrieve object details
+	$.post("backend/create_build_space.php", {data:data}, function(responseJSON){
+		var response = JSON.parse(responseJSON);
+		if (response.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(response.error).size() > 0){
+			displayError(response.error);
+		} else {
+			$('#buildSpaceContent').html(response.success.html);
+			makeRackObjectsClickable();
 		
-		//Make the objects height fill the <td> container
-		setObjectSize($('.rackObj:not(.insert)'));
-		
-		makePortsHoverable();
-		//makePartitionsHoverable();
-		
-		if($('#objID').length) {
-			selectObject($('#cabinetTable'));
+			//Make the objects height fill the <td> container
+			setObjectSize($('.rackObj:not(.insert)'));
+			
+			makePortsHoverable();
+			//makePartitionsHoverable();
+			
+			if($('#objID').length) {
+				selectObject($('#cabinetTable'));
+			}
 		}
 	});
 }
