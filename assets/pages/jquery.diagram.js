@@ -30,17 +30,22 @@ $( document ).ready(function() {
 			} else if ($(response.error).size() > 0){
 				displayError(response.error);
 			} else {
-				$.each(response.data.ancestorArray, function(){
-					var parentID = this.parentID;
-					while(parentID != '#') {
-						if(!$('#locationContainer'+this.id).length) {
-							var container = 
-							$('#diagramWorkspace').append();
-						}
+				$.each(response.data.ancestorIDArray, function(index, ancestor){
+					var locationID = ancestor.id;
+					var locationName = ancestor.name;
+					var parentID = ancestor.parentID;
+					if(parentID == '#') {
+						parentDOM = $('#diagramWorkspace');
+					} else {
+						parentDOM = $('#locationBox'+parentID);
 					}
-					
+					if(!$('#locationBox'+locationID).length) {
+						var locationBoxHTML = '<div id="locationBox'+locationID+'" class="diagramLocationBox"><div class="diagramLocationBoxTitle">'+locationName+'</div><div class="diagramLocationSubBox"></div></div>';
+						$(parentDOM).append(locationBoxHTML);
+					}
 				});
-				$('#diagramWorkspace').html(response.data.html);
+				var cabinetLocationID = response.data.locationID;
+				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+response.data.html+'</div>');
 				$('#objectTreeModal').modal('hide');
 			}
 		});

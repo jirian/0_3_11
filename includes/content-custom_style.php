@@ -26,6 +26,25 @@ function color_inverse($color){
 }
 ?>
 
+.diagramLocationBox {
+	box-shadow: -2px -2px 10px grey;
+	padding-left: 20px;
+	margin-bottom: 20px;
+}
+
+.diagramLocationBoxTitle {
+	padding-bottom: 10px;
+}
+
+.diagramLocationSubBox {
+	display:flex;
+}
+
+.diagramCabinetContainer {
+	width: 350px;
+	padding-left: 20px;
+}
+
 .noCategory {
 	background-color: lightgray;
 }
@@ -192,14 +211,6 @@ background-image: url("/assets/images/portIcons/RJ45-black.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 	text-align: center;
-}
-
-.populated {
-	//background-color: red;
-}
-
-.endpointTrunked {
-	//background-color: gray;
 }
 
 .RU1 {

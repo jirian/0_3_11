@@ -31,28 +31,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$cabinetSize = $node_info['size'];
 		
 		// Retreive ancestor info
-		$locationID = $node_info['parent'];
-		$ancestorFlatArray = array();
-		$ancestorNestedArray = array();
-		$counter = 0;
-		do {
-			$counter++;
-			$locationParentID = $qls->App->envTreeArray[$locationID]['parent'];
-			$locationName = $qls->App->envTreeArray[$locationID]['name'];
+		$locationID = $qls->App->envTreeArray[$node_id]['parent'];
+		$validate->returnData['data']['locationID'] = $locationID;
+		$ancestorIDArray = array();
+		while($locationID != '#') {
+			$location = $qls->App->envTreeArray[$locationID];
+			$locationName = $location['name'];
+			$parentID = $location['parent'];
 			$workingArray = array(
 				'id' => $locationID,
-				'parentID' => $locationParentID,
+				'parentID' => $parentID,
 				'name' => $locationName
 			);
-			array_push($ancestorFlatArray, $workingArray);
-			$locationID = $locationParentID;
-		} while($locationID != '#' and $counter < 50);
-		$ancestorFlatArrayCount = count($ancestorFlatArray);
-		for($x=0; $x<$ancestorFlatArrayCount; $x++) {
-			
+			array_unshift($ancestorIDArray, $workingArray);
+			$locationID = $parentID;
 		}
-		
-		$validate->returnData['data']['ancestorArray'] = $ancestorArray;
+		$validate->returnData['data']['ancestorIDArray'] = $ancestorIDArray;
 
 		//Retreive cabinet object info
 		$object = array();
