@@ -54,6 +54,7 @@ $qls->Security->check_auth_page('user.php');
 
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>
+<canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 
 <!-- Page-Title -->
 <div class="row">
@@ -70,7 +71,7 @@ $qls->Security->check_auth_page('user.php');
 				<button id="btnAddCabinet" type="button" class="m-b-10 btn btn-sm btn-primary waves-effect waves-light">
 				<span class="btn-label"><i class="fa fa-plus"></i>
 				</span>Add Cabinet</button>
-				<div id="diagramWorkspace"></div>
+				<div id="buildSpaceContent"></div>
 			</div>
 		</div><!-- end col -->
 		
@@ -78,7 +79,13 @@ $qls->Security->check_auth_page('user.php');
 </div>
 
 <?php require 'includes/footer_start.php' ?>
+
+<!-- jsTree Plugin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/jstree.min.js"></script>
+
+<!-- draw connections functions -->
+<script src="assets/pages/jquery.drawConnections.js"></script>
+
 <script src="assets/pages/jquery.diagram.js"></script>
 	
 <?php require 'includes/footer_end.php' ?>

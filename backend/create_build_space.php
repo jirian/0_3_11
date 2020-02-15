@@ -17,176 +17,208 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	if (!count($validate->returnData['error'])){
 		
-		$html = '';
-
-		//Retreive name of the cabinet or location
-		$node_id = $data['id'];
-		$cabinetFace = $data['face'];
 		$cabinetView = $data['view'];
 		$page = $data['page'];
-		$cabinetFace = $cabinetFace == 0 ? 'cabinet_front' : 'cabinet_back';
-		$node_info = $qls->App->envTreeArray[$node_id];
-		$ruOrientation = $node_info['ru_orientation'];
-		$node_name = $node_info['name'];
-		$cabinetSize = $node_info['size'];
 		
-		// Retreive ancestor info
-		$locationID = $qls->App->envTreeArray[$node_id]['parent'];
-		$validate->returnData['data']['locationID'] = $locationID;
-		$ancestorIDArray = array();
-		while($locationID != '#') {
-			$location = $qls->App->envTreeArray[$locationID];
-			$locationName = $location['name'];
-			$parentID = $location['parent'];
-			$workingArray = array(
-				'id' => $locationID,
-				'parentID' => $parentID,
-				'name' => $locationName
-			);
-			array_unshift($ancestorIDArray, $workingArray);
-			$locationID = $parentID;
-		}
-		$validate->returnData['data']['ancestorIDArray'] = $ancestorIDArray;
+		foreach($data['cabinetArray'] as $cabinetData) {
+		
+			$html = '';
 
-		//Retreive cabinet object info
-		$object = array();
-		$insert = array();
-		if(isset($qls->App->objectByCabinetArray[$node_id])) {
-			foreach($qls->App->objectByCabinetArray[$node_id] as $objID) {
-				$obj = $qls->App->objectArray[$objID];
-				if($obj[$cabinetFace] !== null) {
-					$templateID = $obj['template_id'];
-					$template = $qls->App->templateArray[$templateID];
-					if($template['templateType'] == 'Standard') {
-						$RU = $obj['RU'];
-						$object[$RU] = $obj;
-						$object[$RU]['face'] = $obj[$cabinetFace];
-					} else {
-						$parentID = $obj['parent_id'];
-						$parentFace = $obj['parent_face'];
-						$parentDepth = $obj['parent_depth'];
-						$insertSlotX = $obj['insertSlotX'];
-						$insertSlotY = $obj['insertSlotY'];
-						$insert[$parentID][$parentFace][$parentDepth][$insertSlotX][$insertSlotY] = $obj;
+			//Retreive name of the cabinet or location
+			$cabinetID = $cabinetData['id'];
+			$cabinetFace = $cabinetData['face'];
+			$cabinetFace = $cabinetFace == 0 ? 'cabinet_front' : 'cabinet_back';
+			$cabinet = $qls->App->envTreeArray[$cabinetID];
+			$cabinetParentID = $cabinet['parent'];
+			$ruOrientation = $cabinet['ru_orientation'];
+			$cabinetName = $cabinet['name'];
+			$cabinetSize = $cabinet['size'];
+			
+			// Retreive ancestor info
+			$locationID = $cabinetParentID;
+			$ancestorIDArray = array();
+			while($locationID != '#') {
+				$location = $qls->App->envTreeArray[$locationID];
+				$locationName = $location['name'];
+				$parentID = $location['parent'];
+				$workingArray = array(
+					'id' => $locationID,
+					'parentID' => $parentID,
+					'name' => $locationName
+				);
+				array_unshift($ancestorIDArray, $workingArray);
+				$locationID = $parentID;
+			}
+
+			//Retreive cabinet object info
+			$object = array();
+			$insert = array();
+			if(isset($qls->App->objectByCabinetArray[$cabinetID])) {
+				foreach($qls->App->objectByCabinetArray[$cabinetID] as $objID) {
+					$obj = $qls->App->objectArray[$objID];
+					if($obj[$cabinetFace] !== null) {
+						$templateID = $obj['template_id'];
+						$template = $qls->App->templateArray[$templateID];
+						if($template['templateType'] == 'Standard') {
+							$RU = $obj['RU'];
+							$object[$RU] = $obj;
+							$object[$RU]['face'] = $obj[$cabinetFace];
+						} else {
+							$parentID = $obj['parent_id'];
+							$parentFace = $obj['parent_face'];
+							$parentDepth = $obj['parent_depth'];
+							$insertSlotX = $obj['insertSlotX'];
+							$insertSlotY = $obj['insertSlotY'];
+							$insert[$parentID][$parentFace][$parentDepth][$insertSlotX][$insertSlotY] = $obj;
+						}
 					}
 				}
 			}
-		}
 
-		//Retreive rackable objects
-		$objectTemplate = array();
-		$results = $qls->SQL->select('*', 'app_object_templates');
-		while ($row = $qls->SQL->fetch_assoc($results)){
-			$objectTemplate[$row['id']] = $row;
-			$objectTemplate[$row['id']]['partitionData'] = json_decode($row['templatePartitionData'], true);
-			//$objectTemplate[$row['id']]['categoryName'] = $category[$row['templateCategory_id']]['name'];
-			$objectTemplate[$row['id']]['categoryName'] = $qls->App->categoryArray[$row['templateCategory_id']]['name'];
-			unset($objectTemplate[$row['id']]['templatePartitionData']);
-		}
-
-		//Retreive patched ports
-		$patchedPortTable = array();
-		$query = $qls->SQL->select('*', 'app_inventory');
-		while ($row = $qls->SQL->fetch_assoc($query)){
-			array_push($patchedPortTable, $row['a_object_id'].'-'.$row['a_object_face'].'-'.$row['a_object_depth'].'-'.$row['a_port_id']);
-			array_push($patchedPortTable, $row['b_object_id'].'-'.$row['b_object_face'].'-'.$row['b_object_depth'].'-'.$row['b_port_id']);
-		}
-
-		//Retreive populated ports
-		$populatedPortTable = array();
-		$query = $qls->SQL->select('*', 'app_populated_port');
-		while ($row = $qls->SQL->fetch_assoc($query)){
-			array_push($populatedPortTable, $row['object_id'].'-'.$row['object_face'].'-'.$row['object_depth'].'-'.$row['port_id']);
-		}
-
-		$cursorClass = ($page == 'explore') ? 'cursorPointer' : 'cursorGrab';
-
-		$html .= '<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="'.$node_id.'" data-ru-orientation="'.$ruOrientation.'">'.$node_name.'</div>';
-		$html .= '<input id="cabinetID" type="hidden" value="'.$node_id.'">';
-		$html .= '<input id="objectID" type="hidden" value="">';
-		$html .= '<table id="cabinetTable" class="cabinet">';
-		$skipCounter = 0;
-		for ($cabLoop=$cabinetSize; $cabLoop>0; $cabLoop--){
-			
-			if($ruOrientation == 0) {
-				$RUNumber = $cabLoop;
-			} else {
-				$RUNumber = $cabinetSize - ($cabLoop - 1);
+			//Retreive rackable objects
+			$objectTemplate = array();
+			$results = $qls->SQL->select('*', 'app_object_templates');
+			while ($row = $qls->SQL->fetch_assoc($results)){
+				$objectTemplate[$row['id']] = $row;
+				$objectTemplate[$row['id']]['partitionData'] = json_decode($row['templatePartitionData'], true);
+				//$objectTemplate[$row['id']]['categoryName'] = $category[$row['templateCategory_id']]['name'];
+				$objectTemplate[$row['id']]['categoryName'] = $qls->App->categoryArray[$row['templateCategory_id']]['name'];
+				unset($objectTemplate[$row['id']]['templatePartitionData']);
 			}
-			$html .= '<tr class="cabinet cabinetRU">';
-			$html .= '<td class="cabinet cabinetRail leftRail">'.$RUNumber.'</td>';
-			if (array_key_exists($cabLoop, $object)){
-				$objName = $object[$cabLoop]['name'];
-				$face = $object[$cabLoop]['face'];
-				$templateID = $object[$cabLoop]['template_id'];
-				$template = $qls->App->templateArray[$templateID];
-				$partitionData = json_decode($template['templatePartitionData'], true);
-				$function = $template['templateFunction'];
-				$type = $template['templateType'];
-				$mountConfig = $template['templateMountConfig'];
-				$objectID = $object[$cabLoop]['id'];
-				$RUSize = $template['templateRUSize'];
-				$categoryID = $template['templateCategory_id'];
-				$categoryName = $qls->App->categoryArray[$categoryID]['name'];
-				$html .= '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
-				if($cabinetView == 'port') {
-					
-					$objClassArray = array(
-						'rackObj',
-						$cursorClass,
-						'draggable',
-						'RU'.$RUSize
-					);
-					
-					$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID);
-					$rackObj = true;
-					$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face);
-					$html .= '</div>';
-					
-				} else if($cabinetView == 'visual') {
-					
-					$objClassArray = array(
-						'rackObj',
-						$cursorClass,
-						'draggable',
-						'RU'.$RUSize
-					);
-					
-					$categoryData = false;
-					$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID, $categoryData, $cabinetView);
-					$rackObj = true;
-					$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face, $cabinetView);
-					$html .= '</div>';
-					
-				} else if($cabinetView == 'name') {
-					
-					$html .= '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable"><strong>'.$objName.'</strong></div>';
-					
-				}
-				$skipCounter = $RUSize-1;
-			} else {
-				if ($skipCounter == 0){
-					$html .= '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'">';
+
+			//Retreive patched ports
+			$patchedPortTable = array();
+			$query = $qls->SQL->select('*', 'app_inventory');
+			while ($row = $qls->SQL->fetch_assoc($query)){
+				array_push($patchedPortTable, $row['a_object_id'].'-'.$row['a_object_face'].'-'.$row['a_object_depth'].'-'.$row['a_port_id']);
+				array_push($patchedPortTable, $row['b_object_id'].'-'.$row['b_object_face'].'-'.$row['b_object_depth'].'-'.$row['b_port_id']);
+			}
+
+			//Retreive populated ports
+			$populatedPortTable = array();
+			$query = $qls->SQL->select('*', 'app_populated_port');
+			while ($row = $qls->SQL->fetch_assoc($query)){
+				array_push($populatedPortTable, $row['object_id'].'-'.$row['object_face'].'-'.$row['object_depth'].'-'.$row['port_id']);
+			}
+
+			$cursorClass = ($page == 'explore' or $page == 'diagram') ? 'cursorPointer' : 'cursorGrab';
+
+			$html .= '<div class="cabinetContainer" data-cabinet-id="'.$cabinetID.'">';
+			$html .= '<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="'.$cabinetID.'" data-ru-orientation="'.$ruOrientation.'">'.$cabinetName.'</div>';
+			$html .= '<input id="cabinetID" type="hidden" value="'.$cabinetID.'">';
+			$html .= '<input id="objectID" type="hidden" value="">';
+			$html .= '<table id="cabinetTable" class="cabinet">';
+			$skipCounter = 0;
+			for ($cabLoop=$cabinetSize; $cabLoop>0; $cabLoop--){
+				
+				if($ruOrientation == 0) {
+					$RUNumber = $cabLoop;
 				} else {
-					echo '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'" style="display:none;">';
-					$skipCounter--;
+					$RUNumber = $cabinetSize - ($cabLoop - 1);
 				}
+				$html .= '<tr class="cabinet cabinetRU">';
+				$html .= '<td class="cabinet cabinetRail leftRail">'.$RUNumber.'</td>';
+				if (array_key_exists($cabLoop, $object)){
+					$objName = $object[$cabLoop]['name'];
+					$face = $object[$cabLoop]['face'];
+					$templateID = $object[$cabLoop]['template_id'];
+					$template = $qls->App->templateArray[$templateID];
+					$partitionData = json_decode($template['templatePartitionData'], true);
+					$function = $template['templateFunction'];
+					$type = $template['templateType'];
+					$mountConfig = $template['templateMountConfig'];
+					$objectID = $object[$cabLoop]['id'];
+					$RUSize = $template['templateRUSize'];
+					$categoryID = $template['templateCategory_id'];
+					$categoryName = $qls->App->categoryArray[$categoryID]['name'];
+					$html .= '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
+					if($cabinetView == 'port') {
+						
+						$objClassArray = array(
+							'rackObj',
+							$cursorClass,
+							'draggable',
+							'RU'.$RUSize
+						);
+						
+						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID);
+						$rackObj = true;
+						$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face);
+						$html .= '</div>';
+						
+					} else if($cabinetView == 'visual') {
+						
+						$objClassArray = array(
+							'rackObj',
+							$cursorClass,
+							'draggable',
+							'RU'.$RUSize
+						);
+						
+						$categoryData = false;
+						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID, $categoryData, $cabinetView);
+						$rackObj = true;
+						$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face, $cabinetView);
+						$html .= '</div>';
+						
+					} else if($cabinetView == 'name') {
+						
+						$html .= '<div data-objectID="'.$objectID.'" data-templateID="'.$templateID.'" data-RUSize="'.$RUSize.'" data-objectFace="'.$face.'" class="parent partition category'.$categoryName.' border-black obj-style initialDraggable rackObj selectable"><strong>'.$objName.'</strong></div>';
+						
+					}
+					$skipCounter = $RUSize-1;
+				} else {
+					if ($skipCounter == 0){
+						$html .= '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'">';
+					} else {
+						echo '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'" style="display:none;">';
+						$skipCounter--;
+					}
+				}
+				$html .= '</td>';
+				$html .= '<td class="cabinet cabinetRail rightRail"></td>';
+				$html .= '</tr>';
 			}
-			$html .= '</td>';
-			$html .= '<td class="cabinet cabinetRail rightRail"></td>';
-			$html .= '</tr>';
+			$html .= '</table>';
+			$html .= '<div class="cab-height cabinet-end"></div>';
+			$html .= '<div class="cab-height cabinet-foot"></div>';
+			$html .= '<div class="cab-height cabinet-blank"></div>';
+			$html .= '<div class="cab-height cabinet-foot"></div>';
+			$html .= '</div>';
+			
+			$workingArray = array(
+				'locationID' => $cabinetParentID,
+				'ancestorIDArray' => $ancestorIDArray,
+				'html' => $html
+			);
+			array_push($validate->returnData['data'], $workingArray);
 		}
-		$html .= '</table>';
-		$html .= '<div class="cab-height cabinet-end"></div>';
-		$html .= '<div class="cab-height cabinet-foot"></div>';
-		$html .= '<div class="cab-height cabinet-blank"></div>';
-		$html .= '<div class="cab-height cabinet-foot"></div>';
-		
-		$validate->returnData['data']['html'] = $html;
 	}
 	echo json_encode($validate->returnData);
 }
 
 function validate($data, &$validate, &$qls){
+	
+	$pageArray = array('explore', 'environment', 'diagram');
+	$validate->validateInArray($data['page'], $pageArray, 'page');
+	
+	$viewArray = array('port', 'name', 'visual');
+	$validate->validateInArray($data['view'], $viewArray, 'view');
+	
+	if(is_array($data['cabinetArray'])) {
+		if(count($data['cabinetArray']) < 100) {
+			foreach($data['cabinetArray'] as $cabinet) {
+				$validate->validateID($cabinet['id'], 'cabinetID');
+				$faceArray = array(0, 1);
+				$validate->validateInArray($cabinet['face'], $faceArray, 'cabinetFace');
+			}
+		} else {
+			$errMsg = 'Cabinet array too large.';
+			array_push($validate->returnData['error'], $errMsg);
+		}
+	} else {
+		$errMsg = 'Invalid cabinet array.';
+		array_push($validate->returnData['error'], $errMsg);
+	}
 	return;
 }

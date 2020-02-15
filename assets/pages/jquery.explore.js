@@ -230,182 +230,6 @@ function makeCableArrowsClickable(){
 	});
 }
 
-function getDimensions(elem){
-	var canvasLeft = $('#canvasBuildSpace').offset().left;
-	var canvasTop = $('#canvasBuildSpace').offset().top;
-	
-	var elemLeft = $(elem).offset().left;
-	var elemTop = $(elem).offset().top;
-	
-	var elemWidth = $(elem).width();
-	var elemHeight = $(elem).height();
-	var elemCenterX = elemLeft - canvasLeft + (elemWidth / 2);
-	var elemCenterY = elemTop - canvasTop  + (elemHeight / 2);
-	var elemLeft = elemLeft - canvasLeft;
-	var elemRight = elemLeft + elemWidth;
-	var elemTop = elemTop - canvasTop;
-	var elemBottom = elemTop + elemHeight;
-	
-	var dimensions = {
-		left: elemLeft,
-		right: elemRight,
-		top: elemTop,
-		bottom: elemBottom,
-		centerX: elemCenterX,
-		centerY: elemCenterY,
-		width: elemWidth,
-		height: elemHeight
-	};
-	return dimensions;
-}
-
-function drawConnection(elemA, elemB){
-	context.strokeStyle = 'blue';
-	context.lineWidth = 3;
-	context.beginPath();
-	
-	var connectionStyle = $('#connectionStyle').val();
-	
-	var canvasDimensions = getDimensions($('#canvasBuildSpace'));
-	
-	var elemADimensions = getDimensions(elemA);
-	var elemAPartition = $(elemA).closest('.partition');
-	var elemAPartitionDimensions = getDimensions(elemAPartition);
-	
-	var elemBDimensions = getDimensions(elemB);
-	var elemBPartition = $(elemB).closest('.partition');
-	var elemBPartitionDimensions = getDimensions(elemBPartition);
-	
-	if(elemBDimensions.top >= elemADimensions.top) {
-		var elemAPartHBoundary = elemAPartitionDimensions.bottom;
-		var elemBPartHBoundary = elemBPartitionDimensions.top;
-	} else {
-		var elemAPartHBoundary = elemAPartitionDimensions.top;
-		var elemBPartHBoundary = elemBPartitionDimensions.bottom;
-	}
-	
-	context.moveTo(elemADimensions.centerX, elemADimensions.centerY);
-	
-	if(connectionStyle == 0) {
-		context.lineTo(elemADimensions.centerX, elemAPartHBoundary);
-		context.lineTo(canvasDimensions.left + canvasInset, elemAPartHBoundary);
-		context.lineTo(canvasDimensions.left + canvasInset, elemBPartHBoundary);
-		context.lineTo(elemBDimensions.centerX, elemBPartHBoundary);
-		context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
-	} else if(connectionStyle == 1) {
-		context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
-	} else if(connectionStyle == 2) {
-		var arcSize = 30;
-		context.bezierCurveTo((elemADimensions.centerX - arcSize), elemADimensions.centerY, (elemBDimensions.centerX - arcSize), elemBDimensions.centerY, elemBDimensions.centerX, elemBDimensions.centerY);
-	} else {
-		context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
-	}
-	context.stroke();
-}
-
-function drawTrunk(elemA, elemB){
-	context.strokeStyle = 'black';
-	context.lineWidth = 3;
-	context.beginPath();
-	
-	var canvasDimensions = getDimensions($('#canvasBuildSpace'));
-	
-	var elemADimensions = getDimensions(elemA);
-	var elemBDimensions = getDimensions(elemB);
-	
-	context.moveTo(elemADimensions.right, elemADimensions.centerY);
-	context.lineTo(canvasDimensions.right - canvasInset, elemADimensions.centerY);
-	context.lineTo(canvasDimensions.right - canvasInset, elemBDimensions.centerY);
-	context.lineTo(elemBDimensions.right, elemBDimensions.centerY);
-	
-	context.strokeRect(elemADimensions.left, elemADimensions.top, elemADimensions.width, elemADimensions.height);
-	context.strokeRect(elemBDimensions.left, elemBDimensions.top, elemBDimensions.width, elemBDimensions.height);
-	context.stroke();
-}
-
-function highlightElement(elem){
-	context.strokeStyle = 'blue';
-	context.beginPath();
-	
-	var elemDimensions = getDimensions(elem);
-	
-	context.strokeRect(elemDimensions.left, elemDimensions.top, elemDimensions.width, elemDimensions.height);
-}
-
-function makePortsHoverable(){
-	resizeCanvas();
-	$('#buildSpaceContent').find('.port').each(function(){
-		$(this).hover(function(){
-			
-			var selectedPort = $(this);
-			var selectedPeerID = $(selectedPort).data('peerGlobalId');
-			
-			for(x=0; x<2; x++) {
-				
-				if(x == 1) {
-					var selectedPartition = $(this).closest('.partition');
-					var selectedPartitionPeerID = $(selectedPartition).data('peerGlobalId');
-					
-					if($('#'+selectedPartitionPeerID).length) {
-						var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
-						drawTrunk(selectedPartition, selectedPartitionPeer);
-						
-						var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
-						var peerID = selectedPartitionPeerIDArray[2];
-						var peerFace = selectedPartitionPeerIDArray[3];
-						var peerDepth = selectedPartitionPeerIDArray[4];
-						var peerPort = $(this).data('portIndex');
-						
-						var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-					} else {
-						var selectedPort = false;
-					}
-				}
-				
-				while($(selectedPort).length) {
-					var selectedPortID = $(selectedPort).attr('id');
-					var selectedPartition = $(selectedPort).closest('.partition');
-					var connectedPortID = $(selectedPort).data('connectedGlobalId');
-					var connectedPort = $('#'+connectedPortID);
-					highlightElement(selectedPort);
-					
-					if($(connectedPort).length) {
-						highlightElement(connectedPort);
-						drawConnection(selectedPort, connectedPort);
-						
-					} else {
-						break;
-					}
-					
-					var connectedPartition = $(connectedPort).closest('.partition');
-					var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
-					var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
-					
-					if($(connectedPartitionPeer).length) {
-						drawTrunk(connectedPartition, connectedPartitionPeer);
-						
-						var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
-						var peerID = connectedPartitionPeerIDArray[2];
-						var peerFace = connectedPartitionPeerIDArray[3];
-						var peerDepth = connectedPartitionPeerIDArray[4];
-						
-						var connectedPortIDArray = connectedPortID.split('-');
-						var peerPort = connectedPortIDArray[5];
-						var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-					} else {
-						break;
-					}
-				}
-			}
-			
-		}, function(){
-			var canvasHeight = $('#canvasBuildSpace').height();
-			var canvasWidth = $('#canvasBuildSpace').height();
-			context.clearRect(0, 0, canvasWidth, canvasHeight);
-		});
-	});
-}
-
 function processPortSelection(){
 	var objID = $(document).data('clickedObjID');
 	var objFace = $(document).data('clickedObjFace');
@@ -484,8 +308,10 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 	
 	//Collect object data
 	var data = {
-		id: cabinetID,
-		face: cabinetFace,
+		cabinetArray: [{
+			id: cabinetID,
+			face: cabinetFace
+		}],
 		view: cabinetView,
 		page: 'explore'
 	};
@@ -499,7 +325,7 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 		} else if ($(response.error).size() > 0){
 			displayError(response.error);
 		} else {
-			$('#buildSpaceContent').html(response.data.html);
+			$('#buildSpaceContent').html(response.data[0].html);
 			makeRackObjectsClickable();
 		
 			//Make the objects height fill the <td> container
@@ -617,31 +443,9 @@ function portDesignation(elem, action, flag) {
 	
 }
 
-function initializeCanvas() {
-	// Register an event listener to call the resizeCanvas() function 
-	// each time the window is resized.
-	window.addEventListener('resize', resizeCanvas, false);
-}
-
-function resizeCanvas() {
-	$('#canvasBuildSpace').attr('width', $('#buildSpaceContent').width());
-	$('#canvasBuildSpace').attr('height', $('#buildSpaceContent').height());
-	//redraw();
-}
-
-function redraw() {
-	var context = $('#canvasBuildSpace')[0].getContext('2d');
-	context.strokeStyle = 'blue';
-	context.strokeRect(0, 0, $('#buildSpaceContent').width(), $('#buildSpaceContent').height());
-}
-
 $( document ).ready(function() {
 	
-	// Cabinet Canvas
-	canvasInset = 10;
-	htmlCanvas = document.getElementById('canvasBuildSpace');
-	context = htmlCanvas.getContext('2d');
-	context.lineWidth = 10;
+	// requires jquery.drawConnections.js
 	initializeCanvas();
 	
 	// Export to Viso button

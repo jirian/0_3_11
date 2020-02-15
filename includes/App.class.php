@@ -1783,7 +1783,7 @@ var $qls;
 							$attrAssocArray['data-connected-global-id'] = $connectedGlobalID;
 						} else {
 							$attrAssocArray['data-code39'] = 0;	
-							$attrAssocArray['data-connected-global-id'] = 'port-4-0-0-0-0';
+							$attrAssocArray['data-connected-global-id'] = 'none';
 						}
 						
 						// Attr - title
@@ -1922,7 +1922,7 @@ var $qls;
 					$peerGlobalID = 'part-3-0-0-0-0';
 				}
 			} else {
-				$peerGlobalID = 'part-3-0-0-0-0';
+				$peerGlobalID = 'none';
 			}
 			
 			$objAttrArray['data-peer-global-id'] = $peerGlobalID;

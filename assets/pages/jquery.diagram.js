@@ -4,38 +4,43 @@
  * Tree view
  */
 
-$( document ).ready(function() {
-	$('#btnAddCabinet').click(function(){
-		$('#objectTreeModal').modal('show');
+function makeAddCabButtonClickable(addCabButton){
+	$(addCabButton).click(function(event){
+		event.preventDefault();
+		var globalID = $(this).data('globalId');
+		var globalIDArray = globalID.split('-');
+		var cabinetID = globalIDArray[2];
+		addCab(cabinetID, 0);
 	});
+}
+
+function addCab(cabinetID, cabinetFace){
+	//Collect object data
+	var data = {
+		cabinetArray: [{
+			id: cabinetID,
+			face: cabinetFace
+		}],
+		view: 'port',
+		page: 'diagram'
+	};
+	data = JSON.stringify(data);
 	
-	$('#buttonObjectTreeModalAdd').click(function(){
-		var node = $('#objTree').jstree('get_selected', false);
-		var nodeID = node[0];
-		
-		//Collect object data
-		var data = {
-			id: nodeID,
-			face: 0,
-			view: 'port',
-			page: 'diagram'
-		};
-		data = JSON.stringify(data);
-		
-		//Retrieve object details
-		$.post("backend/create_build_space.php", {data:data}, function(responseJSON){
-			var response = JSON.parse(responseJSON);
-			if (response.active == 'inactive'){
-				window.location.replace("/");
-			} else if ($(response.error).size() > 0){
-				displayError(response.error);
-			} else {
-				$.each(response.data.ancestorIDArray, function(index, ancestor){
+	//Retrieve object details
+	$.post("backend/create_build_space.php", {data:data}, function(responseJSON){
+		var response = JSON.parse(responseJSON);
+		if (response.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(response.error).size() > 0){
+			displayError(response.error);
+		} else {
+			$.each(response.data, function(dataIndex, cabinet){
+				$.each(cabinet.ancestorIDArray, function(cabinetIndex, ancestor){
 					var locationID = ancestor.id;
 					var locationName = ancestor.name;
 					var parentID = ancestor.parentID;
 					if(parentID == '#') {
-						parentDOM = $('#diagramWorkspace');
+						parentDOM = $('#buildSpaceContent');
 					} else {
 						parentDOM = $('#locationBox'+parentID);
 					}
@@ -44,11 +49,28 @@ $( document ).ready(function() {
 						$(parentDOM).append(locationBoxHTML);
 					}
 				});
-				var cabinetLocationID = response.data.locationID;
-				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+response.data.html+'</div>');
-				$('#objectTreeModal').modal('hide');
-			}
-		});
+				var cabinetLocationID = cabinet.locationID;
+				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+cabinet.html+'</div>');
+			});
+			makePortsHoverable();
+			$('#objectTreeModal').modal('hide');
+		}
+	});
+}
+
+$( document ).ready(function() {
+	
+	initializeCanvas();
+	
+	$('#btnAddCabinet').click(function(){
+		$('#objectTreeModal').modal('show');
+	});
+	
+	$('#buttonObjectTreeModalAdd').click(function(){
+		var node = $('#objTree').jstree('get_selected', false);
+		var nodeID = node[0];
+		
+		addCab(nodeID, 0);
 	});
 	
 		// Ajax Tree

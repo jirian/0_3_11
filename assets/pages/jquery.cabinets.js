@@ -509,8 +509,10 @@ function retrieveCabinet(cabinetID, cabinetFace){
 	
 	//Collect object data
 	var data = {
-		id: cabinetID,
-		face: cabinetFace,
+		cabinetArray: [{
+			id: cabinetID,
+			face: cabinetFace
+		}],
 		view: 'port',
 		page: 'environment'
 	};
@@ -524,7 +526,7 @@ function retrieveCabinet(cabinetID, cabinetFace){
 		} else if ($(response.error).size() > 0){
 			displayError(response.error);
 		} else {
-			$('#buildSpaceContent').html(response.data.html);
+			$('#buildSpaceContent').html(response.data[0].html);
 			loadCabinetBuild();
 			//Re-highlight select cabinet object when switching cabinet side.
 			if (objID) {

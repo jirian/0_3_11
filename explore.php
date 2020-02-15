@@ -107,6 +107,7 @@ text-align: left;
 
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>
+<canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 
 <!-- Page-Title -->
 <div class="row">
@@ -216,7 +217,7 @@ text-align: left;
 								</select>
 							</div>
 						</div>
-						<canvas id="canvasBuildSpace" style="position:absolute; pointer-events:none;"></canvas>
+						
 						<div id="buildSpaceContent">Please select a cabinet from the Environment Tree.</div>
 					</div>
 				</div>
@@ -417,5 +418,8 @@ text-align: left;
 
 <!-- panZoom Plugin -->
 <script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script>
+
+<!-- draw connections functions -->
+<script src="assets/pages/jquery.drawConnections.js"></script>
 	
 <?php require 'includes/footer_end.php' ?>
