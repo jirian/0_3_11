@@ -575,7 +575,7 @@ function createConnections(&$qls){
 			$lengthString
 		);
 		
-		$csvArray[$aObjectName] = $line;
+		array_push($csvArray, $line);
 	}
 
 	foreach($qls->App->populatedPortAllArray as $port) {
@@ -596,7 +596,7 @@ function createConnections(&$qls){
 			'None'
 		);
 		
-		$csvArray[$objectName] = $line;
+		array_push($csvArray, $line);
 	}
 
 	ksort($csvArray);

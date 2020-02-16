@@ -127,21 +127,34 @@ function drawTrunk(elementArray){
 		var elemB = element[1];
 	
 		var canvasDimensions = getDimensions($('#canvasBuildSpace'));
+		var elemACabinet = $(elemA).closest('.cabinetContainer');
+		var elemACabinetID = $(elemACabinet).data('cabinetId');
 		var elemACabinetDimensions = getDimensions($(elemA).closest('.cabinetContainer'));
 		var elemADimensions = getDimensions(elemA);
 		
 		context.moveTo(elemADimensions.right, elemADimensions.centerY);
 		
 		if(typeof elemB == 'object') {
+			
+			var elemBCabinet = $(elemB).closest('.cabinetContainer');
+			var elemBCabinetID = $(elemBCabinet).data('cabinetId');
 			var elemBCabinetDimensions = getDimensions($(elemB).closest('.cabinetContainer'));
 			var elemBDimensions = getDimensions(elemB);
 			
 			context.lineTo(elemACabinetDimensions.right + canvasInset, elemADimensions.centerY);
+			
+			if(elemACabinetID != elemBCabinetID) {
+				if(elemACabinetDimensions.top <= elemBCabinetDimensions.top) {
+					elemBCabinetHBoundary = elemBCabinetDimensions.top - canvasInset;
+				} else {
+					elemBCabinetHBoundary = elemBCabinetDimensions.bottom + canvasInset;
+				}
+				context.lineTo(elemACabinetDimensions.right + canvasInset, elemBCabinetHBoundary);
+				context.lineTo(elemBCabinetDimensions.right + canvasInset, elemBCabinetHBoundary);
+			}
 			context.lineTo(elemBCabinetDimensions.right + canvasInset, elemBDimensions.centerY);
 			context.lineTo(elemBDimensions.right, elemBDimensions.centerY);
-			
-			context.strokeRect(elemADimensions.left, elemADimensions.top, elemADimensions.width, elemADimensions.height);
-			context.strokeRect(elemBDimensions.left, elemBDimensions.top, elemBDimensions.width, elemBDimensions.height);
+
 		} else {
 			context.lineTo(elemACabinetDimensions.right + canvasInset, elemADimensions.centerY);
 			context.lineTo(elemACabinetDimensions.right + canvasInset, elemACabinetDimensions.top - canvasInset);
@@ -165,9 +178,9 @@ function addCabButton(left, top, globalID){
 	makeAddCabButtonClickable(addCab);
 }
 
-function highlightElement(elemArray){
+function highlightElement(elemArray, color){
 	$.each(elemArray, function(index, elem){
-		context.strokeStyle = 'blue';
+		context.strokeStyle = color;
 		context.beginPath();
 		
 		var elemDimensions = getDimensions(elem);
@@ -186,7 +199,7 @@ function clearPaths(){
 function makePortsHoverable(){
 	resizeCanvas();
 	$('#buildSpaceContent').find('.port').each(function(){
-		$(this).unbind('mouseenter mouseleave');
+		$(this).unbind('mouseenter mouseleave click');
 	});
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).hover(function(){
@@ -194,6 +207,7 @@ function makePortsHoverable(){
 			portArray = [];
 			connectionArray = [];
 			trunkArray = [];
+			partitionArray = [];
 			var selectedPort = $(this);
 			var selectedPeerID = $(selectedPort).data('peerGlobalId');
 			
@@ -206,6 +220,7 @@ function makePortsHoverable(){
 					if($('#'+selectedPartitionPeerID).length) {
 						var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
 						trunkArray.push([selectedPartition, selectedPartitionPeer]);
+						partitionArray.push(selectedPartition, selectedPartitionPeer);
 						
 						var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
 						var peerID = selectedPartitionPeerIDArray[2];
@@ -249,6 +264,7 @@ function makePortsHoverable(){
 						
 						var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
 						trunkArray.push([connectedPartition, connectedPartitionPeer]);
+						partitionArray.push(connectedPartition, connectedPartitionPeer);
 						
 						var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
 						var peerID = connectedPartitionPeerIDArray[2];
@@ -267,8 +283,9 @@ function makePortsHoverable(){
 				}
 			}
 			
+			highlightElement(partitionArray, 'black');
 			drawTrunk(trunkArray);
-			highlightElement(portArray);
+			highlightElement(portArray, 'blue');
 			drawConnection(connectionArray);
 			
 		}, function(){
@@ -276,7 +293,7 @@ function makePortsHoverable(){
 		});
 		
 		$(this).click(function(){
-			
+			console.log($(this).data('pathID'));
 			if(typeof $(this).data('pathID') != 'undefined') {
 				
 				// Clear pathIDs from ports
@@ -303,7 +320,8 @@ function makePortsHoverable(){
 				var workingPathData = {
 					'portArray': portArray,
 					'connectionArray': connectionArray,
-					'trunkArray': trunkArray
+					'trunkArray': trunkArray,
+					'partitionArray': partitionArray
 				};
 				pathData[pathID] = workingPathData;
 			}
@@ -323,8 +341,9 @@ function redraw() {
 	if(typeof pathData != 'undefined') {
 		//$.each($(document).data('pathData'), function(pathID, path){
 		$.each(pathData, function(pathID, path){
+			highlightElement(path['partitionArray'], 'black');
 			drawTrunk(path['trunkArray']);
-			highlightElement(path['portArray']);
+			highlightElement(path['portArray'], 'blue');
 			drawConnection(path['connectionArray']);
 		});
 	}

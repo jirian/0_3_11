@@ -10,16 +10,17 @@ function makeAddCabButtonClickable(addCabButton){
 		var globalID = $(this).data('globalId');
 		var globalIDArray = globalID.split('-');
 		var cabinetID = globalIDArray[2];
-		addCab(cabinetID, 0);
+		addCab(cabinetID, 0, 'object');
 	});
 }
 
-function addCab(cabinetID, cabinetFace){
+function addCab(elementID, elementFace, elementType){
 	//Collect object data
 	var data = {
 		cabinetArray: [{
-			id: cabinetID,
-			face: cabinetFace
+			id: elementID,
+			face: elementFace,
+			type: elementType
 		}],
 		view: 'port',
 		page: 'diagram'
@@ -50,7 +51,7 @@ function addCab(cabinetID, cabinetFace){
 					}
 				});
 				var cabinetLocationID = cabinet.locationID;
-				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+cabinet.html+'</div>');
+				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer"><i class="fa fa-times" style="position:absolute;"></i>'+cabinet.html+'</div>');
 			});
 			makePortsHoverable();
 			$('#objectTreeModal').modal('hide');
@@ -70,7 +71,7 @@ $( document ).ready(function() {
 		var node = $('#objTree').jstree('get_selected', false);
 		var nodeID = node[0];
 		
-		addCab(nodeID, 0);
+		addCab(nodeID, 0, 'cabinet');
 	});
 	
 		// Ajax Tree

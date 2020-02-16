@@ -511,7 +511,8 @@ function retrieveCabinet(cabinetID, cabinetFace){
 	var data = {
 		cabinetArray: [{
 			id: cabinetID,
-			face: cabinetFace
+			face: cabinetFace,
+			type: 'cabinet'
 		}],
 		view: 'port',
 		page: 'environment'

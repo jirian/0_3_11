@@ -25,8 +25,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$html = '';
 
 			//Retreive name of the cabinet or location
-			$cabinetID = $cabinetData['id'];
-			$cabinetFace = $cabinetData['face'];
+			$elementID = $cabinetData['id'];
+			$elementFace = $cabinetData['face'];
+			$elementType = $cabinetData['type'];
+			if($elementType == 'cabinet') {
+				$cabinetID = $elementID;
+				$cabinetFace = $elementFace;
+			} else {
+				$object = $qls->App->objectArray[$elementID];
+				$cabinetID = $object['env_tree_id'];
+				$cabinetFace = ($object['cabinet_front'] == $elementFace) ? 0 : 1;
+			}
+			
 			$cabinetFace = $cabinetFace == 0 ? 'cabinet_front' : 'cabinet_back';
 			$cabinet = $qls->App->envTreeArray[$cabinetID];
 			$cabinetParentID = $cabinet['parent'];
@@ -208,9 +218,13 @@ function validate($data, &$validate, &$qls){
 	if(is_array($data['cabinetArray'])) {
 		if(count($data['cabinetArray']) < 100) {
 			foreach($data['cabinetArray'] as $cabinet) {
-				$validate->validateID($cabinet['id'], 'cabinetID');
+				$validate->validateID($cabinet['id'], 'element ID');
+				
 				$faceArray = array(0, 1);
-				$validate->validateInArray($cabinet['face'], $faceArray, 'cabinetFace');
+				$validate->validateInArray($cabinet['face'], $faceArray, 'element face');
+				
+				$typeArray = array('cabinet', 'object');
+				$validate->validateInArray($cabinet['type'], $typeArray, 'element type');
 			}
 		} else {
 			$errMsg = 'Cabinet array too large.';

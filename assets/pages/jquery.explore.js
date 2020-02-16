@@ -4,6 +4,17 @@
  * Tree view
  */
 
+ function makeAddCabButtonClickable(addCabButton){
+	$(addCabButton).click(function(event){
+		event.preventDefault();
+		var globalID = $(this).data('globalId');
+		var globalIDArray = globalID.split('-');
+		var cabinetID = globalIDArray[2];
+		console.log('cabinetID = '+cabinetID);
+		//addCab(cabinetID, 0);
+	});
+}
+ 
 function handlePathFindButton(){
 	var buttonState = true;
 	if($(document).data('clickedObjPortID') !== null) {
@@ -310,7 +321,8 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 	var data = {
 		cabinetArray: [{
 			id: cabinetID,
-			face: cabinetFace
+			face: cabinetFace,
+			type: 'cabinet'
 		}],
 		view: cabinetView,
 		page: 'explore'

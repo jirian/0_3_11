@@ -83,9 +83,9 @@ $qls->Security->check_auth_page('user.php');
 <!-- jsTree Plugin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/jstree.min.js"></script>
 
+<script src="assets/pages/jquery.diagram.js"></script>
+
 <!-- draw connections functions -->
 <script src="assets/pages/jquery.drawConnections.js"></script>
-
-<script src="assets/pages/jquery.diagram.js"></script>
 	
 <?php require 'includes/footer_end.php' ?>
