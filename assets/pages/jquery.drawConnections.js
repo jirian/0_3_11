@@ -197,7 +197,10 @@ function clearPaths(){
 }
 
 function makePortsHoverable(){
+	
 	resizeCanvas();
+	redraw();
+	
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).unbind('mouseenter mouseleave click');
 	});
@@ -293,7 +296,7 @@ function makePortsHoverable(){
 		});
 		
 		$(this).click(function(){
-			console.log($(this).data('pathID'));
+			
 			if(typeof $(this).data('pathID') != 'undefined') {
 				
 				// Clear pathIDs from ports
@@ -327,6 +330,38 @@ function makePortsHoverable(){
 			}
 		});
 	});
+
+}
+
+function makeCabArrowsClickable(){
+	$('.cabMoveArrow').unbind('click');
+	
+	$('.cabMoveArrow').click(function(){
+		var direction = $(this).data('cabMoveDirection');
+		var cabinet = $(this).closest('.diagramCabinetContainer');
+		if(direction == 'left') {
+			$(cabinet).insertBefore($(cabinet).prev());
+		} else {
+			$(cabinet).insertAfter($(cabinet).next());
+		}
+		redraw();
+	});
+}
+
+function makeCabCloseClickable(){
+	$('.cabClose').unbind('click');
+	
+	$('.cabClose').click(function(){
+		var cabinet = $(this).closest('.diagramCabinetContainer');
+		var locationBoxes = $(cabinet).parents('.diagramLocationBox');
+		$(cabinet).remove();
+		$(locationBoxes).each(function(){
+			if(!$(this).find('.diagramCabinetContainer').length) {
+				$(this).remove();
+			}
+		});
+		redraw();
+	});
 }
 
 function resizeCanvas() {
@@ -341,10 +376,11 @@ function redraw() {
 	if(typeof pathData != 'undefined') {
 		//$.each($(document).data('pathData'), function(pathID, path){
 		$.each(pathData, function(pathID, path){
-			highlightElement(path['partitionArray'], 'black');
+			
 			drawTrunk(path['trunkArray']);
-			highlightElement(path['portArray'], 'blue');
 			drawConnection(path['connectionArray']);
+			highlightElement(path['partitionArray'], 'black');
+			highlightElement(path['portArray'], 'blue');
 		});
 	}
 }

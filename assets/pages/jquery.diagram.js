@@ -51,9 +51,11 @@ function addCab(elementID, elementFace, elementType){
 					}
 				});
 				var cabinetLocationID = cabinet.locationID;
-				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer"><i class="fa fa-times" style="position:absolute;"></i>'+cabinet.html+'</div>');
+				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+cabinet.html+'</div>');
 			});
 			makePortsHoverable();
+			makeCabArrowsClickable();
+			makeCabCloseClickable();
 			$('#objectTreeModal').modal('hide');
 		}
 	});

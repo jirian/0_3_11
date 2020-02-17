@@ -114,7 +114,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$cursorClass = ($page == 'explore' or $page == 'diagram') ? 'cursorPointer' : 'cursorGrab';
 
 			$html .= '<div class="cabinetContainer" data-cabinet-id="'.$cabinetID.'">';
-			$html .= '<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="'.$cabinetID.'" data-ru-orientation="'.$ruOrientation.'">'.$cabinetName.'</div>';
+			if($page == 'diagram') {
+				$headerContent = '';
+				$headerContent .= '<div>';
+				$headerContent .= '<i class="fa fa-angle-left cabMoveArrow cursorPointer m-l-10"  data-cab-move-direction="left" title="Move Left"></i>';
+				$headerContent .= '<i class="fa fa-angle-right cabMoveArrow cursorPointer m-l-10"  data-cab-move-direction="right" title="Move Right"></i>';
+				$headerContent .= '</div>';
+				$headerContent .= '<div>'.$cabinetName.'</div>';
+				$headerContent .= '<div>';
+				$headerContent .= '<i class="fa fa-times cabClose cursorPointer m-r-10" title="Close"></i>';
+				$headerContent .= '</div>';
+			} else {
+				$headerContent = '<div></div><div>'.$cabinetName.'</div><div></div>';
+			}
+			$html .= '<div id="cabinetHeader" class="cab-height cabinet-border cabinet-end" data-cabinet-id="'.$cabinetID.'" data-ru-orientation="'.$ruOrientation.'" style="display:flex; justify-content:space-between;">'.$headerContent.'</div>';
 			$html .= '<input id="cabinetID" type="hidden" value="'.$cabinetID.'">';
 			$html .= '<input id="objectID" type="hidden" value="">';
 			$html .= '<table id="cabinetTable" class="cabinet">';

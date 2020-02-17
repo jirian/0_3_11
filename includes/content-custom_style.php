@@ -26,6 +26,14 @@ function color_inverse($color){
 }
 ?>
 
+.m-l-10 {
+	margin-left: 10px;
+}
+
+.m-r-10 {
+	margin-right: 10px;
+}
+
 .diagramLocationBox {
 	box-shadow: -2px -2px 10px grey;
 	padding-left: 20px;
