@@ -20,7 +20,7 @@ function clearObjectDetails(){
 	$('#detailTemplateImage').html('-');
 		
 	//Disable the 'Delete' button in object details
-	$('#objDelete').prop('disabled', true);
+	$('#objDelete').addClass('disabled');
 	
 	//Clear the hightlight around any highlighted object
 	$('.rackObjSelected').removeClass('rackObjSelected');
@@ -212,7 +212,7 @@ function makeRackObjectsClickable(){
 				} else {
 					$('#detailTemplateImage').html('None');
 				}
-				$('#objDelete').prop('disabled', false);
+				$('#objDelete').removeClass('disabled');
 				$('#inline-name').editable('option', 'disabled', false);
 				
 				// Trunked to
@@ -1343,6 +1343,10 @@ $( document ).ready(function() {
 	initializeEditable();
 
 	$('#objDelete').click(function(){
+		if($(this).hasClass('disabled')) {
+			return false;
+		}
+		
 		var cabinetID = $('#cabinetID').val();
 		var objectID = $('#selectedObjectID').val();
 		var object = $('#cabinetTable').find('[data-template-object-id='+objectID+']');

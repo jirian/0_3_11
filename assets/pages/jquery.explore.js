@@ -19,14 +19,13 @@ function handlePathFindButton(){
 	var buttonState = true;
 	if($(document).data('clickedObjPortID') !== null) {
 		if($(document).data('selectedFloorplanObjectType') == 'wap') {
-			buttonState = true;
+			$('#buttonPathFinder').addClass('disabled');
+			$('#buttonPortConnector').addClass('disabled');
 		} else {
-			buttonState = false;
+			$('#buttonPathFinder').removeClass('disabled');
+			$('#buttonPortConnector').removeClass('disabled');
 		}
 	}
-	
-	$('#buttonPathFinder').prop('disabled', buttonState);
-	$('#buttonPortConnector').prop('disabled', buttonState);
 }
 
 function displayError(errMsg, alertDisplay){
@@ -643,7 +642,11 @@ $( document ).ready(function() {
 		});
 	});
 
-	$('#buttonPortConnector').on('click', function(){
+	$('#buttonPortConnector').on('click', function(event){
+		event.preventDefault();
+		if($(this).hasClass('disabled')) {
+			return false;
+		}
 		var modalTitle = $(this).attr('data-modalTitle');
 		var objectID = $(document).data('clickedObjID');
 		var objectFace = $(document).data('clickedObjFace');
@@ -764,6 +767,10 @@ $( document ).ready(function() {
 	});
 	
 	$('#modalPathFinder').on('show.bs.modal', function(e){
+		var button = e.relatedTarget;
+		if($(button).hasClass('disabled')) {
+			return false;
+		}
 		var objectID = $(document).data('clickedObjID');
 		var objectFace = $(document).data('clickedObjFace');
 		var objectDepth = $(document).data('clickedObjPartitionDepth');

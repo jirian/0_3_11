@@ -15,6 +15,13 @@ function makeAddCabButtonClickable(addCabButton){
 }
 
 function addCab(elementID, elementFace, elementType){
+	
+	// Prevent duplicate cabinets from being added
+	if($('#diagramCabinetContainer'+elementID).length && elementType == 'cabinet') {
+		console.log('duplicate cab');
+		return false;
+	}
+	
 	//Collect object data
 	var data = {
 		cabinetArray: [{
@@ -51,7 +58,7 @@ function addCab(elementID, elementFace, elementType){
 					}
 				});
 				var cabinetLocationID = cabinet.locationID;
-				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div class="diagramCabinetContainer">'+cabinet.html+'</div>');
+				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div id="diagramCabinetContainer'+elementID+'" class="diagramCabinetContainer">'+cabinet.html+'</div>');
 			});
 			makePortsHoverable();
 			makeCabArrowsClickable();

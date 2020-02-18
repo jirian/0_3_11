@@ -380,9 +380,14 @@ $qls->Security->check_auth_page('operator.php');
 												</td>
 											</tr>
 										</table>
-										<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-20">
-											<span class="btn-label"><i class="fa fa-times"></i></span>Delete
-										</button>
+										
+										<div class="btn-group">
+											<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+											<div class="dropdown-menu">
+												<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+											</div>
+										</div>
+										
 									</div>
 								</blockquote>
 							</div>

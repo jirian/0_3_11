@@ -196,6 +196,94 @@ function clearPaths(){
 	$('a.addCabButton').remove();
 }
 
+function crawlPath(selectedPort){
+	var portArray = [];
+	var connectionArray = [];
+	var trunkArray = [];
+	var partitionArray = [];
+	var selectedPeerID = $(selectedPort).data('peerGlobalId');
+	var selectedPortOrig = selectedPort;
+	
+	for(x=0; x<2; x++) {
+		
+		if(x == 1) {
+			var selectedPartition = $(selectedPortOrig).closest('.partition');
+			var selectedPartitionPeerID = $(selectedPartition).data('peerGlobalId');
+			
+			if($('#'+selectedPartitionPeerID).length) {
+				var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
+				trunkArray.push([selectedPartition, selectedPartitionPeer]);
+				partitionArray.push(selectedPartition, selectedPartitionPeer);
+				
+				var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
+				var peerID = selectedPartitionPeerIDArray[2];
+				var peerFace = selectedPartitionPeerIDArray[3];
+				var peerDepth = selectedPartitionPeerIDArray[4];
+				var peerPort = $(selectedPortOrig).data('portIndex');
+				
+				var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
+			} else {
+				if(selectedPartitionPeerID != 'none') {
+					trunkArray.push([selectedPartition, selectedPartitionPeerID]);
+				}
+				var selectedPort = false;
+			}
+		}
+		
+		while($(selectedPort).length) {
+			var selectedPortID = $(selectedPort).attr('id');
+			var selectedPartition = $(selectedPort).closest('.partition');
+			var connectedPortID = $(selectedPort).data('connectedGlobalId');
+			var connectedPort = $('#'+connectedPortID);
+			
+			portArray.push(selectedPort);
+			
+			if($(connectedPort).length) {
+				
+				portArray.push(connectedPort)
+				connectionArray.push([selectedPort, connectedPort]);
+				
+			} else {
+				if(connectedPortID != 'none') {
+					connectionArray.push([selectedPort, connectedPortID]);
+				}
+				break;
+			}
+			
+			var connectedPartition = $(connectedPort).closest('.partition');
+			var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
+			
+			if($('#'+connectedPartitionPeerID).length) {
+				
+				var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
+				trunkArray.push([connectedPartition, connectedPartitionPeer]);
+				partitionArray.push(connectedPartition, connectedPartitionPeer);
+				
+				var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
+				var peerID = connectedPartitionPeerIDArray[2];
+				var peerFace = connectedPartitionPeerIDArray[3];
+				var peerDepth = connectedPartitionPeerIDArray[4];
+				
+				var connectedPortIDArray = connectedPortID.split('-');
+				var peerPort = connectedPortIDArray[5];
+				var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
+			} else {
+				if(connectedPartitionPeerID != 'none') {
+					trunkArray.push([connectedPartition, connectedPartitionPeerID]);
+				}
+				break;
+			}
+		}
+	}
+	
+	return {
+		'partitionArray': partitionArray,
+		'trunkArray': trunkArray,
+		'portArray': portArray,
+		'connectionArray': connectionArray
+	};
+}
+
 function makePortsHoverable(){
 	
 	resizeCanvas();
@@ -207,89 +295,12 @@ function makePortsHoverable(){
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).hover(function(){
 			
-			portArray = [];
-			connectionArray = [];
-			trunkArray = [];
-			partitionArray = [];
-			var selectedPort = $(this);
-			var selectedPeerID = $(selectedPort).data('peerGlobalId');
+			var pathElementArray = crawlPath(this);
 			
-			for(x=0; x<2; x++) {
-				
-				if(x == 1) {
-					var selectedPartition = $(this).closest('.partition');
-					var selectedPartitionPeerID = $(selectedPartition).data('peerGlobalId');
-					
-					if($('#'+selectedPartitionPeerID).length) {
-						var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
-						trunkArray.push([selectedPartition, selectedPartitionPeer]);
-						partitionArray.push(selectedPartition, selectedPartitionPeer);
-						
-						var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
-						var peerID = selectedPartitionPeerIDArray[2];
-						var peerFace = selectedPartitionPeerIDArray[3];
-						var peerDepth = selectedPartitionPeerIDArray[4];
-						var peerPort = $(this).data('portIndex');
-						
-						var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-					} else {
-						if(selectedPartitionPeerID != 'none') {
-							trunkArray.push([selectedPartition, selectedPartitionPeerID]);
-						}
-						var selectedPort = false;
-					}
-				}
-				
-				while($(selectedPort).length) {
-					var selectedPortID = $(selectedPort).attr('id');
-					var selectedPartition = $(selectedPort).closest('.partition');
-					var connectedPortID = $(selectedPort).data('connectedGlobalId');
-					var connectedPort = $('#'+connectedPortID);
-					
-					portArray.push(selectedPort);
-					
-					if($(connectedPort).length) {
-						
-						portArray.push(connectedPort)
-						connectionArray.push([selectedPort, connectedPort]);
-						
-					} else {
-						if(connectedPortID != 'none') {
-							connectionArray.push([selectedPort, connectedPortID]);
-						}
-						break;
-					}
-					
-					var connectedPartition = $(connectedPort).closest('.partition');
-					var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
-					
-					if($('#'+connectedPartitionPeerID).length) {
-						
-						var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
-						trunkArray.push([connectedPartition, connectedPartitionPeer]);
-						partitionArray.push(connectedPartition, connectedPartitionPeer);
-						
-						var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
-						var peerID = connectedPartitionPeerIDArray[2];
-						var peerFace = connectedPartitionPeerIDArray[3];
-						var peerDepth = connectedPartitionPeerIDArray[4];
-						
-						var connectedPortIDArray = connectedPortID.split('-');
-						var peerPort = connectedPortIDArray[5];
-						var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-					} else {
-						if(connectedPartitionPeerID != 'none') {
-							trunkArray.push([connectedPartition, connectedPartitionPeerID]);
-						}
-						break;
-					}
-				}
-			}
-			
-			highlightElement(partitionArray, 'black');
-			drawTrunk(trunkArray);
-			highlightElement(portArray, 'blue');
-			drawConnection(connectionArray);
+			highlightElement(pathElementArray['partitionArray'], 'black');
+			drawTrunk(pathElementArray['trunkArray']);
+			highlightElement(pathElementArray['portArray'], 'blue');
+			drawConnection(pathElementArray['connectionArray']);
 			
 		}, function(){
 			redraw();
@@ -311,26 +322,62 @@ function makePortsHoverable(){
 				
 			} else {
 				
+				var pathElementArray = crawlPath(this);
+				
 				// Get pathID
 				pathID++;
 				
-				// Store pathID
-				$.each(portArray, function(){
+				// Associate ports to pathIDs
+				$.each(pathElementArray['portArray'], function(){
 					$(this).data('pathID', pathID);
 				});
 				
 				// Store connection path
 				var workingPathData = {
-					'portArray': portArray,
-					'connectionArray': connectionArray,
-					'trunkArray': trunkArray,
-					'partitionArray': partitionArray
+					'portArray': pathElementArray['portArray'],
+					'connectionArray': pathElementArray['connectionArray'],
+					'trunkArray': pathElementArray['trunkArray'],
+					'partitionArray': pathElementArray['partitionArray']
 				};
 				pathData[pathID] = workingPathData;
 			}
 		});
 	});
 
+}
+
+function refreshPathData(){
+	if(typeof pathData != 'undefined') {
+		pathDataOrig = pathData;
+		pathData = {};
+		$.each(pathDataOrig, function(pathID, path){
+			$.each(path['portArray'], function(portIndex, port){
+				var portID = $(port).attr('id');
+				if($('#'+portID).length) {
+					var pathElementArray = crawlPath($('#'+portID));
+					
+					// Get pathID
+					pathID++;
+					
+					// Associate ports to pathIDs
+					$.each(pathElementArray['portArray'], function(){
+						$(this).data('pathID', pathID);
+					});
+					
+					// Store connection path
+					var workingPathData = {
+						'portArray': pathElementArray['portArray'],
+						'connectionArray': pathElementArray['connectionArray'],
+						'trunkArray': pathElementArray['trunkArray'],
+						'partitionArray': pathElementArray['partitionArray']
+					};
+					pathData[pathID] = workingPathData;
+					
+					return false;
+				}
+			});
+		});
+	}
 }
 
 function makeCabArrowsClickable(){
@@ -354,12 +401,20 @@ function makeCabCloseClickable(){
 	$('.cabClose').click(function(){
 		var cabinet = $(this).closest('.diagramCabinetContainer');
 		var locationBoxes = $(cabinet).parents('.diagramLocationBox');
+		
+		// Delete cabinet
 		$(cabinet).remove();
+		
+		// Clean up empty location boxes
 		$(locationBoxes).each(function(){
 			if(!$(this).find('.diagramCabinetContainer').length) {
 				$(this).remove();
 			}
 		});
+		
+		// Refresh all paths
+		refreshPathData();
+		
 		redraw();
 	});
 }

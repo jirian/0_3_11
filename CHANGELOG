@@ -24,6 +24,7 @@ Contents
 [Fix]		Resolved issue with exporting only a single unconnected managed cable
 [Feature]	Highlight cable path
 [Feature]	Diagram builder
+[Enhance]	Consolodated action buttons into dropdown
 
 **Changes introduced in 0.2.4
 

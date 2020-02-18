@@ -205,7 +205,7 @@
                     </li>
 					
 					<li>
-                        <a href="diagram.php"><i class="zmdi zmdi-globe-alt"></i> <span> Diagram </span> </a>
+                        <a href="diagram.php"><i class="fa fa-map-o"></i> <span> Diagram </span> </a>
                     </li>
 
 					<?php

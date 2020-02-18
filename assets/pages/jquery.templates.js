@@ -385,9 +385,9 @@ function makeRackObjectsClickable(){
 				$('#detailMediaType').html(response.mediaType);
 				$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
 				$('#detailTemplateImage').append('<div id="templateImageActionContainer"><a id="templateImageAction" href="#">' + response.templateImgAction + '</a></div>');
-				$('#objClone').prop('disabled', false).removeClass('disabled');
-				$('#objFind').prop('disabled', false).removeClass('disabled');
-				$('#objDelete').prop('disabled', false).removeClass('disabled');
+				$('#objClone').removeClass('disabled');
+				$('#objFind').removeClass('disabled');
+				$('#objDelete').removeClass('disabled');
 				
 				// Port Range
 				if(response.portRange == 'N/A') {
@@ -771,9 +771,9 @@ function resetTemplateDetails(){
 	$('#inline-enclosureTolerance').editable('destroy').html('-');
 	$('#detailEnclosureTolerance').html('-');
 	
-	$('#objClone').prop('disabled', true).addClass('disabled');
-	$('#objFind').prop('disabled', true).addClass('disabled');
-	$('#objDelete').prop('disabled', true).addClass('disabled');
+	$('#objClone').addClass('disabled');
+	$('#objFind').addClass('disabled');
+	$('#objDelete').addClass('disabled');
 }
 
 function togglePartitionTypeDependencies(){
@@ -1550,7 +1550,12 @@ $( document ).ready(function() {
 	});
 	
 	// Clone a template to the workspace
-	$('#objClone').click(function(){
+	$('#objClone').click(function(e){
+		e.preventDefault();
+		if($(this).hasClass('disabled')) {
+			return false;
+		}
+		
 		var templateID = $('#selectedObjectID').val();
 		var templateSide = $(document).data('availableTemplateSide');
 		var templateObj = $('#availableContainer'+templateSide).find('[data-template-id="'+templateID+'"]');
@@ -2396,11 +2401,27 @@ $( document ).ready(function() {
 		$(variables['selectedObj']).data('mediaType', $(this).val());
 	});
 	
+	// Prevent modal if disabled
+	$('#modalTemplateDeleteConfirm').on('show.bs.modal', function (e){
+		var button = e.relatedTarget;
+		if($(button).hasClass('disabled')) {
+			return false;
+		}
+	});
+	
 	// Set template name in delete confirm modal
 	$('#modalTemplateDeleteConfirm').on('shown.bs.modal', function (e){
 		var templateName = $(document).data('selectedTemplateName');
 		var templateCategoryName = $(document).data('selectedTemplateCategoryName');
 		$('#deleteTemplateName').html(templateName + ' (' + templateCategoryName + ')');
+	});
+	
+	// Prevent modal if disabled
+	$('#modalTemplateWhereUsed').on('show.bs.modal', function (e){
+		var button = e.relatedTarget;
+		if($(button).hasClass('disabled')) {
+			return false;
+		}
 	});
 	
 	// Find where template is used

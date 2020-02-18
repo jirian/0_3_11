@@ -353,20 +353,30 @@ text-align: left;
 														<input id="checkboxPopulated" type="checkbox" disabled>
 														<label for="checkboxPopulated">Populated</label>
 													</div>
+													
 												</div>
 											</div>
 											<?php
 												if($qls->user_info['group_id'] <= 4) {
 											?>
-											<div class="row m-b-10">
+											<!-- <div class="row m-b-10">
 												<button id="buttonPortConnector" class="btn btn-sm waves-effect waves-light btn-primary" type="button" data-modalTitle="Connect Ports">
 													<span class="btn-label"><i class="zmdi zmdi-my-location"></i></span>
 													Connect Port
 												</button>
-											</div>
+											</div> -->
 											<?php
 												}
 											?>
+											<div class="btn-group">
+											<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+											<div class="dropdown-menu">
+												<?php if($qls->user_info['group_id'] <= 4) { ?>
+												<a id="buttonPortConnector" class="dropdown-item disabled" href="#" data-modalTitle="Connect Ports"><i class="zmdi zmdi-my-location"></i> Connect Port</a>
+												<?php } ?>
+												<a id="buttonPathFinder" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalPathFinder"><i class="ion-map"></i> Find Path</a>
+											</div>
+											</div>
 										</blockquote>
 									</div>
 								</div>
@@ -374,6 +384,7 @@ text-align: left;
 									<div class="card-header">Path</div>
 									<div class="card-block">
 										<blockquote class="card-blockquote">
+										<!--
 											<div class="row m-b-30">
 												<button id="buttonPathFinder" class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#modalPathFinder">
 													<span class="btn-label"><i class="ion-map"></i></span>
