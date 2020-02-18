@@ -716,7 +716,18 @@ require_once './includes/content-templates.php';
 			<h4 class="header-title m-t-0">Template Details</h4>
 			
 			<div id="objectCardBox" class="card">
-				<div class="card-header">Selected Template</div>
+				<div class="card-header">Selected Template
+					<span>
+						<div class="btn-group pull-right">
+							<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+							<div class="dropdown-menu">
+								<a id="objFind" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateWhereUsed"><i class="ion-map"></i> Where Used</a>
+								<a id="objClone" class="dropdown-item disabled" href="#" ><i class="fa fa-copy"></i></span> Clone</a>
+								<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+							</div>
+						</div>
+					</span>
+				</div>
 				<div class="card-block">
 					<blockquote class="card-blockquote">
 						<input id="selectedObjectID" type="hidden">
@@ -729,14 +740,23 @@ require_once './includes/content-templates.php';
 			<div id="availableObjects">
 				<div class="card">
 				
-					<div class="card-header">
-						<span>Available Templates</span>
+					<div class="card-header">Available Templates
+						<span>
+							<div class="btn-group pull-right">
+								<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+								<div class="dropdown-menu">
+									<a class="dropdown-item" href="#" data-toggle="modal" data-target="#modalTemplateCatalog"><i class="ti-import"></i> Import</a>
+								</div>
+							</div>
+						</span>
+						<!--
 						<div class="pull-right" title="Import Template">
 							Import&nbsp;&nbsp;
 							<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#modalTemplateCatalog">
 								<i class="ti-import"></i>
 							</button>
 						</div>
+						-->
 					</div>
 					
 					<div class="m-t-15 m-l-5">

@@ -18,7 +18,6 @@ function addCab(elementID, elementFace, elementType){
 	
 	// Prevent duplicate cabinets from being added
 	if($('#diagramCabinetContainer'+elementID).length && elementType == 'cabinet') {
-		console.log('duplicate cab');
 		return false;
 	}
 	
@@ -60,6 +59,12 @@ function addCab(elementID, elementFace, elementType){
 				var cabinetLocationID = cabinet.locationID;
 				$('#locationBox'+cabinetLocationID).children('.diagramLocationSubBox').first().append('<div id="diagramCabinetContainer'+elementID+'" class="diagramCabinetContainer">'+cabinet.html+'</div>');
 			});
+			
+			if(elementType == 'object') {
+				refreshPathData();
+				redraw();
+			}
+			
 			makePortsHoverable();
 			makeCabArrowsClickable();
 			makeCabCloseClickable();
@@ -72,7 +77,8 @@ $( document ).ready(function() {
 	
 	initializeCanvas();
 	
-	$('#btnAddCabinet').click(function(){
+	$('#btnAddCabinet').click(function(e){
+		e.preventDefault();
 		$('#objectTreeModal').modal('show');
 	});
 	

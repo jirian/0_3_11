@@ -30,7 +30,6 @@
 			</div>
 			<div class="modal-footer">
 				<button id="buttonObjectTreeModalCancel" type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-				<button id="buttonObjectTreeModalClear" type="button" class="btn btn-danger waves-effect waves-light">Clear</button>
 				<button id="buttonObjectTreeModalSave" type="button" class="btn btn-primary waves-effect waves-light">Save</button>
 			</div>
 		</div><!-- /.modal-content -->

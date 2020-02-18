@@ -290,7 +290,7 @@ function makePortsHoverable(){
 	redraw();
 	
 	$('#buildSpaceContent').find('.port').each(function(){
-		$(this).unbind('mouseenter mouseleave click');
+		$(this).unbind('mouseenter mouseleave click.drawConnections');
 	});
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).hover(function(){
@@ -306,21 +306,9 @@ function makePortsHoverable(){
 			redraw();
 		});
 		
-		$(this).click(function(){
+		$(this).on('click.drawConnections', function(){
 			
-			if(typeof $(this).data('pathID') != 'undefined') {
-				
-				// Clear pathIDs from ports
-				var thisPathID = $(this).data('pathID');
-				$.each(pathData[thisPathID]['portArray'], function(){
-					$(this).removeData('pathID');
-				});
-				
-				// Clear connection path
-				delete pathData[thisPathID];
-				redraw();
-				
-			} else {
+			if(typeof $(this).data('pathID') == 'undefined') {
 				
 				var pathElementArray = crawlPath(this);
 				
@@ -340,6 +328,16 @@ function makePortsHoverable(){
 					'partitionArray': pathElementArray['partitionArray']
 				};
 				pathData[pathID] = workingPathData;
+			} else {
+				
+				// Clear pathIDs from ports
+				var thisPathID = $(this).data('pathID');
+				$.each(pathData[thisPathID]['portArray'], function(){
+					$(this).removeData('pathID');
+				});
+				
+				// Clear connection path
+				delete pathData[thisPathID];
 			}
 		});
 	});
@@ -355,9 +353,6 @@ function refreshPathData(){
 				var portID = $(port).attr('id');
 				if($('#'+portID).length) {
 					var pathElementArray = crawlPath($('#'+portID));
-					
-					// Get pathID
-					pathID++;
 					
 					// Associate ports to pathIDs
 					$.each(pathElementArray['portArray'], function(){
@@ -387,7 +382,7 @@ function makeCabArrowsClickable(){
 		var direction = $(this).data('cabMoveDirection');
 		var cabinet = $(this).closest('.diagramCabinetContainer');
 		if(direction == 'left') {
-			$(cabinet).insertBefore($(cabinet).prev());
+			$(cabinet).insertBefore($(cabinet).prev()).animate();
 		} else {
 			$(cabinet).insertAfter($(cabinet).next());
 		}
@@ -431,10 +426,9 @@ function redraw() {
 	if(typeof pathData != 'undefined') {
 		//$.each($(document).data('pathData'), function(pathID, path){
 		$.each(pathData, function(pathID, path){
-			
 			drawTrunk(path['trunkArray']);
-			drawConnection(path['connectionArray']);
 			highlightElement(path['partitionArray'], 'black');
+			drawConnection(path['connectionArray']);
 			highlightElement(path['portArray'], 'blue');
 		});
 	}

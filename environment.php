@@ -267,7 +267,16 @@ $qls->Security->check_auth_page('operator.php');
 					<div class="card-box">
 						<h4 class="header-title m-t-0">Object Details</h4>
 						<div id="objectCardBox" class="card">
-							<div class="card-header">Selected</div>
+							<div class="card-header">Selected
+								<span>
+									<div class="btn-group pull-right">
+										<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+										<div class="dropdown-menu">
+											<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+										</div>
+									</div>
+								</span>
+							</div>
 							<div class="card-block">
 								<blockquote class="card-blockquote">
 									<input id="selectedObjectID" type="hidden">
@@ -380,13 +389,6 @@ $qls->Security->check_auth_page('operator.php');
 												</td>
 											</tr>
 										</table>
-										
-										<div class="btn-group">
-											<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
-											<div class="dropdown-menu">
-												<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
-											</div>
-										</div>
 										
 									</div>
 								</blockquote>

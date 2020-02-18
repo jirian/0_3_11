@@ -67,10 +67,21 @@ $qls->Security->check_auth_page('user.php');
 	<div class="col-xs-12">
 		<div class="col-md-12">
 			<div class="card-box">
-				<h4 class="header-title m-t-0 m-b-20">Diagram</h4>
+				<h4 class="header-title m-t-0 m-b-20">Diagram
+					<span>
+						<div class="btn-group pull-right">
+							<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+							<div class="dropdown-menu">
+								<a id="btnAddCabinet" class="dropdown-item" href="#"><i class="fa fa-plus"></i> Add Cabinet</a>
+							</div>
+						</div>
+					</span>
+				</h4>
+				<!--
 				<button id="btnAddCabinet" type="button" class="m-b-10 btn btn-sm btn-primary waves-effect waves-light">
 				<span class="btn-label"><i class="fa fa-plus"></i>
 				</span>Add Cabinet</button>
+				-->
 				<div id="buildSpaceContent"></div>
 			</div>
 		</div><!-- end col -->

@@ -119,32 +119,4 @@
 			</td>
 		</tr>
 	</table>
-	
-	<div class="btn-group">
-	<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
-	<div class="dropdown-menu">
-		<a id="objFind" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateWhereUsed"><i class="ion-map"></i> Where Used</a>
-		<a id="objClone" class="dropdown-item disabled" href="#" ><i class="fa fa-copy"></i></span> Clone</a>
-		<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
-	</div>
-	</div>
-	
-	<!--<div>
-		<button id="objFind" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-10 disabled" disabled data-toggle="modal" data-target="#modalTemplateWhereUsed">
-			<span class="btn-label"><i class="fa fa-map-marker"></i></span>Where Used
-		</button>
-	</div>
-	
-	<div>
-		<button id="objClone" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-10 disabled" disabled>
-			<span class="btn-label"><i class="fa fa-copy"></i></span>Clone
-		</button>
-	</div>
-	
-	<div>
-		<button id="objDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-10 disabled" disabled data-toggle="modal" data-target="#modalTemplateDeleteConfirm" >
-			<span class="btn-label"><i class="fa fa-times"></i></span>Delete
-		</button>
-	</div>
-	-->
 </div>

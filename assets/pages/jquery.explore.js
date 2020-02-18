@@ -10,8 +10,6 @@
 		var globalID = $(this).data('globalId');
 		var globalIDArray = globalID.split('-');
 		var cabinetID = globalIDArray[2];
-		console.log('cabinetID = '+cabinetID);
-		//addCab(cabinetID, 0);
 	});
 }
  
@@ -21,9 +19,11 @@ function handlePathFindButton(){
 		if($(document).data('selectedFloorplanObjectType') == 'wap') {
 			$('#buttonPathFinder').addClass('disabled');
 			$('#buttonPortConnector').addClass('disabled');
+			$('#buttonObjectTreeModalClear').addClass('disabled');
 		} else {
 			$('#buttonPathFinder').removeClass('disabled');
 			$('#buttonPortConnector').removeClass('disabled');
+			$('#buttonObjectTreeModalClear').removeClass('disabled');
 		}
 	}
 }
@@ -423,7 +423,8 @@ function portDesignation(elem, action, flag) {
 	
 	if(action == 'add') {
 		if(portFlagArray != null) {
-			if(!$.inArray(flag, portFlagArray)) {
+			if($.inArray(flag, portFlagArray) === -1) {
+				
 				var portFlagString = portFlagArray[0];
 				var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
 				var portFlagContentsArray = portFlagContents.split(',');
@@ -439,15 +440,18 @@ function portDesignation(elem, action, flag) {
 			var portFlagString = portFlagArray[0];
 			var portFlagContents = portFlagString.substring(1, portFlagString.length - 1);
 			var portFlagContentsArray = portFlagContents.split(',');
-			var PIndex = portFlagContentsArray.indexOf('P');
-			portFlagContentsArray.splice(PIndex, 1);
-			var newPortFlagContents = portFlagContentsArray.join(',');
-			if(newPortFlagContents.length) {
-				var newPortFlagString = '['+newPortFlagContents+']';
-			} else {
-				var newPortFlagString = '';
+			var PIndex = portFlagContentsArray.indexOf(flag);
+			
+			if(PIndex >= 0) {
+				portFlagContentsArray.splice(PIndex, 1);
+				var newPortFlagContents = portFlagContentsArray.join(',');
+				if(newPortFlagContents.length) {
+					var newPortFlagString = '['+newPortFlagContents+']';
+				} else {
+					var newPortFlagString = '';
+				}
+				$('#selectPort').find(':selected').text(optionText.replace(portFlagString, newPortFlagString));
 			}
-			$('#selectPort').find(':selected').text(optionText.replace(portFlagString, newPortFlagString));
 		}
 	}
 	
@@ -643,10 +647,12 @@ $( document ).ready(function() {
 	});
 
 	$('#buttonPortConnector').on('click', function(event){
+		
 		event.preventDefault();
 		if($(this).hasClass('disabled')) {
 			return false;
 		}
+		
 		var modalTitle = $(this).attr('data-modalTitle');
 		var objectID = $(document).data('clickedObjID');
 		var objectFace = $(document).data('clickedObjFace');
@@ -661,6 +667,7 @@ $( document ).ready(function() {
 	});
 	
 	$('#buttonObjectTreeModalSave').on('click', function(){
+		
 		var selectedNode = $('#objTree').jstree('get_selected', true);
 		var value = selectedNode[0].data.globalID;
 		var objID = $(document).data('clickedObjID');
@@ -686,12 +693,12 @@ $( document ).ready(function() {
 				displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
 			} else {
 				var optionText = $('#selectPort').find(':selected').text();
-				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).addClass('populated');
-				if($('#'+responseJSON.success.peerPortID).length) {
-					$('#port-'+responseJSON.success.peerPortID).addClass('populated');
+				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).addClass('populated').data('connectedGlobalId', 'port-'+responseJSON.success.peerPortID);
+				if($('#port-'+responseJSON.success.peerPortID).length) {
+					$('#port-'+responseJSON.success.peerPortID).addClass('populated').data('connectedGlobalId', '#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort);
 				}
-				if($('#'+responseJSON.success.oldPeerPortID).length) {
-					$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated');
+				if($('#port-'+responseJSON.success.oldPeerPortID).length) {
+					$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
 				}
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
 				portDesignation(interfaceSelectionElem, 'add', 'C');
@@ -699,6 +706,8 @@ $( document ).ready(function() {
 				$('#checkboxPopulated').prop("disabled", true);
 				$('#containerFullPath').html(responseJSON.success.pathFull);
 				makeCableArrowsClickable();
+				refreshPathData();
+				redraw();
 				
 				$('#objTree').jstree('deselect_all');
 				$('#objectTreeModal').modal('hide');
@@ -709,6 +718,12 @@ $( document ).ready(function() {
 	});
 	
 	$('#buttonObjectTreeModalClear').on('click', function(){
+		
+		event.preventDefault();
+		if($(this).hasClass('disabled')) {
+			return false;
+		}
+		
 		var objID = $(document).data('clickedObjID');
 		var objFace = $(document).data('clickedObjFace');
 		var objDepth = $(document).data('clickedObjPartitionDepth');
@@ -731,19 +746,23 @@ $( document ).ready(function() {
 			} else if ($(responseJSON.error).size() > 0){
 				displayError(responseJSON.error);
 			} else {
-				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).removeClass('populated');
+				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).removeClass('populated').data('connectedGlobalId', 'none');
 				if($('#port-'+responseJSON.success.peerPortID).length) {
-					$('#port-'+responseJSON.success.peerPortID).removeClass('populated');
+					$('#port-'+responseJSON.success.peerPortID).removeClass('populated').data('connectedGlobalId', 'none');
 				}
+				/*
 				if(responseJSON.success.oldPeerPortID) {
 					$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated');
 				}
+				*/
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
 				portDesignation(interfaceSelectionElem, 'remove', 'C');
 				$('#checkboxPopulated').prop("checked", false);
 				$('#checkboxPopulated').prop("disabled", false);
 				$('#containerFullPath').html(responseJSON.success.pathFull);
 				makeCableArrowsClickable();
+				refreshPathData();
+				redraw();
 				
 				$('#objTree').jstree('deselect_all');
 				$('#objectTreeModal').modal('hide');
