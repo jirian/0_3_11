@@ -1338,72 +1338,157 @@ var $qls;
 		
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
-		foreach($path as $objectIndex => $object) {
-			$objType = $object['type'];
-			
-			switch($objType) {
+		$test = 1;
+		
+		if($test == 1) {
+			foreach($path as $objectIndex => $object) {
+				$objType = $object['type'];
 				
-				case 'object':
-					if($objectIndex) {
-						if($path[$objectIndex+1]['type'] == 'trunk') {
-							$bottomTableTag = '</td>';
+				switch($objType) {
+					
+					case 'object':
+						if($objectIndex) {
+							if($path[$objectIndex+1]['type'] == 'trunk') {
+								$bottomTableTag = '</td>';
+							} else {
+								$bottomTableTag = '</td></tr>';
+							}
 						} else {
-							$bottomTableTag = '</td></tr>';
+							$bottomTableTag = '</td>';
 						}
-					} else {
-						$bottomTableTag = '</td>';
-					}
-					$topTableTag = '<tr><td>';
-					$htmlPathFull .= $topTableTag;
-					$objID = $object['data']['id'];
-					$objFace = $object['data']['face'];
-					$objDepth = $object['data']['depth'];
-					$objPort = $object['data']['port'];
-					$selected = $object['data']['selected'];
-					$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-					$objBox = $this->wrapObject($objID, $objName, $selected);
+						$topTableTag = '<tr><td>';
+						$htmlPathFull .= $topTableTag;
+						$objID = $object['data']['id'];
+						$objFace = $object['data']['face'];
+						$objDepth = $object['data']['depth'];
+						$objPort = $object['data']['port'];
+						$selected = $object['data']['selected'];
+						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+						$objBox = $this->wrapObject($objID, $objName, $selected);
+						
+						$htmlPathFull .= $objBox;
+						$htmlPathFull .= $bottomTableTag;
+						break;
 					
-					$htmlPathFull .= $objBox;
-					$htmlPathFull .= $bottomTableTag;
-					break;
+					case 'connector':
+						$htmlPathFull .= '<tr><td>';
+						$connectorTypeID = $object['data']['connectorType'];
+						
+						if($connectorTypeID != 0) {
+							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+							
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+							$htmlPathFull .= '</div>';
+							
+						} else {
+							$connectorTypeName = 'Unk';
+							
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
+							$htmlPathFull .= '</div>';
+							
+						}
+						$htmlPathFull .= '</td><td></td></tr>';
+						break;
+						
+					case 'cable':
+						$htmlPathFull .= '<tr><td>';
+						$cableTypeID = $object['data']['mediaTypeID'];
+						if($cableTypeID != 0) {
+							$cableTypeName = $mediaTypeClass = $this->mediaTypeValueArray[$cableTypeID]['name'];
+						} else {
+							$cableTypeName = 'Unk. Media Type';
+							$mediaTypeClass = 'Unk';
+						}
+						$cableLength = $object['data']['length'];
+						
+						$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
+						$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
+						$htmlPathFull .= '</div>';
+						$htmlPathFull .= '</td><td></td></tr>';
+						break;
+						
+					case 'trunk':
+						$htmlPathFull .= '<td rowspan="2">';
+						$htmlPathFull .= '<div title="Trunk" class="trunk">';
+						$htmlPathFull .= '</td>';
+						break;
+				}
+			}
+			
+		} else {
+			
+			foreach($path as $objectIndex => $object) {
+				$objType = $object['type'];
 				
-				case 'connector':
-					$htmlPathFull .= '<tr><td>';
-					$connectorTypeID = $object['data']['connectorType'];
+				switch($objType) {
 					
-					if($connectorTypeID != 0) {
-						$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
-						$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+					case 'object':
+						if($objectIndex) {
+							if($path[$objectIndex+1]['type'] == 'trunk') {
+								$bottomTableTag = '</td>';
+							} else {
+								$bottomTableTag = '</td></tr>';
+							}
+						} else {
+							$bottomTableTag = '</td>';
+						}
+						$topTableTag = '<tr><td>';
+						$htmlPathFull .= $topTableTag;
+						$objID = $object['data']['id'];
+						$objFace = $object['data']['face'];
+						$objDepth = $object['data']['depth'];
+						$objPort = $object['data']['port'];
+						$selected = $object['data']['selected'];
+						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+						$objBox = $this->wrapObject($objID, $objName, $selected);
+						
+						$htmlPathFull .= $objBox;
+						$htmlPathFull .= $bottomTableTag;
+						break;
+					
+					case 'connector':
+						$htmlPathFull .= '<tr><td>';
+						$connectorTypeID = $object['data']['connectorType'];
+						
+						if($connectorTypeID != 0) {
+							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+							
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+							$htmlPathFull .= '</div>';
+							
+						} else {
+							$connectorTypeName = 'Unk';
+							
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
+							$htmlPathFull .= '</div>';
+							
+						}
+						$htmlPathFull .= '</td><td></td></tr>';
+						break;
+						
+					case 'cable':
+						$htmlPathFull .= '<tr><td>';
+						$cableTypeID = $object['data']['mediaTypeID'];
+						if($cableTypeID != 0) {
+							$cableTypeName = $mediaTypeClass = $this->mediaTypeValueArray[$cableTypeID]['name'];
+						} else {
+							$cableTypeName = 'Unk. Media Type';
+							$mediaTypeClass = 'Unk';
+						}
+						$cableLength = $object['data']['length'];
+						
+						$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
+						$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
 						$htmlPathFull .= '</div>';
-					} else {
-						$connectorTypeName = 'Unk';
-						$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
-						$htmlPathFull .= '</div>';
-					}
-					$htmlPathFull .= '</td><td></td></tr>';
-					break;
-					
-				case 'cable':
-					$htmlPathFull .= '<tr><td>';
-					$cableTypeID = $object['data']['mediaTypeID'];
-					if($cableTypeID != 0) {
-						$cableTypeName = $mediaTypeClass = $this->mediaTypeValueArray[$cableTypeID]['name'];
-					} else {
-						$cableTypeName = 'Unk. Media Type';
-						$mediaTypeClass = 'Unk';
-					}
-					$cableLength = $object['data']['length'];
-					$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
-					$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
-					$htmlPathFull .= '</div>';
-					$htmlPathFull .= '</td><td></td></tr>';
-					break;
-					
-				case 'trunk':
-					$htmlPathFull .= '<td rowspan="2">';
-					$htmlPathFull .= '<div title="Trunk" class="trunk">';
-					$htmlPathFull .= '</td>';
-					break;
+						$htmlPathFull .= '</td><td></td></tr>';
+						break;
+						
+					case 'trunk':
+						$htmlPathFull .= '<td rowspan="2">';
+						$htmlPathFull .= '<div title="Trunk" class="trunk">';
+						$htmlPathFull .= '</td>';
+						break;
+				}
 			}
 		}
 		$htmlPathFull .= '</table>';

@@ -26,6 +26,10 @@ function color_inverse($color){
 }
 ?>
 
+.printImage {
+	position: absolute;
+}
+
 .m-l-10 {
 	margin-left: 10px;
 }
@@ -67,6 +71,7 @@ function color_inverse($color){
 	border-radius: 3px;
 	padding: 3px;
 	border: 1px solid gray;
+	-webkit-print-color-adjust: exact;
 }
 
 .cursorPointer {
@@ -123,7 +128,7 @@ function color_inverse($color){
 	background-size: 30px 100%;
 	background-repeat: no-repeat;
 	background-position: center center;
-	text-align: center;
+	-webkit-print-color-adjust: exact;
 }
 
 .cable.Unk {
@@ -194,21 +199,13 @@ function color_inverse($color){
 	background-image: url("/assets/images/portIcons/SFP-gray.png");
 }
 
-background-image: url("/assets/images/portIcons/RJ45-black.png");
-.port {
-	height: 20px;
-	width: 20px;
-	margin: auto;
-	background-size: 8px 8px;
-	background-repeat: no-repeat;
-}
-
 .port {
 	height: 8px;
 	width: 8px;
 	margin: auto;
 	background-size: 8px 8px;
 	background-repeat: no-repeat;
+	-webkit-print-color-adjust: exact;
 }
 
 .cable {
@@ -218,7 +215,7 @@ background-image: url("/assets/images/portIcons/RJ45-black.png");
 	background-size: 20px 100%;
 	background-repeat: no-repeat;
 	background-position: center center;
-	text-align: center;
+	-webkit-print-color-adjust: exact;
 }
 
 .RU1 {
