@@ -22,11 +22,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objPort = isset($data['portID']) ? $data['portID'] : false;
 		$objFace = isset($data['objFace']) ? $data['objFace'] : false;
 		$objDepth = isset($data['partitionDepth']) ? $data['partitionDepth'] : false;
-		
-		
-		
+
 		// Create $path
-		//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content_port_path.php';
 		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
 		
 		$validate->returnData['success'] = $qls->App->buildPathFull($path, $connectorCode39);

@@ -97,6 +97,27 @@ $qls->Security->check_auth_page('user.php');
 					</div>
 				</div>
 			</div>
+			<div class="m-b-30">
+				<h4 class="m-t-0 header-title"><b>Path Orientation</b></h4>
+				<?php if($qls->user_info['group_id'] == 3) { ?>
+				<div class="checkbox">
+					<input id="checkboxGlobalPathOrientation" type="checkbox" <?php echo ($qls->org_info['global_setting_path_orientation'] == 1) ? 'checked' : ''; ?>>
+					<label for="checkboxGlobalPathOrientation">
+						Global
+					</label>
+				</div>
+				<?php } ?>
+				<div class="checkbox">
+					<div class="radio">
+						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioAdjacent" value="0" <?php echo ($qls->user_info['pathOrientation'] == 0) ? 'checked' : ''; ?>>
+						<label for="pathOrientationRadioAdjacent">Cable Adjacent</label>
+					</div>
+					<div class="radio">
+						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioInline" value="1" <?php echo ($qls->user_info['pathOrientation'] == 1) ? 'checked' : ''; ?>>
+						<label for="pathOrientationRadioInline">Cable Inline</label>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div> <!-- end row -->

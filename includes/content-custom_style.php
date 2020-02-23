@@ -120,8 +120,8 @@ function color_inverse($color){
 	width: 100%;
 }
 
-.trunk {
-	background-image: url("/assets/images/cableIcons/trunk.png");
+.trunk.stacked {
+	background-image: url("/assets/images/cableIcons/stacked-trunk.png");
 	height: 50px;
 	width: 30px;
 	margin: auto;
@@ -131,20 +131,58 @@ function color_inverse($color){
 	-webkit-print-color-adjust: exact;
 }
 
-.cable.Unk {
-	background-image: url("/assets/images/cableIcons/Unk-black.png");
+.trunk.adjacent {
+	background-image: url("/assets/images/cableIcons/adjacent-trunk.png");
+	height: 30px;
+	margin: auto;
+	background-size: 15px 30px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-print-color-adjust: exact;
 }
 
-.cable.SM-OS1 {
-	background-image: url("/assets/images/cableIcons/SM-yellow.png");
+.cable.Unk.stacked {
+	background-image: url("/assets/images/cableIcons/stacked-Unk-black.png");
+	background-position: center center;
 }
 
-.cable.MM-OM3, .cable.MM-OM4 {
-	background-image: url("/assets/images/cableIcons/MM-Aqua.png");
+.cable.SM-OS1.stacked {
+	background-image: url("/assets/images/cableIcons/stacked-SM-yellow.png");
+	background-position: center center;
 }
 
-.cable.Cat5e, .cable.Cat6, .cable.Cat6a {
-	background-image: url("/assets/images/cableIcons/Eth-green.png");
+.cable.MM-OM3.stacked, .cable.MM-OM4.stacked {
+	background-image: url("/assets/images/cableIcons/stacked-MM-Aqua.png");
+	background-position: center center;
+}
+
+.cable.Cat5e.stacked, .cable.Cat6.stacked, .cable.Cat6a.stacked {
+	background-image: url("/assets/images/cableIcons/stacked-Eth-green.png");
+	background-position: center center;
+}
+
+.cable.Unk.adjacent {
+	background-image: url("/assets/images/cableIcons/adjacent-Unk-black.png");
+	background-position: left;
+	width: 150px;
+}
+
+.cable.SM-OS1.adjacent {
+	background-image: url("/assets/images/cableIcons/adjacent-SM-yellow.png");
+	background-position: left;
+	width: 150px;
+}
+
+.cable.MM-OM3.adjacent, .cable.MM-OM4.adjacent {
+	background-image: url("/assets/images/cableIcons/adjacent-MM-Aqua.png");
+	background-position: left;
+	width: 150px;
+}
+
+.cable.Cat5e.adjacent, .cable.Cat6.adjacent, .cable.Cat6a.adjacent {
+	background-image: url("/assets/images/cableIcons/adjacent-Eth-green.png");
+	background-position: left;
+	width: 150px;
 }
 
 .port.Unk {
@@ -214,7 +252,6 @@ function color_inverse($color){
 	margin: auto;
 	background-size: 20px 100%;
 	background-repeat: no-repeat;
-	background-position: center center;
 	-webkit-print-color-adjust: exact;
 }
 

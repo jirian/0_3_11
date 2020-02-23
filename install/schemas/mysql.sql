@@ -55,6 +55,7 @@ CREATE TABLE `{database_prefix}users`(
 	`scanMethod` tinyint(4) NOT NULL DEFAULT '0',
 	`scrollLock` tinyint(4) NOT NULL DEFAULT '1',
 	`connectionStyle` SMALLINT(6) NOT NULL DEFAULT '0',
+	`pathOrientation` tinyint(4) NOT NULL DEFAULT '0',
 	PRIMARY KEY(`id`),
 	INDEX `users_idx` (`username`),
 	INDEX `users_idx2` (`code`),
@@ -371,6 +372,7 @@ CREATE TABLE `{database_prefix}app_organization_data` (
   `entitlement_data` varchar(255) NOT NULL,
   `entitlement_comment` varchar(10000) NOT NULL,
   `entitlement_expiration` int(40) NOT NULL,
+  `global_setting_path_orientation` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY(`id`)
 );
 

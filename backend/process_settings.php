@@ -41,6 +41,39 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->SQL->update('users', array('connectionStyle' => $connectionStyle), array('id' => array('=', $qls->user_info['id'])));
 				$validate->returnData['success'] = 'Connection Style has been updated.';
 				break;
+				
+			case 'pathOrientation':
+				$pathOrientation = $data['value'];
+				
+				if($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] == 3) {
+					$query = $qls->SQL->select('*', 'users');
+					while($row = $qls->SQL->fetch_assoc($query)) {
+						$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $row['id'])));
+					}
+				} else {
+					$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $qls->user_info['id'])));
+				}
+				
+				$validate->returnData['success'] = 'Path Orientation has been updated.';
+				break;
+				
+			case 'globalPathOrientation':
+				if($qls->user_info['group_id'] == 3) {
+					$globalPathOrientation = $data['value'] ? 1 : 0;
+					$qls->SQL->update('app_organization_data', array('global_setting_path_orientation' => $globalPathOrientation), array('id' => array('=', $qls->org_info['id'])));
+					
+					$pathOrientation = $qls->user_info['pathOrientation'];
+					$query = $qls->SQL->select('*', 'users');
+					while($row = $qls->SQL->fetch_assoc($query)) {
+						$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $row['id'])));
+					}
+					
+					$validate->returnData['success'] = 'Path Orientation Global Setting has been updated.';
+				} else {
+					$errMsg = 'Setting requires Administrator role.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+				break;
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -48,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 function validate($data, &$validate, &$qls){
 	
-	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle');
+	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle', 'pathOrientation', 'globalPathOrientation');
 	
 	if($validate->validateInArray($data['property'], $propertyArray, 'property')) {
 		
@@ -63,16 +96,23 @@ function validate($data, &$validate, &$qls){
 			$scanMethodArray = array('manual', 'barcode');
 			$validate->validateInArray($data['value'], $scanMethodArray, 'scan method');
 			
-		} else if($data['property'] == 'scrollLock'){
+		} else if($data['property'] == 'scrollLock' or $data['property'] == 'globalPathOrientation'){
 			
 			if(!is_bool($data['value'])) {
 				$errMsg = 'Invalid value.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
-		} else if($data['property'] == 'scrollLock'){
+		} else if($data['property'] == 'connectionStyle'){
 			$connectionStyleArray = array(0, 1, 2);
 			
 			if(!in_array($data['value'], $connectionStyleArray)) {
+				$errMsg = 'Invalid value.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		} else if($data['property'] == 'pathOrientation'){
+			$pathOrientationArray = array(0, 1);
+			
+			if(!in_array($data['value'], $pathOrientationArray)) {
 				$errMsg = 'Invalid value.';
 				array_push($validate->returnData['error'], $errMsg);
 			}

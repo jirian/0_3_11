@@ -93,4 +93,48 @@ $( document ).ready(function() {
 		});
 	});
 	
+	// Path Orientation
+	$('.radioPathOrientation').on('change', function(){
+		var value = $('.radioPathOrientation:checked').val();
+		
+		var data = {
+			property: 'pathOrientation',
+			value: value
+		};
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_settings.php', {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success);
+			}
+		});
+	});
+	
+	// Path Orientation Global
+	$('#checkboxGlobalPathOrientation').on('change', function(){
+		var value = $(this).is(':checked');
+		
+		var data = {
+			property: 'globalPathOrientation',
+			value: value
+		};
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_settings.php', {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success);
+			}
+		});
+	});
+	
 });

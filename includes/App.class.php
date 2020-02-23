@@ -1338,60 +1338,58 @@ var $qls;
 		
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
-		$test = 1;
 		
-		if($test == 1) {
+		$tableArray = array(array());
+		
+		$pathOrientation = $this->qls->user_info['pathOrientation'];
+		
+		if($pathOrientation == 0) {
 			foreach($path as $objectIndex => $object) {
 				$objType = $object['type'];
 				
 				switch($objType) {
 					
-					case 'object':
-						if($objectIndex) {
-							if($path[$objectIndex+1]['type'] == 'trunk') {
-								$bottomTableTag = '</td>';
-							} else {
-								$bottomTableTag = '</td></tr>';
+					case 'connector':
+						
+						$addConnector = false;
+						if(isset($path[$objectIndex+1])) {
+							if($path[$objectIndex+1]['type'] != 'object') {
+								$addConnector = true;
 							}
 						} else {
-							$bottomTableTag = '</td>';
+							$addConnector = true;
 						}
-						$topTableTag = '<tr><td>';
-						$htmlPathFull .= $topTableTag;
-						$objID = $object['data']['id'];
-						$objFace = $object['data']['face'];
-						$objDepth = $object['data']['depth'];
-						$objPort = $object['data']['port'];
-						$selected = $object['data']['selected'];
-						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-						$objBox = $this->wrapObject($objID, $objName, $selected);
 						
-						$htmlPathFull .= $objBox;
-						$htmlPathFull .= $bottomTableTag;
-						break;
-					
-					case 'connector':
-						$htmlPathFull .= '<tr><td>';
-						$connectorTypeID = $object['data']['connectorType'];
-						
-						if($connectorTypeID != 0) {
-							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+						if($addConnector) {
+							// Create blank "object" <td>
+							if($objectIndex == 0 or (($objectIndex == count($path)-1) and ($path[$objectIndex-1]['type'] == 'cable'))) {
+								//array_push($tableArray[count($tableArray)-1], '<td></td>');
+								array_push($tableArray[count($tableArray)-1], '<td>'.$this->wrapObject(0, 'None').'</td>');
+							}
 							
-							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-							$htmlPathFull .= '</div>';
+							$connectorTypeID = $object['data']['connectorType'];
 							
-						} else {
-							$connectorTypeName = 'Unk';
+							if($connectorTypeID != 0) {
+								$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+								$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+							} else {
+								$connectorTypeName = 'Unk';
+								$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+							}
 							
-							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
-							$htmlPathFull .= '</div>';
+							// Wrap in <td> and add to row array
+							$htmlString = '<td>'.$connectorHTML.'</td>';
+							array_push($tableArray[count($tableArray)-1], $htmlString);
 							
+							if($objectIndex == count($path)-1) {
+								array_push($tableArray[count($tableArray)-1], '<td></td>');
+							}
 						}
-						$htmlPathFull .= '</td><td></td></tr>';
+						
 						break;
 						
 					case 'cable':
-						$htmlPathFull .= '<tr><td>';
+					
 						$cableTypeID = $object['data']['mediaTypeID'];
 						if($cableTypeID != 0) {
 							$cableTypeName = $mediaTypeClass = $this->mediaTypeValueArray[$cableTypeID]['name'];
@@ -1401,16 +1399,72 @@ var $qls;
 						}
 						$cableLength = $object['data']['length'];
 						
-						$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
-						$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
-						$htmlPathFull .= '</div>';
-						$htmlPathFull .= '</td><td></td></tr>';
+						$htmlString = '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.' adjacent">';
+						$htmlString .= $cableLength.'<br>'.$cableTypeName;
+						$htmlString .= '</div>';
+						
+						// Wrap in <td> and add to row array
+						$htmlString = '<td rowspan="2">'.$htmlString.'</td>';
+						array_push($tableArray[count($tableArray)-1], $htmlString);
+						
+						// Add new row array in table array
+						array_push($tableArray, array());
+						
+						break;
+						
+					case 'object':
+					
+						$objID = $object['data']['id'];
+						$objFace = $object['data']['face'];
+						$objDepth = $object['data']['depth'];
+						$objPort = $object['data']['port'];
+						$selected = $object['data']['selected'];
+						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+						$objBox = $this->wrapObject($objID, $objName, $selected);
+						
+						// Wrap in <td> and add to row array
+						$htmlString = '<td>'.$objBox.'</td>';
+						array_push($tableArray[count($tableArray)-1], $htmlString);
+						
+						if($path[$objectIndex+1]['type'] == 'trunk') {
+							if(isset($path[$objectIndex-1])) {
+								$connectorTypeID = $path[$objectIndex-1]['data']['connectorType'];
+								
+								if($connectorTypeID != 0) {
+									$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+									$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+								} else {
+									$connectorTypeName = 'Unk';
+									$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
+								}
+								
+								// Wrap in <td> and add to row array
+								$htmlString = '<td>'.$connectorHTML.'</td>';
+								array_push($tableArray[count($tableArray)-1], $htmlString);
+								
+								array_push($tableArray[count($tableArray)-1], '<td></td>');
+							} else {
+								array_push($tableArray[count($tableArray)-1], '<td></td>');
+								array_push($tableArray[count($tableArray)-1], '<td></td>');
+							}
+							
+							// Add new row array in table array
+							array_push($tableArray, array());
+						}
+						
 						break;
 						
 					case 'trunk':
-						$htmlPathFull .= '<td rowspan="2">';
-						$htmlPathFull .= '<div title="Trunk" class="trunk">';
-						$htmlPathFull .= '</td>';
+						
+						$htmlString = '<div title="Trunk" class="trunk adjacent">';
+						
+						// Wrap in <td> and add to row array
+						$htmlString = '<td>'.$htmlString.'</td><td></td><td></td>';
+						array_push($tableArray[count($tableArray)-1], $htmlString);
+						
+						// Add new row array in table array
+						array_push($tableArray, array());
+						
 						break;
 				}
 			}
@@ -1477,7 +1531,7 @@ var $qls;
 						}
 						$cableLength = $object['data']['length'];
 						
-						$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.'">';
+						$htmlPathFull .= '<div style="width:100%;text-align:left;" title="'.$cableTypeName.'" class="cable '.$mediaTypeClass.' stacked">';
 						$htmlPathFull .= $cableLength.'<br>'.$cableTypeName;
 						$htmlPathFull .= '</div>';
 						$htmlPathFull .= '</td><td></td></tr>';
@@ -1485,7 +1539,7 @@ var $qls;
 						
 					case 'trunk':
 						$htmlPathFull .= '<td rowspan="2">';
-						$htmlPathFull .= '<div title="Trunk" class="trunk">';
+						$htmlPathFull .= '<div title="Trunk" class="trunk stacked">';
 						$htmlPathFull .= '</td>';
 						break;
 				}
@@ -1493,7 +1547,17 @@ var $qls;
 		}
 		$htmlPathFull .= '</table>';
 		
-		return $htmlPathFull;
+		if($pathOrientation == 0) {
+			$htmlString = '<table>';
+			foreach($tableArray as $tableRow) {
+				$htmlString .= '<tr>'.implode($tableRow).'</tr>';
+			}
+			$htmlString .= '</table>';
+			return $htmlString;
+		} else {
+			return $htmlPathFull;
+		}
+		
 	}
 	
 	function buildObject($obj){
@@ -1997,15 +2061,11 @@ var $qls;
 			// Find trunk peer if it exists
 			if(isset($this->peerArray[$objID][$objFace][$depth])) {
 				$peer = $this->peerArray[$objID][$objFace][$depth];
-				if(!$peer['floorplanPeer']) {
-					$peerID = $peer['peerID'];
-					$peerFace = $peer['peerFace'];
-					$peerDepth = $peer['peerDepth'];
-					
-					$peerGlobalID = 'part-3-'.$peerID.'-'.$peerFace.'-'.$peerDepth.'-0';
-				} else {
-					$peerGlobalID = 'part-3-0-0-0-0';
-				}
+				$peerID = $peer['peerID'];
+				$peerFace = $peer['peerFace'];
+				$peerDepth = $peer['peerDepth'];
+				
+				$peerGlobalID = 'part-3-'.$peerID.'-'.$peerFace.'-'.$peerDepth.'-0';
 			} else {
 				$peerGlobalID = 'none';
 			}

@@ -39,10 +39,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$cabinetFace = $cabinetFace == 0 ? 'cabinet_front' : 'cabinet_back';
 			$cabinet = $qls->App->envTreeArray[$cabinetID];
+			$cabinetType = $cabinet['type'];
 			$cabinetParentID = $cabinet['parent'];
 			$ruOrientation = $cabinet['ru_orientation'];
 			$cabinetName = $cabinet['name'];
 			$cabinetSize = $cabinet['size'];
+			error_log('Debug: '.$cabinetType);
+			if($cabinetType == 'floorplan') {
+				$errMsg = 'Cannot add floorplan to diagram.';
+				array_push($validate->returnData['error'], $errMsg);
+				echo json_encode($validate->returnData);
+				exit();
+			}
 			
 			// Retreive ancestor info
 			$locationID = $cabinetParentID;
@@ -91,7 +99,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			while ($row = $qls->SQL->fetch_assoc($results)){
 				$objectTemplate[$row['id']] = $row;
 				$objectTemplate[$row['id']]['partitionData'] = json_decode($row['templatePartitionData'], true);
-				//$objectTemplate[$row['id']]['categoryName'] = $category[$row['templateCategory_id']]['name'];
 				$objectTemplate[$row['id']]['categoryName'] = $qls->App->categoryArray[$row['templateCategory_id']]['name'];
 				unset($objectTemplate[$row['id']]['templatePartitionData']);
 			}

@@ -94,6 +94,12 @@ var $qls;
 		// Add "connectionStyle" column to "users" table
 		$this->qls->SQL->alter('users', 'add', 'connectionStyle', 'SMALLINT(6)', false, 0);
 		
+		// Add "pathOrientation" column to "users" table
+		$this->qls->SQL->alter('users', 'add', 'pathOrientation', 'TINYINT(4)', false, 0);
+		
+		// Add "global_setting_path_orientation" column to "organization_data" table
+		$this->qls->SQL->alter('app_organization_data', 'add', 'global_setting_path_orientation', 'TINYINT(4)', false, 0);
+		
 	}
 	
 	/**
