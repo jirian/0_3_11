@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$ruOrientation = $cabinet['ru_orientation'];
 			$cabinetName = $cabinet['name'];
 			$cabinetSize = $cabinet['size'];
-			error_log('Debug: '.$cabinetType);
+			
 			if($cabinetType == 'floorplan') {
 				$errMsg = 'Cannot add floorplan to diagram.';
 				array_push($validate->returnData['error'], $errMsg);
@@ -201,7 +201,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					if ($skipCounter == 0){
 						$html .= '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'">';
 					} else {
-						echo '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'" style="display:none;">';
+						$html .= '<td class="droppable" rowspan="1" data-cabinetRU="'.$cabLoop.'" style="display:none;">';
 						$skipCounter--;
 					}
 				}
