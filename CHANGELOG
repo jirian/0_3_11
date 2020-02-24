@@ -22,8 +22,11 @@ Contents
 **Changes introduced in 0.3.0
 
 [Fix]		Resolved issue with exporting only a single unconnected managed cable
+[Fix]		Resolved failure to restore from backup
 [Feature]	Highlight cable path
 [Feature]	Diagram builder
+[Feature]	Print cable path
+[Enhance]	Added user setting to change orientation of cable in path depictions
 [Enhance]	Consolodated action buttons into dropdown
 
 **Changes introduced in 0.2.4

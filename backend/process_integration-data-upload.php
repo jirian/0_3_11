@@ -1957,7 +1957,7 @@ function insertCabinetAdds(&$qls, &$importedCabinetArray, $existingCabinetArray)
 		$nameHash = $cabinet['nameHash'];
 		
 		$name = $cabinet['name'];
-		$insert['insertName']
+		$insert['insertName'];
 		$parent = '#';
 		$type = $cabinet['type'];
 		$orientation = $cabinet['orientation'];
