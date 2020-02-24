@@ -660,6 +660,14 @@ function initializeEnvTree(){
 
 $(document).ready(function() {
 
+	$('#printFullPath').on('click', function(){
+		$('#pathContainer').printThis({
+			importStyle: true,
+			removeInline: true,
+			removeInlineSelector: "img"
+		});
+	});
+
 	$(document).data('verified', 'unknown');
 	$(document).data('localConnectorType', false);
 	$(document).data('remoteConnectorType', false);

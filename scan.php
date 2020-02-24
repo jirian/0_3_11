@@ -198,9 +198,20 @@ $qls->Security->check_auth_page('operator.php');
 					
 					<!-- Path -->
 					<div class="card">
-						<div class="card-header">Path</div>
+						<div class="card-header">Path
+							<span>
+								<div class="btn-group pull-right">
+									<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+									<div class="dropdown-menu">
+										<a id="printFullPath" class="dropdown-item" href="#"><i class="ion-map"></i> Print</a>
+									</div>
+								</div>
+							</span>
+						</div>
 						<div class="card-block">
-							<blockquote id="pathContainer" class="card-blockquote"></blockquote>
+							<blockquote class="card-blockquote">
+								<div id="pathContainer"></div>
+							</blockquote>
 						</div>
 					</div>
 				</div>
@@ -216,6 +227,9 @@ $qls->Security->check_auth_page('operator.php');
 <!-- XEditable Plugin -->
 <script src="assets/plugins/moment/moment.js"></script>
 <script type="text/javascript" src="assets/plugins/x-editable/js/bootstrap-editable.min.js"></script>
+
+<!-- printThis Plugin -->
+<script src="assets/plugins/printThis/printThis.js"></script>
 
 <!-- Quagga Plugin -->
 <script type="text/javascript" src="assets/plugins/quagga/dist/quagga.js"></script>

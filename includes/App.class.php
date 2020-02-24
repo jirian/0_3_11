@@ -1506,15 +1506,17 @@ var $qls;
 						
 						if($connectorTypeID != 0) {
 							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+							$code39 = $object['data']['code39'];
+							$connectorClass = $code39 != 0 ? 'cableConnector cursorPointer' : '';
 							
-							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-							$htmlPathFull .= '</div>';
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.' '.$connectorClass.'" data-code39="'.$code39.'"></div>';
+							//$htmlPathFull .= '</div>';
 							
 						} else {
 							$connectorTypeName = 'Unk';
 							
 							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
-							$htmlPathFull .= '</div>';
+							//$htmlPathFull .= '</div>';
 							
 						}
 						$htmlPathFull .= '</td><td></td></tr>';

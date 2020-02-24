@@ -4,7 +4,7 @@
  * Tree view
  */
 
- function makeAddCabButtonClickable(addCabButton){
+function makeAddCabButtonClickable(addCabButton){
 	$(addCabButton).click(function(event){
 		event.preventDefault();
 		var globalID = $(this).data('globalId');
@@ -230,10 +230,10 @@ function makeFloorplanObjectsClickable(){
 	});
 }
 
-function makeCableArrowsClickable(){
-	$('.cableArrow').off('click');
-	$('.cableArrow').on('click', function(){
-		var code39 = $(this).attr('data-Code39');
+function makeCableConnectorsClickable(){
+	$('.cableConnector').off('click');
+	$('.cableConnector').on('click', function(){
+		var code39 = $(this).data('code39');
 		if(code39 != 0) {
 			window.location.href = '/scan.php?connectorCode='+code39;
 		}
@@ -261,7 +261,7 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 			/* $('#containerFullPath').find('img').each(function(){
 				$(this).css('height', $(this).parent().height());
 			}); */
-			makeCableArrowsClickable();
+			makeCableConnectorsClickable();
 		}
 	});
 }

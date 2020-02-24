@@ -109,11 +109,11 @@ $qls->Security->check_auth_page('user.php');
 				<?php } ?>
 				<div class="checkbox">
 					<div class="radio">
-						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioAdjacent" value="0" <?php echo ($qls->user_info['pathOrientation'] == 0) ? 'checked' : ''; ?>>
+						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioAdjacent" value="0" <?php echo ($qls->user_info['pathOrientation'] == 0) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
 						<label for="pathOrientationRadioAdjacent">Cable Adjacent</label>
 					</div>
 					<div class="radio">
-						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioInline" value="1" <?php echo ($qls->user_info['pathOrientation'] == 1) ? 'checked' : ''; ?>>
+						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioInline" value="1" <?php echo ($qls->user_info['pathOrientation'] == 1) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
 						<label for="pathOrientationRadioInline">Cable Inline</label>
 					</div>
 				</div>

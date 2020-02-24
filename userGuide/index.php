@@ -76,7 +76,7 @@
 							<li><a href="#build">Build</a>
 								<ul class="nav">
 									<li><a href="#templates">Templates</a></li>
-									<li><a href="#cabinets">Cabinets</a></li>
+									<li><a href="#cabinets">Environment</a></li>
 								</ul>
 							</li>
 							<li><a href="#explore">Explore</a></li>
@@ -227,7 +227,7 @@
 											</li>
 											<li><strong>Mounting Configuration</strong> - A 2-post template will only be visible on one side of the installed cabinet and can have another 2-post template installed behind it.  A 4-post template will have a front and a back which occupy both sides of the cabinet it is installed in.</li>
 											<li><strong>Add/Remove Partition</strong> - Partitions allow for the template layout to accurately reflect the object it is modeling.  A horizontal partition spans the entire width of the partition it is created in and can grow vertically.  A vertical partition spance the full height of the partition it is created in and can grow horizontally.</li>
-											<li><strong>Partition Size</strong> - Horizontal partitions grow vertically in 0.5 RU increments.  Vertical partitions grow horizontally in increments equal to 10% of the entire template width.</li>
+											<li><strong>Partition Size</strong> - Horizontal partitions grow vertically in 1/2 RU increments.  Vertical partitions grow horizontally in increments equal to 1/24 of the entire template width.</li>
 											<li><strong>Partition Type</strong> - Generic partitions have no properties and can be used as spacers or containers for other partitions.  Connectable partitions contain ports or interfaces.  Enclosure partitions can contain insert templates.</li>
 											<li><strong>Port ID</strong> - The format describing how the template ports will be identified.  Clicking the "Configure" button will open a window allowing you to add/change/delete fields that will be used to compile each port ID (ie "Port-1a").  You can configure up to 5 fields of 3 possible field types.
 												<ol>
@@ -267,8 +267,8 @@
 						
 						<div class="row">
                             <div class="col-md-12">
-                                <h4 id="cabinets">Cabinets - <a href="#top">#back to top</a></h4>
-                                <p>The Cabinets page allows you to create a hierarchical representation of your environment's locations, cabinets, and objects as well as their relationship to each other.  The Cabinets page is separated into 3 sections:</p>
+                                <h4 id="cabinets">Environment - <a href="#top">#back to top</a></h4>
+                                <p>The Environment page allows you to create a hierarchical representation of your environment's locations, cabinets, and objects as well as their relationship to each other.  The Environment page is separated into 3 sections:</p>
 								<ol>
                                     <li><strong>Locations and Cabinets</strong> - Create locations and cabinets.  Define relationships between cabinets.</li>
                                     <li><strong>Cabinet</strong> - Displays the selected cabinet and objects installed.</li>
@@ -287,11 +287,13 @@
 								</p>
 								<p class="columnContent">The Cabinet card allows for cabinet properties to be edited.
 									<br>
-									RU size can grow up to 50 RU and shrink as long as the top RU is not occupied by an object.
+									<strong>RU size</strong> can grow up to 50 RU and shrink as long as the top RU is not occupied by an object.
 									<br>
-									Cable Paths can be added to represent usable cable paths between cabinets.  Consider a cable path as overhead cabletray, raised floor space, conduit, or any other path that patch cables can be ran.  A cable path can only be created between two cabinets in the same location.  Cable paths and their configured distances are considered when calculating possible cable paths with the path finder function.
+									<strong>RU orientation</strong> determines the direction of RU numbering as well as whether RUs are added/removed from the top (Bottom-Up) or bottom (Top-Down).
 									<br>
-									Cabinet adjacencies can be configured to tell PatchCableMgr which cabinets neighbor the selected one.  A cabinet adjacency can only be created between two cabinets in the same pod.  Cabinet adjacencies are considered when calculating possible cable paths with the path finder function.
+									<strong>Cable Paths</strong> can be added to represent usable cable paths between cabinets.  Consider a cable path as overhead cabletray, raised floor space, conduit, or any other path that patch cables can be ran.  A cable path can only be created between two cabinets in the same location.  Cable paths and their configured distances are considered when calculating possible cable paths with the path finder function.
+									<br>
+									<strong>Cabinet adjacencies</strong> can be configured to tell PatchCableMgr which cabinets neighbor the selected one.  A cabinet adjacency can only be created between two cabinets in the same pod.  Cabinet adjacencies are considered when calculating possible cable paths with the path finder function.
 								</p>
 								<h4>Cabinet:</h4>
 								<p class="columnContent">
@@ -303,7 +305,7 @@
 									<br>
 									The Selected Object section displays information about the object.  The Object Name and Trunked To properties are editable.  Connectable object partitions can be trunked to other connectable object partitions.  When trunking a passive object partition to another passive object partition, the number of ports must be equal and the media type must match.  When trunking a passive object partition to an endpoint object partition, the number of ports must be equal and the endpoint object partition port type must be RJ45.  An endpoint object partition cannot be trunked to another endpoint object partition.
 									<br>
-									The delete button will remove the selected object from the cabinet.
+									The "Delete" button in the "Actions" dropdown will remove the selected object from the cabinet.
 									<br>
 									The Available Templates section displays a list of templates available to install in the cabinet grouped by category.  Drag and drop a template into the cabinet to install it as an object.  An insert template can only be installed in an enclosure partition of a standard object.
 								</p>
@@ -358,7 +360,7 @@
 								<br>
 								The Populated checkbox allows you to flag a port as populated even though an PatchCableMgr managed patch cable has not been connected to it.  This is useful for when you have existing patch cables that have not yet been scanned into your PatchCableMgr inventory, or when it is not necessary for a patch cable to be managed by PatchCableMgr.  Flagging a port as populated will take it out of consideration when calculating possible cable paths with the Path Finder function.
 								<br>
-								When an individual port is selected, its cable path will be displayed.  The cable path is represented by colored boxes containing the full name of the object.  <strong style="color:#039cfd;">Blue boxes</strong> represent passive objects, <strong style="color:#158c75;">green boxes</strong> represent endpoint objects and red boxes indicate a patch cable is not connected to an object.  A vertical double-ended arrow represents a trunk connection between two objects.  Curved arrows represent a patch cable connection indicating the length of the patch cable.  The currently selected object port is identified by a pin icon to the left of the object name.
+								When an individual port is selected, its cable path will be displayed.  The cable path is represented by boxes containing the full name of the object and colored according to the object's category.  A double-ended arrow represents a trunk connection between two objects.  A curved line represents a patch cable.  The currently selected object port is identified by a pin icon.  Endpoint objects are identified by a target icon.
 								<br><br>
 								Clicking the Path Finder button opens the path finder modal.  The path finder modal allows you to calculate all possible paths between two ports (Endpoint A and Endpoint B).  Endpoint A is determined by the currently selected port.  Use the navigation dropdowns to indicate Endpoint B, the far port you wish to find available paths to.  Once you've narrowed down the path selection dropdowns to an individual port, the Run Path Finder button becomes enabled.  Clicking the Run Path Funder button tells PatchCableMgr to begin calculating all available paths between the two endpoints.  Results are returned in a table indicating the number of patch cables required for each unique path.  The results table indicates the number of local (between objects in the same cabinet), adjacent (between objects in neighboring cabinets), path (between objects reachable via cable path), and total patch cables required to connect the endpoints.  Clicking on a path in the result table will display the full cable path.
 								</p>

@@ -45,10 +45,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			case 'pathOrientation':
 				$pathOrientation = $data['value'];
 				
-				if($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] == 3) {
-					$query = $qls->SQL->select('*', 'users');
-					while($row = $qls->SQL->fetch_assoc($query)) {
-						$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $row['id'])));
+				if($qls->org_info['global_setting_path_orientation'] == 1) {
+					if($qls->user_info['group_id'] == 3) {
+						$query = $qls->SQL->select('*', 'users');
+						while($row = $qls->SQL->fetch_assoc($query)) {
+							$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $row['id'])));
+						}
+					} else {
+						$errMsg = 'Path Orientation has been set globally by Administrator.';
+						array_push($validate->returnData['error'], $errMsg);
 					}
 				} else {
 					$qls->SQL->update('users', array('pathOrientation' => $pathOrientation), array('id' => array('=', $qls->user_info['id'])));
