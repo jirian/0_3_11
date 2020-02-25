@@ -1728,9 +1728,10 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 
 function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importedObjectArray, &$validate){
 	
+	$walljackPortIDArray = array();
+	
 	foreach($importedTrunkArray as &$trunk) {
 		
-		$walljackPortIDArray = array();
 		$csvLine = $trunk['line'];
 		$csvFileName = $trunk['fileName'];
 		$portNameHash = $trunk['portNameHash'];
@@ -1770,15 +1771,18 @@ function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importe
 				if($objTemplateType == 'walljack') {
 					
 					// Create variable to track walljack portID
-					if(!isset($walljackPortIDArray[$portNameHash])) {
-						$walljackPortIDArray[$portNameHash] = 0;
+					if(!isset($walljackPortIDArray[$nameHash])) {
+						$walljackPortIDArray[$nameHash] = 0;
 					}
 					
 					// Store the A side Info
 					$trunk['aObjID'] = $objID;
 					$trunk['aFace'] = 0;
 					$trunk['aDepth'] = 0;
-					$trunk['aPortID'] = $walljackPortIDArray[$portNameHash]++;
+					$trunk['aPortID'] = $walljackPortIDArray[$nameHash];
+					
+					// Increment walljack portID
+					$walljackPortIDArray[$nameHash]++;
 					
 				} else {
 					$errMsg = 'Port '.$trunk['portName'].' on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
@@ -2498,6 +2502,7 @@ function processConnections(&$qls, $importedConnectionArray){
 
 // Process Trunks
 function processTrunks($qls, $importedTrunkArray, $importedObjectArray, $portArray){
+	
 	$query = "TRUNCATE TABLE ".$qls->config['sql_prefix']."app_object_peer";
 	$qls->SQL->query($query);
 	$completedArray = array();

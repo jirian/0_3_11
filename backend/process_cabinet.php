@@ -255,24 +255,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$validate->returnData['success']['floorplanImg'] = false;
 			}
 			
-			// Retrieve peer data
-			$peerData = array();
-			$query = $qls->SQL->select('*', 'app_object_peer', array('floorplan_peer' => array('=', 1)));
-			while($row = $qls->SQL->fetch_assoc($query)) {
-				$objectID = $row['a_id'];
-				if(!isset($peerData[$objectID])) {
-					$peerData[$objectID] = array();
-				}
-				array_push($peerData[$objectID], $row);
-			}
-			
-			// Retrieve object data
-			$objectData = array();
-			$query = $qls->SQL->select('*', 'app_object');
-			while($row = $qls->SQL->fetch_assoc($query)) {
-				$objectData[$row['id']] = $row;
-			}
-			
 			// Retrieve portName data
 			$compatibilityArray = array();
 			$query = $qls->SQL->select('*', 'app_object_compatibility');
@@ -282,56 +264,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			// Retrieve object data
 			$floorplanObjectData = array();
-			$floorplanObjectPeerTable = array();
-			$query = $qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)));
-			while($object = $qls->SQL->fetch_assoc($query)) {
-				$objectID = $object['id'];
-				$objectName = $object['name'];
-				$type = $compatibilityArray[$object['template_id']][0][0]['templateType'];
+			foreach($qls->App->objectByCabinetArray[$cabinetID] as $objectID) {
+				$object = $qls->App->objectArray[$objectID];
+				$objectTemplateID = $object['template_id'];
+				$type = $qls->App->compatibilityArray[$objectTemplateID][0][0]['templateType'];
 				$tempArray = array(
 					'id' => $objectID,
 					'type' => $type,
 					'position_top' => $object['position_top'],
 					'position_left' => $object['position_left']
 				);
-				$peerPortName = false;
-				if(isset($peerData[$objectID])) {
-					$peerRecord = $peerData[$objectID];
-					foreach($peerRecord as $peer) {
-						$peerID = $peer['b_id'];
-						$peerFace = $peer['b_face'];
-						$peerDepth = $peer['b_depth'];
-						$peerPort = $peer['b_port'];
-						$peerTemplateID = $objectData[$peerID]['template_id'];
-						$peerCompatibility = $compatibilityArray[$peerTemplateID][$peerFace][$peerDepth];
-						$peerPortNameFormat = $peerCompatibility['portNameFormat'];
-						$peerPortLayoutX = $peerCompatibility['peerPortLayoutX'];
-						$peerPortLayoutY = $peerCompatibility['peerPortLayoutY'];
-						$peerPortTotal = $peerPortLayoutX * $peerPortLayoutY;
-						$peerPortNameFormat = json_decode($peerPortNameFormat, true);
-						$peerPortName = $qls->App->generatePortName($peerPortNameFormat, $peerPort, $peerPortTotal);
-						$objectPeerTableArray = array(
-							'objID' => $objectID,
-							'objName' => $objectName,
-							'peerPortName' => $peerPortName
-						);
-						array_push($floorplanObjectPeerTable, $objectPeerTableArray);
-					}
-				} else {
-					$peerPortName = $type == 'walljack' ? 'None' : 'N/A';
-					$objectPeerTableArray = array(
-						'objID' => $objectID,
-						'objName' => $objectName,
-						'peerPortName' => $peerPortName
-					);
-					array_push($floorplanObjectPeerTable, $objectPeerTableArray);
-				}
 				
 				array_push($floorplanObjectData, $tempArray);
 			}
 			
 			$validate->returnData['success']['floorplanObjectData'] = $floorplanObjectData;
-			$validate->returnData['success']['floorplanObjectPeerTable'] = $floorplanObjectPeerTable;
 			
 		} else if($action == 'getFloorplanObjectPeerTable') {
 			// Retrieve floorplan data

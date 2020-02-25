@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		// Create $path
 		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
-		
+		error_log('Debug (path): '.json_encode($path));
 		$validate->returnData['success'] = $qls->App->buildPathFull($path, $connectorCode39);
 	}
 	echo json_encode($validate->returnData);

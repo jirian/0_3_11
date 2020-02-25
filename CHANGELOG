@@ -23,6 +23,8 @@ Contents
 
 [Fix]		Resolved issue with exporting only a single unconnected managed cable
 [Fix]		Resolved failure to restore from backup
+[Fix]		Corrected error preventing floorplan from displaying
+[Fix]		Corrected error causing incorrect port indexing when restoring backup with trunked walljack objects
 [Feature]	Highlight cable path
 [Feature]	Diagram builder
 [Feature]	Print cable path
