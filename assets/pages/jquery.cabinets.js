@@ -1044,19 +1044,26 @@ $( document ).ready(function() {
 					'top': objectPositionTop,
 					'left': objectPositionLeft
 				})
-				.draggable()
-					.hover(
-						function(){
-							$('#floorplanContainer').panzoom('option', {
-								disablePan: true
-							});
-						},
-						function(){
-							$('#floorplanContainer').panzoom('option', {
-								disablePan: false
-							});
-						}
-					)
+				.draggable({
+					drag:function(event, ui){
+						var matrix = $('#floorplanContainer').panzoom('getMatrix');
+						var scale = matrix[0];
+						ui.position.left = ui.position.left / scale;
+						ui.position.top = ui.position.top / scale;
+					}
+				})
+				.hover(
+					function(){
+						$('#floorplanContainer').panzoom('option', {
+							disablePan: true
+						});
+					},
+					function(){
+						$('#floorplanContainer').panzoom('option', {
+							disablePan: false
+						});
+					}
+				)
 				);
 				makeFloorplanObjectsClickable();
 			} else {
@@ -1658,7 +1665,14 @@ $( document ).ready(function() {
 								'position': 'absolute',
 								'top': positionTop,
 								'left': positionLeft})
-							.draggable()
+							.draggable({
+								drag:function(event, ui){
+									var matrix = $('#floorplanContainer').panzoom('getMatrix');
+									var scale = matrix[0];
+									ui.position.left = ui.position.left / scale;
+									ui.position.top = ui.position.top / scale;
+								}
+							})
 							.hover(
 								function(){
 									$('#floorplanContainer').panzoom('option', {
