@@ -16,11 +16,7 @@ $qls->Security->check_auth_page('user.php');
 <link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
 
 <!-- DataTables -->
-<link href="assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-<link href="assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-
-<!-- Responsive datatable examples -->
-<link href="assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
 <?php require 'includes/header_end.php'; ?>
 <?php require_once './includes/content-object_tree_modal.php'; ?>
@@ -405,8 +401,8 @@ $qls->Security->check_auth_page('user.php');
 <script type="text/javascript" src="assets/plugins/pathSelector/jquery.pathSelector.js"></script>
 
 <!-- Required datatable js -->
-<script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="assets/plugins/datatables/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
 
 <!-- panZoom Plugin -->
 <script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script>

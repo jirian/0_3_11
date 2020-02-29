@@ -17,11 +17,7 @@ $qls->Security->check_auth_page('operator.php');
 <link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
 
 <!-- DataTables -->
-<link href="assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-<link href="assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-
-<!-- Responsive datatable examples -->
-<link href="assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
 <!-- Jquery filer css -->
 <link href="assets/plugins/jquery.filer/css/jquery.filer.css" rel="stylesheet" />
@@ -434,12 +430,8 @@ $qls->Security->check_auth_page('operator.php');
 <script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script>
 
 <!-- Required datatable js -->
-<script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="assets/plugins/datatables/dataTables.bootstrap4.min.js"></script>
-
-<!-- Responsive examples -->
-<script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
-<script src="assets/plugins/datatables/responsive.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
 	
 <!-- Jquery filer js -->
 <script src="assets/plugins/jquery.filer/js/jquery.filer.min.js"></script>

@@ -31,6 +31,8 @@ function color_inverse($color){
 	text-align: left;
 }
 
+.dataTables_scrollBody thead {visibility: hidden;}
+
 .printImage {
 	position: absolute;
 }
