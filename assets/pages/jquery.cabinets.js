@@ -1125,8 +1125,7 @@ $( document ).ready(function() {
 	$('#floorplanContainer').panzoom({
 		$zoomIn: $('#btnZoomIn'),
 		$zoomOut: $('#btnZoomOut'),
-		$reset: $('#btnZoomReset'),
-		origin: '0 0'
+		$reset: $('#btnZoomReset')
 	}).on('panzoomreset', function(){
 		fitFloorplan();
 	});

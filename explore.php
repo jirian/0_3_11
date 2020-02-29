@@ -184,14 +184,16 @@ text-align: left;
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
 					<div class="card-box" style="min-height:500px;">
 						<h4 class="header-title m-t-0">Floorplan</h4>
-						<i id="btnZoomOut" class="fa fa-search-minus fa-2x"></i>
-						<i id="btnZoomIn" class="fa fa-search-plus fa-2x"></i>
-						<i id="btnZoomReset" class="fa fa-refresh fa-2x"></i>
-						<div>
-							<div id="floorplanContainer" style="position: relative;">
-								<img id="imgFloorplan" src=""></img>
+						<div class="noSelect">
+							<i id="btnZoomOut" class="fa fa-search-minus fa-2x cursorPointer"></i>
+							<i id="btnZoomIn" class="fa fa-search-plus fa-2x cursorPointer"></i>
+							<i id="btnZoomReset" class="fa fa-refresh fa-2x cursorPointer"></i>
+							<div>
+								<div id="floorplanContainer" style="position: relative;">
+									<img id="imgFloorplan" src=""></img>
+								</div>
 							</div>
-						</div>
+						<div class="noSelect">
 					</div>
 				</div>
 			</div>
