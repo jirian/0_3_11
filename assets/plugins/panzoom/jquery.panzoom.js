@@ -717,11 +717,11 @@
 			} else {
 				scale = 1 / startScale;
 			}
-
+			
 			// Constrain scale
 			scale = Math.max(Math.min(scale, options.maxScale / startScale), options.minScale / startScale);
 			var m = surfaceM.x(new Matrix(scale, 0, 0, 0, (typeof options.dValue === 'number' ? options.dValue / startScale : scale), 0));
-
+			
 			// Calculate focal point based on scale
 			var focal = options.focal;
 			if (focal && !options.disablePan) {
@@ -755,7 +755,7 @@
 			matrix[1] = m.e(3);
 			matrix[2] = m.e(1);
 			matrix[3] = m.e(4);
-
+			
 			// Calling zoom may still pan the element
 			this.setMatrix(matrix, {
 				animate: typeof options.animate !== 'undefined' ? options.animate : animate,
@@ -906,7 +906,8 @@
 			var styles = {
 				// Set the same default whether SVG or HTML
 				// transform-origin cannot be changed to 50% 50% in IE9-11 or Edge 13-14+
-				'transform-origin': this.isSVG ? '0 0' : '50% 50%'
+				//'transform-origin': this.isSVG ? '0 0' : '50% 50%'
+				'transform-origin': '0 0'
 			};
 			// Set elem styles
 			if (!this.options.disablePan) {

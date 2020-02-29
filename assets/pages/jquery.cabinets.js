@@ -998,6 +998,29 @@ function renumberCabinet(){
 	});
 }
 
+function fitFloorplan(){
+	// Get widths
+	var imgWidth = $('#imgFloorplan').width();
+	var containerWidth = $('#floorplanContainer').width();
+	
+	// Get variables need to calculate transform matrix
+	if(imgWidth > containerWidth) {
+		// Scale down
+		var widthDiff = imgWidth - containerWidth;
+		var scaleDirection = 0;
+	} else {
+		// Scale up
+		var widthDiff = containerWidth - imgWidth;
+		var scaleDirection = 1;
+	}
+	
+	// Calculate transform matrix
+	var newWidth = imgWidth - widthDiff;
+	var scale = (newWidth / imgWidth) + scaleDirection;
+	
+	$('#floorplanContainer').panzoom('setTransform', 'matrix('+scale+',0,0,'+scale+',0,0)');
+}
+
 $( document ).ready(function() {
 	
 	$('#btnImageUpload').on('click', function(event){
@@ -1102,7 +1125,10 @@ $( document ).ready(function() {
 	$('#floorplanContainer').panzoom({
 		$zoomIn: $('#btnZoomIn'),
 		$zoomOut: $('#btnZoomOut'),
-		$reset: $('#btnZoomReset')
+		$reset: $('#btnZoomReset'),
+		origin: '0 0'
+	}).on('panzoomreset', function(){
+		fitFloorplan();
 	});
 	
 	// Ajax Tree
@@ -1645,7 +1671,7 @@ $( document ).ready(function() {
 					var deviceObject = '<i class="floorplanObject selectable fa fa-laptop fa-2x" style="cursor:grab;" data-type="device"></i>';
 					
 					var floorplanImgPath = '/images/floorplanImages/'+response.success.floorplanImg;
-					$('#imgFloorplan').attr('src', floorplanImgPath);
+					$('#imgFloorplan').load(fitFloorplan).attr('src', floorplanImgPath);
 					
 					$.each(response.success.floorplanObjectData, function(index, item){
 						if(item.type == 'walljack') {

@@ -227,18 +227,20 @@ $qls->Security->check_auth_page('operator.php');
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
 					<div class="card-box" style="min-height:500px;">
 						<h4 class="header-title m-t-0">Floorplan</h4>
-						<i id="btnZoomOut" class="fa fa-search-minus fa-2x"></i>
-						<i id="btnZoomIn" class="fa fa-search-plus fa-2x"></i>
-						<i id="btnZoomReset" class="fa fa-refresh fa-2x"></i>
-						<i id="btnImageUpload" class="fa fa-image fa-2x"></i>
-						<div class="pull-right">
-							<i class="floorplanObject floorplanStockObj selectable fa fa-square-o fa-lg" style="cursor:grab;" data-type="walljack" data-objectID="0"></i><span> Walljack</span>
-							<i class="floorplanObject floorplanStockObj selectable fa fa-wifi fa-2x" style="cursor:grab;" data-type="wap" data-objectID="0"></i><span> WAP</span>
-							<i class="floorplanObject floorplanStockObj selectable fa fa-laptop fa-2x" style="cursor:grab;" data-type="device" data-objectID="0"></i><span> Device</span>
-						</div>
-						<div>
-							<div id="floorplanContainer" style="position: relative;">
-								<img id="imgFloorplan" src=""></img>
+						<div class="noSelect">
+							<i id="btnZoomOut" class="fa fa-search-minus fa-2x cursorPointer"></i>
+							<i id="btnZoomIn" class="fa fa-search-plus fa-2x cursorPointer"></i>
+							<i id="btnZoomReset" class="fa fa-refresh fa-2x cursorPointer"></i>
+							<i id="btnImageUpload" class="fa fa-image fa-2x cursorPointer"></i>
+							<div class="pull-right">
+								<i class="floorplanObject floorplanStockObj selectable fa fa-square-o fa-lg cursorGrab" data-type="walljack" data-objectID="0"></i><span> Walljack</span>
+								<i class="floorplanObject floorplanStockObj selectable fa fa-wifi fa-2x cursorGrab" data-type="wap" data-objectID="0"></i><span> WAP</span>
+								<i class="floorplanObject floorplanStockObj selectable fa fa-laptop fa-2x cursorGrab" data-type="device" data-objectID="0"></i><span> Device</span>
+							</div>
+							<div>
+								<div id="floorplanContainer" style="position: relative;">
+									<img id="imgFloorplan" src=""></img>
+								</div>
 							</div>
 						</div>
 					</div>
