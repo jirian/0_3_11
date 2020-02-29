@@ -26,6 +26,11 @@ function color_inverse($color){
 }
 ?>
 
+.dataTables_wrapper .dataTables_filter {
+	float: right;
+	text-align: left;
+}
+
 .printImage {
 	position: absolute;
 }

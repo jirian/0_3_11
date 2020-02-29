@@ -18,12 +18,6 @@ $qls->Security->check_auth_page('user.php');
 <!-- DataTables -->
 <link href="assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 <link href="assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-<style>
-.dataTables_wrapper .dataTables_filter {
-float: right;
-text-align: left;
-}
-</style>
 
 <!-- Responsive datatable examples -->
 <link href="assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
@@ -193,7 +187,7 @@ text-align: left;
 									<img id="imgFloorplan" src=""></img>
 								</div>
 							</div>
-						<div class="noSelect">
+						</div>
 					</div>
 				</div>
 			</div>
