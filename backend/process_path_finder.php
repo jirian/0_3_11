@@ -54,23 +54,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$aObjFunction = $aObjTemplate['templateFunction'];
 		
 		if($aObjFunction == 'Endpoint') {
-			// If object is an endpoint and trunked
-			$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointAObjID.' AND a_face = '.$endpointAObjFace.' AND a_depth = '.$endpointAObjDepth.') OR (b_id = '.$endpointAObjID.' AND b_face = '.$endpointAObjFace.' AND b_depth = '.$endpointAObjDepth.')');
-			
-			if($qls->SQL->num_rows($queryPeer)) {
+			if(isset($qls->App->peerArray[$endpointAObjID][$endpointAObjFace][$endpointAObjDepth])) {
+				
+				$peerData = $qls->App->peerArray[$endpointAObjID][$endpointAObjFace][$endpointAObjDepth];
 				$farEndpointIsTrunked = true;
 				
-				// Create object to append to front of path array
-				$nearEndpointName = $qls->App->generateObjectPortName($endpointAObjID, $endpointAObjFace, $endpointAObjDepth, $endpointAObjPortID);
-				$nearEndpointName = $qls->App->wrapObject($endpointAObjID, $nearEndpointName);
-				
-				// Change endpoint to trunk peer
-				$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
-				$peerAttr = $endpointAObjID == $peerEntry['a_id'] ? 'b' : 'a';
-				$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
-				$endpointAObj = $qls->SQL->fetch_assoc($queryEndpoint);
-				$endpointAObjFace = $peerEntry[$peerAttr.'_face'];
-				$endpointAObjDepth = $peerEntry[$peerAttr.'_depth'];
+				$endpointAObj = $qls->App->objectArray[$peerData['peerID']];
+				$endpointAObjFace = $peerData['peerFace'];
+				$endpointAObjDepth = $peerData['peerDepth'];
 			} else {
 				$farEndpointIsTrunked = false;
 				$endpointAObj = $aObj;
@@ -86,26 +77,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$bObjFunction = $bObjTemplate['templateFunction'];
 		
 		if($bObjFunction == 'Endpoint') {
-			
-			// If object is an endpoint and trunked
-			$queryPeer = $qls->SQL->select('*', 'app_object_peer', '(a_id = '.$endpointBObjID.' AND a_face = '.$endpointBObjFace.' AND a_depth = '.$endpointBObjDepth.') OR (b_id = '.$endpointBObjID.' AND b_face = '.$endpointBObjFace.' AND b_depth = '.$endpointBObjDepth.')');
-			
-			if($qls->SQL->num_rows($queryPeer)) {
+			if(isset($qls->App->peerArray[$endpointBObjID][$endpointBObjFace][$endpointBObjDepth])) {
 				
+				$peerData = $qls->App->peerArray[$endpointBObjID][$endpointBObjFace][$endpointBObjDepth];
 				$farEndpointIsTrunked = true;
 				
-				// Create object to append to front of path array
-				$farEndpointName = $qls->App->generateObjectPortName($endpointBObjID, $endpointBObjFace, $endpointBObjDepth, $endpointBObjPortID);
-				$farEndpointName = $qls->App->wrapObject($endpointBObjID, $farEndpointName);
-				
-				// Change endpoint to trunk peer
-				$peerEntry = $qls->SQL->fetch_assoc($queryPeer);
-				$peerAttr = $endpointBObjID == $peerEntry['a_id'] ? 'b' : 'a';
-				$queryEndpoint = $qls->SQL->select('*', 'app_object', array('id' => array('=', $peerEntry[$peerAttr.'_id'])));
-				$endpointBObj = $qls->SQL->fetch_assoc($queryEndpoint);
-				$endpointBObjFace = $peerEntry[$peerAttr.'_face'];
-				$endpointBObjDepth = $peerEntry[$peerAttr.'_depth'];
-				
+				$endpointBObj = $qls->App->objectArray[$peerData['peerID']];
+				$endpointBObjFace = $peerData['peerFace'];
+				$endpointBObjDepth = $peerData['peerDepth'];
 			} else {
 				$farEndpointIsTrunked = false;
 				$endpointBObj = $bObj;
@@ -122,15 +101,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$endpointBObj['depth'] = $endpointBObjDepth;
 		$endpointBObj['port'] = $endpointBObjPortID;
 
-		$endpointAPortType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['portType'];
-		$endpointAMediaType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaType'];
-		$endpointAMediaCategory = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategory'];
-		$endpointAMediaCategoryType = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']]['mediaCategoryType'];
+		$endpointACompatibility = $qls->App->compatibilityArray[$endpointAObj['template_id']][$endpointAObj['face']][$endpointAObj['depth']];
+		$endpointAPortType = $endpointACompatibility['portType'];
+		$endpointAMediaType = $endpointACompatibility['mediaType'];
+		$endpointAMediaCategory = $endpointACompatibility['mediaCategory'];
+		$endpointAMediaCategoryType = $endpointACompatibility['mediaCategoryType'];
 		
-		$endpointBPortType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['portType'];
-		$endpointBMediaType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaType'];
-		$endpointBMediaCategory = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategory'];
-		$endpointBMediaCategoryType = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']]['mediaCategoryType'];
+		$endpointBCompatibility = $qls->App->compatibilityArray[$endpointBObj['template_id']][$endpointBObj['face']][$endpointBObj['depth']];
+		$endpointBPortType = $endpointBCompatibility['portType'];
+		$endpointBMediaType = $endpointBCompatibility['mediaType'];
+		$endpointBMediaCategory = $endpointBCompatibility['mediaCategory'];
+		$endpointBMediaCategoryType = $endpointBCompatibility['mediaCategoryType'];
 		
 		// Build an array of queries to find compatible partitions
 		// depending on the selected endpoints.
@@ -166,9 +147,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$query = $qls->SQL->select('*', 'app_object_compatibility', $compatibilityQuery);
 		$workingArray = array();
 		while($row = $qls->SQL->fetch_assoc($query)) {
-			$workingArray[$row['mediaType']][$row['mediaCategory']][$row['mediaCategoryType']][] = $row['template_id'];
+			$workingArray[$row['mediaType']][$row['mediaCategory']][$row['mediaCategoryType']][] = array(
+				'templateID' => $row['template_id'],
+				'templateFace' => $row['side'],
+				'templateDepth' => $row['depth']
+			);
 		}
-		
+error_log('Debug (workingArray): '.json_encode($workingArray));
 		foreach($workingArray as $mediaTypeID => $workingMediaType) {
 			$compatibilityType = '';
 			$compatibilityType = ($mediaTypeID != 8 and $compatibilityType == '') ? $qls->App->mediaTypeValueArray[$mediaTypeID]['name'] : $compatibilityType;
@@ -177,18 +162,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				foreach($workingMediaCategory as $mediaCategoryTypeID => $workingMediaCategoryTypeArray) {
 					foreach($workingMediaCategoryTypeArray as $workingMediaCategoryType) {
 						$compatibilityType = $compatibilityType == '' ? $qls->App->mediaCategoryTypeArray[$mediaCategoryTypeID]['name'] : $compatibilityType;
-						if(!array_key_exists($compatibilityType, $compatibleTemplateArray)) {
+						if(!isset($compatibleTemplateArray[$compatibilityType])) {
 							$compatibleTemplateArray[$compatibilityType] = array();
 						}
-						array_push($compatibleTemplateArray[$compatibilityType], $workingMediaCategoryType);
+						$templateID = $workingMediaCategoryType['templateID'];
+						if(!isset($compatibleTemplateArray[$compatibilityType][$templateID])) {
+							$compatibleTemplateArray[$compatibilityType][$templateID] = array();
+						}
+						
+						array_push($compatibleTemplateArray[$compatibilityType][$templateID], $workingMediaCategoryType);
 					}
 				}
 			}
 		}
-		foreach($compatibleTemplateArray as &$compatibleTemplate) {
-			$compatibleTemplate = array_unique($compatibleTemplate);
-		}
-
+error_log('Debug (compatibleTemplateArray): '.json_encode($compatibleTemplateArray));
 		// Build array containing all cabinets
 		$cabinetArray = array();
 		$queryCabinets = $qls->SQL->select('*', 'app_env_tree', array('type' => array('=', 'cabinet')));
@@ -198,15 +185,45 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		// Build array containing all compatible objects
 		$objectArray = array();
-		foreach($compatibleTemplateArray as $compatibilityType => $compatibilityArray) {
+		foreach($compatibleTemplateArray as $compatibilityType => $compatiblePartitionArray) {
 			array_push($objectArray, array('pathType' => $compatibilityType, 'compatibleObjects' => array()));
 			foreach($qls->App->objectArray as $object) {
-				if(in_array($object['template_id'], $compatibilityArray) or $object['id'] == $endpointAObjID or $object['id'] == $endpointBObjID) {
-					$objectArray[count($objectArray)-1]['compatibleObjects'][$object['id']] = $object;
+				$objectID = $object['id'];
+				$objectTemplateID = $object['template_id'];
+				
+				// Add object if template is compatible
+				if(isset($compatiblePartitionArray[$objectTemplateID])) {
+					foreach($compatiblePartitionArray[$objectTemplateID] as $compatibleTemplatePartition) {
+						$compatibleTemplateFace = $compatibleTemplatePartition['templateFace'];
+						$compatibleTemplateDepth = $compatibleTemplatePartition['templateDepth'];
+						$partitionArray = array(
+							'face' => $compatibleTemplateFace,
+							'depth' => $compatibleTemplateDepth,
+						);
+						if(!isset($objectArray[count($objectArray)-1]['compatibleObjects'][$objectID])) {
+							$object['partition'] = array();
+							$objectArray[count($objectArray)-1]['compatibleObjects'][$objectID] = $object;
+						}
+						array_push($objectArray[count($objectArray)-1]['compatibleObjects'][$objectID]['partition'], $partitionArray);
+					}
+					
+				// Make sure endpointB is included in objectArray, even if template is not compatible
+				} else if($objectID == $endpointBObjID) {
+					$object['partition'] = array(
+						'face' => $endpointBObjFace,
+						'depth' => $endpointBObjDepth
+					);
+					$objectArray[count($objectArray)-1]['compatibleObjects'][$objectID] = $object;
+				} else if($objectID == $endpointAObjID) {
+					$object['partition'] = array(
+						'face' => $endpointAObjFace,
+						'depth' => $endpointAObjDepth
+					);
+					$objectArray[count($objectArray)-1]['compatibleObjects'][$objectID] = $object;
 				}
 			}
 		}
-
+error_log('Debug (compatibleObjectArray): '.json_encode($objectArray));
 		// Build array containing all cabinet adjacencies
 		// indexed as $cabinetAdjacencyArray[<cabinetID >]
 		$cabinetAdjacencyArray = array();
@@ -298,9 +315,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		foreach($objectArray as $objSet) {
 			array_push($reachableArray, array('pathType' => $objSet['pathType'], 'reachableObjects' => array()));
 			foreach($objSet['compatibleObjects'] as $obj) {
+				$objID = $obj['id'];
+				$objCabinetID = $obj['env_tree_id'];
 				$templateID = $obj['template_id'];
 				$template = $qls->App->templateArray[$templateID];
 				$templateType = $template['templateType'];
+				
 				if($templateType == 'Insert') {
 					$objRU = getRU($obj['parent_id'], $qls);
 					$objSize = getSize($obj['parent_id'], $qls);
@@ -308,8 +328,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$objRU = $obj['RU'];
 					$objSize = $template['templateRUSize'];
 				}
-				$objID = $obj['id'];
-				$objCabinetID = $obj['env_tree_id'];
+				
 				$localCabinetArray = array($objCabinetID => array(array('peerID' => $objCabinetID)));
 				
 				$localObjects = getReachableObjects($qls, $objID, $objRU, $objSize, $objCabinetID, $objSet['compatibleObjects'], $localCabinetArray, 'local');	
@@ -323,15 +342,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$reachableArray[count($reachableArray)-1]['reachableObjects'][$objID]['path'] = $pathObjects;
 			}
 		}
-		
+error_log('Debug (reachableArray): '.json_encode($reachableArray));
 		foreach($reachableArray as $reachable) {
 			findPaths($qls, $reachable['reachableObjects'], $reachable['pathType'], $endpointAObj, $endpointAObj, $endpointBObj);
 		}
 		
 		$finalPathArray = array();
 		foreach($reachableArray as $reachable) {
+			error_log('Debug: '.json_encode($reachable));
 			findPaths2($qls, $reachable, $endpointAObj, $endpointAObj, $endpointBObj, $finalPathArray);
 		}
+		
+error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
 
 		// Port type
 		// 0 = meters (SFP)
@@ -357,33 +379,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 				$pathElementPair['distance'] = $distanceString;
 			}
-			
-			if($aObjFunction == 'Endpoint') {
-				if($nearEndpointIsTrunked) {
-					array_push($path, array(
-						'far' => $nearEndpointName,
-						'farFunction' => 'Endpoint'
-					));
-				}
-			}
-
-			if($bObjFunction == 'Endpoint') {
-				if($farEndpointIsTrunked) {
-					array_push($path, array(
-						'near' => $farEndpointName,
-						'nearFunction' => 'Endpoint'
-					));
-				}
-			}
 		}
 	}
 	$validate->returnData['success'] = $pathArray;
 	echo json_encode($validate->returnData);
 }
 
-function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$finalPathArray, $workingArray=array()){
+function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$finalPathArray, $workingArray=array(), $visitedObjArray=array()){
 	$pathType = $reachable['pathType'];
 	$reachableObjArray = $reachable['reachableObjects'];
+	
+	// Create pathType array if it doesn't exist
+	if(!isset($finalPathArray[$pathType])) {
+		$finalPathArray[$pathType] = array();
+	}
 	
 	$focusID = $focus['id'];
 	$focusFace = $focus['face'];
@@ -399,11 +408,23 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 			'id' => $focusID,
 			'face' => $focusFace,
 			'depth' => $focusDepth,
-			'port' => $focusPort
+			'port' => $focusPort,
+			'selected' => false
 		)
 	));
 	
-	// Search trunk
+	// If focus is endpoinB, add it to finalPathArray
+	if($focusID == $endpointBObj['id'] and $focusFace == $endpointBObj['face'] and $focusDepth == $endpointBObj['depth']) {
+		
+		// Add working path to finalPathArray
+		array_push($finalPathArray[$pathType], $workingArray);
+		
+		return;
+	}
+	
+	// ######################
+	// ## Search trunk
+	// ######################
 	if(isset($qls->App->peerArray[$focusID][$focusFace][$focusDepth])) {
 		
 		// Get neighbor peer info
@@ -411,146 +432,142 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 		$peerID = $peer['peerID'];
 		$peerFace = $peer['peerFace'];
 		$peerDepth = $peer['peerDepth'];
+		
+		// Trunk peer cannot be one we've previously looked at
+		if(!in_array($peerID, $visitedObjArray)) {
+			
+			// Add neighbor to visited objects array
+			array_push($visitedObjArray, $neighborID);
+			
+			// Add trunk
+			array_push($workingArray, array(
+				'type' => 'trunk',
+				'data' => array()
+			));
+			
+			$newFocus = array(
+				'id' => $peerID,
+				'face' => $peerFace,
+				'depth' => $peerDepth,
+				'port' => $focusPort
+			);
+			
+			error_log('Debug (trunk newFocus): '.$qls->App->generateObjectName($peerID).' ('.$peerID.')');
+			
+			findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray);
+			
+			// Clear last path branch so we can continue searching
+			for($arrayCount=0; $arrayCount<1; $arrayCount++) {
+				array_pop($workingArray);
+			}
+		}
 	}
 	
-	// Search reachable objects
-	if(isset($reachableObjArray[$focus['id']])) {
-		foreach($reachableObjArray[$focus['id']] as $neighborType => $neighborArray) {
+	// ######################
+	// ## Search reachable objects
+	// ######################
+	if(isset($reachableObjArray[$focusID])) {
+		foreach($reachableObjArray[$focusID] as $neighborType => $neighborArray) {
 			foreach($neighborArray as $neighbor) {
 				
 				$neighborID = $neighbor['id'];
-				$neighborObj = $qls->App->objectArray[$neighborID];
-				$neighborTemplateID = $neighborObj['template_id'];
+				$neighborTemplateID = $neighbor['template_id'];
 				$neighborTemplate = $qls->App->templateArray[$neighborTemplateID];
-
-				if($neighborID == $endpointBObj['id']) {
 					
-					$neighborFace = $endpointBObj['face'];
-					$neighborDepth = $endpointBObj['depth'];
-					$neighborPort = $endpointBObj['port'];
-					$neighborCompatibility = $qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
-
-					array_push($workingArray, array(
-						'type' => 'connector',
-						'data' => array(
-							'code39' => 0,
-							'connectorType' => $focusCompatibility['portType']
-						)
-					));
+				// Neighbor must not have been previously looked at
+				if(!in_array($neighborID, $visitedObjArray)) {
 					
-					array_push($workingArray, array(
-						'type' => 'cable',
-						'data' => array(
-							'mediaTypeID' => $pathType,
-							'length' => $neighbor['dist']
-						)
-					));
+					// Add neighbor to visited objects array
+					array_push($visitedObjArray, $neighborID);
 					
-					array_push($workingArray, array(
-						'type' => 'connector',
-						'data' => array(
-							'code39' => 0,
-							'connectorType' => $neighborCompatibility['portType']
-						)
-					));
+					// Iterate over all compatible partitions
+					foreach($neighbor['partition'] as $neighborPartition) {
+						
+						$neighborFace = $neighborPartition['face'];
+						$neighborDepth = $neighborPartition['depth'];
 					
-					array_push($workingArray, array(
-						'type' => 'object',
-						'data' => array(
-							'id' => $neighborID,
-							'face' => $neighborFace,
-							'depth' => $neighborDepth,
-							'port' => $neighborPort
-						)
-					));
-					
-					// Create pathType array if it doesn't exist
-					if(!isset($finalPathArray[$pathType])) {
-						$finalPathArray[$pathType] = array();
-					}
-					
-					// Add working path to finalPath
-					array_push($finalPathArray[$pathType], $workingArray);
-					
-					// Clear last path branch so we can continue searching
-					for($arrayCount=0; $arrayCount<4; $arrayCount++) {
-						array_pop($workingArray);
-					}
-					
-				} else {
-					
-					// If neighbor is not endpointB, it must be passive and trunked
-					if($neighborTemplate['templateFunction'] == 'Passive' and isset($qls->App->peerArray[$neighborID])) {
-						foreach($qls->App->peerArray[$neighborID] as $neighborFace => $neighborFaceArray) {
-							foreach($neighborFaceArray as $neighborDepth => $neighborDepthArray) {
-								
-								// Get neighbor peer info
-								$peerID = $neighborDepthArray['peerID'];
-								$peerFace = $neighborDepthArray['peerFace'];
-								$peerDepth = $neighborDepthArray['peerDepth'];
-								
-								// Get array of available neighbor and peer ports
-								$neighborPortArray = $qls->App->getAvailablePortArray($neighborID, $neighborFace, $neighborDepth);
-								$peerPortArray = $qls->App->getAvailablePortArray($peerID, $peerFace, $peerDepth);
-								
-								// Find first available port
-								$commonAvailablePort = 0;
-								$commonAvailablePortFound = false;
-								foreach($neighborPortArray as $neighborPort) {
-									if(in_array($neighborPort, $peerPortArray)) {
-										$commonAvailablePort = $neighborPort;
-										$commonAvailablePortFound = true;
-										break;
-									}
+						// Set flag to test if available port was found
+						$commonAvailablePortFound = false;
+						
+						// If neighbor is endpointB, set neighbor port to selected endpointB port
+						if($neighborID == $endpointBObj['id'] and $neighborFace == $endpointBObj['face'] and $neighborDepth == $endpointBObj['depth']) {
+							
+							$neighborPort = $endpointBObj['port'];
+							$commonAvailablePortFound = true;
+							
+						} else if(isset($qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth])) {
+							
+							$neighborPeerData = $qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth];
+							
+							// Get neighbor peer info
+							$peerID = $neighborDepthArray['peerID'];
+							$peerFace = $neighborDepthArray['peerFace'];
+							$peerDepth = $neighborDepthArray['peerDepth'];
+							
+							// Get array of available neighbor and peer ports
+							$neighborPortArray = $qls->App->getAvailablePortArray($neighborID, $neighborFace, $neighborDepth);
+							$peerPortArray = $qls->App->getAvailablePortArray($peerID, $peerFace, $peerDepth);
+							
+							// Find first available port
+							foreach($neighborPortArray as $neighborPort) {
+								if(in_array($neighborPort, $peerPortArray)) {
+									$commonAvailablePortFound = true;
+									break;
 								}
-								
-								// If an available port was found, add it to the path
-								if($commonAvailablePortFound) {
+							}
+							
+						}
 									
-									$neighborCompatibility = $qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
-									
-									array_push($workingArray, array(
-										'type' => 'connector',
-										'data' => array(
-											'code39' => 0,
-											'connectorType' => $focusCompatibility['portType']
-										)
-									));
-									
-									array_push($workingArray, array(
-										'type' => 'cable',
-										'data' => array(
-											'mediaTypeID' => $pathType,
-											'length' => $neighbor['dist']
-										)
-									));
-									
-									array_push($workingArray, array(
-										'type' => 'connector',
-										'data' => array(
-											'code39' => 0,
-											'connectorType' => $neighborCompatibility['portType']
-										)
-									));
-									
-									$newFocus = array(
-										'id' => $peerID,
-										'face' => $peerFace,
-										'depth' => $peerDepth,
-										'port' => $commonAvailablePort
-									);
-									
-									findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray);
-									
-									// Clear last path branch so we can continue searching
-									for($arrayCount=0; $arrayCount<3; $arrayCount++) {
-										array_pop($workingArray);
-									}
-								}
-								
+						// If an available port was found, add it to the path
+						if($commonAvailablePortFound) {
+							
+							$neighborCompatibility = $qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
+							
+							array_push($workingArray, array(
+								'type' => 'connector',
+								'data' => array(
+									'code39' => 0,
+									'connectorType' => $focusCompatibility['portType']
+								)
+							));
+							
+							array_push($workingArray, array(
+								'type' => 'cable',
+								'data' => array(
+									'mediaTypeID' => $pathType,
+									'length' => $neighbor['dist']
+								)
+							));
+							
+							array_push($workingArray, array(
+								'type' => 'connector',
+								'data' => array(
+									'code39' => 0,
+									'connectorType' => $neighborCompatibility['portType']
+								)
+							));
+							
+							$newFocus = array(
+								'id' => $neighborID,
+								'face' => $neighborFace,
+								'depth' => $neighborDepth,
+								'port' => $neighborPort
+							);
+							
+							error_log('Debug (reachable newFocus): '.$qls->App->generateObjectName($neighborID).' ('.$neighborID.')');
+							
+							findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray);
+							
+							// Clear last path branch so we can continue searching
+							for($arrayCount=0; $arrayCount<3; $arrayCount++) {
+								array_pop($workingArray);
 							}
 						}
 					}
+								
+							//}
+						//}
+					//}
 				}
 			}
 		}
@@ -950,6 +967,7 @@ function findPaths(&$qls, $reachableArray, $mediaType, $target, $endpointAObj, $
 }
 
 function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objectArray, $reachableCabinetArray, $type){
+	// Cab2 PanelA(35) & PanelB(36)
 	$reachableObjects = array();
 	if(isset($reachableCabinetArray[$cabinetID])) {
 		foreach($reachableCabinetArray[$cabinetID] as $reachableCabinet) {
@@ -983,13 +1001,18 @@ function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objec
 							}
 							break;
 					}
-					$object = array(
+					
+					$reachableObj['dist'] = $distance;
+					/* $object = array(
 						'id' => $reachableObj['id'],
+						'face' => $reachableObj['face'],
+						'depth' => $reachableObj['depth'],
+						'templateID' => $reachableObj['template_id'],
 						'parent_id' => $reachableObj['parent_id'],
 						'env_tree_id' => $reachableObj['env_tree_id'],
 						'dist' => $distance
-					);
-					array_push($reachableObjects, $object);
+					); */
+					array_push($reachableObjects, $reachableObj);
 				}
 			}
 		}

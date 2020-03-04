@@ -2406,31 +2406,10 @@ var $qls;
 		$occupiedPortArray = array();
 		$attrArray = array('a','b');
 		
-		$query = $this->qls->SQL->select('*', 'app_object', array('id' => array('=', $objID)));
-		$obj = $this->qls->SQL->fetch_assoc($query);
+		$obj = $this->objectArray($objID);
 		$templateID = $obj['template_id'];
 		
-		$query = $this->qls->SQL->select(
-			'*',
-			'app_object_compatibility',
-			array(
-				'template_id' => array(
-					'=',
-					$templateID
-				),
-				'AND',
-				'side' => array(
-					'=',
-					$objFace
-				),
-				'AND',
-				'depth' => array(
-					'=',
-					$objDepth
-				)
-			)
-		);
-		$templateCompatibility = $this->qls->SQL->fetch_assoc($query);
+		$templateCompatibility = $this->compatibilityArray[$templateID][$objFace][$objDepth];
 		$portTotal = $templateCompatibility['portLayoutX'] * $templateCompatibility['portLayoutY'];
 		
 		// Gather patched ports
