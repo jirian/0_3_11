@@ -2406,7 +2406,7 @@ var $qls;
 		$occupiedPortArray = array();
 		$attrArray = array('a','b');
 		
-		$obj = $this->objectArray($objID);
+		$obj = $this->objectArray[$objID];
 		$templateID = $obj['template_id'];
 		
 		$templateCompatibility = $this->compatibilityArray[$templateID][$objFace][$objDepth];

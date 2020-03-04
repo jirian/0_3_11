@@ -48,7 +48,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		// Create endpointA object
 		// If object is an endpoint
-		$aObj = $qls->App->objectArray[$endpointAObjID];
+		$endpointAObj = $qls->App->objectArray[$endpointAObjID];
+		/* $aObj = $qls->App->objectArray[$endpointAObjID];
 		$aObjTemplateID = $aObj['template_id'];
 		$aObjTemplate = $qls->App->templateArray[$aObjTemplateID];
 		$aObjFunction = $aObjTemplate['templateFunction'];
@@ -68,10 +69,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 		} else {
 			$endpointAObj = $aObj;
-		}
+		} */
 		
 		// If object is an endpoint
-		$bObj = $qls->App->objectArray[$endpointBObjID];
+		$endpointBObj = $qls->App->objectArray[$endpointBObjID];
+		/* $bObj = $qls->App->objectArray[$endpointBObjID];
 		$bObjTemplateID = $bObj['template_id'];
 		$bObjTemplate = $qls->App->templateArray[$bObjTemplateID];
 		$bObjFunction = $bObjTemplate['templateFunction'];
@@ -91,7 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 		} else {
 			$endpointBObj = $bObj;
-		}
+		} */
 
 		$endpointAObj['face'] = $endpointAObjFace;
 		$endpointAObj['depth'] = $endpointAObjDepth;
@@ -209,16 +211,16 @@ error_log('Debug (compatibleTemplateArray): '.json_encode($compatibleTemplateArr
 					
 				// Make sure endpointB is included in objectArray, even if template is not compatible
 				} else if($objectID == $endpointBObjID) {
-					$object['partition'] = array(
+					$object['partition'] = array(array(
 						'face' => $endpointBObjFace,
 						'depth' => $endpointBObjDepth
-					);
+					));
 					$objectArray[count($objectArray)-1]['compatibleObjects'][$objectID] = $object;
 				} else if($objectID == $endpointAObjID) {
-					$object['partition'] = array(
+					$object['partition'] = array(array(
 						'face' => $endpointAObjFace,
 						'depth' => $endpointAObjDepth
-					);
+					));
 					$objectArray[count($objectArray)-1]['compatibleObjects'][$objectID] = $object;
 				}
 			}
@@ -400,7 +402,9 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	$focusPort = $focus['port'];
 	$focusObj = $qls->App->objectArray[$focusID];
 	$focusTemplateID = $focusObj['template_id'];
-	$focusCompatibility = $qls->App->compatibilityArray[$focusTemplateID];
+	$focusCompatibility = $qls->App->compatibilityArray[$focusTemplateID][$focusFace][$focusDepth];
+	
+	error_log('Debug (focusData): '.$focusID.'-'.$focusFace.'-'.$focusDepth);
 	
 	array_push($workingArray, array(
 		'type' => 'object',
@@ -437,7 +441,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 		if(!in_array($peerID, $visitedObjArray)) {
 			
 			// Add neighbor to visited objects array
-			array_push($visitedObjArray, $neighborID);
+			array_push($visitedObjArray, $peerID);
 			
 			// Add trunk
 			array_push($workingArray, array(
@@ -485,6 +489,8 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 						
 						$neighborFace = $neighborPartition['face'];
 						$neighborDepth = $neighborPartition['depth'];
+						
+						error_log('Debug (neighborData): '.$neighborID.'-'.$neighborFace.'-'.$neighborDepth);
 					
 						// Set flag to test if available port was found
 						$commonAvailablePortFound = false;
@@ -500,9 +506,11 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							$neighborPeerData = $qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth];
 							
 							// Get neighbor peer info
-							$peerID = $neighborDepthArray['peerID'];
-							$peerFace = $neighborDepthArray['peerFace'];
-							$peerDepth = $neighborDepthArray['peerDepth'];
+							$peerID = $neighborPeerData['peerID'];
+							$peerFace = $neighborPeerData['peerFace'];
+							$peerDepth = $neighborPeerData['peerDepth'];
+							
+							error_log('Debug (neighborPeerData): '.$peerID.'-'.$peerFace.'-'.$peerDepth);
 							
 							// Get array of available neighbor and peer ports
 							$neighborPortArray = $qls->App->getAvailablePortArray($neighborID, $neighborFace, $neighborDepth);
@@ -517,7 +525,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							}
 							
 						}
-									
+						
 						// If an available port was found, add it to the path
 						if($commonAvailablePortFound) {
 							
