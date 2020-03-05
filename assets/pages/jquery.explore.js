@@ -603,75 +603,37 @@ $( document ).ready(function() {
 			if (responseJSON.error != ''){
 				displayError(responseJSON.error, $('#alertMsgModal'));
 			} else {
-				var html = '';
-				$(responseJSON.success).each(function(index, value){
-					html += '<div id="containerCablePath'+index+'" class="containerCablePath" style="display:none;">';
-					html += '<table>';
-					$(value).each(function(i, val){
-						// ---Start---
-						if('near' in val) {
-							html += '<tr>';
-								html += '<td>';
-									html += val.near;
-								html += '</td>';
-								if('distance' in val) {
-									html += '<td rowspan="2" style="vertical-align:middle;">';
-										html += '<div class="cableArrow" title="'+val.nearPortType+'"><svg width="20" height="20" style="display:block;"><g><path stroke="#000000" fill="#ffffff" id="00000017" transform="rotate(-180 10,10)" d="m12.34666,15.4034l0.12924,-1.39058l-1.52092,-0.242c-3.85063,-0.61265 -7.62511,-3.21056 -9.7267,-6.69472c-0.37705,-0.62509 -0.62941,-1.22733 -0.56081,-1.33833c0.15736,-0.25462 3.99179,-2.28172 4.31605,-2.28172c0.13228,0 0.45004,0.37281 0.70613,0.82847c1.09221,1.9433 3.91879,3.97018 5.9089,4.2371l0.80686,0.10823l-0.13873,-1.2018c-0.14402,-1.24763 -0.10351,-1.50961 0.23337,-1.50961c0.21542,0 6.64622,4.79111 6.83006,5.08858c0.13947,0.22565 -0.74504,1.06278 -3.91187,3.70233c-1.37559,1.14654 -2.65852,2.08463 -2.85095,2.08463c-0.308,0 -0.33441,-0.16643 -0.22064,-1.39058l0,0l0,0l0,-0.00001z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null"></path></g></svg></div>';
-										html += val.distance;
-										html += '<div class="cableArrow" title="'+val.farPortType+'"><svg width="20" height="20" style="display:block;"><g><path stroke="#000000" fill="#ffffff" id="00000024" transform="rotate(-180 10,10)" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m12.34666,4.88458l0.12924,1.38058l-1.52092,0.24026c-3.85063,0.60825 -7.62511,3.18748 -9.7267,6.64659c-0.37705,0.6206 -0.62941,1.21851 -0.56081,1.32871c0.15736,0.25279 3.99179,2.26532 4.31605,2.26532c0.13228,0 0.45004,-0.37013 0.70613,-0.82251c1.09221,-1.92933 3.91879,-3.94164 5.9089,-4.20664l0.80686,-0.10745l-0.13873,1.19316c-0.14402,1.23866 -0.10351,1.49876 0.23337,1.49876c0.21542,0 6.64622,-4.75667 6.83006,-5.052c0.13947,-0.22403 -0.74504,-1.05514 -3.91187,-3.67571c-1.37559,-1.1383 -2.65852,-2.06964 -2.85095,-2.06964c-0.308,0 -0.33441,0.16523 -0.22064,1.38058l0,0l0,0l0,0.00001l0.00001,-0.00001z"></path></g></svg></div>';
-									html += '</td>';
-								}
-							html += '</tr>';
-						}
-						if('far' in val) {
-							html += '<tr>';
-								html += '<td>';
-									html += val.far;
-								html += '</td>';
-							html += '</tr>';
-						}
-						// ---End---
-						if(i<($(value).length-1)) {
-							html += '<tr>';
-								html += '<td style="text-align:center;">';
-									html += '<svg width="20" height="40"><g><path stroke="#000000" fill="#ffffff" transform="rotate(-90 10,20)" d="m-6.92393,20.00586l9.84279,-8.53669l0,4.26834l14.26478,0l0,-4.26834l9.84279,8.53669l-9.84279,8.53665l0,-4.26832l-14.26478,0l0,4.26832l-9.84279,-8.53665z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null"></path></g></svg>';
-								html += '</td>';
-							html += '</tr>';
-						}
+				var pathID = 0;
+				$('#containerCablePath').html('');
+				$.each(responseJSON.success, function(pathType, pathTypeArray){
+					$.each(pathTypeArray, function(index, path){
+						var pathContainer = $('<div id="containerCablePath'+pathID+'" class="containerCablePath" style="display:none;"></div>');
+						$(pathContainer).html(path.pathHTML);
+						$('#containerCablePath').append($(pathContainer));
+						pathID++;
 					});
-					html += '</table>';
-					html += '</div>';
 				});
-				$('#containerCablePath').html(html);
 				
 				var table = '';
-				$(responseJSON.success).each(function(index, value){
-					var mediaType = '';
-					var local = 0;
-					var adjacent = 0;
-					var path = 0;
-					var total = 0;
-					$(value).each(function(i, val){
-						if(val.pathType == 'local') {
-							local = local + 1;
-						} else if(val.pathType == 'adjacent') {
-							adjacent = adjacent + 1;
-						} else if(val.pathType == 'path') {
-							path = path + 1;
-						}
-						if('mediaType' in val) {
-							mediaType = val.mediaType;
-						}
-						total = local + adjacent + path;
-					});
-					table += '<tr data-pathid="'+index+'">';
-						table += '<td>'+mediaType+'</td>';
-						table += '<td>'+local+'</td>';
-						table += '<td>'+adjacent+'</td>';
-						table += '<td>'+path+'</td>';
+				var pathID = 0;
+				$.each(responseJSON.success, function(pathType, pathTypeArray){
+					$.each(pathTypeArray, function(index, path){
+						var pathTypeCountArray = path.pathTypeCountArray;
+						var total = 0;
+						total += pathTypeCountArray.local;
+						total += pathTypeCountArray.adjacent;
+						total += pathTypeCountArray.path;
+						
+						table += '<tr data-pathid="'+pathID+'">';
+						table += '<td>'+pathType+'</td>';
+						table += '<td>'+pathTypeCountArray.local+'</td>';
+						table += '<td>'+pathTypeCountArray.adjacent+'</td>';
+						table += '<td>'+pathTypeCountArray.path+'</td>';
 						table += '<td>'+total+'</td>';
-					table += '</tr>';
+						table += '</tr>';
+					});
 				});
+				
 				// Initialize cable path table
 				$('#cablePathTable').DataTable().off('click');
 				$('#cablePathTable').DataTable().destroy();

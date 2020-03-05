@@ -382,12 +382,19 @@ error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
 				$pathElementPair['distance'] = $distanceString;
 			}
 		}
+		
+		$returnArray = array();
+		foreach($finalPathArray as $mediaType => &$pathData) {
+			foreach($pathData as &$path) {
+				$path['pathHTML'] = $qls->App->buildPathFull($path['pathArray'], null);
+			}
+		}
 	}
-	$validate->returnData['success'] = $pathArray;
+	$validate->returnData['success'] = $finalPathArray;
 	echo json_encode($validate->returnData);
 }
 
-function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$finalPathArray, $workingArray=array(), $visitedObjArray=array()){
+function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$finalPathArray, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0)){
 	$pathType = $reachable['pathType'];
 	$reachableObjArray = $reachable['reachableObjects'];
 	
@@ -421,7 +428,10 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	if($focusID == $endpointBObj['id'] and $focusFace == $endpointBObj['face'] and $focusDepth == $endpointBObj['depth']) {
 		
 		// Add working path to finalPathArray
-		array_push($finalPathArray[$pathType], $workingArray);
+		array_push($finalPathArray[$pathType], array(
+			'pathTypeCountArray' => $reachableTypeArray,
+			'pathArray' => $workingArray
+		));
 		
 		return;
 	}
@@ -458,7 +468,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 			
 			error_log('Debug (trunk newFocus): '.$qls->App->generateObjectName($peerID).' ('.$peerID.')');
 			
-			findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray);
+			findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray, $reachableTypeArray);
 			
 			// Clear last path branch so we can continue searching
 			for($arrayCount=0; $arrayCount<1; $arrayCount++) {
@@ -471,7 +481,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	// ## Search reachable objects
 	// ######################
 	if(isset($reachableObjArray[$focusID])) {
-		foreach($reachableObjArray[$focusID] as $neighborType => $neighborArray) {
+		foreach($reachableObjArray[$focusID] as $reachableType => $neighborArray) {
 			foreach($neighborArray as $neighbor) {
 				
 				$neighborID = $neighbor['id'];
@@ -562,9 +572,12 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 								'port' => $neighborPort
 							);
 							
+							// Increment reachableTypeCount
+							$reachableTypeArray[$reachableType]++;
+							
 							error_log('Debug (reachable newFocus): '.$qls->App->generateObjectName($neighborID).' ('.$neighborID.')');
 							
-							findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray);
+							findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray, $reachableTypeArray);
 							
 							// Clear last path branch so we can continue searching
 							for($arrayCount=0; $arrayCount<3; $arrayCount++) {
