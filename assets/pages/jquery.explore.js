@@ -631,6 +631,7 @@ $( document ).ready(function() {
 						table += '<td>'+pathTypeCountArray.path+'</td>';
 						table += '<td>'+total+'</td>';
 						table += '</tr>';
+						pathID++;
 					});
 				});
 				

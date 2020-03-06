@@ -351,11 +351,11 @@ error_log('Debug (reachableArray): '.json_encode($reachableArray));
 		
 		$finalPathArray = array();
 		foreach($reachableArray as $reachable) {
-			error_log('Debug: '.json_encode($reachable));
+			//error_log('Debug: '.json_encode($reachable));
 			findPaths2($qls, $reachable, $endpointAObj, $endpointAObj, $endpointBObj, $finalPathArray);
 		}
 		
-error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
+//error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
 
 		// Port type
 		// 0 = meters (SFP)
@@ -411,7 +411,11 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	$focusTemplateID = $focusObj['template_id'];
 	$focusCompatibility = $qls->App->compatibilityArray[$focusTemplateID][$focusFace][$focusDepth];
 	
-	error_log('Debug (focusData): '.$focusID.'-'.$focusFace.'-'.$focusDepth);
+	if($focusID == 33) {
+		error_log('Debug: '.$pathType.'-'.count($finalPathArray[$pathType]));
+	}
+	
+	//error_log('Debug (focusData): '.$focusID.'-'.$focusFace.'-'.$focusDepth);
 	
 	array_push($workingArray, array(
 		'type' => 'object',
@@ -441,6 +445,10 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	// ######################
 	if(isset($qls->App->peerArray[$focusID][$focusFace][$focusDepth])) {
 		
+		if($focusID == 33) {
+			error_log('Debug: Trunk found');
+		}
+		
 		// Get neighbor peer info
 		$peer = $qls->App->peerArray[$focusID][$focusFace][$focusDepth];
 		$peerID = $peer['peerID'];
@@ -449,6 +457,10 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 		
 		// Trunk peer cannot be one we've previously looked at
 		if(!in_array($peerID, $visitedObjArray)) {
+			
+			if($focusID == 33) {
+				error_log('Debug: Trunk explored');
+			}
 			
 			// Add neighbor to visited objects array
 			array_push($visitedObjArray, $peerID);
@@ -466,7 +478,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 				'port' => $focusPort
 			);
 			
-			error_log('Debug (trunk newFocus): '.$qls->App->generateObjectName($peerID).' ('.$peerID.')');
+			//error_log('Debug (trunk newFocus): '.$qls->App->generateObjectName($peerID).' ('.$peerID.')');
 			
 			findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray, $reachableTypeArray);
 			
@@ -484,6 +496,10 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 		foreach($reachableObjArray[$focusID] as $reachableType => $neighborArray) {
 			foreach($neighborArray as $neighbor) {
 				
+				if($focusID == 33) {
+					error_log('Debug: Neighbor found');
+				}
+				
 				$neighborID = $neighbor['id'];
 				$neighborTemplateID = $neighbor['template_id'];
 				$neighborTemplate = $qls->App->templateArray[$neighborTemplateID];
@@ -500,7 +516,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 						$neighborFace = $neighborPartition['face'];
 						$neighborDepth = $neighborPartition['depth'];
 						
-						error_log('Debug (neighborData): '.$neighborID.'-'.$neighborFace.'-'.$neighborDepth);
+						//error_log('Debug (neighborData): '.$neighborID.'-'.$neighborFace.'-'.$neighborDepth);
 					
 						// Set flag to test if available port was found
 						$commonAvailablePortFound = false;
@@ -520,7 +536,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							$peerFace = $neighborPeerData['peerFace'];
 							$peerDepth = $neighborPeerData['peerDepth'];
 							
-							error_log('Debug (neighborPeerData): '.$peerID.'-'.$peerFace.'-'.$peerDepth);
+							//error_log('Debug (neighborPeerData): '.$peerID.'-'.$peerFace.'-'.$peerDepth);
 							
 							// Get array of available neighbor and peer ports
 							$neighborPortArray = $qls->App->getAvailablePortArray($neighborID, $neighborFace, $neighborDepth);
@@ -575,7 +591,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							// Increment reachableTypeCount
 							$reachableTypeArray[$reachableType]++;
 							
-							error_log('Debug (reachable newFocus): '.$qls->App->generateObjectName($neighborID).' ('.$neighborID.')');
+							//error_log('Debug (reachable newFocus): '.$qls->App->generateObjectName($neighborID).' ('.$neighborID.')');
 							
 							findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $workingArray, $visitedObjArray, $reachableTypeArray);
 							
