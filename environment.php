@@ -169,9 +169,22 @@ $qls->Security->check_auth_page('operator.php');
 						</blockquote>
 					</div>
 				</div>
+			</div>
+			<div class="card-box">
+				<h4 class="header-title m-t-0 m-b-20">Object Details</h4>
 				<div id="floorplanDetails" style="display:none;">
 					<div class="card">
-						<div class="card-header">Object</div>
+						<div class="card-header">Selected
+							<span>
+								<div class="btn-group pull-right">
+									<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+									<div class="dropdown-menu">
+										<a class="objDelete floorplanObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+										<a class="clearTrunkPeer floorplanObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Path</a>
+									</div>
+								</div>
+							</span>
+						</div>
 						<div class="card-block">
 							<blockquote class="card-blockquote">
 								<table>
@@ -200,9 +213,6 @@ $qls->Security->check_auth_page('operator.php');
 										</td>
 									</tr>
 								</table>
-								<button id="floorplanObjDelete" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-20">
-									<span class="btn-label"><i class="fa fa-times"></i></span>Delete
-								</button>
 							</blockquote>
 						</div>
 					</div>
@@ -270,7 +280,8 @@ $qls->Security->check_auth_page('operator.php');
 									<div class="btn-group pull-right">
 										<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
 										<div class="dropdown-menu">
-											<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+											<a class="objDelete rackObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+											<a class="clearTrunkPeer rackObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Path</a>
 										</div>
 									</div>
 								</span>

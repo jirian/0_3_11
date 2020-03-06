@@ -18,9 +18,6 @@ function clearObjectDetails(){
 	$('#detailPortType').html('-');
 	$('#detailMediaType').html('-');
 	$('#detailTemplateImage').html('-');
-		
-	//Disable the 'Delete' button in object details
-	$('#objDelete').addClass('disabled');
 	
 	//Clear the hightlight around any highlighted object
 	$('.rackObjSelected').removeClass('rackObjSelected');
@@ -32,7 +29,10 @@ function clearObjectDetails(){
 	$('#inline-floorplanObjName').editable('setValue', '-').editable('disable');
 	$('#floorplanDetailType').html('-');
 	$('#floorplanDetailTrunkedTo').html('-');
-	$('#floorplanObjDelete').prop('disabled', true);
+	
+		//Disable the 'Delete' button in object details
+	$('.objDelete').addClass('disabled');
+	$('.clearTrunkPeer').addClass('disabled');
 }
 
 function disableCabinetDetails(){
@@ -138,15 +138,6 @@ function makeRackObjectsClickable(){
 	$('#cabinetTable').find('.selectable').off('click');
 	$('#cabinetTable').find('.selectable').on('click', function(event){
 		event.stopPropagation();
-		/*
-		if($(this).hasClass('rackObj')) {
-			var object = $(this);
-			var partitionDepth = 0;
-		} else {
-			var object = $(this).closest('.rackObj');
-			var partitionDepth =  parseInt($(this).data('depth'), 10);
-		}
-		*/
 		
 		var object = $(this).closest('.rackObj');
 		var partitionDepth =  parseInt($(this).data('depth'), 10);
@@ -212,7 +203,8 @@ function makeRackObjectsClickable(){
 				} else {
 					$('#detailTemplateImage').html('None');
 				}
-				$('#objDelete').removeClass('disabled');
+				$('.objDelete.rackObj').removeClass('disabled');
+				$('.clearTrunkPeer.rackObj').removeClass('disabled');
 				$('#inline-name').editable('option', 'disabled', false);
 				
 				// Trunked to
@@ -265,7 +257,8 @@ function makeFloorplanObjectsClickable(){
 				$('#floorplanDetailType').html(objectType);
 				
 				// Object delete button
-				$('#floorplanObjDelete').prop('disabled', false);
+				$('.objDelete.floorplanObj').removeClass('disabled');
+				$('.clearTrunkPeer.floorplanObj').removeClass('disabled');
 				
 				// Trunked to
 				if(!response.trunkable) {
@@ -1254,7 +1247,9 @@ $( document ).ready(function() {
 		});
 	});
 	
-	$('#buttonObjectTreeModalClear').on('click', function(){
+	$('.clearTrunkPeer').on('click', function(event){
+		event.preventDefault();
+		
 		var selectedObjectType = $(document).data('selectedObjectType');
 		
 		if(selectedObjectType == 'floorplan') {
@@ -1374,7 +1369,7 @@ $( document ).ready(function() {
 	'<button type="button" class="btn btn-sm editable-cancel btn-secondary waves-effect"><i class="zmdi zmdi-close"></i></button>';
 	initializeEditable();
 
-	$('#objDelete').click(function(){
+	$('.objDelete.rackObj').click(function(){
 		if($(this).hasClass('disabled')) {
 			return false;
 		}
@@ -1429,7 +1424,7 @@ $( document ).ready(function() {
 		);
 	});
 	
-	$('#floorplanObjDelete').click(function(){
+	$('.objDelete.floorplanObj').click(function(){
 		var objectID = $(document).data('selectedFloorplanObjectID');
 		
 		var data = {

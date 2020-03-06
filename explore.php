@@ -61,29 +61,51 @@ $qls->Security->check_auth_page('user.php');
 				<div class="row">
 					<div class="col-sm-6">
 						<div class="card-box">
-							<h4 class="header-title m-t-0 m-b-30">Results</h4>
-							<div class="table-responsive">
-								<table id="cablePathTable" class="table table-striped table-bordered">
-									<thead>
-									<tr>
-										<th>MediaType</th>
-										<th>Local</th>
-										<th>Adj.</th>
-										<th>Path</th>
-										<th>Total</th>
-										<!--th></th-->
-									</tr>
-									</thead>
-									<tbody id="cablePathTableBody">
-									</tbody>
-								</table>
+							<div class="card">
+								<div class="card-header">Path
+								</div>
+								<div class="card-block">
+									<blockquote class="card-blockquote">
+									<div class="table-responsive">
+										<table id="cablePathTable" class="table table-striped table-bordered">
+											<thead>
+											<tr>
+												<th>MediaType</th>
+												<th>Local</th>
+												<th>Adj.</th>
+												<th>Path</th>
+												<th>Total</th>
+												<!--th></th-->
+											</tr>
+											</thead>
+											<tbody id="cablePathTableBody">
+											</tbody>
+										</table>
+									</div>
+									</blockquote>
+								</div>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-6">
 						<div class="card-box">
-							<h4 class="header-title m-t-0 m-b-30">Path</h4>
-							<div id="containerCablePath"></div>
+							<div class="card">
+								<div class="card-header">Path
+									<span>
+										<div class="btn-group pull-right">
+											<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
+											<div class="dropdown-menu">
+												<a id="printPathFinder" class="dropdown-item" href="#" ><i class="ion-map"></i></span> Print</a>
+											</div>
+										</div>
+									</span>
+								</div>
+								<div class="card-block">
+									<blockquote class="card-blockquote">
+										<div id="containerCablePath"></div>
+									</blockquote>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

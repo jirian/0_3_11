@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.2
 	- Changes Introduced In 0.3.1
 	- Changes Introduced In 0.3.0
 	- Changes Introduced In 0.2.4
@@ -19,6 +20,13 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.2
+
+[Fix]		Added missing clear trunk feature to selected object Actions menu ("Build->Environment" page)
+[Enhance]	Pathfinder paths display in new format
+[Enhance]	Added print feature to path finder
+[Enhance]	Consolodated selected floorplan action buttons into dropdown ("Build->Environment" page)
 
 **Changes introduced in 0.3.1
 

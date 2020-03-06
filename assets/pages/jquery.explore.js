@@ -500,8 +500,18 @@ function fitFloorplan(){
 
 $( document ).ready(function() {
 	
-	$('#printFullPath').on('click', function(){
+	$('#printFullPath').on('click', function(event){
+		event.preventDefault();
 		$('#containerFullPath').printThis({
+			importStyle: true,
+			removeInline: true,
+			removeInlineSelector: "img"
+		});
+	});
+	
+	$('#printPathFinder	').on('click', function(event){
+		event.preventDefault();
+		$('#containerCablePath').printThis({
 			importStyle: true,
 			removeInline: true,
 			removeInlineSelector: "img"

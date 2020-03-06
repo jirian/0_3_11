@@ -88,7 +88,7 @@ var $qls;
 			$this->templateArray[$row['id']] = $row;
 		}
 		
-		// Generate object... object...
+		// Generate object... object... <.<  >.>
 		$this->objectArray = array();
 		$this->objectByTemplateArray = array();
 		$this->objectByCabinetArray = array();
