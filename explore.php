@@ -419,9 +419,6 @@ $qls->Security->check_auth_page('user.php');
 <script src="assets/plugins/moment/moment.js"></script>
 <script type="text/javascript" src="assets/plugins/x-editable/js/bootstrap-editable.min.js"></script>
 
-<!-- PathSelector Plugin -->
-<script type="text/javascript" src="assets/plugins/pathSelector/jquery.pathSelector.js"></script>
-
 <!-- Required datatable js -->
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
