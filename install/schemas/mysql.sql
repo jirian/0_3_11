@@ -373,6 +373,7 @@ CREATE TABLE `{database_prefix}app_organization_data` (
   `entitlement_comment` varchar(10000) NOT NULL,
   `entitlement_expiration` int(40) NOT NULL,
   `global_setting_path_orientation` tinyint(1) NOT NULL DEFAULT '0',
+  `app_id` varchar(40) NOT NULL,
   PRIMARY KEY(`id`)
 );
 

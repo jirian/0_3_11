@@ -834,6 +834,7 @@ function getFloorplanObjectPeerTable(){
 			table += '</table>';
 			
 			$('#floorplanObjectTableContainer').html($(table).on('click', 'tr', function(){
+				$(this).addClass('selectedObjTableEntry');
 				var floorplanObjID = $(this).data('objectId');
 				$('#floorplanObj'+floorplanObjID).click();
 			}));
@@ -1047,7 +1048,7 @@ function dropFloorplanObject(event, ui){
 	var objectTopFloorplanRelative = objectTopWindowRelative - floorplanImgTop;
 	var objectLeftFloorplanRelative = objectLeftWindowRelative - floorplanImgLeft;
 	
-	if(objectInBounds(ui.offset)) {
+	if($(document).data('floorplanObjectInBounds')) {
 		
 		if($(objectClone).hasClass('floorplanStockObj')) {
 			
@@ -1090,7 +1091,9 @@ function dropFloorplanObject(event, ui){
 						dropFloorplanObject(event, ui);
 					},
 					revert: function(){
-						return !objectInBounds($(this).offset());
+						var inBounds = objectInBounds($(this).offset());
+						$(document).data('floorplanObjectInBounds', inBounds);
+						return !inBounds;
 					}
 				})
 				.hover(
@@ -1195,12 +1198,7 @@ function objectInBounds(offset){
 	} else {
 		var floorplanBoundaryBottom = floorplanWindowHeight;
 	}
-	
-	/* console.log('boundTop: '+floorplanBoundaryTop);
-	console.log('objTop: '+objectTop);
-	console.log('boundBtm: '+floorplanBoundaryBottom); */
-	
-	//console.log(objectTopWindowRelative+' > '+floorplanBoundaryTop+' && '+objectTopWindowRelative+' < '+floorplanBoundaryBottom+' && '+objectLeftWindowRelative+' > '+floorplanBoundaryLeft+' && '+objectLeftWindowRelative+' < '+floorplanBoundaryRight);
+
 	if(objectTopWindowRelative > floorplanBoundaryTop && objectTopWindowRelative < floorplanBoundaryBottom && objectLeftWindowRelative > floorplanBoundaryLeft && objectLeftWindowRelative < floorplanBoundaryRight) {
 		var accept = true;
 	} else {
@@ -1224,6 +1222,7 @@ $( document ).ready(function() {
 		},
 		revert: function(){
 			var inBounds = objectInBounds($('.ui-draggable-dragging').offset());
+			$(document).data('floorplanObjectInBounds', inBounds);
 			return !inBounds;
 		}
 	});
@@ -1813,13 +1812,11 @@ $( document ).ready(function() {
 								},
 								stop: function(event, ui){
 									dropFloorplanObject(event, ui);
-									console.log('stop');
-									console.log(ui.offset);
 								},
 								revert: function(){
-									console.log('Revert');
-									console.log($(this).offset());
-									return !objectInBounds($(this).offset());
+									var inBounds = objectInBounds($(this).offset());
+									$(document).data('floorplanObjectInBounds', inBounds);
+									return !inBounds;
 								}
 							})
 							.hover(

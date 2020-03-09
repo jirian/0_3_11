@@ -23,6 +23,7 @@ Contents
 
 **Changes introduced in 0.3.2
 
+[Fix]		Floorplan objects not dropping or updating on certain parts of floorplan
 [Fix]		Added missing clear trunk feature to selected object Actions menu ("Build->Environment" page)
 [Enhance]	Pathfinder paths display in new format
 [Enhance]	Added print feature to path finder

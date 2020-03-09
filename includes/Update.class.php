@@ -76,6 +76,8 @@ var $qls;
 			$this->update_024_to_030();
 		} else if($this->currentVersion == '0.3.0') {
 			$this->update_030_to_031();
+		} else if($this->currentVersion == '0.3.1') {
+			$this->update_031_to_032();
 		} else {
 			return true;
 		}
@@ -83,7 +85,36 @@ var $qls;
 		return false;
 	}
 	
-		/**
+	/**
+	 * Update from version 0.3.1 to 0.3.2
+	 * @return Boolean
+	 */
+	function update_031_to_032() {
+		$incrementalVersion = '0.3.2';
+		
+		// Set app version to 0.3.2
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add "app_id" column to "organization_data" table
+		$this->qls->SQL->alter('app_organization_data', 'add', 'app_id', 'VARCHAR(40)');
+		
+		// Generate unique appID
+		$time = time();
+		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$length = 4;
+		$charactersLength = strlen($characters);
+		$salt = '';
+		for($i = 0; $i < $length; $i++) {
+			$salt .= $characters[rand(0, $charactersLength - 1)];
+		}
+		$appID = sha1($time.$salt);
+		
+		// Updata appID
+		$this->qls->SQL->update('app_organization_data', array('app_id' => $appID), array('id' => array('=', 1)));
+		
+	}
+	
+	/**
 	 * Update from version 0.3.0 to 0.3.1
 	 * @return Boolean
 	 */

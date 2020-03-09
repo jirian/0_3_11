@@ -1706,10 +1706,12 @@ var $qls;
 	function updateEntitlementData($entitlementID=false){
 		
 		$entitlementID = ($entitlementID) ? $entitlementID : $this->entitlementArray['id'];
+		$appID = $this->qls->org_info['app_id'];
 		
 		// POST Request
 		$data = array(
-			'entitlementID' => $entitlementID
+			'entitlementID' => $entitlementID,
+			'appID' => $appID
 		);
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);
