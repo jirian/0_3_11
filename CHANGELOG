@@ -25,6 +25,7 @@ Contents
 
 [Fix]		Floorplan objects not dropping or updating on certain parts of floorplan
 [Fix]		Added missing clear trunk feature to selected object Actions menu ("Build->Environment" page)
+[Enhance]	Pan and zoom floorplan image to fit window when initially loaded
 [Enhance]	Pathfinder paths display in new format
 [Enhance]	Added print feature to path finder
 [Enhance]	Consolodated selected floorplan action buttons into dropdown ("Build->Environment" page)
