@@ -166,9 +166,11 @@ var $qls;
 		}
 		
 		$this->mediaTypeArray = array();
+		$this->mediaTypeByIDArray = array();
 		$query = $qls->SQL->select('*', 'shared_mediaType', array('display' => array('=', 1)));
 		while($row = $qls->SQL->fetch_assoc($query)) {
 			array_push($this->mediaTypeArray, $row);
+			$this->mediaTypeByIDArray[$row['value']] = $row;
 		}
 		
 		$this->mediaTypeValueArray = array();
@@ -932,72 +934,63 @@ var $qls;
 		
 		$treeArray = array();
 		$element = $this->objectArray[$nodeID];
-		
-		if($forTrunk) {
-			$whereArray = array('template_id' => array('=', $element['template_id']), 'AND', 'partitionFunction' => array('<>', 'Endpoint'));
-		} else {
-			$whereArray = array('template_id' => array('=', $element['template_id']));
-		}
-		
-		// Retrieve selected object partitions
-		$query = $this->qls->SQL->select('*',
-			'app_object_compatibility',
-			$whereArray
-		);
+		$templateID = $element['template_id'];
+		$template = $this->templateArray[$templateID];
+		$templateFunction = $template['templateFunction'];
 		
 		$elementArray = array();
-		while($row = $this->qls->SQL->fetch_assoc($query)){
+		if(($forTrunk and $templateFunction != 'Endpoint') or !$forTrunk) {
 			
-			if($row['partitionType'] == 'Enclosure') {
-				$queryInsertObject = $this->qls->SQL->select(
-					'*',
-					'app_object',
-					array(
-						'parent_id' => array(
-							'=',
-							$nodeID
-						),
-						'AND',
-						'parent_face' => array(
-							'=',
-							$row['side']
-						),
-						'AND',
-						'parent_depth' => array(
-							'=',
-							$row['depth']
-						)
-					)
-				);
-				
-				while($rowInsertObject = $this->qls->SQL->fetch_assoc($queryInsertObject)) {
-					$queryInsertPartition = $this->qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $rowInsertObject['template_id'])));
-					while($rowInsertPartition = $this->qls->SQL->fetch_assoc($queryInsertPartition)) {
+			// Iterate over selected object partitions
+			foreach($this->compatibilityArray[$templateID] as $nodeFace => $nodeFaceObj) {
+				foreach($nodeFaceObj as $nodeDepth => $partition) {
+					
+					$partitionType = $partition['partitionType'];
+					$partitionFunction = $partition['partitionFunction'];
+					$templateType = $partition['templateType'];
+					if($partitionType == 'Enclosure') {
+						
+						// Iterate over enclosure inserts
+						foreach($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth] as $slotX => $encRow) {
+							foreach($encRow as $slotY => $insert) {
+								
+								$insertID = $insert['id'];
+								$insertName = $insert['name'];
+								$insertTemplateID = $insert['template_id'];
+								foreach($this->compatibilityArray[$insertTemplateID] as $insertFace => $insertFaceObj) {
+									foreach($insertFaceObj as $insertDepth => $insertPartition) {
+										
+										// Cannot be a trunked endpoint
+										if(!$this->peerArrayStandard[$insertID][0][$insertDepth]['selfEndpoint']) {
+											$separator = $insertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
+											$insertPartition['objectID'] = $insertID;
+											$insertPartition['portNamePrefix'] = $insertName == '' ? '' : $insertName.$separator;
+											array_push($elementArray, $insertPartition);
+										}
+									}
+								}
+							}
+						}
+					} else if($templateType == 'Insert') {
+						
 						// Cannot be a trunked endpoint
-						if(!$this->peerArrayStandard[$rowInsertObject['id']][0][$rowInsertPartition['depth']]['selfEndpoint']) {
-							$separator = $rowInsertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
-							$rowInsertPartition['objectID'] = $rowInsertObject['id'];
-							$rowInsertPartition['portNamePrefix'] = $rowInsertObject['name'] == '' ? '' : $rowInsertObject['name'].$separator;
-							array_push($elementArray, $rowInsertPartition);
+						if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
+							$separator = $partitionFunction == 'Endpoint' ? '' : '.';
+							$rowPartitionElement = $partition;
+							$rowPartitionElement['objectID'] = $nodeID;
+							$rowPartitionElement['portNamePrefix'] = $element['name'] == '' ? '' : $element['name'].$separator;
+							array_push($elementArray, $rowPartitionElement);
+						}
+					} else {
+						
+						// Cannot be a trunked endpoint
+						if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
+							$rowPartitionElement = $partition;
+							$rowPartitionElement['objectID'] = $nodeID;
+							$rowPartitionElement['portNamePrefix'] = '';
+							array_push($elementArray, $rowPartitionElement);
 						}
 					}
-				}
-			} else if($row['templateType'] == 'Insert') {
-				// Cannot be a trunked endpoint
-				if(!$this->peerArrayStandard[$nodeID][$row['side']][$row['depth']]['selfEndpoint']) {
-					$separator = $row['partitionFunction'] == 'Endpoint' ? '' : '.';
-					$rowPartitionElement = $row;
-					$rowPartitionElement['objectID'] = $nodeID;
-					$rowPartitionElement['portNamePrefix'] = $element['name'] == '' ? '' : $element['name'].$separator;
-					array_push($elementArray, $rowPartitionElement);
-				}
-			} else {
-				// Cannot be a trunked endpoint
-				if(!$this->peerArrayStandard[$nodeID][$row['side']][$row['depth']]['selfEndpoint']) {
-					$rowPartitionElement = $row;
-					$rowPartitionElement['objectID'] = $nodeID;
-					$rowPartitionElement['portNamePrefix'] = '';
-					array_push($elementArray, $rowPartitionElement);
 				}
 			}
 		}
@@ -1009,7 +1002,7 @@ var $qls;
 			
 			if($cablePortType) {
 				
-				$cableMediaCategory = $this->mediaTypeArray[$cableMediaType]['category_id'];
+				$cableMediaCategory = $this->mediaTypeByIDArray[$cableMediaType]['category_id'];
 				
 				// Media category must be compatible (Copper, Singlmode, Multimode)
 				if($elementMediaCategory == $cableMediaCategory and $elementPortType == $cablePortType) {

@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.3
 	- Changes Introduced In 0.3.2
 	- Changes Introduced In 0.3.1
 	- Changes Introduced In 0.3.0
@@ -20,6 +21,13 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.3
+
+[Fix]		Occasionally incorrect port tree when connecting managed cable end
+[Fix]		"CableB ID" exporting as "None"
+[Fix]		Multimode cables not rendering in cable path
+[Fix]		Object name not rendering properly in cable path when scanning cable end connected to insert
 
 **Changes introduced in 0.3.2
 

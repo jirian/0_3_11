@@ -539,7 +539,7 @@ function createConnections(&$qls){
 		$bObjFace = $connection['b_object_face'];
 		$bObjDepth = $connection['b_object_depth'];
 		$bObjPort = $connection['b_port_id'];
-		$bCode39 = $connection['b_code39'] == 0 ? 'None' : $connection['b_code39'];
+		$bCode39 = $connection['b_code39'] ? $connection['b_code39'] : 'None';
 		$bConnectorID = $connection['b_connector'];
 		$bConnector = $bConnectorID ? $qls->App->connectorTypeValueArray[$bConnectorID]['name'] : 'None';
 		

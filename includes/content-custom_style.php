@@ -168,7 +168,7 @@ function color_inverse($color){
 }
 
 .cable.MM-OM3.stacked, .cable.MM-OM4.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-MM-Aqua.png");
+	background-image: url("/assets/images/cableIcons/stacked-MM-aqua.png");
 	background-position: center center;
 }
 
@@ -190,7 +190,7 @@ function color_inverse($color){
 }
 
 .cable.MM-OM3.adjacent, .cable.MM-OM4.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-MM-Aqua.png");
+	background-image: url("/assets/images/cableIcons/adjacent-MM-aqua.png");
 	background-position: left;
 	width: 150px;
 }

@@ -38,7 +38,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$remoteAttrPrefix = $cable['remoteAttrPrefix'];
 			
 			// Retrieve local connector path
-			$localConnectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'local');
+			$localObjID = $cable['local_object_id'];
+			$localObjFace = $cable['local_object_face'];
+			$localObjDepth = $cable['local_object_depth'];
+			$localObjPort = $cable['local_object_port'];
+			$localConnectorFlatPath = $qls->App->generateObjectPortName($localObjID, $localObjFace, $localObjDepth, $localObjPort);
 			$validate->returnData['success']['localConnectorFlatPath'] = $localConnectorFlatPath;
 			
 			// Retrieve unit of length
@@ -69,7 +73,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 				
 				// Retrieve remote connector path
-				$remoteConnectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'remote');
+				$remoteObjID = $cable['remote_object_id'];
+				$remoteObjFace = $cable['remote_object_face'];
+				$remoteObjDepth = $cable['remote_object_depth'];
+				$remoteObjPort = $cable['remote_object_port'];
+				$remoteConnectorFlatPath = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
 				$validate->returnData['success']['remoteConnectorFlatPath'] = $remoteConnectorFlatPath;
 				
 			// Has the remote end been scanned for initialization?
@@ -112,7 +120,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							$validate->returnData['success']['cable'] = $cable;
 							
 							// Retrieve initialized remote connector path
-							$remoteConnectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'remote');
+							$remoteObjID = $cable['remote_object_id'];
+							$remoteObjFace = $cable['remote_object_face'];
+							$remoteObjDepth = $cable['remote_object_depth'];
+							$remoteObjPort = $cable['remote_object_port'];
+							$remoteConnectorFlatPath = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
 							$validate->returnData['success']['remoteConnectorFlatPath'] = $remoteConnectorFlatPath;
 						} else {
 							$errorMsg = 'Invalid connector ID: '.$initializeID;

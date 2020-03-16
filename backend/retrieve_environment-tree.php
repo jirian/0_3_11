@@ -39,10 +39,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 		} else if($scope == 'portScan') {
 			$connectorID = $_GET['connectorID'];
 			
-			$query = $qls->SQL->select('*', 'app_inventory', array('a_id' => array('=', $connectorID), 'OR', 'b_id' => array('=', $connectorID)));
-			$cable = $qls->SQL->fetch_assoc($query);
-			$connectorAttrPrefix = $cable['a_id'] == $connectorID ? 'a' : 'b';
-			$cablePortType = $cable[$connectorAttrPrefix.'_connector'];
+			$cable = $qls->App->inventoryByIDArray[$connectorID];
+			$cablePortType = $cable['localConnector'];
 			$cableMediaType = $cable['mediaType'];
 			
 			$treeLocations = $qls->App->buildTreeLocation();
