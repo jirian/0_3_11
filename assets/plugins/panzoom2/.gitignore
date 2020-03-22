@@ -1,0 +1,9 @@
+node_modules
+yarn.lock
+*.log
+.rpt2_cache/
+*.d.ts
+dist/
+coverage/
+docs/
+demo/panzoom.js

@@ -495,7 +495,9 @@ function fitFloorplan(){
 	var newWidth = imgWidth - widthDiff;
 	var scale = (newWidth / imgWidth) + scaleDirection;
 	
-	$('#floorplanContainer').panzoom('setTransform', 'matrix('+scale+',0,0,'+scale+',0,0)');
+	//$('#floorplanContainer').panzoom('setTransform', 'matrix('+scale+',0,0,'+scale+',0,0)');
+	console.log(scale);
+	panzoom.zoom(scale);
 }
 
 $( document ).ready(function() {
@@ -533,13 +535,101 @@ $( document ).ready(function() {
 	$(document).data('cabinetFace', 0);
 	handlePathFindButton();
 	
-	$('#floorplanContainer').panzoom({
+	elem = document.getElementById('floorplanContainer');
+	panzoom = Panzoom(elem, {
+		$zoomIn: $('#btnZoomIn'),
+		$zoomOut: $('#btnZoomOut'),
+		$reset: $('#btnZoomReset')
+	});
+	
+	$('#btnZoomIn').on('click', panzoom.zoomIn);
+	$('#btnZoomOut').on('click', panzoom.zoomOut);
+	$('#btnZoomReset').on('click', panzoom.reset);
+	
+	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
+		event.preventDefault();
+		
+		var pzMatrix = panzoom.getScale();
+		var pzScale = parseFloat(pzMatrix, 10);
+		
+		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+			var newScale = pzScale + (pzScale * 0.001);
+			//var newScale = pzScale + 0.05;
+		}
+		else {
+			var newScale = pzScale - (pzScale * 0.001);
+			//var newScale = pzScale - 0.05;
+		}
+		console.log(newScale);
+		panzoom.zoomToPoint(newScale, event);
+	});
+	
+	/* $('#floorplanContainer').Panzoom({
 		$zoomIn: $('#btnZoomIn'),
 		$zoomOut: $('#btnZoomOut'),
 		$reset: $('#btnZoomReset')
 	}).on('panzoomreset', function(){
 		fitFloorplan();
-	});
+	}); */
+	
+	/*
+	
+	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
+		event.preventDefault();
+		
+		
+		
+		// Window
+		var floorplanContainer = $('#floorplanContainer');
+		var floorplanContainerTop = $(floorplanContainer).parent().offset().top;
+		var floorplanContainerLeft = $(floorplanContainer).parent().offset().left;
+		var floorplanContainerHeight = $(floorplanContainer).height();
+		var floorplanContainerWidth = $(floorplanContainer).width();
+		
+		// Mouse
+		var mouseLeft = event.pageX - floorplanContainerLeft;
+		var mouseTop = event.pageY - floorplanContainerTop;;
+		
+		// panzoom
+		var panzoom = $(floorplanContainer).panzoom('getMatrix');
+		var panzoomScale = parseFloat(panzoom[0], 10);
+		var panzoomLeft = parseInt(panzoom[4], 10);
+		var panzoomTop = parseInt(panzoom[5], 10);
+		
+		//console.log('mouseLeft: '+mouseLeft);
+		//console.log('mouseTop: '+mouseTop);
+		
+		//console.log('panzoomLeft: '+panzoomLeft);
+		//console.log('panzoomTop: '+panzoomTop);
+		
+		var offsetX = panzoomLeft - (panzoomLeft * panzoomScale);
+		var offsetY = panzoomTop - (panzoomTop * panzoomScale);
+		
+		//var offsetX = mouseLeft;
+		//var offsetY = mouseTop;
+		
+		//console.log('offsetX: '+offsetX);
+		//console.log('offsetY: '+offsetY);
+		
+		var imgWidth = $('#imgFloorplan').width();
+		var imgWidthScaled = imgWidth * panzoomScale;
+		var imgLeft = imgWidthScaled - (mouseLeft - panzoomLeft);
+		
+		//console.log('imgLeft: '+imgLeft);
+		//console.log('imgWidthScaled: '+imgWidthScaled);
+		
+		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+			//var newScale = panzoomScale + (panzoomScale * 0.001);
+			var newScale = panzoomScale + 0.05;
+		}
+		else {
+			//var newScale = panzoomScale - (panzoomScale * 0.001);
+			var newScale = panzoomScale - 0.05;
+		}
+		console.log('newScale: '+newScale);
+		$('#floorplanContainer').panzoom('zoom', newScale);
+		//$('#floorplanContainer').panzoom('setTransform', 'matrix('+newScale+',0,0,'+newScale+','+offsetX+','+offsetY+')');
+	}); */
 	
 	$('#selectCabinetView').on('change', function(){
 		var cabinetID = $(document).data('cabinetID');

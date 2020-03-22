@@ -424,7 +424,9 @@ $qls->Security->check_auth_page('user.php');
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
 
 <!-- panZoom Plugin -->
-<script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script>
+<!--script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script-->
+<!--script src="assets/plugins/panzoom/jquery.panzoom.js"></script-->
+<script src='assets/plugins/panzoom2/node_modules/@panzoom/panzoom/dist/panzoom.js'></script>
 
 <!-- printThis Plugin -->
 <script src="assets/plugins/printThis/printThis.js"></script>

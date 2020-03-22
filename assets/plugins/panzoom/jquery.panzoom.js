@@ -715,7 +715,7 @@
 				}
 				animate = true;
 			} else {
-				scale = 1 / startScale;
+				//scale = 1 / startScale;
 			}
 			
 			// Constrain scale
@@ -735,8 +735,8 @@
 				// Adjust the focal point for transform-origin 50% 50%
 				// SVG elements have a transform origin of 0 0
 				if (!this.isSVG) {
-					clientX -= (dims.width / startScale) / 2;
-					clientY -= (dims.height / startScale) / 2;
+					//clientX -= (dims.width / startScale) / 2;
+					//clientY -= (dims.height / startScale) / 2;
 				}
 
 				var clientV = new Vector(clientX, clientY, 1);
@@ -907,6 +907,7 @@
 				// Set the same default whether SVG or HTML
 				// transform-origin cannot be changed to 50% 50% in IE9-11 or Edge 13-14+
 				//'transform-origin': this.isSVG ? '0 0' : '50% 50%'
+				//'transform-origin': '0 0'
 				'transform-origin': '0 0'
 			};
 			// Set elem styles
