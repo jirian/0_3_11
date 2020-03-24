@@ -426,7 +426,7 @@ $qls->Security->check_auth_page('user.php');
 <!-- panZoom Plugin -->
 <!--script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script-->
 <!--script src="assets/plugins/panzoom/jquery.panzoom.js"></script-->
-<script src='assets/plugins/panzoom2/node_modules/@panzoom/panzoom/dist/panzoom.js'></script>
+<script src='assets/plugins/panzoom2/panzoom.js'></script>
 
 <!-- printThis Plugin -->
 <script src="assets/plugins/printThis/printThis.js"></script>

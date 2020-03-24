@@ -478,26 +478,22 @@ function portDesignation(elem, action, flag) {
 function fitFloorplan(){
 	// Get widths
 	var imgWidth = $('#imgFloorplan').width();
+	var imgHeight = $('#imgFloorplan').height();
 	var containerWidth = $('#floorplanContainer').width();
 	
-	// Get variables need to calculate transform matrix
-	if(imgWidth > containerWidth) {
-		// Scale down
-		var widthDiff = imgWidth - containerWidth;
-		var scaleDirection = 0;
-	} else {
-		// Scale up
-		var widthDiff = containerWidth - imgWidth;
-		var scaleDirection = 1;
-	}
+	// Get variables need to calculate transform matrix (scale up:down)
+	var widthDiff = (imgWidth > containerWidth) ? imgWidth - containerWidth : containerWidth - imgWidth;
+	var scaleDirection = (imgWidth > containerWidth) ? 0 : 1;
 	
 	// Calculate transform matrix
 	var newWidth = imgWidth - widthDiff;
 	var scale = (newWidth / imgWidth) + scaleDirection;
 	
-	//$('#floorplanContainer').panzoom('setTransform', 'matrix('+scale+',0,0,'+scale+',0,0)');
-	console.log(scale);
+	// Scale floorplan
 	panzoom.zoom(scale);
+	
+	// Pan floorplan accounting for scale and "50% 50%" transform origin
+	panzoom.pan((((imgWidth-(imgWidth*scale))/2)*(-1)),(((imgHeight-(imgHeight*scale))/2)*(-1)));
 }
 
 $( document ).ready(function() {
@@ -536,11 +532,7 @@ $( document ).ready(function() {
 	handlePathFindButton();
 	
 	elem = document.getElementById('floorplanContainer');
-	panzoom = Panzoom(elem, {
-		$zoomIn: $('#btnZoomIn'),
-		$zoomOut: $('#btnZoomOut'),
-		$reset: $('#btnZoomReset')
-	});
+	panzoom = Panzoom(elem);
 	
 	$('#btnZoomIn').on('click', panzoom.zoomIn);
 	$('#btnZoomOut').on('click', panzoom.zoomOut);
@@ -553,83 +545,18 @@ $( document ).ready(function() {
 		var pzScale = parseFloat(pzMatrix, 10);
 		
 		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-			var newScale = pzScale + (pzScale * 0.001);
-			//var newScale = pzScale + 0.05;
+			var newScale = pzScale + (pzScale * 0.3);
 		}
 		else {
-			var newScale = pzScale - (pzScale * 0.001);
-			//var newScale = pzScale - 0.05;
+			var newScale = pzScale - (pzScale * 0.3);
 		}
-		console.log(newScale);
+		
 		panzoom.zoomToPoint(newScale, event);
 	});
 	
-	/* $('#floorplanContainer').Panzoom({
-		$zoomIn: $('#btnZoomIn'),
-		$zoomOut: $('#btnZoomOut'),
-		$reset: $('#btnZoomReset')
-	}).on('panzoomreset', function(){
+	elem.addEventListener('panzoomreset', function(){
 		fitFloorplan();
-	}); */
-	
-	/*
-	
-	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
-		event.preventDefault();
-		
-		
-		
-		// Window
-		var floorplanContainer = $('#floorplanContainer');
-		var floorplanContainerTop = $(floorplanContainer).parent().offset().top;
-		var floorplanContainerLeft = $(floorplanContainer).parent().offset().left;
-		var floorplanContainerHeight = $(floorplanContainer).height();
-		var floorplanContainerWidth = $(floorplanContainer).width();
-		
-		// Mouse
-		var mouseLeft = event.pageX - floorplanContainerLeft;
-		var mouseTop = event.pageY - floorplanContainerTop;;
-		
-		// panzoom
-		var panzoom = $(floorplanContainer).panzoom('getMatrix');
-		var panzoomScale = parseFloat(panzoom[0], 10);
-		var panzoomLeft = parseInt(panzoom[4], 10);
-		var panzoomTop = parseInt(panzoom[5], 10);
-		
-		//console.log('mouseLeft: '+mouseLeft);
-		//console.log('mouseTop: '+mouseTop);
-		
-		//console.log('panzoomLeft: '+panzoomLeft);
-		//console.log('panzoomTop: '+panzoomTop);
-		
-		var offsetX = panzoomLeft - (panzoomLeft * panzoomScale);
-		var offsetY = panzoomTop - (panzoomTop * panzoomScale);
-		
-		//var offsetX = mouseLeft;
-		//var offsetY = mouseTop;
-		
-		//console.log('offsetX: '+offsetX);
-		//console.log('offsetY: '+offsetY);
-		
-		var imgWidth = $('#imgFloorplan').width();
-		var imgWidthScaled = imgWidth * panzoomScale;
-		var imgLeft = imgWidthScaled - (mouseLeft - panzoomLeft);
-		
-		//console.log('imgLeft: '+imgLeft);
-		//console.log('imgWidthScaled: '+imgWidthScaled);
-		
-		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-			//var newScale = panzoomScale + (panzoomScale * 0.001);
-			var newScale = panzoomScale + 0.05;
-		}
-		else {
-			//var newScale = panzoomScale - (panzoomScale * 0.001);
-			var newScale = panzoomScale - 0.05;
-		}
-		console.log('newScale: '+newScale);
-		$('#floorplanContainer').panzoom('zoom', newScale);
-		//$('#floorplanContainer').panzoom('setTransform', 'matrix('+newScale+',0,0,'+newScale+','+offsetX+','+offsetY+')');
-	}); */
+	});
 	
 	$('#selectCabinetView').on('change', function(){
 		var cabinetID = $(document).data('cabinetID');
