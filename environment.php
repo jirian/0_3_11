@@ -438,7 +438,8 @@ $qls->Security->check_auth_page('operator.php');
 <script type="text/javascript" src="assets/plugins/x-editable/js/bootstrap-editable.min.js"></script>
 
 <!-- panZoom Plugin -->
-<script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script>
+<!--script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script-->
+<script src='assets/plugins/panzoom2/panzoom.js'></script>
 
 <!-- Required datatable js -->
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>

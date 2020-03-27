@@ -476,24 +476,35 @@ function portDesignation(elem, action, flag) {
 }
 
 function fitFloorplan(){
+	
 	// Get widths
 	var imgWidth = $('#imgFloorplan').width();
 	var imgHeight = $('#imgFloorplan').height();
 	var containerWidth = $('#floorplanContainer').width();
 	
-	// Get variables need to calculate transform matrix (scale up:down)
-	var widthDiff = (imgWidth > containerWidth) ? imgWidth - containerWidth : containerWidth - imgWidth;
-	var scaleDirection = (imgWidth > containerWidth) ? 0 : 1;
+	var scale = containerWidth / imgWidth;
+	var imgHeightScaled = imgHeight * scale;
+	var imgWidthScaled = imgWidth * scale;
 	
-	// Calculate transform matrix
-	var newWidth = imgWidth - widthDiff;
-	var scale = (newWidth / imgWidth) + scaleDirection;
+	if(scale > 1) {
+		var imgHeightDiff = imgHeightScaled - imgHeight;
+		var imgWidthDiff = imgWidthScaled - imgWidth;
+		var scaleDirection = 1;
+		
+	} else {
+		var imgHeightDiff = imgHeight - imgHeightScaled;
+		var imgWidthDiff = imgWidth - imgWidthScaled;
+		var scaleDirection = -1;
+	}
+	
+	$('#floorplanWindow').css({height:imgHeightScaled+'px'});
 	
 	// Scale floorplan
 	panzoom.zoom(scale);
 	
 	// Pan floorplan accounting for scale and "50% 50%" transform origin
-	panzoom.pan((((imgWidth-(imgWidth*scale))/2)*(-1)),(((imgHeight-(imgHeight*scale))/2)*(-1)));
+	panzoom.pan((imgWidthDiff/2)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
+
 }
 
 $( document ).ready(function() {

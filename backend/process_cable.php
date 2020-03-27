@@ -240,7 +240,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						// Log history
 						$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
 						$remotePort = $qls->App->generateObjectPortName($elementID, $elementFace, $elementDepth, $elementPort);
-						$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+						$actionString = 'Added connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
 						$qls->App->logAction(3, 1, $actionString);
 						
 					} else {
