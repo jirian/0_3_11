@@ -244,8 +244,8 @@ $qls->Security->check_auth_page('operator.php');
 								<i class="floorplanObject floorplanStockObj selectable fa fa-laptop fa-2x cursorGrab" data-type="device" data-objectID="0"></i><span> Device</span>
 							</div>
 							<div id="floorplanWindow">
-								<div id="floorplanContainer" style="position:relative;">
-									<img id="imgFloorplan" src=""></img>
+								<div id="floorplanContainer" style="position:relative;background-repeat:no-repeat">
+									<!--img id="imgFloorplan" src=""></img-->
 								</div>
 							</div>
 						</div>

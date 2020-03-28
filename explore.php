@@ -200,7 +200,7 @@ $qls->Security->check_auth_page('user.php');
 							<i id="btnZoomOut" class="fa fa-search-minus fa-2x cursorPointer"></i>
 							<i id="btnZoomIn" class="fa fa-search-plus fa-2x cursorPointer"></i>
 							<i id="btnZoomReset" class="fa fa-refresh fa-2x cursorPointer"></i>
-							<div>
+							<div id="floorplanWindow">
 								<div id="floorplanContainer" style="position: relative;">
 									<img id="imgFloorplan" src=""></img>
 								</div>

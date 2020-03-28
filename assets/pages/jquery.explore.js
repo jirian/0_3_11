@@ -483,6 +483,7 @@ function fitFloorplan(){
 	var containerWidth = $('#floorplanContainer').width();
 	
 	var scale = containerWidth / imgWidth;
+	//var scale = (containerWidth < 4) ? containerWidth : 4;
 	var imgHeightScaled = imgHeight * scale;
 	var imgWidthScaled = imgWidth * scale;
 	

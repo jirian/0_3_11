@@ -936,7 +936,13 @@ function initializeImageUpload(floorplanID){
                 });
 				var responseJSON = JSON.parse(data);
 				var response = responseJSON.success;
-				$('#imgFloorplan').attr('src', response.imgPath);
+				var floorplanImgPath = response.imgPath;
+				//$('#floorplanContainer').attr('src', response.imgPath);
+				var img = new Image();
+				img.src = floorplanImgPath;
+				var imgHeight = img.height;
+				var imgWidth = img.width;
+				$('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth}, fitFloorplan);
             },
             error: function(el){
                 var parent = el.find(".jFiler-jProgressBar").parent();
@@ -994,7 +1000,34 @@ function renumberCabinet(){
 
 function fitFloorplan(){
 	
-	// Get widths
+	var imgWidth = $('#floorplanContainer').width();
+	var imgHeight = $('#floorplanContainer').height();
+	var containerWidth = $('#floorplanWindow').width();
+	
+	var scale = containerWidth / imgWidth;
+	scale = (scale > 4) ? 4 : scale;
+	var imgHeightScaled = imgHeight * scale;
+	var imgWidthScaled = imgWidth * scale;
+	
+	if(scale > 1) {
+		var imgHeightDiff = imgHeightScaled - imgHeight;
+		var imgWidthDiff = imgWidthScaled - imgWidth;
+		var scaleDirection = 1;
+	} else {
+		var imgHeightDiff = imgHeight - imgHeightScaled;
+		var imgWidthDiff = imgWidth - imgWidthScaled;
+		var scaleDirection = -1;
+	}
+	
+	$('#floorplanWindow').css({height:imgHeightScaled+'px'});
+	
+	// Scale floorplan
+	panzoom.zoom(scale);
+	
+	// Pan floorplan accounting for scale and "50% 50%" transform origin
+	panzoom.pan(((imgWidthDiff/2)/scale)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
+	
+	/* // Get widths
 	var imgWidth = $('#imgFloorplan').width();
 	var imgHeight = $('#imgFloorplan').height();
 	var containerWidth = $('#floorplanContainer').width();
@@ -1020,7 +1053,7 @@ function fitFloorplan(){
 	panzoom.zoom(scale);
 	
 	// Pan floorplan accounting for scale and "50% 50%" transform origin
-	panzoom.pan((imgWidthDiff/2)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
+	panzoom.pan((imgWidthDiff/2)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection); */
 
 }
 
@@ -1280,7 +1313,7 @@ $( document ).ready(function() {
 		}
 	});
 
-		elem = document.getElementById('floorplanContainer');
+	elem = document.getElementById('floorplanContainer');
 	panzoom = Panzoom(elem);
 	
 	$('#btnZoomIn').on('click', panzoom.zoomIn);
@@ -1306,14 +1339,6 @@ $( document ).ready(function() {
 	elem.addEventListener('panzoomreset', function(){
 		fitFloorplan();
 	});
-	
-/* 	$('#floorplanContainer').panzoom({
-		$zoomIn: $('#btnZoomIn'),
-		$zoomOut: $('#btnZoomOut'),
-		$reset: $('#btnZoomReset')
-	}).on('panzoomreset', function(){
-		fitFloorplan();
-	}); */
 	
 	// Ajax Tree
 	$('#objTree')
@@ -1857,7 +1882,14 @@ $( document ).ready(function() {
 					var deviceObject = '<i class="floorplanObject selectable fa fa-laptop fa-2x" style="cursor:grab;" data-type="device"></i>';
 					
 					var floorplanImgPath = '/images/floorplanImages/'+response.success.floorplanImg;
-					$('#imgFloorplan').load(fitFloorplan).attr('src', floorplanImgPath);
+					//$('#imgFloorplan').load(fitFloorplan).attr('src', floorplanImgPath);
+					var img = new Image();
+					img.src = floorplanImgPath;
+					var imgHeight = img.height;
+					var imgWidth = img.width;
+					$.when($('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth})).then(function(){
+						fitFloorplan();
+					});
 					
 					$.each(response.success.floorplanObjectData, function(index, item){
 						if(item.type == 'walljack') {
