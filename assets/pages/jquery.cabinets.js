@@ -937,12 +937,12 @@ function initializeImageUpload(floorplanID){
 				var responseJSON = JSON.parse(data);
 				var response = responseJSON.success;
 				var floorplanImgPath = response.imgPath;
-				//$('#floorplanContainer').attr('src', response.imgPath);
-				var img = new Image();
-				img.src = floorplanImgPath;
-				var imgHeight = img.height;
-				var imgWidth = img.width;
-				$('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth}, fitFloorplan);
+				$('#imgDummy').load(function(){
+					var imgHeight = $(this).height();
+					var imgWidth = $(this).width();
+					$('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth});
+					fitFloorplan();
+				}).attr('src', floorplanImgPath);
             },
             error: function(el){
                 var parent = el.find(".jFiler-jProgressBar").parent();
@@ -1026,34 +1026,6 @@ function fitFloorplan(){
 	
 	// Pan floorplan accounting for scale and "50% 50%" transform origin
 	panzoom.pan(((imgWidthDiff/2)/scale)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
-	
-	/* // Get widths
-	var imgWidth = $('#imgFloorplan').width();
-	var imgHeight = $('#imgFloorplan').height();
-	var containerWidth = $('#floorplanContainer').width();
-	
-	var scale = containerWidth / imgWidth;
-	var imgHeightScaled = imgHeight * scale;
-	var imgWidthScaled = imgWidth * scale;
-	
-	if(scale > 1) {
-		var imgHeightDiff = imgHeightScaled - imgHeight;
-		var imgWidthDiff = imgWidthScaled - imgWidth;
-		var scaleDirection = 1;
-		
-	} else {
-		var imgHeightDiff = imgHeight - imgHeightScaled;
-		var imgWidthDiff = imgWidth - imgWidthScaled;
-		var scaleDirection = -1;
-	}
-	
-	$('#floorplanWindow').css({height:imgHeightScaled+'px'});
-	
-	// Scale floorplan
-	panzoom.zoom(scale);
-	
-	// Pan floorplan accounting for scale and "50% 50%" transform origin
-	panzoom.pan((imgWidthDiff/2)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection); */
 
 }
 
@@ -1882,14 +1854,13 @@ $( document ).ready(function() {
 					var deviceObject = '<i class="floorplanObject selectable fa fa-laptop fa-2x" style="cursor:grab;" data-type="device"></i>';
 					
 					var floorplanImgPath = '/images/floorplanImages/'+response.success.floorplanImg;
-					//$('#imgFloorplan').load(fitFloorplan).attr('src', floorplanImgPath);
-					var img = new Image();
-					img.src = floorplanImgPath;
-					var imgHeight = img.height;
-					var imgWidth = img.width;
-					$.when($('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth})).then(function(){
+					
+					$('#imgDummy').load(function(){
+						var imgHeight = $(this).height();
+						var imgWidth = $(this).width();
+						$('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth});
 						fitFloorplan();
-					});
+					}).attr('src', floorplanImgPath);
 					
 					$.each(response.success.floorplanObjectData, function(index, item){
 						if(item.type == 'walljack') {
