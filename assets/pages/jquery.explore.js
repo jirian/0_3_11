@@ -477,13 +477,12 @@ function portDesignation(elem, action, flag) {
 
 function fitFloorplan(){
 	
-	// Get widths
-	var imgWidth = $('#imgFloorplan').width();
-	var imgHeight = $('#imgFloorplan').height();
-	var containerWidth = $('#floorplanContainer').width();
+	var imgWidth = $('#floorplanContainer').width();
+	var imgHeight = $('#floorplanContainer').height();
+	var containerWidth = $('#floorplanWindow').width();
 	
 	var scale = containerWidth / imgWidth;
-	//var scale = (containerWidth < 4) ? containerWidth : 4;
+	scale = (scale > 4) ? 4 : scale;
 	var imgHeightScaled = imgHeight * scale;
 	var imgWidthScaled = imgWidth * scale;
 	
@@ -491,7 +490,6 @@ function fitFloorplan(){
 		var imgHeightDiff = imgHeightScaled - imgHeight;
 		var imgWidthDiff = imgWidthScaled - imgWidth;
 		var scaleDirection = 1;
-		
 	} else {
 		var imgHeightDiff = imgHeight - imgHeightScaled;
 		var imgWidthDiff = imgWidth - imgWidthScaled;
@@ -504,8 +502,92 @@ function fitFloorplan(){
 	panzoom.zoom(scale);
 	
 	// Pan floorplan accounting for scale and "50% 50%" transform origin
-	panzoom.pan((imgWidthDiff/2)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
+	panzoom.pan(((imgWidthDiff/2)/scale)*scaleDirection, ((imgHeightDiff/2)/scale)*scaleDirection);
 
+}
+
+function objectInBounds(offset){
+	var floorplanWindow = $('#floorplanWindow');
+	var floorplanContainer = $('#floorplanContainer');
+
+	// PanZoom
+	var panzoomScale = panzoom.getScale();
+	var panzoomLeft = panzoom.getPan().x;
+	var panzoomTop = panzoom.getPan().y;
+	
+	// Window
+	var floorplanWindowTop = $(floorplanWindow).offset().top;
+	var floorplanWindowLeft = $(floorplanWindow).offset().left;
+	var floorplanWindowHeight = $(floorplanWindow).height();
+	var floorplanWindowWidth = $(floorplanWindow).width();
+	
+	// Image
+	var imgWidth = $(floorplanContainer).width();
+	var imgHeight = $(floorplanContainer).height();
+	var imgHeightScaled = imgHeight * panzoomScale;
+	var imgWidthScaled = imgWidth * panzoomScale;
+	if(panzoomScale > 1) {
+		var imgHeightDiff = imgHeightScaled - imgHeight;
+		var imgWidthDiff = imgWidthScaled - imgWidth;
+		var scaleDirection = 1;
+		
+	} else {
+		var imgHeightDiff = imgHeight - imgHeightScaled;
+		var imgWidthDiff = imgWidth - imgWidthScaled;
+		var scaleDirection = -1;
+	}
+	var imgWidthMargin = imgWidthDiff/2;
+	var imgWidthMarginScaled = imgWidthMargin/panzoomScale;
+	var imgHeightMargin = imgHeightDiff/2;
+	var imgHeightMarginScaled = imgHeightMargin/panzoomScale;
+	
+	var floorplanImgTop = panzoomTop - (imgHeightMarginScaled*scaleDirection);
+	var floorplanImgLeft = panzoomLeft - (imgWidthMarginScaled*scaleDirection);
+	var floorplanImgRight = floorplanImgLeft + imgWidth;
+	var floorplanImgBottom = floorplanImgTop + imgHeight;
+	
+	// Object - Top
+	var objectTop = offset.top;
+	var objectTopWindowRelative = objectTop - floorplanWindowTop;
+	var objectTopWindowRelativeScaled = objectTopWindowRelative / panzoomScale;
+	
+	// Object - Left
+	var objectLeft = offset.left;
+	var objectLeftWindowRelative = objectLeft - floorplanWindowLeft;
+	var objectLeftWindowRelativeScaled = objectLeftWindowRelative / panzoomScale;
+	
+	// Left Boundary
+	if(floorplanImgLeft < 0) {
+		var floorplanBoundaryLeft = 0;
+	} else {
+		var floorplanBoundaryLeft = floorplanImgLeft;
+	}
+	// Top Boundary
+	if(floorplanImgTop < 0) {
+		var floorplanBoundaryTop = 0;
+	} else {
+		var floorplanBoundaryTop = floorplanImgTop;
+	}
+	// Right Boundary
+	if(floorplanImgRight <= floorplanWindowWidth/panzoomScale) {
+		var floorplanBoundaryRight = floorplanImgRight;
+	} else {
+		var floorplanBoundaryRight = floorplanWindowWidth/panzoomScale;
+	}
+	// Bottom Boundary
+	if(floorplanImgBottom <= floorplanWindowHeight/panzoomScale) {
+		var floorplanBoundaryBottom = floorplanImgBottom;
+	} else {
+		var floorplanBoundaryBottom = floorplanWindowHeight/panzoomScale;
+	}
+
+	if(objectTopWindowRelativeScaled > floorplanBoundaryTop && objectTopWindowRelativeScaled < floorplanBoundaryBottom && objectLeftWindowRelativeScaled > floorplanBoundaryLeft && objectLeftWindowRelativeScaled < floorplanBoundaryRight) {
+		var accept = true;
+	} else {
+		var accept = false;
+	}
+	
+	return accept;
 }
 
 $( document ).ready(function() {
@@ -551,19 +633,25 @@ $( document ).ready(function() {
 	$('#btnZoomReset').on('click', panzoom.reset);
 	
 	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
-		event.preventDefault();
 		
-		var pzMatrix = panzoom.getScale();
-		var pzScale = parseFloat(pzMatrix, 10);
+		var mouseCoords = {top:event.pageY, left:event.pageX};
+		var mouseInBounds = objectInBounds(mouseCoords);
 		
-		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-			var newScale = pzScale + (pzScale * 0.3);
+		if(mouseInBounds) {
+			event.preventDefault();
+			
+			var pzMatrix = panzoom.getScale();
+			var pzScale = parseFloat(pzMatrix, 10);
+			
+			if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+				var newScale = pzScale + (pzScale * 0.3);
+			}
+			else {
+				var newScale = pzScale - (pzScale * 0.3);
+			}
+			
+			panzoom.zoomToPoint(newScale, event);
 		}
-		else {
-			var newScale = pzScale - (pzScale * 0.3);
-		}
-		
-		panzoom.zoomToPoint(newScale, event);
 	});
 	
 	elem.addEventListener('panzoomreset', function(){
@@ -1026,7 +1114,13 @@ $( document ).ready(function() {
 					var deviceObject = '<i class="floorplanObject selectable fa fa-laptop fa-2x" data-type="device"></i>';
 					
 					var floorplanImgPath = '/images/floorplanImages/'+response.success.floorplanImg;
-					$('#imgFloorplan').load(fitFloorplan).attr('src', floorplanImgPath);
+					
+					$('#imgDummy').load(function(){
+						var imgHeight = $(this).height();
+						var imgWidth = $(this).width();
+						$('#floorplanContainer').css({"background-image":"url("+floorplanImgPath+")", "height":imgHeight, "width":imgWidth});
+						fitFloorplan();
+					}).attr('src', floorplanImgPath);
 					
 					$.each(response.success.floorplanObjectData, function(index, item){
 						if(item.type == 'walljack') {
@@ -1046,17 +1140,6 @@ $( document ).ready(function() {
 								'position': 'absolute',
 								'top': positionTop,
 								'left': positionLeft})
-							.hover(
-								function(){
-									$('#floorplanContainer').panzoom('option', {
-										disablePan: true
-									});
-								},
-								function(){
-									$('#floorplanContainer').panzoom('option', {
-										disablePan: false
-									});
-								})
 							.attr('data-objectID', item.id)
 							.attr('id', 'floorplanObj'+item.id)
 						);

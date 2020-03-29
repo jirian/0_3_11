@@ -1289,21 +1289,28 @@ $( document ).ready(function() {
 	$('#btnZoomReset').on('click', panzoom.reset);
 	
 	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
+		
+		var mouseCoords = {top:event.pageY, left:event.pageX};
+		var mouseInBounds = objectInBounds(mouseCoords);
+		
 		if(!$(document).data('disableWheelZoom')) {
-			event.preventDefault();
-			
-			var pzMatrix = panzoom.getScale();
-			var pzScale = parseFloat(pzMatrix, 10);
-			
-			if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-				var newScale = pzScale + (pzScale * 0.3);
+			if(mouseInBounds) {
+				event.preventDefault();
+				
+				var pzMatrix = panzoom.getScale();
+				var pzScale = parseFloat(pzMatrix, 10);
+				
+				if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+					var newScale = pzScale + (pzScale * 0.3);
+				}
+				else {
+					var newScale = pzScale - (pzScale * 0.3);
+				}
+				
+				panzoom.zoomToPoint(newScale, event);
 			}
-			else {
-				var newScale = pzScale - (pzScale * 0.3);
-			}
-			
-			panzoom.zoomToPoint(newScale, event);
 		} else {
+			
 			var scrollTop = $(window).scrollTop();
 			var mouseTop = event.pageY - scrollTop;
 			$('.ui-draggable-dragging').offset({top:event.pageY, left:event.pageX});

@@ -45,13 +45,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$cabinetName = $cabinet['name'];
 			$cabinetSize = $cabinet['size'];
 			
-			if($cabinetType == 'floorplan') {
-				$errMsg = 'Cannot add floorplan to diagram.';
-				array_push($validate->returnData['error'], $errMsg);
-				echo json_encode($validate->returnData);
-				exit();
-			}
-			
 			// Retreive ancestor info
 			$locationID = $cabinetParentID;
 			$ancestorIDArray = array();
@@ -238,13 +231,24 @@ function validate($data, &$validate, &$qls){
 	if(is_array($data['cabinetArray'])) {
 		if(count($data['cabinetArray']) < 100) {
 			foreach($data['cabinetArray'] as $cabinet) {
-				$validate->validateID($cabinet['id'], 'element ID');
+				$validID = $validate->validateID($cabinet['id'], 'element ID');
 				
 				$faceArray = array(0, 1);
 				$validate->validateInArray($cabinet['face'], $faceArray, 'element face');
 				
 				$typeArray = array('cabinet', 'object');
-				$validate->validateInArray($cabinet['type'], $typeArray, 'element type');
+				$validType = $validate->validateInArray($cabinet['type'], $typeArray, 'element type');
+				
+				if($validID and $validType) {
+					if($cabinet['type'] == 'cabinet') {
+						$cabinetID = $cabinet['id'];
+						$cabinetType = $qls->App->envTreeArray[$cabinetID]['type'];
+						if($cabinetType != 'cabinet') {
+							$errMsg = 'Invalid location type.';
+							array_push($validate->returnData['error'], $errMsg);
+						}
+					}
+				}
 			}
 		} else {
 			$errMsg = 'Cabinet array too large.';
