@@ -1038,57 +1038,55 @@ function dropFloorplanObject(event, ui){
 	
 	// PanZoom
 	var panzoomScale = parseFloat(panzoom.getScale(), 10);
+	var panzoomScaleDirection = (panzoomScale < 1) ? -1 : 1;
 	var panzoomLeft = parseInt(panzoom.getPan().x, 10);
 	var panzoomTop = parseInt(panzoom.getPan().y, 10);
+	
+	// Image
+	var imgWidth = $(floorplanContainer).width();
+	var imgHeight = $(floorplanContainer).height();
+	var imgHeightScaled = imgHeight * panzoomScale;
+	var imgWidthScaled = imgWidth * panzoomScale;
+	if(panzoomScale > 1) {
+		var imgHeightDiff = imgHeightScaled - imgHeight;
+		var imgWidthDiff = imgWidthScaled - imgWidth;
+		var scaleDirection = 1;
+		
+	} else {
+		var imgHeightDiff = imgHeight - imgHeightScaled;
+		var imgWidthDiff = imgWidth - imgWidthScaled;
+		var scaleDirection = -1;
+	}
+	var imgWidthMargin = imgWidthDiff / 2;
+	var imgWidthMarginScaled = imgWidthMargin / panzoomScale;
+	var imgHeightMargin = imgHeightDiff / 2;
+	var imgHeightMarginScaled = imgHeightMargin / panzoomScale;
+	
+	var floorplanImgTop = panzoomTop - (imgHeightMarginScaled * scaleDirection);
+	var floorplanImgLeft = panzoomLeft - (imgWidthMarginScaled * scaleDirection);
+	var floorplanImgRight = floorplanImgLeft + imgWidth;
+	var floorplanImgBottom = floorplanImgTop + imgHeight;
 	
 	// Window
 	var floorplanWindowTop = $(floorplanWindow).offset().top;
 	var floorplanWindowLeft = $(floorplanWindow).offset().left;
 	
-	// Image
-	var imgWidth = $('#imgFloorplan').width();
-	var imgWidthScaled = imgWidth * panzoomScale;
-	var imgWidthDiff = (imgWidth > imgWidthScaled) ? imgWidth - imgWidthScaled : imgWidthScaled - imgWidth;
-	var imgWidthMargin = imgWidthDiff/2;
-	
-	var imgHeight = $('#imgFloorplan').height();
-	var imgHeightScaled = imgHeight * panzoomScale;
-	var imgHeightDiff = (imgHeight > imgHeightScaled) ? imgHeight - imgHeightScaled : imgHeightScaled - imgHeight;
-	var imgHeightMargin = imgHeightDiff/2;
-	
-	var scaleDirection = (imgWidth > imgWidthScaled) ? 1 : -1;
-	var pzTop = panzoomTop + ((imgHeightDiff/2)*scaleDirection);
-	var pzLeft = panzoomLeft + ((imgWidthDiff/2)*scaleDirection);
-	
-	
-	//var floorplanImgTop = panzoomTop;
-	//var floorplanImgLeft = panzoomLeft;
-	var floorplanImgTop = pzTop;
-	var floorplanImgLeft = pzLeft;
-	
-	// Object
+	// Object - Top
 	var objectTop = ui.offset.top;
-	var objectLeft = ui.offset.left;
 	var objectTopWindowRelative = objectTop - floorplanWindowTop;
+	var objectTopWindowRelativeScaled = objectTopWindowRelative / panzoomScale;
+	
+	// Object - Left
+	var objectLeft = ui.offset.left;
 	var objectLeftWindowRelative = objectLeft - floorplanWindowLeft;
-	var objectTopFloorplanRelative = objectTopWindowRelative - floorplanImgTop;
-	var objectLeftFloorplanRelative = objectLeftWindowRelative - floorplanImgLeft;
+	var objectLeftWindowRelativeScaled = objectLeftWindowRelative / panzoomScale;
+	
+	var objectPositionTop = Math.round(objectTopWindowRelativeScaled - floorplanImgTop);
+	var objectPositionLeft = Math.round(objectLeftWindowRelativeScaled - floorplanImgLeft);
 	
 	if($(document).data('floorplanObjectInBounds')) {
 		
 		if($(objectClone).hasClass('floorplanStockObj')) {
-			
-			var objectPositionTop = Math.round(objectTopFloorplanRelative / panzoomScale);
-			var objectPositionLeft = Math.round(objectLeftFloorplanRelative / panzoomScale);
-			
-			console.log('panzoomScale: '+panzoomScale);
-			console.log('panzoomTop: '+panzoomTop);
-			console.log('floorplanWindowTop: '+floorplanWindowTop);
-			console.log('objectTop: '+objectTop);
-			console.log('objectTopWindowRelative: '+objectTopWindowRelative);
-			console.log('objectTopFloorplanRelative: '+objectTopFloorplanRelative);
-			console.log('objectPositionTop: '+objectPositionTop);
-			console.log('');
 			
 			var action = 'add';
 			var nodeID = $(document).data('selectedNodeID');
@@ -1111,6 +1109,7 @@ function dropFloorplanObject(event, ui){
 				})
 				.draggable({
 					start: function(event, ui){
+						$(document).data('disableWheelZoom', true);
 						var scale = panzoom.getScale();
 						ui.originalPosition.left = ui.originalPosition.left / scale;
 						ui.originalPosition.top = ui.originalPosition.top / scale;
@@ -1121,6 +1120,7 @@ function dropFloorplanObject(event, ui){
 						ui.position.top = ui.position.top / scale;
 					},
 					stop: function(event, ui){
+						$(document).data('disableWheelZoom', false);
 						dropFloorplanObject(event, ui);
 					},
 					revert: function(){
@@ -1141,12 +1141,15 @@ function dropFloorplanObject(event, ui){
 			makeFloorplanObjectsClickable();
 		} else {
 			
+			var positionTop = Math.round(objectPositionTop * panzoomScale);
+			var positionLeft = Math.round(objectPositionLeft * panzoomScale);
+			
 			var action = 'editLocation';
 			var objectID = $(event.target).data('objectId');
 			var data = {
 				action: action,
-				positionTop: parseInt(objectTopFloorplanRelative, 10),
-				positionLeft: parseInt(objectLeftFloorplanRelative, 10),
+				positionTop: positionTop,
+				positionLeft: positionLeft,
 				objectID: objectID
 			};
 		}
@@ -1173,7 +1176,6 @@ function dropFloorplanObject(event, ui){
 function objectInBounds(offset){
 	var floorplanWindow = $('#floorplanWindow');
 	var floorplanContainer = $('#floorplanContainer');
-	var floorplanImg = $('#imgFloorplan');
 
 	// PanZoom
 	var panzoomScale = panzoom.getScale();
@@ -1187,8 +1189,8 @@ function objectInBounds(offset){
 	var floorplanWindowWidth = $(floorplanWindow).width();
 	
 	// Image
-	var imgWidth = $(floorplanImg).width();
-	var imgHeight = $(floorplanImg).height();
+	var imgWidth = $(floorplanContainer).width();
+	var imgHeight = $(floorplanContainer).height();
 	var imgHeightScaled = imgHeight * panzoomScale;
 	var imgWidthScaled = imgWidth * panzoomScale;
 	if(panzoomScale > 1) {
@@ -1203,13 +1205,11 @@ function objectInBounds(offset){
 	}
 	var imgWidthMargin = imgWidthDiff/2;
 	var imgWidthMarginScaled = imgWidthMargin/panzoomScale;
-	//var imgWidthMarginScaled = imgWidthMargin;
 	var imgHeightMargin = imgHeightDiff/2;
 	var imgHeightMarginScaled = imgHeightMargin/panzoomScale;
 	
 	var floorplanImgTop = panzoomTop - (imgHeightMarginScaled*scaleDirection);
-	//var floorplanImgLeft = panzoomLeft - (imgWidthMarginScaled*scaleDirection);
-	var floorplanImgLeft = panzoomLeft - (imgWidthMargin*scaleDirection);
+	var floorplanImgLeft = panzoomLeft - (imgWidthMarginScaled*scaleDirection);
 	var floorplanImgRight = floorplanImgLeft + imgWidth;
 	var floorplanImgBottom = floorplanImgTop + imgHeight;
 	
@@ -1236,24 +1236,18 @@ function objectInBounds(offset){
 		var floorplanBoundaryTop = floorplanImgTop;
 	}
 	// Right Boundary
-	//console.log('floorplanImgRight: '+floorplanImgRight);
-	//console.log('floorplanWindowWidth: '+floorplanWindowWidth/panzoomScale);
 	if(floorplanImgRight <= floorplanWindowWidth/panzoomScale) {
 		var floorplanBoundaryRight = floorplanImgRight;
 	} else {
 		var floorplanBoundaryRight = floorplanWindowWidth/panzoomScale;
 	}
 	// Bottom Boundary
-	//console.log('floorplanImgBottom: '+floorplanImgBottom);
-	//console.log('floorplanWindowHeight: '+floorplanWindowHeight/panzoomScale);
 	if(floorplanImgBottom <= floorplanWindowHeight/panzoomScale) {
 		var floorplanBoundaryBottom = floorplanImgBottom;
 	} else {
 		var floorplanBoundaryBottom = floorplanWindowHeight/panzoomScale;
 	}
 
-	console.log('('+objectTopWindowRelativeScaled+' > '+floorplanBoundaryTop+') ('+objectTopWindowRelativeScaled+' < '+floorplanBoundaryBottom+') ('+objectLeftWindowRelativeScaled+' > '+floorplanBoundaryLeft+') ('+objectLeftWindowRelativeScaled+' < '+floorplanBoundaryRight+')');
-	
 	if(objectTopWindowRelativeScaled > floorplanBoundaryTop && objectTopWindowRelativeScaled < floorplanBoundaryBottom && objectLeftWindowRelativeScaled > floorplanBoundaryLeft && objectLeftWindowRelativeScaled < floorplanBoundaryRight) {
 		var accept = true;
 	} else {
@@ -1288,24 +1282,32 @@ $( document ).ready(function() {
 	elem = document.getElementById('floorplanContainer');
 	panzoom = Panzoom(elem);
 	
+	$(document).data('disableWheelZoom', false);
+	
 	$('#btnZoomIn').on('click', panzoom.zoomIn);
 	$('#btnZoomOut').on('click', panzoom.zoomOut);
 	$('#btnZoomReset').on('click', panzoom.reset);
 	
 	$('#floorplanContainer').parent().bind('mousewheel DOMMouseScroll', function(event){
-		event.preventDefault();
-		
-		var pzMatrix = panzoom.getScale();
-		var pzScale = parseFloat(pzMatrix, 10);
-		
-		if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-			var newScale = pzScale + (pzScale * 0.3);
+		if(!$(document).data('disableWheelZoom')) {
+			event.preventDefault();
+			
+			var pzMatrix = panzoom.getScale();
+			var pzScale = parseFloat(pzMatrix, 10);
+			
+			if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+				var newScale = pzScale + (pzScale * 0.3);
+			}
+			else {
+				var newScale = pzScale - (pzScale * 0.3);
+			}
+			
+			panzoom.zoomToPoint(newScale, event);
+		} else {
+			var scrollTop = $(window).scrollTop();
+			var mouseTop = event.pageY - scrollTop;
+			$('.ui-draggable-dragging').offset({top:event.pageY, left:event.pageX});
 		}
-		else {
-			var newScale = pzScale - (pzScale * 0.3);
-		}
-		
-		panzoom.zoomToPoint(newScale, event);
 	});
 	
 	elem.addEventListener('panzoomreset', function(){
@@ -1882,6 +1884,7 @@ $( document ).ready(function() {
 								'left': positionLeft})
 							.draggable({
 								start: function(event, ui){
+									$(document).data('disableWheelZoom', true);
 									var scale = panzoom.getScale();
 									ui.originalPosition.left = ui.originalPosition.left / scale;
 									ui.originalPosition.top = ui.originalPosition.top / scale;
@@ -1892,6 +1895,7 @@ $( document ).ready(function() {
 									ui.position.top = ui.position.top / scale;
 								},
 								stop: function(event, ui){
+									$(document).data('disableWheelZoom', false);
 									dropFloorplanObject(event, ui);
 								},
 								revert: function(){
