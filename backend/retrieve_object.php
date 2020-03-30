@@ -21,8 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objFace = $data['objFace'];
 		$objDepth = $data['partitionDepth'];
 		$portID = $data['portID'];
+		$objName = $qls->App->getPortNameString($objID, $objFace, $objDepth, $portID);
 		
-		$validate->returnData['success'] = $qls->App->getPortNameString($objID, $objFace, $objDepth, $portID);
+		$returnObj = $qls->App->wrapObject($objID, $objName);
+		
+		$validate->returnData['success'] = $returnObj;
 		
 	}
 	echo json_encode($validate->returnData);

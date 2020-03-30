@@ -788,26 +788,6 @@ var $qls;
 			return $peer;
 		}
 	}
-
-/* 	function getCable($objID, $portID, $objFace, $objDepth){
-		//Build the cable
-		$cbl = $this->qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$objID.' AND a_port_id = '.$portID.' AND a_object_face = '.$objFace.' AND a_object_depth = '.$objDepth.') OR (b_object_id = '.$objID.' AND b_port_id = '.$portID.' AND b_object_face = '.$objFace.' AND b_object_depth = '.$objDepth.')');
-		
-		if($this->qls->SQL->num_rows($cbl)>0){
-			$cbl = $this->qls->SQL->fetch_assoc($cbl);
-			if($cbl['a_object_id'] == $objID and $cbl['a_port_id'] == $portID) {
-				$cbl['nearEnd'] = 'a';
-				$cbl['farEnd'] = 'b';
-			} else {
-				$cbl['nearEnd'] = 'b';
-				$cbl['farEnd'] = 'a';
-			}
-		} else {
-			return 0;
-		}
-		
-		return $cbl;
-	} */
 	
 	function retrievePorts($objID, $objFace, $objDepth, $objPort) {
 		$obj = $this->objectArray[$objID];
@@ -951,21 +931,23 @@ var $qls;
 					if($partitionType == 'Enclosure') {
 						
 						// Iterate over enclosure inserts
-						foreach($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth] as $slotX => $encRow) {
-							foreach($encRow as $slotY => $insert) {
-								
-								$insertID = $insert['id'];
-								$insertName = $insert['name'];
-								$insertTemplateID = $insert['template_id'];
-								foreach($this->compatibilityArray[$insertTemplateID] as $insertFace => $insertFaceObj) {
-									foreach($insertFaceObj as $insertDepth => $insertPartition) {
-										
-										// Cannot be a trunked endpoint
-										if(!$this->peerArrayStandard[$insertID][0][$insertDepth]['selfEndpoint']) {
-											$separator = $insertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
-											$insertPartition['objectID'] = $insertID;
-											$insertPartition['portNamePrefix'] = $insertName == '' ? '' : $insertName.$separator;
-											array_push($elementArray, $insertPartition);
+						if(isset($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth])) {
+							foreach($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth] as $slotX => $encRow) {
+								foreach($encRow as $slotY => $insert) {
+									
+									$insertID = $insert['id'];
+									$insertName = $insert['name'];
+									$insertTemplateID = $insert['template_id'];
+									foreach($this->compatibilityArray[$insertTemplateID] as $insertFace => $insertFaceObj) {
+										foreach($insertFaceObj as $insertDepth => $insertPartition) {
+											
+											// Cannot be a trunked endpoint
+											if(!$this->peerArrayStandard[$insertID][0][$insertDepth]['selfEndpoint']) {
+												$separator = $insertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
+												$insertPartition['objectID'] = $insertID;
+												$insertPartition['portNamePrefix'] = $insertName == '' ? '' : $insertName.$separator;
+												array_push($elementArray, $insertPartition);
+											}
 										}
 									}
 								}

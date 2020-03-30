@@ -73,6 +73,7 @@ function color_inverse($color){
 }
 
 .objectBox {
+	display: inline-block;
 	margin-top: 5px;
 	margin-bottom: 5px;
 	border-radius: 3px;

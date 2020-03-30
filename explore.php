@@ -46,8 +46,16 @@ $qls->Security->check_auth_page('user.php');
 				<div class="row">
 					<div class="col-sm-12">
 						<div class="card-box">
+							<dl class="dl-horizontal row">
+								<dt class="col-sm-3">Local Port:</dt>
+								<dd id="pathFinderModalTitle" class="col-sm-9"></dd>
+								<dt class="col-sm-3">Remote Port:</dt>
+								<dd class="col-sm-9"><div id="pathFinderTree" class="m-b-30"></div></dd>
+							</dl>
+							<!--
 							<h4 id="pathFinderModalTitle" class="header-title m-t-0 m-b-30">Endpoints</h4>
 							<div id="pathFinderTree" class="m-b-30"></div>
+							-->
 							<div title="Run">
 								<button id="buttonPathFinderRun" class="btn btn-sm waves-effect waves-light btn-primary" type="button" disabled>
 									<span class="btn-label"><i class="fa fa-cogs"></i></span>

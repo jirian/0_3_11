@@ -24,10 +24,12 @@ Contents
 
 **Changes introduced in 0.3.3
 
+[Fix]		Only allow cabinets to be added to diagram
 [Fix]		Occasionally incorrect port tree when connecting managed cable end
 [Fix]		"CableB ID" exporting as "None"
 [Fix]		Multimode cables not rendering in cable path
 [Fix]		Object name not rendering properly in cable path when scanning cable end connected to insert
+[Enhance]	Zoom floorplans with mouse wheel
 
 **Changes introduced in 0.3.2
 
