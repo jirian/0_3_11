@@ -304,16 +304,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 		}
 		
-		// Determin previous path type to begin with
+		// Determine previous path type to begin with
 		$endpointATemplateID = $endpointAObj['template_id'];
 		$endpointATemplate = $qls->App->templateArray[$endpointATemplateID];
 		$endpointAFunction = $endpointATemplate['templateFunction'];
 		$previousPathType = ($endpointAFunction == 'Endpoint' and isset($qls->App->peerArray[$endpointAObjID][$endpointAObjFace][$endpointAObjDepth])) ? 2 : 0;
 		
 		$finalPathArray = array();
+		//file_put_contents('reachableArray.json', json_encode($reachableArray));
 		foreach($reachableArray as $reachable) {
 			findPaths2($qls, $reachable, $endpointAObj, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
 		}
+		
+		$endTime = time();
+		$timeDelta = $endTime - $startTime;
+		$elapsedTime = sprintf('%02d:%02d:%02d', ($timeDelta/ 3600),($timeDelta/ 60 % 60), $timeDelta% 60);
+		error_log('Debug (PathFinder runtime): '.$elapsedTime);
 		
 		foreach($finalPathArray as $mediaType => &$pathData) {
 			foreach($pathData as &$path) {
@@ -322,13 +328,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 		
 		$endTime = time();
+		$timeDelta = $endTime - $startTime;
+		$elapsedTime = sprintf('%02d:%02d:%02d', ($timeDelta/ 3600),($timeDelta/ 60 % 60), $timeDelta% 60);		
+		error_log('Debug (Total runtime): '.$elapsedTime);
 		
 	}
-	
-	$timeDelta = $endTime - $startTime;
-	$elapsedTime = sprintf('%02d:%02d:%02d', ($timeDelta/ 3600),($timeDelta/ 60 % 60), $timeDelta% 60);
-	
-	error_log('Debug (PathFinder runtime): '.$elapsedTime);
 	
 	$validate->returnData['success'] = $finalPathArray;
 	echo json_encode($validate->returnData);
@@ -356,6 +360,8 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	$focusObj = $qls->App->objectArray[$focusID];
 	$focusTemplateID = $focusObj['template_id'];
 	$focusCompatibility = $qls->App->compatibilityArray[$focusTemplateID][$focusFace][$focusDepth];
+	
+	array_push($visitedObjArray, $focusID);
 	
 	array_push($workingArray, array(
 		'type' => 'object',
@@ -396,7 +402,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 			if(!in_array($peerID, $visitedObjArray)) {
 				
 				// Add neighbor to visited objects array
-				array_push($visitedObjArray, $peerID);
+				//array_push($visitedObjArray, $peerID);
 				
 				// Add trunk
 				array_push($workingArray, array(
@@ -437,7 +443,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 					if(!in_array($neighborID, $visitedObjArray)) {
 						
 						// Add neighbor to visited objects array
-						array_push($visitedObjArray, $neighborID);
+						//array_push($visitedObjArray, $neighborID);
 						
 						// Iterate over all compatible partitions
 						foreach($neighbor['partition'] as $neighborPartition) {
@@ -448,8 +454,9 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							// Set flag to test if available port was found
 							$commonAvailablePortFound = false;
 							
-							// If neighbor is endpointB, set neighbor port to selected endpointB port
+							// Identify first available port
 							if($neighborID == $endpointBObj['id'] and $neighborFace == $endpointBObj['face'] and $neighborDepth == $endpointBObj['depth']) {
+								// Neighbor is endpointB, set neighbor port to selected endpointB port
 								
 								$neighborPort = $endpointBObj['port'];
 								$commonAvailablePortFound = true;
@@ -516,9 +523,9 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 								// Increment reachableTypeCount
 								$reachableTypeArray[$reachableType]++;
 								
-								if($reachableTypeArray[$reachableType] > 5) {
+								/* if($reachableTypeArray[$reachableType] > 2) {
 									return;
-								}
+								} */
 								
 								//error_log('Debug ('.$reachableType.' count): '.$reachableTypeArray[$reachableType]);
 								findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray);
@@ -613,10 +620,9 @@ function getDistance($objARU, $objASize, $objBRU, $objBSize, $adj){
 }
 
 function getRU($ID, &$qls){
-	$query = $qls->SQL->select('*', 'app_object', array('id' => array('=', $ID)));
-	if($qls->SQL->num_rows($query)) {
-		$parentObj = $qls->SQL->fetch_assoc($query);
-		$RU = $parentObj['RU'];
+	if(isset($qls->App->objectArray[$ID])) {
+		$obj = $qls->App->objectArray[$ID];
+		$RU = $obj['RU'];
 	} else {
 		$RU = 0;
 	}

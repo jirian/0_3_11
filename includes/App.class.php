@@ -2390,19 +2390,17 @@ var $qls;
 		$portTotal = $templateCompatibility['portLayoutX'] * $templateCompatibility['portLayoutY'];
 		
 		// Gather patched ports
-		$query = $this->qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$objID.' AND a_object_face = '.$objFace.' AND a_object_depth = '.$objDepth.') OR (b_object_id = '.$objID.' AND b_object_face = '.$objFace.' AND b_object_depth = '.$objDepth.')');
-		while($row = $this->qls->SQL->fetch_assoc($query)) {
-			foreach($attrArray as $attr) {
-				if($row[$attr.'_object_id'] == $objID and $row[$attr.'_object_face'] == $objFace and $row[$attr.'_object_depth'] == $objDepth) {
-					array_push($occupiedPortArray, $row[$attr.'_port_id']);
-				}
+		if(isset($this->inventoryArray[$objID][$objFace][$objDepth])) {
+			foreach($this->inventoryArray[$objID][$objFace][$objDepth] as $portID => $inventory) {
+				array_push($occupiedPortArray, $portID);
 			}
 		}
 		
 		// Gather populated ports
-		$query = $this->qls->SQL->select('*', 'app_populated_port', array('object_id' => array('=', $objID), 'AND', 'object_face' => array('=', $objFace), 'AND', 'object_depth' => array('=', $objDepth)));
-		while($row = $this->qls->SQL->fetch_assoc($query)) {
-			array_push($occupiedPortArray, $row['port_id']);
+		if(isset($this->populatedPortArray[$objID][$objFace][$objDepth])) {
+			foreach($this->populatedPortArray[$objID][$objFace][$objDepth] as $portID => $inventory) {
+				array_push($occupiedPortArray, $portID);
+			}
 		}
 		
 		$availablePortArray = array();
