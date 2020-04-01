@@ -618,6 +618,19 @@ $( document ).ready(function() {
 		window.open('/backend/export-visio.php');
 	});
 	
+	    
+    $("#rangeResults").ionRangeSlider({
+        min: 1,
+        max: 20,
+		from: 10
+    });
+	
+	$("#rangeDepth").ionRangeSlider({
+        min: 1,
+        max: 20,
+		from: 10
+    });
+	
 	// Handle path finder button
 	$(document).data('portClickedFlag', false);
 	$(document).data('clickedObjPortID', null);

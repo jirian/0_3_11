@@ -26,6 +26,11 @@ function color_inverse($color){
 }
 ?>
 
+.navTree {
+	max-height: 200px;
+	overflow: auto;
+}
+
 .dataTables_wrapper .dataTables_filter {
 	float: right;
 	text-align: left;

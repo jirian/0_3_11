@@ -339,7 +339,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0), &$recursiveCount=0){
-	error_log('Debug (memory used-'.$recursiveCount++.'): '.memory_get_usage());
+	//error_log('Debug (memory used-'.$recursiveCount++.'): '.memory_get_usage());
 	// Path type signals which path should be searched,
 	// trunk or reachable.
 	$trunkPathType = 1;
@@ -351,6 +351,10 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 	// Create pathType array if it doesn't exist
 	if(!isset($finalPathArray[$pathType])) {
 		$finalPathArray[$pathType] = array();
+	}
+	
+	if(count($finalPathArray[$pathType]) > 10) {
+		return;
 	}
 	
 	$focusID = $focus['id'];
@@ -527,9 +531,9 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 								// Increment reachableTypeCount
 								$reachableTypeArray[$reachableType]++;
 								
-								if($reachableTypeArray[$reachableType] > 10) {
+								/* if($reachableTypeArray[$reachableType] > 10) {
 									return;
-								}
+								} */
 								
 								//error_log('Debug ('.$reachableType.' count): '.$reachableTypeArray[$reachableType]);
 								findPaths2($qls, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray, $recursiveCount);

@@ -18,6 +18,10 @@ $qls->Security->check_auth_page('user.php');
 <!-- DataTables -->
 <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
+<!-- ION Slider -->
+<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.css" rel="stylesheet" type="text/css"/>
+<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.skinModern.css" rel="stylesheet" type="text/css"/>
+
 <?php require 'includes/header_end.php'; ?>
 <?php require_once './includes/content-object_tree_modal.php'; ?>
 
@@ -46,21 +50,39 @@ $qls->Security->check_auth_page('user.php');
 				<div class="row">
 					<div class="col-sm-12">
 						<div class="card-box">
-							<dl class="dl-horizontal row">
-								<dt class="col-sm-3">Local Port:</dt>
-								<dd id="pathFinderModalTitle" class="col-sm-9"></dd>
-								<dt class="col-sm-3">Remote Port:</dt>
-								<dd class="col-sm-9"><div id="pathFinderTree" class="m-b-30"></div></dd>
-							</dl>
-							<!--
-							<h4 id="pathFinderModalTitle" class="header-title m-t-0 m-b-30">Endpoints</h4>
-							<div id="pathFinderTree" class="m-b-30"></div>
-							-->
-							<div title="Run">
-								<button id="buttonPathFinderRun" class="btn btn-sm waves-effect waves-light btn-primary" type="button" disabled>
-									<span class="btn-label"><i class="fa fa-cogs"></i></span>
-									Find Paths
-								</button>
+							<div class="row">
+								<div class="col-sm-6">
+									<dl class="dl-horizontal row">
+										<dt class="col-sm-3">Local Port:</dt>
+										<dd id="pathFinderModalTitle" class="col-sm-9"></dd>
+										<dt class="col-sm-3">Remote Port:</dt>
+										<dd class="col-sm-9"><div id="pathFinderTree" class="navTree m-b-30"></div></dd>
+									</dl>
+								</div>
+								<div class="col-sm-6">
+									<form class="form-horizontal">
+										<div class="form-group row">
+											<label for="rangeResults" class="col-sm-2 col-xs-12 control-label"><b>Max Results</b></label>
+											<div class="col-sm-10 col-xs-12">
+												<input type="text" id="rangeResults">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="rangeDepth" class="col-sm-2 col-xs-12 control-label"><b>Max Depth</b></label>
+											<div class="col-sm-10 col-xs-12">
+												<input type="text" id="rangeDepth">
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+							<div class="row">
+								<div title="Run">
+									<button id="buttonPathFinderRun" class="btn btn-sm waves-effect waves-light btn-primary" type="button" disabled>
+										<span class="btn-label"><i class="fa fa-cogs"></i></span>
+										Find Paths
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -145,7 +167,7 @@ $qls->Security->check_auth_page('user.php');
 					<div class="card-header">Location Tree</div>
 					<div class="card-block">
 						<div class="card-blockquote">
-							<div id="ajaxTree"></div>
+							<div id="ajaxTree" class="navTree"></div>
 						</div>
 					</div>
 				</div>
@@ -431,8 +453,6 @@ $qls->Security->check_auth_page('user.php');
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
 
 <!-- panZoom Plugin -->
-<!--script src="assets/plugins/panzoom/jquery.panzoom.min.js"></script-->
-<!--script src="assets/plugins/panzoom/jquery.panzoom.js"></script-->
 <script src='assets/plugins/panzoom2/panzoom.js'></script>
 
 <!-- printThis Plugin -->
@@ -440,5 +460,9 @@ $qls->Security->check_auth_page('user.php');
 
 <!-- draw connections functions -->
 <script src="assets/pages/jquery.drawConnections.js"></script>
+
+<!-- range slider js -->
+<script src="assets/plugins/ion-rangeslider/ion.rangeSlider.min.js"></script>
+<script src="assets/pages/jquery.ui-sliders.js"></script>
 	
 <?php require 'includes/footer_end.php' ?>

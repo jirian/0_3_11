@@ -89,7 +89,7 @@ $qls->Security->check_auth_page('operator.php');
 					<div class="card-header">Location Tree</div>
 					<div class="card-block">
 						<div class="card-blockquote">
-							<div id="ajaxTree"></div>
+							<div id="ajaxTree" class="navTree"></div>
 						</div>
 					</div>
 				</div>
@@ -170,9 +170,10 @@ $qls->Security->check_auth_page('operator.php');
 					</div>
 				</div>
 			</div>
+			<div id="floorplanDetails" style="display:none;">
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-20">Object Details</h4>
-				<div id="floorplanDetails" style="display:none;">
+				
 					<div class="card">
 						<div class="card-header">Selected
 							<span>
@@ -224,9 +225,10 @@ $qls->Security->check_auth_page('operator.php');
 							</blockquote>
 						</div>
 					</div>
-				</div>
+				
 			</div>
 		</div><!-- end col -->
+		</div>
 
 		<div class="col-md-8">
 			<div id="rowFloorplan" class="row" style="display: none;">

@@ -39,7 +39,7 @@ $qls->Security->check_auth_page('user.php');
 				<div class="row">
 					<div class="col-sm-12">
 						<div class="card-box">
-							<div id="objTree"></div>
+							<div id="objTree" class="navTree"></div>
 						</div>
 					</div>
 				</div>
