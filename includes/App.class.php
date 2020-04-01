@@ -2383,10 +2383,9 @@ var $qls;
 		$occupiedPortArray = array();
 		$attrArray = array('a','b');
 		
-		$obj = $this->objectArray[$objID];
-		$templateID = $obj['template_id'];
+		$templateID = $this->objectArray[$objID]['template_id'];
 		
-		$templateCompatibility = $this->compatibilityArray[$templateID][$objFace][$objDepth];
+		$templateCompatibility = &$this->compatibilityArray[$templateID][$objFace][$objDepth];
 		$portTotal = $templateCompatibility['portLayoutX'] * $templateCompatibility['portLayoutY'];
 		
 		// Gather patched ports
@@ -2394,6 +2393,10 @@ var $qls;
 			foreach($this->inventoryArray[$objID][$objFace][$objDepth] as $portID => $inventory) {
 				array_push($occupiedPortArray, $portID);
 			}
+			$inventory = null;
+			$portID = null;
+			unset($inventory);
+			unset($portID);
 		}
 		
 		// Gather populated ports
@@ -2401,6 +2404,10 @@ var $qls;
 			foreach($this->populatedPortArray[$objID][$objFace][$objDepth] as $portID => $inventory) {
 				array_push($occupiedPortArray, $portID);
 			}
+			$inventory = null;
+			$portID = null;
+			unset($inventory);
+			unset($portID);
 		}
 		
 		$availablePortArray = array();

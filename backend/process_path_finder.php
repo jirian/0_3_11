@@ -313,7 +313,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$finalPathArray = array();
 		//file_put_contents('reachableArray.json', json_encode($reachableArray));
 		foreach($reachableArray as $reachable) {
-			findPaths2($qls, $reachable, $endpointAObj, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
+			findPaths2($qls, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
 		}
 		
 		$endTime = time();
@@ -338,8 +338,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	echo json_encode($validate->returnData);
 }
 
-function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$finalPathArray, $previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0)){
-	
+function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0), &$recursiveCount=0){
+	error_log('Debug (memory used-'.$recursiveCount++.'): '.memory_get_usage());
 	// Path type signals which path should be searched,
 	// trunk or reachable.
 	$trunkPathType = 1;
@@ -357,9 +357,9 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 	$focusFace = $focus['face'];
 	$focusDepth = $focus['depth'];
 	$focusPort = $focus['port'];
-	$focusObj = $qls->App->objectArray[$focusID];
+	$focusObj = &$qls->App->objectArray[$focusID];
 	$focusTemplateID = $focusObj['template_id'];
-	$focusCompatibility = $qls->App->compatibilityArray[$focusTemplateID][$focusFace][$focusDepth];
+	$focusCompatibility = &$qls->App->compatibilityArray[$focusTemplateID][$focusFace][$focusDepth];
 	
 	array_push($visitedObjArray, $focusID);
 	
@@ -383,6 +383,9 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 			'pathArray' => $workingArray
 		));
 		
+		$workingArray = null;
+		unset($workingArray);
+		
 		return;
 	}
 	
@@ -393,7 +396,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 		if(isset($qls->App->peerArray[$focusID][$focusFace][$focusDepth])) {
 			
 			// Get neighbor peer info
-			$peer = $qls->App->peerArray[$focusID][$focusFace][$focusDepth];
+			$peer = &$qls->App->peerArray[$focusID][$focusFace][$focusDepth];
 			$peerID = $peer['peerID'];
 			$peerFace = $peer['peerFace'];
 			$peerDepth = $peer['peerDepth'];
@@ -417,10 +420,11 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 					'port' => $focusPort
 				);
 				
-				findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray);
+				findPaths2($qls, $reachable, $newFocus, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray, $recursiveCount);
 				
 				// Clear last path branch so we can continue searching
 				for($arrayCount=0; $arrayCount<1; $arrayCount++) {
+					$workingArray[count($workingArray) - 1] = null;
 					array_pop($workingArray);
 				}
 			}
@@ -437,7 +441,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 					
 					$neighborID = $neighbor['id'];
 					$neighborTemplateID = $neighbor['template_id'];
-					$neighborTemplate = $qls->App->templateArray[$neighborTemplateID];
+					$neighborTemplate = &$qls->App->templateArray[$neighborTemplateID];
 						
 					// Neighbor must not have been previously looked at
 					if(!in_array($neighborID, $visitedObjArray)) {
@@ -463,7 +467,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 								
 							} else if(isset($qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth])) {
 								
-								$neighborPeerData = $qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth];
+								$neighborPeerData = &$qls->App->peerArray[$neighborID][$neighborFace][$neighborDepth];
 								
 								// Get neighbor peer info
 								$peerID = $neighborPeerData['peerID'];
@@ -487,7 +491,7 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 							// If an available port was found, add it to the path
 							if($commonAvailablePortFound) {
 								
-								$neighborCompatibility = $qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
+								$neighborCompatibility = &$qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
 								
 								array_push($workingArray, array(
 									'type' => 'connector',
@@ -523,15 +527,16 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 								// Increment reachableTypeCount
 								$reachableTypeArray[$reachableType]++;
 								
-								/* if($reachableTypeArray[$reachableType] > 2) {
+								if($reachableTypeArray[$reachableType] > 10) {
 									return;
-								} */
+								}
 								
 								//error_log('Debug ('.$reachableType.' count): '.$reachableTypeArray[$reachableType]);
-								findPaths2($qls, $reachable, $newFocus, $endpointAObj, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray);
+								findPaths2($qls, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray, $recursiveCount);
 								
 								// Clear last path branch so we can continue searching
 								for($arrayCount=0; $arrayCount<3; $arrayCount++) {
+									$workingArray[count($workingArray) - 1] = null;
 									array_pop($workingArray);
 								}
 								
@@ -539,11 +544,24 @@ function findPaths2(&$qls, $reachable, $focus, $endpointAObj, $endpointBObj, &$f
 								$reachableTypeArray[$reachableType]--;
 							}
 						}
+						$neighborPartition = null;
+						unset($neighborPartition);
 					}
 				}
+				$neighbor = null;
+				unset($neighbor);
 			}
+			$neighborArray = null;
+			unset($neighborArray);
 		}
 	}
+	
+	$workingArray = null;
+	$visitedObjArray = null;
+	$reachableTypeArray = null;
+	unset($workingArray);
+	unset($visitedObjArray);
+	unset($reachableTypeArray);
 }
 
 function validate($data, &$validate, &$qls){
@@ -602,7 +620,11 @@ function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objec
 					array_push($reachableObjects, $reachableObj);
 				}
 			}
+			$reachableObj = null;
+			unset($reachableObj);
 		}
+		$reachableCabinet = null;
+		unset($reachableCabinet);
 	}
 	return $reachableObjects;
 }
@@ -621,8 +643,7 @@ function getDistance($objARU, $objASize, $objBRU, $objBSize, $adj){
 
 function getRU($ID, &$qls){
 	if(isset($qls->App->objectArray[$ID])) {
-		$obj = $qls->App->objectArray[$ID];
-		$RU = $obj['RU'];
+		$RU = $qls->App->objectArray[$ID]['RU'];
 	} else {
 		$RU = 0;
 	}
@@ -631,8 +652,7 @@ function getRU($ID, &$qls){
 
 function getSize($objID, &$qls){
 	if(isset($qls->App->objectArray[$objID])) {
-		$obj = $qls->App->objectArray[$objID];
-		$objTemplateID = $obj['template_id'];
+		$objTemplateID = $qls->App->objectArray[$objID]['template_id'];
 		$size = $qls->App->templateArray[$objTemplateID]['templateRUSize'];
 	} else {
 		$size = 0;
