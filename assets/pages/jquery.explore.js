@@ -621,14 +621,14 @@ $( document ).ready(function() {
 	    
     $("#rangeResults").ionRangeSlider({
         min: 1,
-        max: 20,
-		from: 10
+        max: $('#pathFinderMaxResults').val(),
+		from: $('#pathFinderMaxResultsDefault').val()
     });
 	
 	$("#rangeDepth").ionRangeSlider({
         min: 1,
-        max: 20,
-		from: 10
+        max: $('#pathFinderMaxDepth').val(),
+		from: $('#pathFinderMaxDepthDefault').val()
     });
 	
 	// Handle path finder button
@@ -718,6 +718,9 @@ $( document ).ready(function() {
 	
 	$('#buttonPathFinderRun').on('click', function(){
 		$(this).children('span').html('<i class="fa fa-spin fa-cog"></i>').prop("disabled", true);
+		
+		var results = $('#rangeResults').data('ionRangeSlider').result.from;
+		var depth = $('#rangeDepth').data('ionRangeSlider').result.from;
 		var endpointA = {
 			objID: $(document).data('clickedObjID'),
 			objFace: $(document).data('clickedObjFace'),
@@ -735,7 +738,9 @@ $( document ).ready(function() {
 		}
 		var data = {
 			endpointA: endpointA,
-			endpointB: endpointB
+			endpointB: endpointB,
+			results: results,
+			depth: depth
 		}
 		data = JSON.stringify(data);
 		$.post('backend/process_path_finder.php', {data:data}, function(response){

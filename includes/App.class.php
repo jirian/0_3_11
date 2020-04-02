@@ -1338,7 +1338,6 @@ var $qls;
 						if($addConnector) {
 							// Create blank "object" <td>
 							if($objectIndex == 0 or (($objectIndex == count($path)-1) and ($path[$objectIndex-1]['type'] == 'cable'))) {
-								//array_push($tableArray[count($tableArray)-1], '<td></td>');
 								array_push($tableArray[count($tableArray)-1], '<td>'.$this->wrapObject(0, 'None').'</td>');
 							}
 							
@@ -2418,5 +2417,30 @@ var $qls;
 		}
 		
 		return $availablePortArray;
+	}
+	
+	function getElevationDifference($ARU, $ASize, $BRU, $BSize){
+		$min = 100;
+		$max = 0;
+		$ATopRU = $ARU;
+		$ABottomRU = $ARU-($ASize-1);
+		$BTopRU = $BRU;
+		$BBottomRU = $BRU-($BSize-1);
+		$elevationArray = array(
+			$ATopRU,
+			$ABottomRU,
+			$BTopRU,
+			$BBottomRU
+		);
+		foreach($elevationArray as $elevation) {
+			if($elevation < $min) {
+				$min = $elevation;
+			}
+			
+			if($elevation > $max) {
+				$max = $elevation;
+			}
+		}
+		return array('min' => $min, 'max' => $max);
 	}
 }

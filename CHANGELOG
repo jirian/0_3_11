@@ -30,6 +30,7 @@ Contents
 [Fix]		Multimode cables not rendering in cable path
 [Fix]		Object name not rendering properly in cable path when scanning cable end connected to insert
 [Enhance]	Zoom floorplans with mouse wheel
+[Enhance]	User defined path finder constraints
 
 **Changes introduced in 0.3.2
 

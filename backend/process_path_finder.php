@@ -20,7 +20,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	if (!count($validate->returnData['error'])){
 		
-		$startTime = time();
+		$maxResults = $data['results'];
+		$maxDepth = $data['depth'];
 		
 		$visitedObjs = array();
 		$visitedCabs = array();
@@ -111,10 +112,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$workingArray[$row['mediaType']][$row['mediaCategory']][$row['mediaCategoryType']][] = array(
 				'templateID' => $row['template_id'],
 				'templateFace' => $row['side'],
-				'templateDepth' => $row['depth']
+				'templateDepth' => $row['depth'],
+				'mediaCategoryType' => $row['mediaCategoryType']
 			);
 		}
-
+		
 		foreach($workingArray as $mediaTypeID => $workingMediaType) {
 			$compatibilityType = '';
 			$compatibilityType = ($mediaTypeID != 8 and $compatibilityType == '') ? $qls->App->mediaTypeValueArray[$mediaTypeID]['name'] : $compatibilityType;
@@ -124,19 +126,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					foreach($workingMediaCategoryTypeArray as $workingMediaCategoryType) {
 						$compatibilityType = $compatibilityType == '' ? $qls->App->mediaCategoryTypeArray[$mediaCategoryTypeID]['name'] : $compatibilityType;
 						if(!isset($compatibleTemplateArray[$compatibilityType])) {
-							$compatibleTemplateArray[$compatibilityType] = array();
+							$compatibleTemplateArray[$compatibilityType] = array(
+								'mediaCategoryTypeID' => $mediaCategoryTypeID,
+								'mediaTypeID' => $mediaTypeID,
+								'template' => array()
+							);
 						}
 						$templateID = $workingMediaCategoryType['templateID'];
-						if(!isset($compatibleTemplateArray[$compatibilityType][$templateID])) {
-							$compatibleTemplateArray[$compatibilityType][$templateID] = array();
+						if(!isset($compatibleTemplateArray[$compatibilityType]['template'][$templateID])) {
+							$compatibleTemplateArray[$compatibilityType]['template'][$templateID] = array();
 						}
 						
-						array_push($compatibleTemplateArray[$compatibilityType][$templateID], $workingMediaCategoryType);
+						array_push($compatibleTemplateArray[$compatibilityType]['template'][$templateID], $workingMediaCategoryType);
 					}
 				}
 			}
 		}
-
+		
 		// Build array containing all cabinets
 		$cabinetArray = array();
 		$queryCabinets = $qls->SQL->select('*', 'app_env_tree', array('type' => array('=', 'cabinet')));
@@ -147,19 +153,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		// Build array containing all compatible objects
 		$objectArray = array();
 		foreach($compatibleTemplateArray as $compatibilityType => $compatiblePartitionArray) {
-			array_push($objectArray, array('pathType' => $compatibilityType, 'compatibleObjects' => array()));
+			$mediaCategoryTypeID = $compatiblePartitionArray['mediaCategoryTypeID'];
+			array_push($objectArray, array('pathType' => $compatibilityType, 'mediaTypeID' => $mediaTypeID, 'mediaCategoryTypeID' => $mediaCategoryTypeID, 'compatibleObjects' => array()));
 			foreach($qls->App->objectArray as $object) {
 				$objectID = $object['id'];
 				$objectTemplateID = $object['template_id'];
 				
 				// Add object if template is compatible
-				if(isset($compatiblePartitionArray[$objectTemplateID])) {
-					foreach($compatiblePartitionArray[$objectTemplateID] as $compatibleTemplatePartition) {
+				if(isset($compatiblePartitionArray['template'][$objectTemplateID])) {
+					
+					foreach($compatiblePartitionArray['template'][$objectTemplateID] as $compatibleTemplatePartition) {
 						$compatibleTemplateFace = $compatibleTemplatePartition['templateFace'];
 						$compatibleTemplateDepth = $compatibleTemplatePartition['templateDepth'];
 						$partitionArray = array(
 							'face' => $compatibleTemplateFace,
-							'depth' => $compatibleTemplateDepth,
+							'depth' => $compatibleTemplateDepth
 						);
 						if(!isset($objectArray[count($objectArray)-1]['compatibleObjects'][$objectID])) {
 							$object['partition'] = array();
@@ -274,7 +282,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		$reachableArray = array();
 		foreach($objectArray as $objSet) {
-			array_push($reachableArray, array('pathType' => $objSet['pathType'], 'reachableObjects' => array()));
+			array_push($reachableArray, array('pathType' => $objSet['pathType'], 'mediaTypeID' => $objSet['mediaTypeID'], 'mediaCategoryTypeID' => $objSet['mediaCategoryTypeID'], 'reachableObjects' => array()));
 			foreach($objSet['compatibleObjects'] as $obj) {
 				$objID = $obj['id'];
 				$objCabinetID = $obj['env_tree_id'];
@@ -311,49 +319,49 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$previousPathType = ($endpointAFunction == 'Endpoint' and isset($qls->App->peerArray[$endpointAObjID][$endpointAObjFace][$endpointAObjDepth])) ? 2 : 0;
 		
 		$finalPathArray = array();
-		//file_put_contents('reachableArray.json', json_encode($reachableArray));
-		foreach($reachableArray as $reachable) {
-			findPaths2($qls, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
-		}
 		
-		$endTime = time();
-		$timeDelta = $endTime - $startTime;
-		$elapsedTime = sprintf('%02d:%02d:%02d', ($timeDelta/ 3600),($timeDelta/ 60 % 60), $timeDelta% 60);
-		error_log('Debug (PathFinder runtime): '.$elapsedTime);
+		foreach($reachableArray as $reachable) {
+			findPaths2($qls, $maxResults, $maxDepth, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
+		}
 		
 		foreach($finalPathArray as $mediaType => &$pathData) {
 			foreach($pathData as &$path) {
 				$path['pathHTML'] = $qls->App->buildPathFull($path['pathArray'], null);
 			}
 		}
-		
-		$endTime = time();
-		$timeDelta = $endTime - $startTime;
-		$elapsedTime = sprintf('%02d:%02d:%02d', ($timeDelta/ 3600),($timeDelta/ 60 % 60), $timeDelta% 60);		
-		error_log('Debug (Total runtime): '.$elapsedTime);
-		
 	}
 	
 	$validate->returnData['success'] = $finalPathArray;
 	echo json_encode($validate->returnData);
 }
 
-function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0), &$recursiveCount=0){
-	//error_log('Debug (memory used-'.$recursiveCount++.'): '.memory_get_usage());
+function findPaths2(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0)){
+	
 	// Path type signals which path should be searched,
 	// trunk or reachable.
 	$trunkPathType = 1;
 	$reachablePathType = 2;
 	
 	$pathType = $reachable['pathType'];
-	$reachableObjArray = $reachable['reachableObjects'];
+	$mediaTypeID = $reachable['mediaTypeID'];
+	$mediaCategoryTypeID = $reachable['mediaCategoryTypeID'];
+	$reachableObjArray = &$reachable['reachableObjects'];
 	
 	// Create pathType array if it doesn't exist
 	if(!isset($finalPathArray[$pathType])) {
 		$finalPathArray[$pathType] = array();
 	}
 	
-	if(count($finalPathArray[$pathType]) > 10) {
+	// Enforce maximum result constraints
+	if(count($finalPathArray[$pathType]) >= $maxResults) {
+		return;
+	}
+	
+	// Enforce maximum depth constraints
+	foreach($reachableTypeArray as $reachableType) {
+		$reachableCount = $reachableCount + $reachableType;
+	}
+	if($reachableCount > $maxDepth) {
 		return;
 	}
 	
@@ -408,9 +416,6 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 			// Trunk peer cannot be one we've previously looked at
 			if(!in_array($peerID, $visitedObjArray)) {
 				
-				// Add neighbor to visited objects array
-				//array_push($visitedObjArray, $peerID);
-				
 				// Add trunk
 				array_push($workingArray, array(
 					'type' => 'trunk',
@@ -424,7 +429,7 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 					'port' => $focusPort
 				);
 				
-				findPaths2($qls, $reachable, $newFocus, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray, $recursiveCount);
+				findPaths2($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray);
 				
 				// Clear last path branch so we can continue searching
 				for($arrayCount=0; $arrayCount<1; $arrayCount++) {
@@ -450,14 +455,11 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 					// Neighbor must not have been previously looked at
 					if(!in_array($neighborID, $visitedObjArray)) {
 						
-						// Add neighbor to visited objects array
-						//array_push($visitedObjArray, $neighborID);
-						
 						// Iterate over all compatible partitions
 						foreach($neighbor['partition'] as $neighborPartition) {
 							
-							$neighborFace = $neighborPartition['face'];
-							$neighborDepth = $neighborPartition['depth'];
+							$neighborFace = intval($neighborPartition['face']);
+							$neighborDepth = intval($neighborPartition['depth']);
 						
 							// Set flag to test if available port was found
 							$commonAvailablePortFound = false;
@@ -496,6 +498,8 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 							if($commonAvailablePortFound) {
 								
 								$neighborCompatibility = &$qls->App->compatibilityArray[$neighborTemplateID][$neighborFace][$neighborDepth];
+								$neighborDistRaw = intVal($neighbor['dist']);
+								$length = $qls->App->calculateCableLength($mediaTypeID, $neighborDistRaw, $includeUnit=true);
 								
 								array_push($workingArray, array(
 									'type' => 'connector',
@@ -508,8 +512,8 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 								array_push($workingArray, array(
 									'type' => 'cable',
 									'data' => array(
-										'mediaTypeID' => $pathType,
-										'length' => $neighbor['dist']
+										'mediaTypeID' => $mediaTypeID,
+										'length' => $length
 									)
 								));
 								
@@ -531,12 +535,7 @@ function findPaths2(&$qls, &$reachable, &$focus, &$endpointBObj, &$finalPathArra
 								// Increment reachableTypeCount
 								$reachableTypeArray[$reachableType]++;
 								
-								/* if($reachableTypeArray[$reachableType] > 10) {
-									return;
-								} */
-								
-								//error_log('Debug ('.$reachableType.' count): '.$reachableTypeArray[$reachableType]);
-								findPaths2($qls, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray, $recursiveCount);
+								findPaths2($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray);
 								
 								// Clear last path branch so we can continue searching
 								for($arrayCount=0; $arrayCount<3; $arrayCount++) {
@@ -580,6 +579,38 @@ function validate($data, &$validate, &$qls){
 		}
 	}
 	
+	if(isset($data['results'])) {
+		$maxResults = $data['results'];
+		if(is_int($maxResults)) {
+			if($maxResults < 1 or $maxResults > PATH_FINDER_MAX_RESULTS) {
+				$errMsg = 'Max results is outside of allowed range.';
+				array_push($validate->returnData['error'], $errorMsg);
+			}
+		} else {
+			$errMsg = 'Max results is invalid.';
+			array_push($validate->returnData['error'], $errorMsg);
+		}
+	} else {
+		$errMsg = 'Max results is required.';
+		array_push($validate->returnData['error'], $errorMsg);
+	}
+	
+	if(isset($data['depth'])) {
+		$maxResults = $data['depth'];
+		if(is_int($maxResults)) {
+			if($maxResults < 1 or $maxResults > PATH_FINDER_MAX_RESULTS) {
+				$errMsg = 'Max depth is outside of allowed range.';
+				array_push($validate->returnData['error'], $errorMsg);
+			}
+		} else {
+			$errMsg = 'Max depth is invalid.';
+			array_push($validate->returnData['error'], $errorMsg);
+		}
+	} else {
+		$errMsg = 'Max depth is required.';
+		array_push($validate->returnData['error'], $errorMsg);
+	}
+	
 	return;
 }
 
@@ -599,11 +630,11 @@ function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objec
 					}
 					switch($type){
 						case 'local':
-							$distance = getDistance($objRU, $objSize, $reachableObjRU, $reachableObjSize, false);
+							$distance = getDistance($qls, $objRU, $objSize, $reachableObjRU, $reachableObjSize, false);
 							break;
 
 						case 'adjacent':
-							$distance = getDistance($objRU, $objSize, $reachableObjRU, $reachableObjSize, true);
+							$distance = getDistance($qls, $objRU, $objSize, $reachableObjRU, $reachableObjSize, true);
 							break;
 
 						case 'path':
@@ -612,8 +643,8 @@ function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objec
 							} else {
 								$cabinetSize = $qls->App->envTreeArray[$cabinetID]['size'];
 								$reachableCabinetSize = $qls->App->envTreeArray[$reachableCabinet['peerID']]['size'];
-								$distance = getDistance($reachableCabinetSize, 1, $reachableObjRU, $reachableObjSize, true);
-								$distance = $distance + getDistance($cabinetSize, 1, $objRU, $objSize, true);
+								$distance = getDistance($qls, $reachableCabinetSize, 1, $reachableObjRU, $reachableObjSize, true);
+								$distance = $distance + getDistance($qls, $cabinetSize, 1, $objRU, $objSize, true);
 								$distance = $distance + $reachableCabinet['distance'];
 							}
 							break;
@@ -633,13 +664,13 @@ function getReachableObjects(&$qls, $objID, $objRU, $objSize, $cabinetID, $objec
 	return $reachableObjects;
 }
 
-function getDistance($objARU, $objASize, $objBRU, $objBSize, $adj){
+function getDistance(&$qls, $objARU, $objASize, $objBRU, $objBSize, $adj){
 	// Values are in millimeters
 	$rackWidth = 482;
 	$RUSize = 44.5;
 	$verticalMgmtWidth = $adj ? 152 : 0;
 
-	$elevationDifference = getElevationDifference($objARU, $objASize, $objBRU, $objBSize);
+	$elevationDifference = $qls->App->getElevationDifference($objARU, $objASize, $objBRU, $objBSize);
 	$elevation = $RUSize*($elevationDifference['max'] - $elevationDifference['min']);
 	$distanceInMillimeters = $verticalMgmtWidth+$elevation+($rackWidth*2);
 	return $distanceInMillimeters;

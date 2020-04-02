@@ -60,6 +60,12 @@ $qls->Security->check_auth_page('user.php');
 									</dl>
 								</div>
 								<div class="col-sm-6">
+									<?php
+									echo '<input id="pathFinderMaxResults" type="hidden" value="'.PATH_FINDER_MAX_RESULTS.'">';
+									echo '<input id="pathFinderMaxResultsDefault" type="hidden" value="'.PATH_FINDER_MAX_RESULTS_DEFAULT.'">';
+									echo '<input id="pathFinderMaxDepth" type="hidden" value="'.PATH_FINDER_MAX_DEPTH.'">';
+									echo '<input id="pathFinderMaxDepthDefault" type="hidden" value="'.PATH_FINDER_MAX_DEPTH_DEFAULT.'">';
+									?>
 									<form class="form-horizontal">
 										<div class="form-group row">
 											<label for="rangeResults" class="col-sm-2 col-xs-12 control-label"><b>Max Results</b></label>

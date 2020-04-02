@@ -11,5 +11,10 @@ define('NEW_POD_PREFIX', 'Pod_');
 define('NEW_CABINET_PREFIX', 'Cabinet_');
 define('NEW_FLOORPLAN_PREFIX', 'Floorplan_');
 
+define('PATH_FINDER_MAX_RESULTS', 20);
+define('PATH_FINDER_MAX_RESULTS_DEFAULT', 10);
+define('PATH_FINDER_MAX_DEPTH', 20);
+define('PATH_FINDER_MAX_DEPTH_DEFAULT', 10);
+
 define('ENTITLEMENT_CHECK_FREQUENCY', 86400);
 ?>
