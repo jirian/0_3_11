@@ -469,13 +469,13 @@ require_once './includes/content-templates.php';
 		
 			<!-- Name -->
 			<fieldset class="form-group">
-				<label>Name</label>
+				<label>Name <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Alphanumeric characters as well as hyphens (-), underscores (_), forward slashes (\/), and backslashes (\)."></i></label>
 				<input id="inputName" class="form-control" type="text" name="name" placeholder="New_Template" value="New_Template">
 			</fieldset>
 			
 			<!-- Category -->
 			<fieldset class="form-group">
-				<label>Category</label>
+				<label>Category <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Group and color code objects."></i></label>
 				<div class="input-group" style="display:flex;">
 					<!-- Category select input -->
 					<div>
@@ -496,7 +496,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Object Type -->
 			<fieldset id="objectType" class="form-group">
-				<label>Template Type</label>
+				<label>Template Type <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" data-html="true" title="Standard: Typical 19&quot; rack mounted equipment (switch, router, server, etc.) Insert: Modular template nested inside of standard template enclosure partitions (network module, fiber cassette, etc.)"></i></label>
 				<div class="inputBlock">
 					<div class="radio">
 						<input class="objectType" type="radio" name="objectTypeRadio" id="objectTypeStandard" value="Standard" checked>
@@ -511,7 +511,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- RU Size -->
 			<fieldset id="objectRUSize" class="dependantField objectType standard form-group">
-				<label>Template Size</label>
+				<label>Template Size <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Size of template in rack units."></i></label>
 				<div class="inputBlock" style="margin-bottom:10px;">
 					<div style="display:inline;">RU:</div>
 					<input style="position:absolute; left:40px;" id="inputRU" name="RUSize" type="number" min="1" max="25" value="1"/>
@@ -520,7 +520,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Object Function -->
 			<fieldset id="objectFunction" class="dependantField objectType standard form-group">
-				<label>Template Function</label>
+				<label>Template Function <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Endpoint: Terminates layer1 (switch, router, server, etc.) Passive: Layer1 only (patch panel, fiber cassette, etc.)"></i></label>
 				<div class="inputBlock" >
 					<div class="radio">
 						<input class="objectFunction" type="radio" name="objectFunction" id="inputObjectFunctionPassive" value="Endpoint" checked>
@@ -535,7 +535,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Mounting Configuration -->
 			<fieldset id="objectMountConfig" class="dependantField objectType standard form-group">
-				<label>Mounting Configuration</label>
+				<label>Mounting Configuration <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Template depth."></i></label>
 				<div class="inputBlock" >
 					<div class="radio">
 						<input class="sideCount" type="radio" name="sideCount" id="inputSideCount2Post" value="0" checked>
@@ -550,7 +550,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Partition Type -->
 			<fieldset id="objectPartitionType" class="form-group">
-				<label>Partition Type</label>
+				<label>Partition Type <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Generic: Serves to space and size neighboring and nested partitions.  Connectable: Contains ports and interfaces.  Enclosure: Contains insert objects."></i></label>
 				<div class="inputBlock" >
 					<div class="radio">
 						<input class="partitionType" type="radio" name="partitionType" id="inputPartitionTypeGeneric" value="Generic" checked>
@@ -569,7 +569,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Custom Add/Remove Partition -->
 			<fieldset id="objectPartitionAddRemove" class="form-group">
-				<label>Add/Remove Partition</label>
+				<label>Add/Remove Partition <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Horizontal: Adds a partition inside the one selected spanning the entire width and grows down.  Vertical: Adds a partition inside the one selected spanning the entire height and grows to the right."></i></label>
 				<div class="inputBlock">
 					<div class="radio">
 						<input type="radio" id="partitionH" class="partitionAxis" value="h" name="customPartitionAxis">
@@ -586,7 +586,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Custom Partition Size -->
 			<fieldset id="objectPartitionSize" class="form-group">
-				<label>Partition Size</label>
+				<label>Partition Size <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Horizontal partitions are sized in half RU increments.  Vertical partitions are sized in 1/24th increments."></i></label>
 				<div class="inputBlock" >
 				<input id="inputCustomPartitionSize" name="customSectionSize" type="number" step="0.5" min="0.5" max="1" value="0.5" disabled />
 				</div>

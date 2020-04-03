@@ -54,9 +54,9 @@ $qls->Security->check_auth_page('user.php');
 								<div class="col-sm-6">
 									<dl class="dl-horizontal row">
 										<dt class="col-sm-3">Local Port:</dt>
-										<dd id="pathFinderModalTitle" class="col-sm-9"></dd>
+										<dd id="pathFinderLocalPort" class="col-sm-9"></dd>
 										<dt class="col-sm-3">Remote Port:</dt>
-										<dd class="col-sm-9"><div id="pathFinderTree" class="navTree m-b-30"></div></dd>
+										<dd class="col-sm-9"><div id="pathFinderRemotePort"></div><div id="pathFinderTree" class="navTree m-b-30"></div></dd>
 									</dl>
 								</div>
 								<div class="col-sm-6">
@@ -68,14 +68,14 @@ $qls->Security->check_auth_page('user.php');
 									?>
 									<form class="form-horizontal">
 										<div class="form-group row">
-											<label for="rangeResults" class="col-sm-2 col-xs-12 control-label"><b>Max Results</b></label>
-											<div class="col-sm-10 col-xs-12">
+											<label for="rangeResults" class="col-sm-2 control-label"><b>Max Results</b><i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Maximum number of paths to return for each media type."></i></label>
+											<div class="col-sm-10">
 												<input type="text" id="rangeResults">
 											</div>
 										</div>
 										<div class="form-group row">
-											<label for="rangeDepth" class="col-sm-2 col-xs-12 control-label"><b>Max Depth</b></label>
-											<div class="col-sm-10 col-xs-12">
+											<label for="rangeDepth" class="col-sm-2 control-label"><b>Max Depth</b><i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Maximum number of cable jumpers for each path returned."></i></label>
+											<div class="col-sm-10">
 												<input type="text" id="rangeDepth">
 											</div>
 										</div>

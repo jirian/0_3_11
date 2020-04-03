@@ -258,9 +258,6 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 			displayError(responseJSON.error);
 		} else {
 			$('#containerFullPath').html(responseJSON.success);
-			/* $('#containerFullPath').find('img').each(function(){
-				$(this).css('height', $(this).parent().height());
-			}); */
 			makeCableConnectorsClickable();
 		}
 	});
@@ -272,6 +269,8 @@ function processPortSelection(){
 	var partitionDepth = $(document).data('clickedObjPartitionDepth');
 	var portID = $(document).data('clickedObjPortID');
 	
+	retrievePortPath(objID, objFace, partitionDepth, portID);
+	
 	var data = {
 		objID: objID,
 		objFace: objFace,
@@ -280,8 +279,25 @@ function processPortSelection(){
 	}
 	
 	data = JSON.stringify(data);
+
+	// Retrieve the selected port object string for path finder
+	$.post('backend/retrieve_object.php', {data:data}, function(response){
+		var responseJSON = JSON.parse(response);
+		if($(responseJSON.error).size() > 0) {
+			displayError(responseJSON.error);
+		} else {
+			$('#pathFinderLocalPort').html(responseJSON.success);
+		}
+	});
 	
-	retrievePortPath(objID, objFace, partitionDepth, portID);
+	var data = {
+		objID: 0,
+		objFace: 0,
+		partitionDepth: 0,
+		portID: 0
+	}
+	
+	data = JSON.stringify(data);
 	
 	// Retrieve the selected port object string for path finder
 	$.post('backend/retrieve_object.php', {data:data}, function(response){
@@ -289,7 +305,7 @@ function processPortSelection(){
 		if($(responseJSON.error).size() > 0) {
 			displayError(responseJSON.error);
 		} else {
-			$('#pathFinderModalTitle').html(responseJSON.success);
+			$('#pathFinderRemotePort').html(responseJSON.success);
 		}
 	});
 	
@@ -960,6 +976,27 @@ $( document ).ready(function() {
 	$('#pathFinderTree')
 	.on('select_node.jstree', function(e, data){
 		if(data.node.type == 'port') {
+			var value = data.selected[0];
+			var valueArray = value.split('-');
+			var data = {
+				objID: valueArray[1],
+				objFace: valueArray[2],
+				partitionDepth: valueArray[3],
+				portID: valueArray[4]
+			}
+			
+			data = JSON.stringify(data);
+			
+			// Retrieve the selected port object string for path finder
+			$.post('backend/retrieve_object.php', {data:data}, function(response){
+				var responseJSON = JSON.parse(response);
+				if($(responseJSON.error).size() > 0) {
+					displayErrorElement(responseJSON.error, $('#alertMsgModal'));
+				} else {
+					$('#pathFinderRemotePort').html(responseJSON.success);
+				}
+			});
+			
 			$('#buttonPathFinderRun').prop("disabled", false);
 		} else {
 			$('#buttonPathFinderRun').prop("disabled", true);

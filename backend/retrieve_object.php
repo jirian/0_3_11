@@ -21,7 +21,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objFace = $data['objFace'];
 		$objDepth = $data['partitionDepth'];
 		$portID = $data['portID'];
-		$objName = $qls->App->getPortNameString($objID, $objFace, $objDepth, $portID);
+		
+		if(isset($qls->App->objectArray[$objID])) {
+			$objName = $qls->App->getPortNameString($objID, $objFace, $objDepth, $portID);
+		} else {
+			$objName = 'None';
+		}
 		
 		$returnObj = $qls->App->wrapObject($objID, $objName);
 		
