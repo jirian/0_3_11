@@ -93,7 +93,7 @@ var $qls;
 	 * Update from version 0.3.3 to 0.3.4
 	 * @return Boolean
 	 */
-	function update_032_to_033() {
+	function update_033_to_034() {
 		$incrementalVersion = '0.3.4';
 		
 		// Set app version to 0.3.4
