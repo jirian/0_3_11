@@ -146,7 +146,7 @@ else {
 							Database Password:
 						</td>
 						<td>
-							<input type="text" name="database_password" maxlength="512" value="<?php echo $_SESSION['database_password']; ?>" />
+							<input type="text" name="database_password" maxlength="512" value="<?php if (isset($_SESSION['database_password'])) { echo $_SESSION['database_password']; } else { echo (getenv('MYSQL_PASSWORD')) ? getenv('MYSQL_PASSWORD') : 'pcmuser'; } ?>" />
 						</td>
 					</tr>
 				</table>
