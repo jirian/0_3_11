@@ -937,6 +937,7 @@ DATABASE_INFO;
                     fwrite($file_handle, $database_info);
                     fclose($file_handle);
                     //die('You have successfully installed the system! Please move/rename/remove this directory and then you can access all of your pages!');
+					putenv('MYSQL_PASSWORD');
 					header('Location: '.$cookie_path);
 				}
 				else {

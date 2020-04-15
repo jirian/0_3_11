@@ -74,7 +74,7 @@ else {
 	<body>
 		<form action="install.php" method="post">
 		<input type="hidden" name="process" value="yes" />
-			<fieldset style="width: 50%;">
+			<fieldset style="width: 50%;<?php if (getenv('MYSQL_PASSWORD')) { echo ' display: none;'; }?>">
 				<legend>
 					SQL Setup
 				</legend>
@@ -87,7 +87,7 @@ else {
 							<input type="text" name="database_prefix" maxlength="254" value="<?php if (isset($_SESSION['database_prefix'])) { echo $_SESSION['database_prefix']; } else { echo 'qls_'; } ?>" />
 						</td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td>
 							Database Type:
 						</td>
@@ -109,7 +109,7 @@ else {
 							</select>
 						</td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td>
 							Database Port:
 						</td>
@@ -117,7 +117,7 @@ else {
 							<input type="text" name="database_port" maxlength="255" value="3306" />
 						</td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td>
 							Database Server Name:
 						</td>
@@ -125,7 +125,7 @@ else {
 							<input type="text" name="database_server_name" maxlength="255" value="<?php if (isset($_SESSION['database_server_name'])) { echo $_SESSION['database_server_name']; } else { echo 'database'; } ?>" />
 						</td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td>
 							Database Name:
 						</td>
@@ -133,7 +133,7 @@ else {
 							<input type="text" name="database_name" maxlength="512" value="<?php if (isset($_SESSION['database_name'])) { echo $_SESSION['database_name']; } else { echo 'pcm'; } ?>" />
 						</td>
 					</tr>
-					<tr>
+					<tr style="display: none;">
 						<td>
 							Database Username:
 						</td>
@@ -143,16 +143,16 @@ else {
 					</tr>
 					<tr>
 						<td>
-							Database Password:
+							Database Password (<small>default is <strong>ChangeMe7492#&!</strong></small>):
 						</td>
 						<td>
-							<input type="text" name="database_password" maxlength="512" value="<?php if (isset($_SESSION['database_password'])) { echo $_SESSION['database_password']; } else { echo (getenv('MYSQL_PASSWORD')) ? getenv('MYSQL_PASSWORD') : 'pcmuser'; } ?>" />
+							<input type="text" name="database_password" maxlength="512" value="<?php if (isset($_SESSION['database_password'])) { echo $_SESSION['database_password']; } else { echo (getenv('MYSQL_PASSWORD')) ? getenv('MYSQL_PASSWORD') : ''; } ?>" />
 						</td>
 					</tr>
 				</table>
 			</fieldset>
 			<br>
-			<fieldset style="width: 50%;">
+			<fieldset style="width: 50%; display: none;">
 				<legend>
 					Cookie Information
 				</legend>
@@ -367,7 +367,7 @@ else {
 			<br>
 			<fieldset style="width: 50%;">
 				<legend>
-					Admin User Information
+					Administrator User Information
 				</legend>
 				<table border="0">
 					<tr style="display: none;">
