@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$data = json_decode($_POST['data'], true);
 	validate($data, $validate, $qls);
 	
-	if (!count($validate->returnData['error'])){
+	if (!count($validate->returnData['error']) and !$validate->returnData['confirm']){
 		$cableProperty = $data['property'];
 		switch($cableProperty){
 			case 'connectorType':
@@ -93,6 +93,53 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					array_push($validate->returnData['error'], $errMsg);
 				} else {
 					
+					// Remove any populated port entries that may exist
+					$qls->SQL->delete(
+						'app_populated_port',
+						array(
+							'object_id' => array('=', $elementID),
+							'AND',
+							'object_face' => array('=', $elementFace),
+							'AND',
+							'object_depth' => array('=', $elementDepth),
+							'AND',
+							'port_id' => array('=', $elementPort)
+						)
+					);
+					
+					// Clear any inventory entries
+					if (isset($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort])) {
+						$inventoryEntry = $qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort];
+						$rowID = $inventoryEntry['rowID'];
+						$localAttrPrefix = $inventoryEntry['localAttrPrefix'];
+						
+						if ($inventoryEntry['localEndID'] == 0) {
+							
+							// Found entry is not a managed cable... delete
+							$qls->SQL->delete(
+								'app_inventory',
+								array(
+									'id' => array('=', $rowID)
+								)
+							);
+						} else {
+							
+							// Found entry is a managed cable... zeroize
+							$qls->SQL->update(
+								'app_inventory',
+								array(
+									$localAttrPrefix.'_object_id' => 0,
+									$localAttrPrefix.'_port_id' => 0,
+									$localAttrPrefix.'_object_face' => 0,
+									$localAttrPrefix.'_object_depth' => 0
+								),
+								array(
+									'id' => array('=', $rowID)
+								)
+							);
+						}
+					}
+					
 					// Update connection in database
 					$qls->SQL->update(
 						'app_inventory',
@@ -112,20 +159,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$qls->App->inventoryByIDArray[$connectorID]['local_object_depth'] = $elementDepth;
 					$qls->App->inventoryByIDArray[$connectorID]['local_object_port'] = $elementPort;
 					$cable = $qls->App->inventoryByIDArray[$connectorID];
-					
-					// Remove any populated port entries that may exist
-					$qls->SQL->delete(
-						'app_populated_port',
-						array(
-							'object_id' => array('=', $elementID),
-							'AND',
-							'object_face' => array('=', $elementFace),
-							'AND',
-							'object_depth' => array('=', $elementDepth),
-							'AND',
-							'port_id' => array('=', $elementPort)
-						)
-					);
 					
 					// Retrieve connector path
 					$connectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'local');
@@ -187,8 +220,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					// Find which ports are already connected
 					if($objEntry and $elementEntry) {
-						$objAttr = $objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort ? 'a' : 'b';
-						$elementAttr = $elementEntry['a_object_id'] == $elementID ? 'a' : 'b';
+						$objAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'a' : 'b';
+						$elementAttr = ($elementEntry['a_object_id'] == $elementID) ? 'a' : 'b';
 						
 						// Are the ports connected to each other?
 						if($objEntry['id'] == $elementEntry['id']) {
@@ -222,7 +255,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						}
 						
 					} else if($elementEntry) {
-						$elementAttr = $elementEntry['a_object_id'] == $elementID and $elementEntry['a_object_face'] == $elementFace and $elementEntry['a_object_depth'] == $elementDepth and $elementEntry['a_port_id'] == $elementPort ? 'a' : 'b';
+						$elementAttr = ($elementEntry['a_object_id'] == $elementID and $elementEntry['a_object_face'] == $elementFace and $elementEntry['a_object_depth'] == $elementDepth and $elementEntry['a_port_id'] == $elementPort) ? 'a' : 'b';
 						
 						if($elementEntry['a_id'] or $elementEntry['b_id']) {
 							clearTableInventory($qls, $elementAttr, $elementEntry['id']);
@@ -319,6 +352,13 @@ function validate($data, &$validate, &$qls){
 				array_push($validate->returnData['error'], $errMsg);
 			}
 			
+			if(!isset($data['confirmed'])) {
+				if (isset($qls->App->inventoryArray[$localID][$localFace][$localDepth][$localPort])) {
+					$validate->returnData['data']['confirmMsg'] = 'Overwrite existing connection?';
+					$validate->returnData['confirm'] = true;
+				}
+			}
+			
 		} else if ($data['property'] == 'connectionExplore') {
 			
 			$remotePortArray = explode('-', $data['value']);
@@ -344,6 +384,13 @@ function validate($data, &$validate, &$qls){
 			if(!$qls->App->checkEntitlement('connection', $conNum)) {
 				$errMsg = 'Exceeded entitled connection count.';
 				array_push($validate->returnData['error'], $errMsg);
+			}
+			
+			if(!isset($data['confirmed'])) {
+				if (isset($qls->App->inventoryArray[$remoteID][$remoteFace][$remoteDepth][$remotePort])) {
+					$validate->returnData['data']['confirmMsg'] = 'Overwrite existing connection?';
+					$validate->returnData['confirm'] = true;
+				}
 			}
 		}
 		

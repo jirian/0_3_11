@@ -14,7 +14,8 @@ class Validate {
 			'active' => $active,
 			'error' => array(),
 			'success' => '',
-			'data' => array()
+			'data' => array(),
+			'confirm' => false
 		);
 		$this->nameRegEx = '/^[a-zA-Z0-9-\/\\\_]{0,250}$/';
 		$this->textRegEx = '/^[a-zA-Z0-9\/\\\-\_\s]{0,250}$/';

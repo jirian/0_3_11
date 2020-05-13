@@ -92,54 +92,12 @@ function buildInventoryData($connectorValue, $mediaValue, &$qls){
 
 function buildUtilizationTable(&$qls){
 	
-	// Get Env Tree
-	$envTreeArray = array();
-	$query = $qls->SQL->select('*', 'app_env_tree');
-	while($row = $qls->SQL->fetch_assoc($query)) {
-		$envTreeArray[$row['id']] = $row;
-	}
-	
-	// Generate nameString and nameHash for Environment Tree
-	foreach($envTreeArray as &$envTree) {
-		$parentID = $envTree['parent'];
-		$name = $envTree['name'];
-		while($parentID != '#') {
-			$name = $envTreeArray[$parentID]['name'].'.'.$name;
-			$parentID = $envTreeArray[$parentID]['parent'];
-		}
-		$envTree['nameString'] = $name;
-	}
-
-	$populatedPortArray = array();
-	$query = $qls->SQL->select('*', 'app_populated_port');
-	while($row = $qls->SQL->fetch_assoc($query)) {
-		if(!array_key_exists($row['object_id'], $populatedPortArray)) {
-			$populatedPortArray[$row['object_id']] = 0;
-		}
-		
-		$populatedPortArray[$row['object_id']] += 1;
-	}
-	
-	$query = $qls->SQL->select('*', 'app_inventory');
-	while($row = $qls->SQL->fetch_assoc($query)) {
-		if(!array_key_exists($row['a_object_id'], $populatedPortArray)) {
-			$populatedPortArray[$row['a_object_id']] = 0;
-		}
-		if(!array_key_exists($row['b_object_id'], $populatedPortArray)) {
-			$populatedPortArray[$row['b_object_id']] = 0;
-		}
-		
-		$populatedPortArray[$row['a_object_id']] += 1;
-		$populatedPortArray[$row['b_object_id']] += 1;
-	}
-	
 	$objectArray = array();
-	$query = $qls->SQL->select('*', 'app_object');
-	while($row = $qls->SQL->fetch_assoc($query)) {
-		$objectArray[$row['id']] = $row;
-		$objectArray[$row['id']]['portTotal'] = 0;
-		$objectArray[$row['id']]['nameString'] = $envTreeArray[$row['env_tree_id']]['nameString'].'.'.$row['name'];
-		$objectArray[$row['id']]['portPopulated'] = 0;
+	foreach($qls->App->objectArray as $obj) {
+		$objectArray[$obj['id']] = $obj;
+		$objectArray[$obj['id']]['portTotal'] = 0;
+		$objectArray[$obj['id']]['nameString'] = $obj['nameString'];
+		$objectArray[$obj['id']]['portPopulated'] = 0;
 	}
 	
 	$templateCompatibilityArray = array();
@@ -159,7 +117,8 @@ function buildUtilizationTable(&$qls){
 			$objectRef = &$objectArray[$object['id']];
 		}
 		
-		$objectRef['portPopulated'] += $populatedPortArray[$object['id']];
+		//$objectRef['portPopulated'] += $populatedPortArray[$object['id']];
+		$objectRef['portPopulated'] = getPopulatedPortCount($qls, $object['id']);
 		
 		if(array_key_exists($object['template_id'], $templateCompatibilityArray)) {
 			foreach($templateCompatibilityArray[$object['template_id']] as $templateCompatibility) {
@@ -207,6 +166,30 @@ function buildUtilizationTable(&$qls){
 	}
 	
 	return $table;
+}
+
+function getPopulatedPortCount(&$qls, $objID){
+	$populatedPortCount = 0;
+	
+	$objPopulatedPorts = $qls->App->populatedPortArray[$objID];
+	foreach($objPopulatedPorts as $objPopulatedFace) {
+		foreach($objPopulatedFace as $objPopulatedDepth) {
+			foreach($objPopulatedDepth as $objPopulatedPort) {
+				$populatedPortCount++;
+			}
+		}
+	}
+	
+	$objInventoryPorts = $qls->App->inventoryArray[$objID];
+	foreach($objInventoryPorts as $objInventoryFace) {
+		foreach($objInventoryFace as $objInventoryDepth) {
+			foreach($objInventoryDepth as $objInventoryPort) {
+				$populatedPortCount++;
+			}
+		}
+	}
+	
+	return $populatedPortCount;
 }
 
 function buildHistoryTable(&$qls){

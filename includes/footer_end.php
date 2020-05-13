@@ -36,6 +36,12 @@
 			event.preventDefault();
 			$('#aboutModal').modal('show');
 		});
+		
+		$('#btnConfirm').on('click', function(){
+			dataConfirmed = $(document).data('confirmData');
+			dataConfirmed['confirmed'] = true;
+			$(document).data('confirmFunction').call(dataConfirmed);
+		});
     });
 	
 	function displayError(errMsg){

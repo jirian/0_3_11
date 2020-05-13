@@ -64,6 +64,28 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div id="confirmModal" style="z-index:2000;" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+                <h4 class="modal-title" id="messagesModalLabel">Confirm</h4>
+            </div>
+			<div class="modal-body">
+				...
+			</div>
+			<div class="modal-footer">
+				<button id="btnConfirm" type="button" class="btn btn-danger waves-effect" data-dismiss="modal">Confirm</button>
+                <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+            </div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <div id="notificationsModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="notificationsModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -115,4 +137,5 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
 

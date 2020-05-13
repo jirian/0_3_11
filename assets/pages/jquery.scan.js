@@ -658,6 +658,30 @@ function initializeEnvTree(){
     });
 }
 
+function postProcessCable(){
+	var data = this;
+	dataStringified = JSON.stringify(data);
+	$.post('backend/process_cable.php', {data:dataStringified}, function(response){
+		var responseJSON = JSON.parse(response);
+		if (responseJSON.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(responseJSON.error).size() > 0){
+			displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
+		} else if (responseJSON.confirm) {
+			$('#confirmModal').find('.modal-body').html(responseJSON.data.confirmMsg);
+			$('#confirmModal').modal('show');
+			
+			$(document).data('confirmFunction', postProcessCable);
+			$(document).data('confirmData', data);
+		} else {
+			var connectorPathContainer = $('a[data-connectorid="'+data.connectorID+'"]');
+			$(connectorPathContainer).html(responseJSON.success.connectorFlatPath).attr('data-selectedNodeID', value);
+			$('#objectTreeModal').modal('hide');
+			buildFullPath(localConnectorCode39);
+		}
+	});
+}
+
 $(document).ready(function() {
 
 	$('#printFullPath').on('click', function(){
@@ -763,21 +787,8 @@ $(document).ready(function() {
 			value: value,
 			connectorID: connectorID
 		};
-		data = JSON.stringify(data);
 		
-		$.post('backend/process_cable.php', {data:data}, function(response){
-			var responseJSON = JSON.parse(response);
-			if (responseJSON.active == 'inactive'){
-				window.location.replace("/");
-			} else if ($(responseJSON.error).size() > 0){
-				displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
-			} else {
-				var connectorPathContainer = $('a[data-connectorid="'+connectorID+'"]');
-				$(connectorPathContainer).html(responseJSON.success.connectorFlatPath).attr('data-selectedNodeID', value);
-				$('#objectTreeModal').modal('hide');
-				buildFullPath(localConnectorCode39);
-			}
-		});
+		postProcessCable.call(data);
 	});
 	
 	$('#buttonObjectTreeModalClear').on('click', function(){

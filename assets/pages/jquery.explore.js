@@ -290,25 +290,6 @@ function processPortSelection(){
 		}
 	});
 	
-	var data = {
-		objID: 0,
-		objFace: 0,
-		partitionDepth: 0,
-		portID: 0
-	}
-	
-	data = JSON.stringify(data);
-	
-	// Retrieve the selected port object string for path finder
-	$.post('backend/retrieve_object.php', {data:data}, function(response){
-		var responseJSON = JSON.parse(response);
-		if($(responseJSON.error).size() > 0) {
-			displayError(responseJSON.error);
-		} else {
-			$('#pathFinderRemotePort').html(responseJSON.success);
-		}
-	});
-	
 	// Retrieve the selected port details
 	$.post('backend/retrieve_port_details.php', {data:data}, function(response){
 		var responseJSON = JSON.parse(response);
@@ -337,6 +318,26 @@ function processPortSelection(){
 			}
 			
 			$(document).data('peerPortID', responseJSON.success.peerPortID);
+		}
+	});
+	
+	// Clear selected object data for pathFinder remote object
+	var data = {
+		objID: 0,
+		objFace: 0,
+		partitionDepth: 0,
+		portID: 0
+	}
+	
+	data = JSON.stringify(data);
+	
+	// Retrieve the selected port object string for path finder
+	$.post('backend/retrieve_object.php', {data:data}, function(response){
+		var responseJSON = JSON.parse(response);
+		if($(responseJSON.error).size() > 0) {
+			displayError(responseJSON.error);
+		} else {
+			$('#pathFinderRemotePort').html(responseJSON.success);
 		}
 	});
 }
@@ -606,6 +607,53 @@ function objectInBounds(offset){
 	return accept;
 }
 
+function postProcessCable(){
+	var data = this;
+	dataStringified = JSON.stringify(data);
+	
+	$.post('backend/process_cable.php', {data:dataStringified}, function(response){
+		var responseJSON = JSON.parse(response);
+		if (responseJSON.active == 'inactive'){
+			window.location.replace("/");
+		} else if ($(responseJSON.error).size() > 0){
+			displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
+		} else if (responseJSON.confirm) {
+			$('#confirmModal').find('.modal-body').html(responseJSON.data.confirmMsg);
+			$('#confirmModal').modal('show');
+			
+			$(document).data('confirmFunction', postProcessCable);
+			$(document).data('confirmData', data);
+		} else {
+			var objID = data.objID;
+			var objFace = data.objFace;
+			var objDepth = data.objDepth;
+			var objPort = data.objPort;
+			var value = data.value;
+			
+			var optionText = $('#selectPort').find(':selected').text();
+			$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).addClass('populated').data('connectedGlobalId', 'port-'+responseJSON.success.peerPortID);
+			if($('#port-'+responseJSON.success.peerPortID).length) {
+				$('#port-'+responseJSON.success.peerPortID).addClass('populated').data('connectedGlobalId', '#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort);
+			}
+			if($('#port-'+responseJSON.success.oldPeerPortID).length) {
+				$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
+			}
+			var interfaceSelectionElem = $('#selectPort').find(':selected');
+			portDesignation(interfaceSelectionElem, 'add', 'C');
+			$('#checkboxPopulated').prop("checked", true);
+			$('#checkboxPopulated').prop("disabled", true);
+			retrievePortPath(objID, objFace, objDepth, objPort);
+			refreshPathData();
+			redraw();
+			
+			$('#objTree').jstree('deselect_all');
+			$('#objectTreeModal').modal('hide');
+			
+			$(document).data('peerPortID', value);
+		}
+	});
+}
+
 $( document ).ready(function() {
 	
 	$('#printFullPath').on('click', function(event){
@@ -859,7 +907,10 @@ $( document ).ready(function() {
 			objDepth: objDepth,
 			objPort: objPort
 		};
-		data = JSON.stringify(data);
+		
+		postProcessCable.call(data);
+		
+		/* data = JSON.stringify(data);
 		
 		$.post('backend/process_cable.php', {data:data}, function(response){
 			var responseJSON = JSON.parse(response);
@@ -880,8 +931,6 @@ $( document ).ready(function() {
 				portDesignation(interfaceSelectionElem, 'add', 'C');
 				$('#checkboxPopulated').prop("checked", true);
 				$('#checkboxPopulated').prop("disabled", true);
-				//$('#containerFullPath').html(responseJSON.success.pathFull);
-				//makeCableArrowsClickable();
 				retrievePortPath(objID, objFace, objDepth, objPort);
 				refreshPathData();
 				redraw();
@@ -891,7 +940,7 @@ $( document ).ready(function() {
 				
 				$(document).data('peerPortID', value);
 			}
-		});
+		}); */
 	});
 	
 	$('#buttonObjectTreeModalClear').on('click', function(){
@@ -932,7 +981,6 @@ $( document ).ready(function() {
 				portDesignation(interfaceSelectionElem, 'remove', 'C');
 				$('#checkboxPopulated').prop("checked", false);
 				$('#checkboxPopulated').prop("disabled", false);
-				//$('#containerFullPath').html(responseJSON.success.pathFull);
 				retrievePortPath(objID, objFace, objDepth, objPort);
 				refreshPathData();
 				redraw();

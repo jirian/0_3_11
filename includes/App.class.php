@@ -401,47 +401,51 @@ var $qls;
 	}
 	
 	function generateObjectPortName($objID, $objFace, $objDepth, $objPort) {
-		$obj = $this->objectArray[$objID];
-		$objName = $obj['nameString'];
-		$objTemplateID = $obj['template_id'];
-		$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
-		$objTemplateType = $objCompatibility['templateType'];
-		$objTemplateFunction = $objCompatibility['partitionFunction'];
-		
-		if($objTemplateType == 'walljack') {
-			if(isset($this->peerArray[$objID][$objFace][$objDepth]['peerArray'])) {
-				$peerData = $this->peerArray[$objID][$objFace][$objDepth]['peerArray'];
-				foreach($peerData as $peerID => $peer) {
-					$peerObj = $this->objectArray[$peerID];
-					$peerTemplateID = $peerObj['template_id'];
-					foreach($peer as $peerFace => $partition) {
-						foreach($partition as $peerDepth => $portPair) {
-							foreach($portPair as $port) {
-								if($port[0] == $objPort) {
-									$peerCompatibility = $this->compatibilityArray[$peerTemplateID][$peerFace][$peerDepth];
-									$peerPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
-									$peerPortTotal = $peerCompatibility['portTotal'];
-									$peerPortID = $port[1];
-									$peerPortName = $this->generatePortName($peerPortNameFormat, $peerPortID, $peerPortTotal);
-									$objPortNameArray = array($objName, $peerPortName);
-									$objectPortName = implode('.', $objPortNameArray);
-									$objectPortName = $objectPortName.'('.$objPort.')';
+		if($objID == 0) {
+			$objectPortName = 'None';
+		} else {
+			$obj = $this->objectArray[$objID];
+			$objName = $obj['nameString'];
+			$objTemplateID = $obj['template_id'];
+			$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+			$objTemplateType = $objCompatibility['templateType'];
+			$objTemplateFunction = $objCompatibility['partitionFunction'];
+			
+			if($objTemplateType == 'walljack') {
+				if(isset($this->peerArray[$objID][$objFace][$objDepth]['peerArray'])) {
+					$peerData = $this->peerArray[$objID][$objFace][$objDepth]['peerArray'];
+					foreach($peerData as $peerID => $peer) {
+						$peerObj = $this->objectArray[$peerID];
+						$peerTemplateID = $peerObj['template_id'];
+						foreach($peer as $peerFace => $partition) {
+							foreach($partition as $peerDepth => $portPair) {
+								foreach($portPair as $port) {
+									if($port[0] == $objPort) {
+										$peerCompatibility = $this->compatibilityArray[$peerTemplateID][$peerFace][$peerDepth];
+										$peerPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
+										$peerPortTotal = $peerCompatibility['portTotal'];
+										$peerPortID = $port[1];
+										$peerPortName = $this->generatePortName($peerPortNameFormat, $peerPortID, $peerPortTotal);
+										$objPortNameArray = array($objName, $peerPortName);
+										$objectPortName = implode('.', $objPortNameArray);
+										$objectPortName = $objectPortName.'('.$objPort.')';
+									}
 								}
 							}
 						}
 					}
 				}
-			}
-		} else {
-			$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
-			$portTotal = $objCompatibility['portTotal'];
-			$objPortName = $this->generatePortName($portNameFormat, $objPort, $portTotal);
-			
-			if($objTemplateType == 'Insert' and $objTemplateFunction == 'Endpoint') {
-				$objectPortName = $objName.$objPortName;
 			} else {
-				$objPortNameArray = array($objName, $objPortName);
-				$objectPortName = implode('.', $objPortNameArray);
+				$portNameFormat = json_decode($objCompatibility['portNameFormat'], true);
+				$portTotal = $objCompatibility['portTotal'];
+				$objPortName = $this->generatePortName($portNameFormat, $objPort, $portTotal);
+				
+				if($objTemplateType == 'Insert' and $objTemplateFunction == 'Endpoint') {
+					$objectPortName = $objName.$objPortName;
+				} else {
+					$objPortNameArray = array($objName, $objPortName);
+					$objectPortName = implode('.', $objPortNameArray);
+				}
 			}
 		}
 		

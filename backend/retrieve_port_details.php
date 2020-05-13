@@ -81,6 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 		
 		// Retrieve port options
+		error_log('Debug (portOptionArgs): '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
 		$portOptions = $qls->App->retrievePorts($objID, $objFace, $objDepth, $objPort);
 		
 		// Compile response data

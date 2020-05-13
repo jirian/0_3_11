@@ -139,8 +139,6 @@ class qls {
 		}
 		
 		if (isset($this->user_info['username'])){
-			require_once('App.class.php');
-			$this->App = new App($this);
 			
 			// Get all the organization information
 			$result = $this->SQL->select('*', 'app_organization_data');
@@ -150,6 +148,9 @@ class qls {
 			foreach ($row as $key => $value) {
 				$this->org_info[$key] = stripslashes($value);
 			}
+			
+			require_once('App.class.php');
+			$this->App = new App($this);
 		}
 	}
 
