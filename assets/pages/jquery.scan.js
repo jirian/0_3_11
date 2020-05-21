@@ -675,7 +675,7 @@ function postProcessCable(){
 			$(document).data('confirmData', data);
 		} else {
 			var connectorPathContainer = $('a[data-connectorid="'+data.connectorID+'"]');
-			$(connectorPathContainer).html(responseJSON.success.connectorFlatPath).attr('data-selectedNodeID', value);
+			$(connectorPathContainer).html(responseJSON.success.connectorFlatPath).attr('data-selectedNodeID', data.value);
 			$('#objectTreeModal').modal('hide');
 			buildFullPath(localConnectorCode39);
 		}

@@ -37,7 +37,7 @@ class Install {
  * @var string $system_version - The version of the system
  */
 var $system_version = '3.1.11';
-var $app_version = '0.3.4';
+var $app_version = '0.3.5';
 
 /**
  * @var string $install_error - Contains the installation error

@@ -255,7 +255,7 @@ function crawlPath(selectedPort){
 			
 			if($('#'+connectedPartitionPeerID).length) {
 				
-				var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
+				var connectedPartitionPeer = $(connectedPartitionPeerID);
 				trunkArray.push([connectedPartition, connectedPartitionPeer]);
 				partitionArray.push(connectedPartition, connectedPartitionPeer);
 				
