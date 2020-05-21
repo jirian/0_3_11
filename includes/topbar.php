@@ -38,7 +38,7 @@
                     </li>
 					
 					<li class="nav-item dropdown notification-list">
-                        <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" title="User Guide" href="/userGuide/">
+                        <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" target="_blank" title="User Guide" href="https://patchcablemgr.com/userGuide/">
                             <i class="zmdi zmdi-help-outline noti-icon"></i>
                         </a>
 					</li>
