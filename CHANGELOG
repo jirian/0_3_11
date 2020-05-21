@@ -5,7 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
-	- Changes Introduced In 0.4.0
+	- Changes Introduced In 0.3.5
 	- Changes Introduced In 0.3.4
 	- Changes Introduced In 0.3.3
 	- Changes Introduced In 0.3.2
@@ -24,7 +24,7 @@ Contents
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-**Changes introduced in 0.4.0
+**Changes introduced in 0.3.5
 
 [Fix]		Fixed issue with port selection not populating when object is selected in Explore
 [Fix]		AppID not sending on entitlement update
