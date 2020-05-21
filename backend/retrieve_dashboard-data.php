@@ -171,20 +171,24 @@ function buildUtilizationTable(&$qls){
 function getPopulatedPortCount(&$qls, $objID){
 	$populatedPortCount = 0;
 	
-	$objPopulatedPorts = $qls->App->populatedPortArray[$objID];
-	foreach($objPopulatedPorts as $objPopulatedFace) {
-		foreach($objPopulatedFace as $objPopulatedDepth) {
-			foreach($objPopulatedDepth as $objPopulatedPort) {
-				$populatedPortCount++;
+	if(isset($qls->App->populatedPortArray[$objID])) {
+		$objPopulatedPorts = $qls->App->populatedPortArray[$objID];
+		foreach($objPopulatedPorts as $objPopulatedFace) {
+			foreach($objPopulatedFace as $objPopulatedDepth) {
+				foreach($objPopulatedDepth as $objPopulatedPort) {
+					$populatedPortCount++;
+				}
 			}
 		}
 	}
 	
-	$objInventoryPorts = $qls->App->inventoryArray[$objID];
-	foreach($objInventoryPorts as $objInventoryFace) {
-		foreach($objInventoryFace as $objInventoryDepth) {
-			foreach($objInventoryDepth as $objInventoryPort) {
-				$populatedPortCount++;
+	if(isset($qls->App->inventoryArray[$objID])) {
+		$objInventoryPorts = $qls->App->inventoryArray[$objID];
+		foreach($objInventoryPorts as $objInventoryFace) {
+			foreach($objInventoryFace as $objInventoryDepth) {
+				foreach($objInventoryDepth as $objInventoryPort) {
+					$populatedPortCount++;
+				}
 			}
 		}
 	}

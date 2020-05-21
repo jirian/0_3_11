@@ -26,6 +26,8 @@ Contents
 
 **Changes introduced in 0.3.5
 
+[Enhance]	Added connection overwrite confirmation
+[Fix]		Fixed issue with overwriting port connections
 [Fix]		Fixed issue with port selection not populating when object is selected in Explore
 [Fix]		AppID not sending on entitlement update
 
