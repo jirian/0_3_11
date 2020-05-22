@@ -6,7 +6,7 @@
             <!-- LOGO -->
             <div class="topbar-left">
                 <a href="index.php" class="logo">
-                    <i class="zmdi zmdi-group-work icon-c-logo"></i>
+					<img src="/assets/images/logo.png" height="37" width="50">
                     <span>PatchCableMgr </span>
 					<span><small id="orgName"><?php echo $qls->org_info['name']; ?></small></span>
                 </a>

@@ -15,7 +15,8 @@ exit;
             <div class="card-box m-b-0">
                 <div class="text-xs-center m-t-20">
                     <a href="https://patchcablemgr.com" class="logo">
-                        <i class="zmdi zmdi-group-work icon-c-logo"></i>
+						<img src="/assets/images/logo.png" style="display:inline;" height="37" width="50">
+                        <!--i class="zmdi zmdi-group-work icon-c-logo"></i-->
                         <span>PatchCableMgr</span>
                     </a>
                 </div>
