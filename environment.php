@@ -69,6 +69,52 @@ $qls->Security->check_auth_page('operator.php');
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- combined template modal -->
+<div id="modalCreateCombinedTemplate" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelCreateCombinedTemplate" aria-hidden="true">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div title="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<i class="zmdi zmdi-close"></i>
+					</button>
+				</div>
+				<h4 class="modal-title" id="modalLabelImageUpload">Create Combined Template</h4>
+			</div>
+			<div class="row">
+				<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
+					<div class="row">
+						<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
+							<div id="alertMsgCreateCombinedTemplate"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body">
+			
+				<!-- Name -->
+				<fieldset class="form-group">
+					<label>Name <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Alphanumeric characters as well as hyphens (-), underscores (_), forward slashes (\/), and backslashes (\)."></i></label>
+					<input id="inputCreateCombinedTemplateName" class="form-control" type="text" name="name" placeholder="New_Template" value="New_Template">
+				</fieldset>
+				
+				<!-- Category -->
+				<fieldset class="form-group">
+					<label>Category <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Select a template category."></i></label>
+					<select id="inputCreateCombinedTemplateCategory" name="category" class="form-control">
+						<?php $qls->App->generateCategoryOptions(); ?>
+					</select>
+				</fieldset>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+				<button id="buttonCreateCombinedTemplateModalSave" type="button" class="btn btn-primary waves-effect waves-light">Save</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>
 <canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
@@ -282,7 +328,8 @@ $qls->Security->check_auth_page('operator.php');
 										<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
 										<div class="dropdown-menu">
 											<a class="objDelete rackObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
-											<a class="clearTrunkPeer rackObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Path</a>
+											<a class="clearTrunkPeer rackObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Trunk</a>
+											<a class="createCombinedTemplate rackObj dropdown-item disabled" href="#" ><i class="fa fa-object-group"></i></span> Combine Templates</a>
 										</div>
 									</div>
 								</span>

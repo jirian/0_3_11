@@ -2,7 +2,7 @@
 
 #Category
 //$inputCategory = '<option value="" selected>--Select Category--</option>';
-$inputCategory = '';
+//$inputCategory = '';
 $categoryList = '';
 $results = $qls->SQL->select('*', 'app_object_category');
 while ($row = $qls->SQL->fetch_assoc($results)){
@@ -11,7 +11,7 @@ while ($row = $qls->SQL->fetch_assoc($results)){
 		$default['option'] = 'selected';
 		$default['button'] = '*';
 	}
-	$inputCategory .= '<option data-value="category'.$row['name'].'" id="categoryOption'.$row['id'].'" value="'.$row['id'].'" '.$default['option'].'>'.$row['name'].'</option>';
+	//$inputCategory .= '<option data-value="category'.$row['name'].'" id="categoryOption'.$row['id'].'" value="'.$row['id'].'" '.$default['option'].'>'.$row['name'].'</option>';
 	$categoryList .= '<button id="categoryList'.$row['id'].'" type="button" class="category'.$row['name'].' btn-block btn waves-effect waves-light" data-id="'.$row['id'].'" data-name="'.$row['name'].'" data-color="'.$row['color'].'" data-default="'.$row['defaultOption'].'">'.$row['name'].$default['button'].'</button>';
 }
 

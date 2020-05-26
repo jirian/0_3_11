@@ -480,7 +480,7 @@ require_once './includes/content-templates.php';
 					<!-- Category select input -->
 					<div>
 					<select id="inputCategory" name="category" class="form-control">
-						<?php echo $inputCategory; ?>
+						<?php $qls->App->generateCategoryOptions(); ?>
 					</select>
 					</div>
 					

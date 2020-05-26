@@ -569,6 +569,62 @@ function validate($data, &$validate, &$qls){
 				}
 			}
 		}
+	} else if($data['action'] == 'combinedTemplate') {
+		
+		//Validate template name
+		if($validate->validateNameText($data['name'], 'template name')) {
+			//Validate templateName duplicate
+			$templateName = $data['name'];
+			$table = 'app_object_templates';
+			$where = array('templateName' => array('=', $templateName));
+			$errorMsg = 'Duplicate template name.';
+			$validate->validateDuplicate($table, $where, $errorMsg);
+		}
+		
+		//Validate category
+		if($validate->validateID($data['category'], 'categoryID')) {
+			//Validate category existence
+			$categoryID = $data['category'];
+			$table = 'app_object_category';
+			$where = array('id' => array('=', $categoryID));
+			$errorMsg = 'Invalid categoryID.';
+			$validate->validateExistenceInDB($table, $where, $errorMsg);
+		}
+		
+		//Validate template ID
+		if($validate->validateID($data['parentTemplateID'], 'template ID')) {
+			//Validate template existence
+			$parentTemplateID = $data['parentTemplateID'];
+			$table = 'app_object_templates';
+			$where = array('id' => array('=', $parentTemplateID));
+			$errorMsg = 'Invalid template ID.';
+			$validate->validateExistenceInDB($table, $where, $errorMsg);
+		}
+		
+		if(isset($data['childTemplateArray'])) {
+			$childTemplateArray = $data['childTemplateArray'];
+			if(is_array($childTemplateArray)) {
+				foreach($childTemplateArray as $childTemplateID => $childTemplateDetails) {
+					
+					$encX = $childTemplateDetails['encX'];
+					$encY = $childTemplateDetails['encY'];
+					$parentFace = $childTemplateDetails['parentFace'];
+					$parentDepth = $childTemplateDetails['parentDepth'];
+					
+					//Validate child template ID
+					if($validate->validateID($childTemplateID, 'child template ID')) {
+						//Validate template existence
+						$table = 'app_object_templates';
+						$where = array('id' => array('=', $childTemplateID));
+						$errorMsg = 'Invalid child template ID.';
+						$validate->validateExistenceInDB($table, $where, $errorMsg);
+					}
+					
+					// Validate childe template details
+				}
+			}
+		}
+		
 	} else {
 		//Error
 		$errorMsg = 'Invalid action.';

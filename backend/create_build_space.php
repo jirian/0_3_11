@@ -154,15 +154,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$RUSize = $template['templateRUSize'];
 					$categoryID = $template['templateCategory_id'];
 					$categoryName = $qls->App->categoryArray[$categoryID]['name'];
+					$objClassArray = array(
+						'rackObj',
+						$cursorClass,
+						'draggable',
+						'object',
+						'RU'.$RUSize
+					);
+					
 					$html .= '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
 					if($cabinetView == 'port') {
-						
-						$objClassArray = array(
-							'rackObj',
-							$cursorClass,
-							'draggable',
-							'RU'.$RUSize
-						);
 						
 						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID);
 						$rackObj = true;
@@ -170,13 +171,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$html .= '</div>';
 						
 					} else if($cabinetView == 'visual') {
-						
-						$objClassArray = array(
-							'rackObj',
-							$cursorClass,
-							'draggable',
-							'RU'.$RUSize
-						);
 						
 						$categoryData = false;
 						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID, $categoryData, $cabinetView);

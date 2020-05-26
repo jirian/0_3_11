@@ -1939,7 +1939,7 @@ var $qls;
 	
 	function buildEnclosure($encX, $encY, $objID=false, $objFace=false, $cabinetView=false, $depthCounter=false){
 		
-		$html = '<div class="enclosure" style="display:flex;flex:1;height:100%;" data-enc-layout-x="'.$encX.'" data-enc-layout-y="'.$encY.'">';
+		$html = '<div class="enclosure" style="display:flex;flex:1;height:100%;" data-enc-obj-face="'.$objFace.'" data-enc-obj-depth="'.$depthCounter.'" data-enc-layout-x="'.$encX.'" data-enc-layout-y="'.$encY.'">';
 		for ($y = 0; $y < $encY; $y++){
 			
 			$rowBorderClass = ($y == 0) ? '' : 'borderTop';
@@ -2446,5 +2446,12 @@ var $qls;
 			}
 		}
 		return array('min' => $min, 'max' => $max);
+	}
+
+	function generateCategoryOptions(){
+		foreach($this->categoryArray as $category) {
+			$selected = ($category['defaultOption'] == 1) ? 'selected' : '';
+			echo '<option data-value="category'.$category['name'].'" id="categoryOption'.$category['id'].'" value="'.$category['id'].'" '.$selected.'>'.$category['name'].'</option>';
+		}
 	}
 }

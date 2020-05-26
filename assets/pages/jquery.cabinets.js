@@ -33,6 +33,7 @@ function clearObjectDetails(){
 		//Disable the 'Delete' button in object details
 	$('.objDelete').addClass('disabled');
 	$('.clearTrunkPeer').addClass('disabled');
+	$('.createCombinedTemplate').addClass('disabled');
 }
 
 function disableCabinetDetails(){
@@ -142,6 +143,9 @@ function makeRackObjectsClickable(){
 		var object = $(this).closest('.rackObj');
 		var partitionDepth =  parseInt($(this).data('depth'), 10);
 		
+		//Store object
+		$(document).data('selectedObject', object);
+		
 		//Store objectID
 		var objID = $(object).data('templateObjectId');
 		$('#selectedObjectID').val(objID);
@@ -205,6 +209,7 @@ function makeRackObjectsClickable(){
 				}
 				$('.objDelete.rackObj').removeClass('disabled');
 				$('.clearTrunkPeer.rackObj').removeClass('disabled');
+				$('.createCombinedTemplate.rackObj').removeClass('disabled');
 				$('#inline-name').editable('option', 'disabled', false);
 				
 				// Trunked to
@@ -1499,6 +1504,59 @@ $( document ).ready(function() {
 					.data('peerIDArray', []);
 					getFloorplanObjectPeerTable();
 				}
+			}
+		});
+	});
+	
+	$('.createCombinedTemplate').on('click', function(event){
+		$('#modalCreateCombinedTemplate').modal('show');
+	});
+	
+	$('#buttonCreateCombinedTemplateModalSave').on('click', function(event){
+		var combinedTemplateName = $('#inputCreateCombinedTemplateName').val();
+		var combinedTemplateCategory = $('#inputCreateCombinedTemplateCategory').children("option:selected").val();
+		if($(document).data('selectedObject').hasClass('insert')) {
+			var object = $(document).data('selectedObject').closest('.object');
+		} else {
+			var object = $(document).data('selectedObject');
+		}
+		var objTemplateID = $(object).data('templateId');
+		var insertTemplateArray = {};
+		$.each($(object).find('.insert'), function(key, insert){
+			var insertTemplateID = $(insert).data('templateId');
+			var insertEncX = $(insert).parent().data('encX');
+			var insertEncY = $(insert).parent().data('encY');
+			var parentFace = $(insert).closest('.enclosure').data('encObjFace');
+			var parentDepth = $(insert).closest('.enclosure').data('encObjDepth');
+			insertTemplateArray[insertTemplateID] = {
+				encX: insertEncX,
+				encY: insertEncY,
+				parentFace: parentFace,
+				parentDepth: parentDepth
+			}
+		});
+		
+		var data = {
+			action: 'combinedTemplate',
+			name: combinedTemplateName,
+			category: combinedTemplateCategory,
+			parentTemplateID: objTemplateID,
+			childTemplateArray: insertTemplateArray
+		};
+		
+		console.log(data);
+		
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_cabinet.php', {data:data}, function(responseJSON){
+			var response = JSON.parse(responseJSON);
+			if (response.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(response.error).size() > 0){
+				displayErrorElement(response.error, $('#alertMsgCreateCombinedTemplate'));
+			} else {
+				
+				$('#modalCreateCombinedTemplate').modal('hide');
 			}
 		});
 	});
