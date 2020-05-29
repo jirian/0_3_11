@@ -620,7 +620,7 @@ function validate($data, &$validate, &$qls){
 						$validate->validateExistenceInDB($table, $where, $errorMsg);
 					}
 					
-					// Validate childe template details
+					// Validate child template details
 				}
 			}
 		}

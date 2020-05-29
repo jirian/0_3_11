@@ -83,8 +83,34 @@ var $qls;
 		}
 		
 		$this->templateArray = array();
+		$this->floorplanObjDetails = array(
+			'walljack' => array(
+				'trunkable' => true,
+				'populatable' => true,
+				'html' => '<i class="floorplanObject selectable fa fa-square-o fa-lg" style="cursor:grab;" data-type="walljack"></i>'
+			),
+			'wap' => array(
+				'trunkable' => true,
+				'populatable' => false,
+				'html' => '<i class="floorplanObject selectable fa fa-wifi fa-lg" style="cursor:grab;" data-type="wap"></i>'
+			),
+			'device' => array(
+				'trunkable' => false,
+				'populatable' => true,
+				'html' => '<i class="floorplanObject selectable fa fa-laptop fa-lg" style="cursor:grab;" data-type="device"></i>'
+			),
+			'camera' => array(
+				'trunkable' => true,
+				'populatable' => false,
+				'html' => '<i class="floorplanObject selectable fa fa-video-camera fa-lg" style="cursor:grab;" data-type="camera"></i>'
+			)
+		);
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$templateType = $row['templateType'];
+			if(isset($this->floorplanObjDetails[$templateType])) {
+				$this->floorplanObjDetails[$templateType]['templateID'] = $row['id'];
+			}
 			$this->templateArray[$row['id']] = $row;
 		}
 		

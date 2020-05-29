@@ -272,7 +272,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					'id' => $objectID,
 					'type' => $type,
 					'position_top' => $object['position_top'],
-					'position_left' => $object['position_left']
+					'position_left' => $object['position_left'],
+					'html' => $qls->App->floorplanObjDetails[$type]['html']
 				);
 				
 				array_push($floorplanObjectData, $tempArray);

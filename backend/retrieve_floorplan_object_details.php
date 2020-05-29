@@ -29,11 +29,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 		
 		$type = $floorplanObjectTemplate['templateType'];
+		$trunkable = $qls->App->floorplanObjDetails[$type]['trunkable'];
 		$peerIDArray = array();
 		$objPortArray = array();
-		error_log('Debug: '.$type);
-		if($type == 'walljack' or $type == 'wap') {
-			$trunkable = true;
+		if($trunkable) {
 			$trunkFlatPath = count($peerArray) ? 'Yes' : 'No';
 			
 			foreach($peerArray as $peer) {
@@ -43,7 +42,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$peerDepth = $peer['b_depth'];
 				$peerPort = $peer['b_port'];
 				$peerCompatibility = $qls->App->compatibilityArray[$peerTemplateID][$peerFace][$peerDepth];
-				error_log(json_encode('peerTemplateID'.$peerTemplateID.'peerFace'.$peerFace.'peerDepth'.$peerDepth));
 				$peerPortLayoutX = $peerCompatibility['portLayoutX'];
 				$peerPortLayoutY = $peerCompatibility['portLayoutY'];
 				$peerPortTotal = $peerPortLayoutX * $peerPortLayoutY;
@@ -60,8 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				array_push($peerIDArray, $peerID);
 				array_push($objPortArray, $objPort);
 			}
-		} else if($type == 'device') {
-			$trunkable = false;
+		} else {
 			$trunkFlatPath = 'N/A';
 		}
 		

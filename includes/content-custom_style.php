@@ -127,14 +127,11 @@ function color_inverse($color){
 }
 
 .floorplanObjSelected {
-	//border: 2px solid yellow;
-	//box-shadow: inset 0 0 2px 2px yellow;
 	background-color: yellow !important;
 }
 
 .floorplanObject {
 	color: #039cfd;
-	background-color: white;
 }
 
 .objBaseline {

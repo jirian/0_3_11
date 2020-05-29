@@ -1212,9 +1212,6 @@ $( document ).ready(function() {
 				if (response.error != ''){
 					displayError(response.error);
 				} else {
-					var walljackObject = '<i class="floorplanObject selectable fa fa-square-o fa-lg" data-type="walljack"></i>';
-					var wapObject = '<i class="floorplanObject selectable fa fa-wifi fa-2x" data-type="wap"></i>';
-					var deviceObject = '<i class="floorplanObject selectable fa fa-laptop fa-2x" data-type="device"></i>';
 					
 					var floorplanImgPath = '/images/floorplanImages/'+response.success.floorplanImg;
 					
@@ -1226,13 +1223,7 @@ $( document ).ready(function() {
 					}).attr('src', floorplanImgPath);
 					
 					$.each(response.success.floorplanObjectData, function(index, item){
-						if(item.type == 'walljack') {
-							var object = $(walljackObject);
-						} else if(item.type == 'wap') {
-							var object = $(wapObject);
-						} else if(item.type == 'device') {
-							var object = $(deviceObject);
-						}
+						var object = $(item.html);
 						var positionTop = item.position_top+'px';
 						var positionLeft = item.position_left+'px';
 						

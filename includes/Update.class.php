@@ -84,11 +84,61 @@ var $qls;
 			$this->update_033_to_034();
 		} else if($this->currentVersion == '0.3.4') {
 			$this->update_034_to_035();
+		} else if($this->currentVersion == '0.3.5') {
+			$this->update_035_to_036();
 		} else {
 			return true;
 		}
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.5 to 0.3.6
+	 * @return Boolean
+	 */
+	function update_035_to_036() {
+		$incrementalVersion = '0.3.6';
+		
+		// Set app version to 0.3.6
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Object Template Values
+		$objectTemplateValues = array('Camera', 'camera', 'Endpoint');
+		
+		// Object template columns
+		$objectTemplateColumns = array(
+			'templateName',
+			'templateType',
+			'templateFunction'
+		);
+		
+		// Add object templates
+		$this->qls->SQL->insert('app_object_templates', $objectTemplateColumns, $objectTemplateValues);
+		
+		$cameraTemplateID = $this->qls->SQL->insert_id();
+		
+		// Floorplan object compatibility values
+		$objectCompatibilityValues = array($cameraTemplateID, '1', '1', '1', 'camera', 'Connectable', 'Endpoint', '1', '8', '1', '1', '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]');
+		
+		// Object compatibility columns
+		$objectCompatibilityColumns = array(
+			'template_id',
+			'portLayoutX',
+			'portLayoutY',
+			'portTotal',
+			'templateType',
+			'partitionType',
+			'partitionFunction',
+			'portType',
+			'mediaType',
+			'mediaCategory',
+			'mediaCategoryType',
+			'portNameFormat'
+		);
+		
+		// Add object compatibility
+		$this->qls->SQL->insert('app_object_compatibility', $objectCompatibilityColumns, $objectCompatibilityValues);
 	}
 	
 	/**

@@ -25,14 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$type = $data['type'];
 			$positionTop = $data['positionTop'];
 			$positionLeft = $data['positionLeft'];
-			
-			if($type == 'walljack') {
-				$templateID = 1;
-			} else if($type == 'wap') {
-				$templateID = 2;
-			} else if($type == 'device') {
-				$templateID = 3;
-			}
+			$templateID = $qls->App->floorplanObjDetails[$type]['templateID'];
 			
 			//Insert data into DB
 			$qls->SQL->insert('app_object', array(
@@ -120,7 +113,7 @@ function validate(&$data, &$validate, &$qls){
 		if($action == 'add') {
 			
 			//Validate object type
-			$typeArray = array('walljack', 'wap', 'device');
+			$typeArray = array('walljack', 'wap', 'device', 'camera');
 			$validate->validateInArray($data['type'], $typeArray, 'type');
 			
 			//Validate positions
@@ -158,75 +151,7 @@ function validate(&$data, &$validate, &$qls){
 			$validate->validateID($data['objectID'], 'object ID');
 		}
 	}
-	
-	/*
-	switch($data['action']){
-		case 'add':
-			//Validate cabinet ID
-			$validate->validateID($data['cabinetID'], 'cabinet ID');
-	
-			//Validate cabinet RU
-			$validate->validateID($data['RU'], 'cabinet RU');
-		
-			//Validate objectID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-		case 'delete':
-			//Validate objectID
-			$validate->validateID($data['objectID'], 'object ID');
-			break;
-			
-		case 'updateObject':
-			//Validate object ID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-			//Validate cabinet RU
-			$validate->validateRUSize($data['RU']);
-			break;
-			
-		case 'updateInsert':
-			//Validate object ID
-			$validate->validateID($data['objectID'], 'object ID');
-			
-			//Validate parent ID
-			$validate->validateID($data['parent_id'], 'parent ID');
-			
-			//Validate parent ID
-			$validate->validateID($data['parent_depth'], 'parent depth');
-			
-			//Validate insert slot X
-			$validate->validateID($data['insertSlotX'], 'insert slot X');
-			
-			//Validate insert slot Y
-			$validate->validateID($data['insertSlotY'], 'insert slot Y');
-			break;
-			
-		case 'edit':
-			//Validate objectID
-			if($validate->validateID($data['objectID'], 'object ID')) {
-				
-				//Validate object existence
-				$table = 'app_object';
-				$where = array('id' => array('=', $data['objectID']));
-				if($object = $validate->validateExistenceInDB($table, $where, 'Object does not exist.')) {
-					$parentID = $object['parent_id'];
-					//Validate objectName
-					$cabinetID = $object['env_tree_id'];
-					if($validate->validateNameText($data['value'], 'object name')) {
-						$table = 'app_object';
-						if($parentID) {
-							$where = array('name' => array('=', $data['value']), 'AND', 'env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', $parentID));
-						} else {
-							$where = array('name' => array('=', $data['value']), 'AND', 'env_tree_id' => array('=', $cabinetID));
-						}
-						$validate->validateDuplicate($table, $where, 'Duplicate object name found in the same cabinet.');
-					}
-				}
-			}
-			
-			break;
-	}
-	*/
+
 	return;
 }
 ?>

@@ -216,7 +216,7 @@ $qls->Security->check_auth_page('operator.php');
 					</div>
 				</div>
 			</div>
-			<div id="floorplanDetails" style="display:none;">
+		<div id="floorplanDetails" style="display:none;">
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-20">Object Details</h4>
 				
@@ -290,6 +290,7 @@ $qls->Security->check_auth_page('operator.php');
 								<i class="floorplanObject floorplanStockObj selectable fa fa-square-o fa-lg cursorGrab" data-type="walljack" data-objectID="0"></i><span> Walljack</span>
 								<i class="floorplanObject floorplanStockObj selectable fa fa-wifi fa-2x cursorGrab" data-type="wap" data-objectID="0"></i><span> WAP</span>
 								<i class="floorplanObject floorplanStockObj selectable fa fa-laptop fa-2x cursorGrab" data-type="device" data-objectID="0"></i><span> Device</span>
+								<i class="floorplanObject floorplanStockObj selectable fa fa-video-camera fa-2x cursorGrab" data-type="camera" data-objectID="0"></i><span> Camera</span>
 							</div>
 							<img id="imgDummy" style="display:none;"></img>
 							<div id="floorplanWindow">

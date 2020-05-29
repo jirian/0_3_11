@@ -58,7 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$populatedChecked = false;
 			}
 			
-			if($trunked == true or $patched == true or $objType == 'wap') {
+			if($trunked == true or $patched == true or $qls->App->floorplanObjDetails[$objType]['populatable'] == false) {
 				$populatedDisabled = true;
 			} else {
 				$populatedDisabled = false;
