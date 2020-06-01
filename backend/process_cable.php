@@ -208,6 +208,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						$query = $qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$elementID.' AND a_object_face = '.$elementFace.' AND a_object_depth = '.$elementDepth.' AND a_port_id = '.$elementPort.') OR (b_object_id = '.$elementID.' AND b_object_face = '.$elementFace.' AND b_object_depth = '.$elementDepth.' AND b_port_id = '.$elementPort.')');
 						$elementEntry = $qls->SQL->num_rows($query) ? $qls->SQL->fetch_assoc($query) : false;
 						$peerPortID = '4-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
+						
+						// Clear trunk if this is a trunked floorplan object
+						$objIDArray = array($elementID, $objID);
+						foreach($objIDArray as $objID) {
+							$templateID = $qls->App->objectArray[$objID]['template_id'];
+							$templateType = $qls->App->templateArray[$templateID]['templateType'];
+							//error_log('Debug(templateType): '.$templateType);
+							if(isset($qls->App->floorplanObjDetails[$templateType])) {
+								$templateFunction = $qls->App->templateArray[$templateID]['templateFunction'];
+								//error_log('Debug(templateFunction): '.$templateFunction);
+								if($templateFunction == 'Endpoint') {
+									if(isset($qls->App->peerArrayWalljack[$objID])) {
+										foreach($qls->App->peerArrayWalljack[$objID] as $peerEntry) {
+											$rowID = $peerEntry['rowID'];
+											//error_log('Debug(rowID): '.$rowID);
+											$qls->SQL->delete('app_object_peer', array('id' => array('=', $rowID)));
+										}
+									}
+								}
+							}
+						}
 					}
 					
 					// Retrieve old peer port ID so it can have the "populated" class cleared
@@ -291,9 +312,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					}
 					
-					include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
+					//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
 				
-					$validate->returnData['success']['pathFull'] = $qls->App->buildPathFull($path, false);
+					//$validate->returnData['success']['pathFull'] = $qls->App->buildPathFull($path, false);
 					$validate->returnData['success']['peerPortID'] = $peerPortID;
 					$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
 					

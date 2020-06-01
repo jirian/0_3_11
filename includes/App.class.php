@@ -87,21 +87,25 @@ var $qls;
 			'walljack' => array(
 				'trunkable' => true,
 				'populatable' => true,
+				'floorplanConnectable' => true,
 				'html' => '<i class="floorplanObject selectable fa fa-square-o fa-lg" style="cursor:grab;" data-type="walljack"></i>'
 			),
 			'wap' => array(
 				'trunkable' => true,
-				'populatable' => false,
+				'populatable' => true,
+				'floorplanConnectable' => false,
 				'html' => '<i class="floorplanObject selectable fa fa-wifi fa-lg" style="cursor:grab;" data-type="wap"></i>'
 			),
 			'device' => array(
 				'trunkable' => false,
 				'populatable' => true,
+				'floorplanConnectable' => false,
 				'html' => '<i class="floorplanObject selectable fa fa-laptop fa-lg" style="cursor:grab;" data-type="device"></i>'
 			),
 			'camera' => array(
 				'trunkable' => true,
-				'populatable' => false,
+				'populatable' => true,
+				'floorplanConnectable' => false,
 				'html' => '<i class="floorplanObject selectable fa fa-video-camera fa-lg" style="cursor:grab;" data-type="camera"></i>'
 			)
 		);
@@ -752,8 +756,6 @@ var $qls;
 			$peerObj = $objectArray[$peerEntry['id']];
 			$peerTemplateID = $peerObj['template_id'];
 			$objCompatibility = $compatibilityArray[$peerTemplateID][$peerEntry['face']][$peerEntry['depth']];
-		} else if($templateType == 'wap' or $templateType == 'device'){
-			$portName = 'NIC1';
 		}
 		
 		$return['function'] = $objCompatibility['partitionFunction'];
@@ -952,55 +954,57 @@ var $qls;
 		if(($forTrunk and $templateFunction != 'Endpoint') or !$forTrunk) {
 			
 			// Iterate over selected object partitions
-			foreach($this->compatibilityArray[$templateID] as $nodeFace => $nodeFaceObj) {
-				foreach($nodeFaceObj as $nodeDepth => $partition) {
-					
-					$partitionType = $partition['partitionType'];
-					$partitionFunction = $partition['partitionFunction'];
-					$templateType = $partition['templateType'];
-					if($partitionType == 'Enclosure') {
+			if(isset($this->compatibilityArray[$templateID])) {
+				foreach($this->compatibilityArray[$templateID] as $nodeFace => $nodeFaceObj) {
+					foreach($nodeFaceObj as $nodeDepth => $partition) {
 						
-						// Iterate over enclosure inserts
-						if(isset($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth])) {
-							foreach($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth] as $slotX => $encRow) {
-								foreach($encRow as $slotY => $insert) {
-									
-									$insertID = $insert['id'];
-									$insertName = $insert['name'];
-									$insertTemplateID = $insert['template_id'];
-									foreach($this->compatibilityArray[$insertTemplateID] as $insertFace => $insertFaceObj) {
-										foreach($insertFaceObj as $insertDepth => $insertPartition) {
-											
-											// Cannot be a trunked endpoint
-											if(!$this->peerArrayStandard[$insertID][0][$insertDepth]['selfEndpoint']) {
-												$separator = $insertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
-												$insertPartition['objectID'] = $insertID;
-												$insertPartition['portNamePrefix'] = $insertName == '' ? '' : $insertName.$separator;
-												array_push($elementArray, $insertPartition);
+						$partitionType = $partition['partitionType'];
+						$partitionFunction = $partition['partitionFunction'];
+						$templateType = $partition['templateType'];
+						if($partitionType == 'Enclosure') {
+							
+							// Iterate over enclosure inserts
+							if(isset($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth])) {
+								foreach($this->insertAddressArray[$nodeID][$nodeFace][$nodeDepth] as $slotX => $encRow) {
+									foreach($encRow as $slotY => $insert) {
+										
+										$insertID = $insert['id'];
+										$insertName = $insert['name'];
+										$insertTemplateID = $insert['template_id'];
+										foreach($this->compatibilityArray[$insertTemplateID] as $insertFace => $insertFaceObj) {
+											foreach($insertFaceObj as $insertDepth => $insertPartition) {
+												
+												// Cannot be a trunked endpoint
+												if(!$this->peerArrayStandard[$insertID][0][$insertDepth]['selfEndpoint']) {
+													$separator = $insertPartition['partitionFunction'] == 'Endpoint' ? '' : '.';
+													$insertPartition['objectID'] = $insertID;
+													$insertPartition['portNamePrefix'] = $insertName == '' ? '' : $insertName.$separator;
+													array_push($elementArray, $insertPartition);
+												}
 											}
 										}
 									}
 								}
 							}
-						}
-					} else if($templateType == 'Insert') {
-						
-						// Cannot be a trunked endpoint
-						if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
-							$separator = $partitionFunction == 'Endpoint' ? '' : '.';
-							$rowPartitionElement = $partition;
-							$rowPartitionElement['objectID'] = $nodeID;
-							$rowPartitionElement['portNamePrefix'] = $element['name'] == '' ? '' : $element['name'].$separator;
-							array_push($elementArray, $rowPartitionElement);
-						}
-					} else {
-						
-						// Cannot be a trunked endpoint
-						if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
-							$rowPartitionElement = $partition;
-							$rowPartitionElement['objectID'] = $nodeID;
-							$rowPartitionElement['portNamePrefix'] = '';
-							array_push($elementArray, $rowPartitionElement);
+						} else if($templateType == 'Insert') {
+							
+							// Cannot be a trunked endpoint
+							if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
+								$separator = $partitionFunction == 'Endpoint' ? '' : '.';
+								$rowPartitionElement = $partition;
+								$rowPartitionElement['objectID'] = $nodeID;
+								$rowPartitionElement['portNamePrefix'] = $element['name'] == '' ? '' : $element['name'].$separator;
+								array_push($elementArray, $rowPartitionElement);
+							}
+						} else {
+							
+							// Cannot be a trunked endpoint
+							if(!$this->peerArrayStandard[$nodeID][$nodeFace][$nodeDepth]['selfEndpoint']) {
+								$rowPartitionElement = $partition;
+								$rowPartitionElement['objectID'] = $nodeID;
+								$rowPartitionElement['portNamePrefix'] = '';
+								array_push($elementArray, $rowPartitionElement);
+							}
 						}
 					}
 				}
@@ -1144,11 +1148,10 @@ var $qls;
 		if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
 			array_push($flagsArray, 'C');
 		}
-		//if($objectFunction == 'Endpoint') {
-			if(isset($this->peerArrayStandard[$objID][$objFace][$objDepth]) or isset($this->peerArrayStandardFloorplan[$objID][$objFace][$objDepth][$objPort]) or isset($this->peerArrayWalljackEntry[$objID][$objFace][$objDepth][$objPort])) {
-				array_push($flagsArray, 'T');
-			}
-		//}
+		
+		if(isset($this->peerArrayStandard[$objID][$objFace][$objDepth]) or isset($this->peerArrayStandardFloorplan[$objID][$objFace][$objDepth][$objPort]) or isset($this->peerArrayWalljackEntry[$objID][$objFace][$objDepth][$objPort])) {
+			array_push($flagsArray, 'T');
+		}
 		if(isset($this->populatedPortArray[$objID][$objFace][$objDepth][$objPort])) {
 			array_push($flagsArray, 'P');
 		}

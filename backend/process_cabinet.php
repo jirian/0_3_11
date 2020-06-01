@@ -350,8 +350,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$validate->returnData['success']['floorplanObjectPeerTable'] = $floorplanObjectPeerTable;
 		} else if($action == 'trunkPeer') {
 			
-			//require_once '../includes/path_functions.php';
-			
 			$valueArray = explode('-', $data['value']);
 			$elementType = $valueArray[0];
 			$elementID = $valueArray[1];
@@ -416,6 +414,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		} else if($action == 'trunkFloorplanPeer') {
 			
 			$objectID = $data['objectID'];
+			$templateID = $qls->App->objectArray[$objectID]['template_id'];
+			$templateFunction = $qls->App->templateArray[$templateID]['templateFunction'];
 			$value = $data['value'];
 			
 			$addArray = array();
@@ -509,6 +509,34 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				// Delete from object peer table
 				$qls->SQL->delete('app_object_peer', array('id' => array('=', $entry['rowID'])));
 				unset($qls->App->peerArrayWalljack[$entry['selfID']]);
+			}
+			
+			// If necessary, clear inventory table
+			if($templateFunction == 'Endpoint') {
+				if(isset($qls->App->inventoryArray[$objectID])) {
+					foreach($qls->App->inventoryArray[$objectID] as $faceID => $face) {
+						foreach($face as $depthID => $depth) {
+							foreach($depth as $portID => $port) {
+								$rowID = $port['rowID'];
+								if($port['localEndID'] == 0 and $port['remoteEndID'] == 0) {
+									// Delete entry if not managed cable
+									$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+									unset($qls->App->inventoryArray[$objectID][$faceID][$depthID][$portID]);
+								} else {
+									// Clear entry if managed cable
+									$localAttrPrefix = $port['localAttrPrefix'];
+									$set = array(
+										$localAttrPrefix.'_object_id' => 0,
+										$localAttrPrefix.'_object_face' => 0,
+										$localAttrPrefix.'_object_depth' => 0,
+										$localAttrPrefix.'_port_id' => 0
+									);
+									$qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+								}
+							}
+						}
+					}
+				}
 			}
 			
 			// Add peer entries

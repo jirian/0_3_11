@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			
 			$objectCompatibility = $qls->App->compatibilityArray[$templateID][$objFace][$objDepth];
 			
-			$objectType = $objectCompatibility['templateType'];
+			$objectTemplateType = $objectCompatibility['templateType'];
 			$objectPortType = $objectCompatibility['portType'];
 			$objectPartitionFunction = $objectCompatibility['partitionFunction'];
 			
@@ -102,17 +102,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 						$node = $qls->App->objectArray[$nodeID];
 						$nodeTemplateID = $node['template_id'];
 						$nodeTemplate = $qls->App->templateArray[$nodeTemplateID];
+						$nodeTemplateType = $nodeTemplate['templateType'];
 						
 						// Limit ports to only those that are relevant
 						$includePorts = true;
-						if($nodeTemplate['templateType'] == 'wap') {
-							$includePorts = false;
-						}
-						if($scope == 'portExplore') {
-							if($objectLocationType == 'floorplan') {
-								if($cabinetID != $objectCabinetID) {
-									$includePorts = false;
-								}
+						if(isset($qls->App->floorplanObjDetails[$nodeTemplateType]) and isset($qls->App->floorplanObjDetails[$objectTemplateType])) {
+							$nodeFloorplanConnectable = $qls->App->floorplanObjDetails[$nodeTemplateType]['floorplanConnectable'];
+							$objectFloorplanConnectable = $qls->App->floorplanObjDetails[$objectTemplateType]['floorplanConnectable'];
+							if(!$nodeFloorplanConnectable and !$objectFloorplanConnectable) {
+								$includePorts = false;
 							}
 						}
 						

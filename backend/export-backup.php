@@ -275,19 +275,14 @@ function createObjects(&$qls, $objectArray){
 	);
 	fputcsv($fileCabinetObjects, $csvHeader);
 
-	$floorplanObjTemplateArray = array(
-		1 => 'walljack',
-		2 => 'wap',
-		3 => 'device'
-	);
-
 	$csvArray = array();
 	foreach($objectArray as $object) {
 		$templateID = $object['template_id'];
-		$floorplanObj = (isset($floorplanObjTemplateArray[$templateID])) ? true : false;
+		$templateType = $qls->App->templateArray[$templateID]['templateType'];
+		$templateName = $qls->App->templateArray[$templateID]['templateName'];
+		$floorplanObj = (isset($qls->App->floorplanObjDetails[$templateType])) ? true : false;
 		$name = $object['name'];
 		$cabinet = $qls->App->envTreeArray[$object['env_tree_id']]['nameString'];
-		$template = $floorplanObj ? $floorplanObjTemplateArray[$templateID] : $qls->App->templateArray[$templateID]['templateName'];
 		$RUSize = $floorplanObj ? '' : $qls->App->templateArray[$templateID]['templateRUSize'];
 		$topRU = $floorplanObj ? '' : $object['RU'];
 		$bottomRU = $floorplanObj ? '' : $topRU - ($RUSize - 1);
@@ -307,7 +302,7 @@ function createObjects(&$qls, $objectArray){
 		$line = array(
 			$name,
 			$cabinet,
-			$template,
+			$templateName,
 			$bottomRU,
 			$cabinetFace,
 			$posLeft,
@@ -423,8 +418,8 @@ function createTemplates(&$qls){
 	foreach($qls->App->templateArray as $template) {
 		// Skip system generated templates
 		$templateID = $template['id'];
-		if($templateID > 3) {
-			$templateID = $template['id'];
+		$templateType = $template['templateType'];
+		if(!isset($qls->App->floorplanObjDetails[$templateType])) {
 			$templateCategoryID = $template['templateCategory_id'];
 			$templateName = $template['templateName'];
 			$templateCategoryName = $qls->App->categoryArray[$templateCategoryID]['name'];

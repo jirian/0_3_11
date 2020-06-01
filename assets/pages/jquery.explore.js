@@ -53,6 +53,8 @@ function clearSelectionDetails(){
 	$('#checkboxPopulated').prop("disabled", true);
 	$('#checkboxPopulated').prop("checked", false);
 	$('#selectPort').empty();
+	
+	clearPaths();
 }
 
 function makeRackObjectsClickable(){
@@ -263,13 +265,7 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 	});
 }
 
-function processPortSelection(){
-	var objID = $(document).data('clickedObjID');
-	var objFace = $(document).data('clickedObjFace');
-	var partitionDepth = $(document).data('clickedObjPartitionDepth');
-	var portID = $(document).data('clickedObjPortID');
-	
-	retrievePortPath(objID, objFace, partitionDepth, portID);
+function retrievePortOptions(objID, objFace, partitionDepth, portID){
 	
 	var data = {
 		objID: objID,
@@ -279,16 +275,6 @@ function processPortSelection(){
 	}
 	
 	data = JSON.stringify(data);
-
-	// Retrieve the selected port object string for path finder
-	$.post('backend/retrieve_object.php', {data:data}, function(response){
-		var responseJSON = JSON.parse(response);
-		if($(responseJSON.error).size() > 0) {
-			displayError(responseJSON.error);
-		} else {
-			$('#pathFinderLocalPort').html(responseJSON.success);
-		}
-	});
 	
 	// Retrieve the selected port details
 	$.post('backend/retrieve_port_details.php', {data:data}, function(response){
@@ -320,6 +306,68 @@ function processPortSelection(){
 			$(document).data('peerPortID', responseJSON.success.peerPortID);
 		}
 	});
+}
+
+function processPortSelection(){
+	var objID = $(document).data('clickedObjID');
+	var objFace = $(document).data('clickedObjFace');
+	var partitionDepth = $(document).data('clickedObjPartitionDepth');
+	var portID = $(document).data('clickedObjPortID');
+	
+	retrievePortPath(objID, objFace, partitionDepth, portID);
+	retrievePortOptions(objID, objFace, partitionDepth, portID);
+	
+	var data = {
+		objID: objID,
+		objFace: objFace,
+		partitionDepth: partitionDepth,
+		portID: portID
+	}
+	
+	data = JSON.stringify(data);
+
+	// Retrieve the selected port object string for path finder
+	$.post('backend/retrieve_object.php', {data:data}, function(response){
+		var responseJSON = JSON.parse(response);
+		if($(responseJSON.error).size() > 0) {
+			displayError(responseJSON.error);
+		} else {
+			$('#pathFinderLocalPort').html(responseJSON.success);
+		}
+	});
+	
+	
+	
+/* 	// Retrieve the selected port details
+	$.post('backend/retrieve_port_details.php', {data:data}, function(response){
+		var responseJSON = JSON.parse(response);
+		if($(responseJSON.error).size() > 0) {
+			displayError(responseJSON.error);
+		} else {
+			$('#checkboxPopulated').prop("checked", responseJSON.success.populatedChecked);
+			$('#checkboxPopulated').prop("disabled", responseJSON.success.populatedDisabled);
+		
+			$('#selectPort').html(responseJSON.success.portOptions);
+			
+			if(responseJSON.success.portOptions != '') {
+				$('#selectPort').prop("disabled", false);
+				$('#selectPort').off('change');
+				$('#selectPort').on('change', function(){
+					var portID = parseInt($(this).children('option:selected').val(), 10);
+					$(document).data('clickedObjPortID', portID);
+					processPortSelection();
+					$(document).data('portClickedFlag', true);
+					handlePathFindButton();
+				});
+			} else {
+				$('#selectPort').prop("disabled", true);
+				$('#checkboxPopulated').prop("checked", false);
+				$('#checkboxPopulated').prop("disabled", true);
+			}
+			
+			$(document).data('peerPortID', responseJSON.success.peerPortID);
+		}
+	}); */
 	
 	// Clear selected object data for pathFinder remote object
 	var data = {
@@ -643,6 +691,7 @@ function postProcessCable(){
 			$('#checkboxPopulated').prop("checked", true);
 			$('#checkboxPopulated').prop("disabled", true);
 			retrievePortPath(objID, objFace, objDepth, objPort);
+			retrievePortOptions(objID, objFace, objDepth, objPort);
 			refreshPathData();
 			redraw();
 			
@@ -978,10 +1027,11 @@ $( document ).ready(function() {
 				}
 				
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
-				portDesignation(interfaceSelectionElem, 'remove', 'C');
+				//portDesignation(interfaceSelectionElem, 'remove', 'C');
 				$('#checkboxPopulated').prop("checked", false);
 				$('#checkboxPopulated').prop("disabled", false);
 				retrievePortPath(objID, objFace, objDepth, objPort);
+				retrievePortOptions(objID, objFace, objDepth, objPort);
 				refreshPathData();
 				redraw();
 				

@@ -224,7 +224,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							while($csvLine = fgetcsv($csvFile)) {
 								$csvLineNumber++;
 								if($csvLineNumber > 1 and $csvLine[0] != '') {
-									buildImportedObjectArray($csvLine, $csvLineNumber, $csvFilename, $importedObjectArray, $occupancyArray, $existingTemplateArray, $existingObjectArray, $validate);
+									buildImportedObjectArray($qls, $csvLine, $csvLineNumber, $csvFilename, $importedObjectArray, $occupancyArray, $existingTemplateArray, $existingObjectArray, $validate);
 								}
 							}
 						} else if($csvFilename == '06 - Object Inserts.csv') {
@@ -572,7 +572,7 @@ function buildExistingObjectArray(&$qls, &$tableObjectArray, $envTreeArray){
 	return $return;
 }
 
-function buildImportedObjectArray($csvLine, $csvLineNumber, $csvFilename, &$importedObjectArray, &$occupancyArray, $existingTemplateArray, $existingObjectArray, &$validate){
+function buildImportedObjectArray(&$qls, $csvLine, $csvLineNumber, $csvFilename, &$importedObjectArray, &$occupancyArray, $existingTemplateArray, $existingObjectArray, &$validate){
 	$objectName = $csvLine[0];
 	$cabinetName = $csvLine[1];
 	$cabinetNameHash = md5(strtolower($cabinetName));
@@ -588,7 +588,7 @@ function buildImportedObjectArray($csvLine, $csvLineNumber, $csvFilename, &$impo
 	$floorplanPosTop = $csvLine[6];
 	
 	if(!array_key_exists($objectNameHash, $importedObjectArray)) {
-		$objectType = ($templateNameLower == 'wap' or $templateNameLower == 'walljack' or $templateNameLower == 'device') ? 'floorplanObject' : 'cabinetObject';
+		$objectType = (isset($qls->App->floorplanObjDetails[$templateNameLower])) ? 'floorplanObject' : 'cabinetObject';
 		$importedObjectArray[$objectNameHash]['line'] = $csvLineNumber;
 		$importedObjectArray[$objectNameHash]['fileName'] = $csvFilename;
 		$importedObjectArray[$objectNameHash]['objectName'] = $objectName;
@@ -2097,7 +2097,8 @@ function insertObjectAdds(&$qls, &$importedObjectArray, $importedCabinetArray, $
 	$systemTemplateArray = array(
 		md5('walljack') => 1,
 		md5('wap') => 2,
-		md5('device') => 3
+		md5('device') => 3,
+		md5('camera') => 4
 	);
 	
 	foreach($importedObjectArray as &$object) {
@@ -2796,7 +2797,8 @@ function clearAppTables(&$qls){
 	$objectTemplateValuesArray = array(
 		array('Walljack', 'walljack', 'Passive'),
 		array('WAP', 'wap', 'Endpoint'),
-		array('Device', 'device', 'Endpoint')
+		array('Device', 'device', 'Endpoint'),
+		array('Camera', 'camera', 'Endpoint')
 	);
 	
 	// Object template columns
@@ -2815,7 +2817,8 @@ function clearAppTables(&$qls){
 	$objectCompatibilityValuesArray = array(
 		array('1', null, null, null, 'walljack', 'Connectable', 'Passive', '1', '8', '1', '1', null),
 		array('2', '1', '1', '1', 'wap', 'Connectable', 'Endpoint', '1', '8', '1', '1', '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]'),
-		array('3', '1', '1', '1', 'device', 'Connectable', 'Endpoint', '1', '8', '1', '1', '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]')
+		array('3', '1', '1', '1', 'device', 'Connectable', 'Endpoint', '1', '8', '1', '1', '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]'),
+		array('4', '1', '1', '1', 'camera', 'Connectable', 'Endpoint', '1', '8', '1', '1', '[{\"type\":\"static\",\"value\":\"NIC\",\"count\":0,\"order\":0},{\"type\":\"incremental\",\"value\":\"1\",\"count\":0,\"order\":1}]')
 	);
 	
 	// Object compatibility columns
