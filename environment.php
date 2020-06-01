@@ -330,7 +330,7 @@ $qls->Security->check_auth_page('operator.php');
 										<div class="dropdown-menu">
 											<a class="objDelete rackObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
 											<a class="clearTrunkPeer rackObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Trunk</a>
-											<a class="createCombinedTemplate rackObj dropdown-item disabled" href="#" ><i class="fa fa-object-group"></i></span> Combine Templates</a>
+											<!--a class="createCombinedTemplate rackObj dropdown-item disabled" href="#" ><i class="fa fa-object-group"></i></span> Combine Templates</a-->
 										</div>
 									</div>
 								</span>
