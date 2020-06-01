@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.6
 	- Changes Introduced In 0.3.5
 	- Changes Introduced In 0.3.4
 	- Changes Introduced In 0.3.3
@@ -23,6 +24,10 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.6
+
+[Enhance]	Added camera floorplan object
 
 **Changes introduced in 0.3.5
 
