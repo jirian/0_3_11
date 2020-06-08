@@ -16,22 +16,38 @@ for ($x=0; $x<$faceCount; $x++){
 	$availableContainerID = ($page == 'retrieve_template-catalog.php') ? 'templateCatalogAvailableContainer' : 'availableContainer'.$x;
 	echo '<div id="'.$availableContainerID.'"'.$display.'>';
 	
-	foreach($templates as $category => $categoryTemplate) {
+	foreach ($qls->App->categoryArray as $categoryID => $category) {
+	//foreach($templates as $category => $categoryTemplate) {
+		$categoryName = $category['name'];
 
 		echo '<div class="categoryContainerEntire">';
-			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
-			echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
-			foreach ($categoryTemplate as $templateID => $templateOrganic) {
+			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$categoryName.'"><i class="fa fa-caret-right"></i>'.$categoryName.'</h4>';
+			echo '<div class="category'.$categoryName.'Container categoryContainer" style="display:none;">';
+			//echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
+			//echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
+			foreach ($qls->App->templateCategoryArray[$categoryID] as $templateName => $templateDetails) {
+			//foreach ($categoryTemplate as $templateID => $templateOrganic) {
+				
+				$templateType = $templateDetails['type'];
+				$templateID = $templateDetails['id'];
+				if($templateType == 'regular') {
+					$templateOrganic = $qls->App->templateArray[$templateID];
+				} else {
+					$combinedTemplate = $qls->App->combinedTemplateArray[$templateID];
+					$templateID = $combinedTemplate['template_id'];
+					$templateOrganic = $qls->App->templateArray[$templateID];
+				}
+				$templateOrganic['templatePartitionData'] = json_decode($templateOrganic['templatePartitionData'], true);
+				
 				if (isset($templateOrganic['templatePartitionData'][$x])) {
 					
-					
-					$templateName = $templateOrganic['templateName'];
+					//$templateName = $templateOrganic['templateName'];
 					$partitionData = $templateOrganic['templatePartitionData'][$x];
 					$type = $templateOrganic['templateType'];
 					$RUSize = $templateOrganic['templateRUSize'];
 					$function = $templateOrganic['templateFunction'];
 					$mountConfig = $templateOrganic['templateMountConfig'];
-					$categoryID = $templateOrganic['templateCategory_id'];
+					//$categoryID = $templateOrganic['templateCategory_id'];
 					$categoryData = isset($templateOrganic['categoryData']) ? $templateOrganic['categoryData'] : false;
 					
 					echo '<div class="object-wrapper object'.$templateID.'" data-template-name="'.$templateName.'">';

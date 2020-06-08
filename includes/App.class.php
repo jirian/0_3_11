@@ -82,7 +82,6 @@ var $qls;
 			$this->insertAddressArray[$row['parent_id']][$row['parent_face']][$row['parent_depth']][$row['insertSlotX']][$row['insertSlotY']] = $row;
 		}
 		
-		$this->templateArray = array();
 		$this->floorplanObjDetails = array(
 			'walljack' => array(
 				'trunkable' => true,
@@ -109,13 +108,56 @@ var $qls;
 				'html' => '<i class="floorplanObject selectable fa fa-video-camera fa-lg" style="cursor:grab;" data-type="camera"></i>'
 			)
 		);
+		
+		$this->templateCategoryArray = array();
+		$this->templateArray = array();
 		$query = $this->qls->SQL->select('*', 'app_object_templates');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			
+			$templateID = $row['id'];
 			$templateType = $row['templateType'];
+			$categoryID = $row['templateCategory_id'];
+			$templateName = $row['templateName'];
+			
 			if(isset($this->floorplanObjDetails[$templateType])) {
-				$this->floorplanObjDetails[$templateType]['templateID'] = $row['id'];
+				$this->floorplanObjDetails[$templateType]['templateID'] = $templateID;
 			}
-			$this->templateArray[$row['id']] = $row;
+			
+			if(!isset($this->templateCategoryArray[$categoryID])) {
+				$this->templateCategoryArray[$categoryID] = array();
+			}
+			
+			$this->templateCategoryArray[$categoryID][$templateName] = array(
+				'type' => 'regular',
+				'id' => $templateID
+			);
+			
+			$this->templateArray[$templateID] = $row;
+		}
+		
+		$this->combinedTemplateArray = array();
+		$query = $this->qls->SQL->select('*', 'app_combined_templates');
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			
+			$templateID = $row['id'];
+			$categoryID = $row['templateCategory_id'];
+			$templateName = $row['templateName'];
+			
+			if(!isset($this->templateCategoryArray[$categoryID])) {
+				$this->templateCategoryArray[$categoryID] = array();
+			}
+			
+			$this->templateCategoryArray[$categoryID][$templateName] = array(
+				'type' => 'combined',
+				'id' => $templateID
+			);
+			
+			$this->combinedTemplateArray[$templateID] = $row;
+		}
+		
+		// Sort templates by name
+		foreach($this->templateCategoryArray as &$category) {
+			ksort($category);
 		}
 		
 		// Generate object... object... <.<  >.>
@@ -147,7 +189,7 @@ var $qls;
 		}
 		
 		$this->categoryArray = array();
-		$query = $this->qls->SQL->select('*', 'app_object_category');
+		$query = $this->qls->SQL->select('*', 'app_object_category', false, 'name ASC');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
 			$this->categoryArray[$row['id']] = $row;
 		}

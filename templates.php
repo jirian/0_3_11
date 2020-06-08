@@ -775,7 +775,7 @@ require_once './includes/content-templates.php';
 						<select id="templateFilter" multiple data-role="tagsinput"></select>
 						<div id="templateContainer">
 							<?php
-								include_once('./includes/content-build-objectData.php');
+								//include_once('./includes/content-build-objectData.php');
 								include_once('./includes/content-build-objects.php');
 							?>
 						</div>

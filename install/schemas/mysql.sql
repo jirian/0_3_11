@@ -361,6 +361,17 @@ CREATE TABLE `{database_prefix}app_object_templates` (
   PRIMARY KEY(`id`)
 );
 
+DROP TABLE IF EXISTS `{database_prefix}app_combined_templates`;
+
+CREATE TABLE `{database_prefix}app_combined_templates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `templateName` varchar(255) NOT NULL,
+  `template_id` int(11) DEFAULT NULL,
+  `templateCategory_id` int(11) DEFAULT NULL,
+  `childTemplateData` text,
+  PRIMARY KEY(`id`)
+);
+
 DROP TABLE IF EXISTS `{database_prefix}app_organization_data`;
 
 CREATE TABLE `{database_prefix}app_organization_data` (

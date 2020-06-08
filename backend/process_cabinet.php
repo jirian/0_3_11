@@ -614,8 +614,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$objectFace = $data['objectFace'];
 			$objectDepth = $data['objectDepth'];
 			
-			//$query = $qls->SQL->select('id', 'app_object_peer', '(a_id = '.$objectID.' AND a_face = '.$objectFace.' AND a_depth = '.$objectDepth.') OR (b_id = '.$objectID.' AND b_face = '.$objectFace.' AND b_depth = '.$objectDepth.')');
-			//$objectPeerEntry = $qls->SQL->fetch_assoc($query);
 			$objectPeerEntry = $qls->App->peerArray[$objectID][$objectFace][$objectDepth];
 			$peerID = $objectPeerEntry['peerID'];
 			$peerFace = $objectPeerEntry['peerFace'];
@@ -642,6 +640,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->SQL->delete('app_object_peer', array('a_id' => array('=', $objectID)));
 			$validate->returnData['success']['trunkFlatPath'] = 'None';
 			
+		} else if($action == 'combinedTemplate') {
+			
+			$templateName = $data['name'];
+			$categoryID = $data['category'];
+			$parentTemplateID = $data['parentTemplateID'];
+			$childTemplateArray = $data['childTemplateArray'];
+			
+			$childTemplateJSON = json_encode($childTemplateArray);
+			
+			$qls->SQL->insert(
+				'app_combined_templates',
+				array(
+					'templateName',
+					'template_id',
+					'templateCategory_id',
+					'childTemplateData'
+				),
+				array(
+					$templateName,
+					$parentTemplateID,
+					$categoryID,
+					$childTemplateJSON
+				)
+			);
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -664,7 +686,8 @@ function validate($data, &$validate, &$qls){
 		'clearTrunkPeer',
 		'clearFloorplanTrunkPeer',
 		'RUOrientation',
-		'updateCabinetRUMin'
+		'updateCabinetRUMin',
+		'combinedTemplate'
 	);
 	$action = $data['action'];
 	
@@ -781,6 +804,34 @@ function validate($data, &$validate, &$qls){
 			$RUOrientation = $data['value'];
 			$RUOrientationArray = array(0, 1);
 			$validate->validateInArray($RUOrientation, $RUOrientationArray, 'RU orientation value');
+			
+		} else if($action == 'combinedTemplate') {
+			
+			// Validate template name
+			$templateName = $data['name'];
+			$validate->validateNameText($templateName, 'template name');
+			
+			// Validate category ID
+			$categoryID = $data['category'];
+			$validate->validateCategoryID($categoryID);
+			
+			// Validate parent template ID
+			$parentTemplateID = $data['parentTemplateID'];
+			$validate->validateID($parentTemplateID, 'parent template ID');
+			
+			$childTemplateArray = $data['childTemplateArray'];
+			foreach($childTemplateArray as $childTemplateID => $childData) {
+				$parentFace = $childData['parentFace'];
+				$parentDepth = $childData['parentDepth'];
+				$encX = $childData['encX'];
+				$encY = $childData['encY'];
+				
+				$validate->validateID($childTemplateID, 'child template ID');
+				$validate->validateID($parentFace, 'parent face ID');
+				$validate->validateID($parentDepth, 'parent depth ID');
+				$validate->validateID($encX, 'enclosure X');
+				$validate->validateID($encY, 'enclosure Y');
+			}
 			
 		}
 	}

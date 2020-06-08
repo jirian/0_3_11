@@ -86,11 +86,28 @@ var $qls;
 			$this->update_034_to_035();
 		} else if($this->currentVersion == '0.3.5') {
 			$this->update_035_to_036();
+		} else if($this->currentVersion == '0.3.6') {
+			$this->update_036_to_037();
 		} else {
 			return true;
 		}
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.6 to 0.3.7
+	 * @return Boolean
+	 */
+	function update_036_to_037() {
+		$incrementalVersion = '0.3.7';
+		
+		// Set app version to 0.3.7
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Create combined templates table
+		$this->qls->SQL->query("CREATE TABLE `{$this->qls->config['sql_prefix']}app_combined_templates` (`id` int(11) NOT NULL AUTO_INCREMENT, `templateName` varchar(255) NOT NULL, `template_id` int(11) DEFAULT NULL, `templateCategory_id` int(11) DEFAULT NULL, `childTemplateData` text, PRIMARY KEY(`id`))");
+		
 	}
 	
 	/**
