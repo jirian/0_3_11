@@ -316,6 +316,116 @@ function makeRackObjectsClickable(){
 		}
 	});
 	
+	$('.iconCombinedTemplate').on('click', function(event){
+		templateCombinedContainer = $(this).closest('.object-wrapper');
+		templateCombinedID = $(templateCombinedContainer).data('templateId');
+		
+		//Collect object data
+		var data = {
+			templateID: templateCombinedID
+		};
+		data = JSON.stringify(data);
+		
+		//Retrieve object details
+		$.post("backend/retrieve_template_combined.php", {data:data}, function(responseJSON){
+			
+			var response = JSON.parse(responseJSON);
+			if (response.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(response.error).size() > 0){
+				displayError(response.error);
+			} else {
+				var response = response.success;
+				var NAString = 'N/A';
+				$('#detailObjName').html(NAString);
+				$('#inline-templateName').editable('setValue', response.templateName).editable('enable');
+				$('#detailTrunkedTo').html(NAString);
+				$('#detailObjType').html(NAString);
+				$('#detailObjFunction').html(NAString);
+				$('#detailRUSize').html(NAString);
+				$('#detailMountConfig').html(NAString);
+				$('#detailPortOrientation').html(NAString);
+				$('#detailPortType').html(NAString);
+				$('#detailMediaType').html(NAString);
+				$('#detailEnclosureTolerance').html(NAString);
+				$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
+				$('#objClone').addClass('disabled');
+				$('#objFind').addClass('disabled');
+				$('#objDelete').removeClass('disabled');
+				
+				// Port Range
+				if(!$('#detailPortRange').hasClass('no-modal')) {
+					$('#detailPortRange').addClass('no-modal');
+				}
+				$('#detailPortRange').html(NAString);
+				
+				// Object Category
+				$('#inline-category').editable('destroy');
+				$('#inline-category').editable({
+					showbuttons: false,
+					mode: 'inline',
+					source: response.categoryArray,
+					url: 'backend/process_object-custom.php',
+					send: 'always',
+					params: function(params){
+						var data = {
+							'action':'edit',
+							'templateID':templateCombinedID,
+							'attribute':'combinedTemplateCategory',
+							'value':params.value
+						};
+						params.data = JSON.stringify(data);
+						return params;
+					},
+					success: function(response) {
+						//var selectedObjID = $('#selectedObjectID').val();
+						var responseJSON = JSON.parse(response);
+						if (responseJSON.active == 'inactive'){
+							window.location.replace("/");
+						} else if ($(responseJSON.error).size() > 0){
+							displayError(responseJSON.error);
+						} else {
+							reloadTemplates();
+						}
+					}
+				});
+				$('#inline-category').editable('setValue', response.categoryID).editable('enable');
+				
+				//Object Name
+				$('#inline-templateName').editable('destroy');
+				$('#inline-templateName').editable({
+					display: function(value){
+						$(this).text(value);
+					},
+					pk: 1,
+					mode: 'inline',
+					url: 'backend/process_object-custom.php',
+					params: function(params){
+						var data = {
+							'action':'edit',
+							'templateID': templateCombinedID,
+							'attribute': 'combinedTemplateName',
+							'value':params.value
+						};
+						params.data = JSON.stringify(data);
+						return params;
+					},
+					success: function(response) {
+						var templateID = $('#selectedObjectID').val();
+						var responseJSON = JSON.parse(response);
+						if (responseJSON.active == 'inactive'){
+							window.location.replace("/");
+						} else if ($(responseJSON.error).size() > 0){
+							displayError(responseJSON.error);
+						} else {
+							$('.templateName'+templateID).html(responseJSON.success);
+						}
+					}
+				}).editable('enable');
+			}
+		});
+	});
+	
 	$('#availableContainer').find('.selectable').on('click', function(event){
 		event.stopPropagation();
 		if($(this).hasClass('stockObj')) {
@@ -335,7 +445,20 @@ function makeRackObjectsClickable(){
 		var templateCategoryName = $(object).data('templateCategoryName');
 		$(document).data('selectedTemplateCategoryName', templateCategoryName);
 		
-		//Store templateID
+		//Store combined template
+		var templateCombined = $(object).data('templateCombined');
+		$(document).data('selectedTemplateCombined', templateCombined);
+		
+		// Store combined templateID
+		if(templateCombined == 'yes') {
+			templateCombinedContainer = $(object).closest('.object-wrapper');
+			templateCombinedID = $(templateCombinedContainer).data('templateId');
+		} else {
+			templateCombinedID = 0;
+		}
+		$(document).data('selectedTemplateCombinedID', templateCombinedID);
+		
+		// Store templateID
 		var templateID = $(object).data('templateId');
 		$('#selectedObjectID').val(templateID);
 		$(document).data('selectedTemplateID', templateID);
@@ -375,7 +498,12 @@ function makeRackObjectsClickable(){
 			} else {
 				var response = responseJSON.success;
 				$('#detailObjName').html(response.objectName);
-				$('#inline-templateName').editable('setValue', response.templateName).editable('enable');
+				$('#inline-templateName').editable('setValue', response.templateName);
+				if(templateCombined == 'yes') {
+					$('#inline-templateName').editable('disable');
+				} else {
+					$('#inline-templateName').editable('enable');
+				}
 				$('#detailTrunkedTo').html(response.trunkedTo);
 				$('#detailObjType').html(response.objectType);
 				$('#detailObjFunction').html(response.function);
@@ -384,7 +512,9 @@ function makeRackObjectsClickable(){
 				$('#detailPortType').html(response.portType);
 				$('#detailMediaType').html(response.mediaType);
 				$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
-				$('#detailTemplateImage').append('<div id="templateImageActionContainer"><a id="templateImageAction" href="#">' + response.templateImgAction + '</a></div>');
+				if(templateCombined == 'no') {
+					$('#detailTemplateImage').append('<div id="templateImageActionContainer"><a id="templateImageAction" href="#">' + response.templateImgAction + '</a></div>');
+				}
 				$('#objClone').removeClass('disabled');
 				$('#objFind').removeClass('disabled');
 				$('#objDelete').removeClass('disabled');
@@ -396,8 +526,15 @@ function makeRackObjectsClickable(){
 					}
 					$('#detailPortRange').html(response.portRange);
 				} else {
-					$('#detailPortRange').removeClass('no-modal');
-					$('#detailPortRange').html('<a href="#">'+response.portRange+'</a>');
+					if(templateCombined == 'yes') {
+						if(!$('#detailPortRange').hasClass('no-modal')) {
+							$('#detailPortRange').addClass('no-modal');
+						}
+						$('#detailPortRange').html(response.portRange);
+					} else {
+						$('#detailPortRange').removeClass('no-modal');
+						$('#detailPortRange').html('<a href="#">'+response.portRange+'</a>');
+					}
 				}
 				$(document).data('portNameFormatEdit', response.portNameFormat);
 				$(document).data('portTotalEdit', response.portTotal);
@@ -453,10 +590,46 @@ function makeRackObjectsClickable(){
 						}
 					}
 				});
-				$('#inline-category').editable('setValue', response.categoryID).editable('enable');
+				$('#inline-category').editable('setValue', response.categoryID);
+				if(templateCombined == 'yes') {
+					$('#inline-category').editable('disable');
+				} else {
+					$('#inline-category').editable('enable');
+				}
+				
+				//Object Name
+				$('#inline-templateName').editable('destroy');
+				$('#inline-templateName').editable({
+					display: function(value){
+						$(this).text(value);
+					},
+					pk: 1,
+					mode: 'inline',
+					url: 'backend/process_object-custom.php',
+					params: function(params){
+						var data = {
+							'action':'edit',
+							'templateID': templateID,
+							'attribute': 'templateName',
+							'value':params.value
+						};
+						params.data = JSON.stringify(data);
+						return params;
+					},
+					success: function(response) {
+						var templateID = $('#selectedObjectID').val();
+						var responseJSON = JSON.parse(response);
+						if (responseJSON.active == 'inactive'){
+							window.location.replace("/");
+						} else if ($(responseJSON.error).size() > 0){
+							displayError(responseJSON.error);
+						} else {
+							$('.templateName'+templateID).html(responseJSON.success);
+						}
+					}
+				}).editable('enable');
 				
 				// Object Port Orientation
-				//$('#inline-portOrientation').editable('destroy');
 				if(response.portOrientationID != false) {
 					$('#detailPortOrientation').html('<a href="#" id="inline-portOrientation" data-type="select">-</a>');
 					$('#inline-portOrientation').editable({
@@ -478,7 +651,7 @@ function makeRackObjectsClickable(){
 							return params;
 						},
 						success: function(response) {
-							var selectedObjID = $('#selectedObjectID').val();
+							//var selectedObjID = $('#selectedObjectID').val();
 							var responseJSON = JSON.parse(response);
 							if (responseJSON.active == 'inactive'){
 								window.location.replace("/");
@@ -487,13 +660,17 @@ function makeRackObjectsClickable(){
 							}
 						}
 					});
-					$('#inline-portOrientation').editable('setValue', response.portOrientationID).editable('enable');
+					$('#inline-portOrientation').editable('setValue', response.portOrientationID);
+					if(templateCombined == 'yes') {
+						$('#inline-portOrientation').editable('disable');
+					} else {
+						$('#inline-portOrientation').editable('enable');
+					}
 				} else {
 					$('#detailPortOrientation').html(response.portOrientationName);
 				}
 				
 				// Object EnclosureTolerance
-				//$('#inline-portOrientation').editable('destroy');
 				if(response.encTolerance != 'N/A') {
 					$('#detailEnclosureTolerance').html('<a href="#" id="inline-enclosureTolerance" data-type="select">-</a>');
 					$('#inline-enclosureTolerance').editable({
@@ -524,38 +701,45 @@ function makeRackObjectsClickable(){
 							}
 						}
 					});
-					$('#inline-enclosureTolerance').editable('setValue', response.encTolerance).editable('enable');
+					$('#inline-enclosureTolerance').editable('setValue', response.encTolerance);
+					if(templateCombined == 'yes') {
+						$('#inline-enclosureTolerance').editable('disable');
+					} else {
+						$('#inline-enclosureTolerance').editable('enable');
+					}
 				} else {
 					$('#detailEnclosureTolerance').html(response.encTolerance);
 				}
 				
 				// Object Image
-				$('#templateImageAction').on('click', function(event){
-					event.preventDefault();
-					$('#modalImageUpload').modal('show');
-				});
-				$('#templateImageDelete').on('click', function(event){
-					event.preventDefault();
-					
-					var data = {
-						templateID: templateID,
-						templateFace: templateFace
-						};
-					data = JSON.stringify(data);
-					
-					$.post("backend/process_template-image-delete.php", {data:data}, function(response){
-						var responseJSON = JSON.parse(response);
-						if (responseJSON.active == 'inactive'){
-							window.location.replace("/");
-						} else if ($(responseJSON.error).size() > 0){
-							displayError(responseJSON.error);
-						} else {
-							$('#elementTemplateImage').hide();
-							$('#templateImageDeleteContainer').remove();
-							$('#templateImageAction').html('upload');
-						}
+				if(templateCombined == 'no') {
+					$('#templateImageAction').on('click', function(event){
+						event.preventDefault();
+						$('#modalImageUpload').modal('show');
 					});
-				});
+					$('#templateImageDelete').on('click', function(event){
+						event.preventDefault();
+						
+						var data = {
+							templateID: templateID,
+							templateFace: templateFace
+							};
+						data = JSON.stringify(data);
+						
+						$.post("backend/process_template-image-delete.php", {data:data}, function(response){
+							var responseJSON = JSON.parse(response);
+							if (responseJSON.active == 'inactive'){
+								window.location.replace("/");
+							} else if ($(responseJSON.error).size() > 0){
+								displayError(responseJSON.error);
+							} else {
+								$('#elementTemplateImage').hide();
+								$('#templateImageDeleteContainer').remove();
+								$('#templateImageAction').html('upload');
+							}
+						});
+					});
+				}
 			}
 		});
 	});
@@ -840,40 +1024,6 @@ function resetCategoryForm(defaultCategoryColor){
 	$('#color-picker').spectrum('set', defaultCategoryColor);
 	$('#inputCategoryDefault').prop({'checked':false,'disabled':false});
 	$('#categoryList').children('button').removeClass('rackObjSelected');
-}
-
-function initializeEditable(){
-	//Object Name
-	$('#inline-templateName').editable({
-		display: function(value){
-			$(this).text(value);
-		},
-		pk: 1,
-		mode: 'inline',
-		url: 'backend/process_object-custom.php',
-		params: function(params){
-			var templateID = $('#selectedObjectID').val();
-			var data = {
-				'action':'edit',
-				'templateID':templateID,
-				'attribute':$(this).attr('id'),
-				'value':params.value
-			};
-			params.data = JSON.stringify(data);
-			return params;
-		},
-		success: function(response) {
-			var templateID = $('#selectedObjectID').val();
-			var responseJSON = JSON.parse(response);
-			if (responseJSON.active == 'inactive'){
-				window.location.replace("/");
-			} else if ($(responseJSON.error).size() > 0){
-				displayError(responseJSON.error);
-			} else {
-				$('.templateName'+templateID).html(responseJSON.success);
-			}
-		}
-	}).editable('option', 'disabled', true);
 }
 
 function filterTemplates(containerElement, inputElement, categoryContainers){
@@ -1532,7 +1682,6 @@ $( document ).ready(function() {
 	$.fn.editableform.buttons = 
 	'<button type="submit" class="btn btn-sm btn-primary editable-submit waves-effect waves-light"><i class="zmdi zmdi-check"></i></button>' +
 	'<button type="button" class="btn btn-sm editable-cancel btn-secondary waves-effect"><i class="zmdi zmdi-close"></i></button>';
-	initializeEditable();
 	
 	var defaultCategoryColor = '#d3d3d3';
 	makeRackObjectsClickable();

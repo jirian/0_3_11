@@ -207,11 +207,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		} else if($action == 'edit') {
 			$value = $data['value'];
 			$templateID = $data['templateID'];
-			if($data['attribute'] == 'inline-templateName'){
+			if($data['attribute'] == 'templateName'){
 				$origName = $qls->App->templateArray[$templateID]['templateName'];
 				$attribute = 'templateName';
 				$return = $value;
 				$qls->SQL->update('app_object_templates', array($attribute => $value), array('id' => array('=', $templateID)));
+				
+				// Log action in history
+				// $qls->App->logAction($function, $actionType, $actionString)
+				$actionString = 'Changed template name: from <strong>'.$origName.'</strong> to <strong>'.$value.'</strong>';
+				$qls->App->logAction(1, 2, $actionString);
+			} else if($data['attribute'] == 'combinedTemplateName'){
+				$origName = $qls->App->combinedTemplateArray[$templateID]['templateName'];
+				$attribute = 'templateName';
+				$return = $value;
+				$qls->SQL->update('app_combined_templates', array($attribute => $value), array('id' => array('=', $templateID)));
 				
 				// Log action in history
 				// $qls->App->logAction($function, $actionType, $actionString)
@@ -225,6 +235,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$attribute = 'templateCategory_id';
 				$return = $qls->SQL->fetch_row($qls->SQL->select('name', 'app_object_category', array('id' => array('=', $value))))[0];
 				$qls->SQL->update('app_object_templates', array($attribute => $value), array('id' => array('=', $templateID)));
+				
+				// Log action in history
+				// $qls->App->logAction($function, $actionType, $actionString)
+				$actionString = 'Changed <strong>'.$templateName.'</strong> template category: from <strong>'.$origCategoryName.'</strong> to <strong>'.$newCategoryName.'</strong>';
+				$qls->App->logAction(1, 2, $actionString);
+			} else if($data['attribute'] == 'combinedTemplateCategory') {
+				$templateName = $qls->App->combinedTemplateArray[$templateID]['templateName'];
+				$origCategoryID = $qls->App->combinedTemplateArray[$templateID]['templateCategory_id'];
+				$origCategoryName = $qls->App->categoryArray[$origCategoryID]['name'];
+				$newCategoryName = $qls->App->categoryArray[$value]['name'];
+				$attribute = 'templateCategory_id';
+				$return = $qls->SQL->fetch_row($qls->SQL->select('name', 'app_object_category', array('id' => array('=', $value))))[0];
+				$qls->SQL->update('app_combined_templates', array($attribute => $value), array('id' => array('=', $templateID)));
 				
 				// Log action in history
 				// $qls->App->logAction($function, $actionType, $actionString)
@@ -465,107 +488,118 @@ function validate($data, &$validate, &$qls){
 			$templateID = $data['templateID'];
 			$templateFace = $data['templateFace'];
 			$templateDepth = $data['templateDepth'];
+			$attribute = $data['attribute'];
 			
-			//Validate object existence
-			$table = 'app_object_templates';
-			$where = array('id' => array('=', $templateID));
-			$errorMsg = 'Invalid templateID.';
-			if($validate->validateExistenceInDB($table, $where, $errorMsg)) {
-				
-				if($data['attribute'] == 'inline-category'){
-					$categoryID = $data['value'];
+			$attributeArray = array(
+				'inline-category',
+				'templateName',
+				'portNameFormat',
+				'inline-portOrientation',
+				'inline-enclosureTolerance',
+				'combinedTemplateCategory',
+				'combinedTemplateName'
+			);
+			
+			$combinedAttributeArray = array(
+				'combinedTemplateCategory',
+				'combinedTemplateName'
+			);
+			
+			if($validate->validateInArray($attribute, $attributeArray, 'edit attribute')) {
+				//Validate object existence
+				$table = (in_array($attribute, $combinedAttributeArray)) ? 'app_combined_templates' : 'app_object_templates';
+				$where = array('id' => array('=', $templateID));
+				$errorMsg = 'Invalid templateID.';
+				if($validate->validateExistenceInDB($table, $where, $errorMsg)) {
 					
-					//Validate categoryID
-					if($validate->validateID($categoryID, 'categoryID')) {
-						$table = 'app_object_category';
-						$where = array('id' => array('=', $categoryID));
-						$errorMsg = 'Invalid categoryID.';
-						$validate->validateExistenceInDB($table, $where, $errorMsg);
-					}
-				} else if($data['attribute'] == 'inline-templateName') {
-					$templateName = $data['value'];
-					
-					//Validate templateName
-					if($validate->validateNameText($templateName, 'template name')) {
+					if($attribute == 'inline-category' or $attribute == 'combinedTemplateCategory'){
+						$categoryID = $data['value'];
 						
-						//Validate templateName duplicate
-						$table = 'app_object_templates';
-						$where = array('templateName' => array('=', $templateName));
-						$errorMsg = 'Duplicate template name.';
-						$validate->validateDuplicate($table, $where, $errorMsg);
-					}
-				} else if($data['attribute'] == 'portNameFormat') {
-					//$query = $qls->SQL->select('*', 'app_object_compatibility', array('template_id' => array('=', $templateID), 'AND', 'side' => array('=', $templateFace), 'AND', 'depth' => array('=', $templateDepth)));
-					//if($qls->SQL->num_rows($query) == 1) {
-					if(isset($qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth])) {
-						//$compatibility = $qls->SQL->fetch_assoc($query);
-						$compatibility = $qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth];
+						//Validate categoryID
+						if($validate->validateID($categoryID, 'categoryID')) {
+							$table = 'app_object_category';
+							$where = array('id' => array('=', $categoryID));
+							$errorMsg = 'Invalid categoryID.';
+							$validate->validateExistenceInDB($table, $where, $errorMsg);
+						}
+					} else if($attribute == 'templateName' or $attribute == 'combinedTemplateName') {
+						$templateName = $data['value'];
 						
-						if($compatibility['partitionType'] == 'Connectable') {
-							$portNameFormat = $data['value'];
-							$portTotal = $compatibility['portLayoutX'] * $compatibility['portLayoutY'];
-							if($validate->validatePortNameFormat($portNameFormat, $portTotal)) {
-								
-								$portCollection = array();
-								foreach($qls->App->compatibilityArray[$templateID] as $face => $side) {
-									foreach($side as $depth => $partition) {
-										
-										if($partition['partitionType'] == 'Connectable') {
-											$portTotal = $partition['portLayoutX'] * $partition['portLayoutY'];
-											if($face == $templateFace and $depth == $templateDepth) {
-												$workingPortNameFormat = $portNameFormat;
-											} else {
-												$workingPortNameFormat = json_decode($partition['portNameFormat'], true);
-											}
+						//Validate templateName
+						if($validate->validateNameText($templateName, 'template name')) {
+							
+							//Validate templateName duplicate
+							$table = 'app_object_templates';
+							$where = array('templateName' => array('=', $templateName));
+							$errorMsg = 'Duplicate template name.';
+							$validate->validateDuplicate($table, $where, $errorMsg);
+						}
+					} else if($data['attribute'] == 'portNameFormat') {
+						if(isset($qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth])) {
+							$compatibility = $qls->App->compatibilityArray[$templateID][$templateFace][$templateDepth];
+							
+							if($compatibility['partitionType'] == 'Connectable') {
+								$portNameFormat = $data['value'];
+								$portTotal = $compatibility['portLayoutX'] * $compatibility['portLayoutY'];
+								if($validate->validatePortNameFormat($portNameFormat, $portTotal)) {
+									
+									$portCollection = array();
+									foreach($qls->App->compatibilityArray[$templateID] as $face => $side) {
+										foreach($side as $depth => $partition) {
 											
-											for($x=0; $x<$portTotal; $x++) {
-												$portName = $qls->App->generatePortName($workingPortNameFormat, $x, $portTotal);
-												array_push($portCollection, $portName);
+											if($partition['partitionType'] == 'Connectable') {
+												$portTotal = $partition['portLayoutX'] * $partition['portLayoutY'];
+												if($face == $templateFace and $depth == $templateDepth) {
+													$workingPortNameFormat = $portNameFormat;
+												} else {
+													$workingPortNameFormat = json_decode($partition['portNameFormat'], true);
+												}
+												
+												for($x=0; $x<$portTotal; $x++) {
+													$portName = $qls->App->generatePortName($workingPortNameFormat, $x, $portTotal);
+													array_push($portCollection, $portName);
+												}
 											}
 										}
 									}
-								}
-								
-								// Check that all port IDs are unique
-								$portCollectionWorking = array();
-								$portCollectionDuplicates = array();
-								foreach($portCollection as $port) {
-									if(in_array($port, $portCollectionWorking)) {
-										array_push($portCollectionDuplicates, $port);
+									
+									// Check that all port IDs are unique
+									$portCollectionWorking = array();
+									$portCollectionDuplicates = array();
+									foreach($portCollection as $port) {
+										if(in_array($port, $portCollectionWorking)) {
+											array_push($portCollectionDuplicates, $port);
+										}
+										array_push($portCollectionWorking, $port);
 									}
-									array_push($portCollectionWorking, $port);
+									if(count($portCollectionDuplicates)) {
+										$duplicatePortStringLength = 3;
+										$duplicatePortString = implode(', ', array_slice($portCollectionDuplicates, 0, $duplicatePortStringLength));
+										$duplicatePortString .= (count($portCollectionDuplicates) > $duplicatePortStringLength) ? '...' : '';
+										$errorMsg = 'Template contains duplicate port IDs: '.$duplicatePortString;
+										array_push($validate->returnData['error'], $errorMsg);
+									}
 								}
-								if(count($portCollectionDuplicates)) {
-									$duplicatePortStringLength = 3;
-									$duplicatePortString = implode(', ', array_slice($portCollectionDuplicates, 0, $duplicatePortStringLength));
-									$duplicatePortString .= (count($portCollectionDuplicates) > $duplicatePortStringLength) ? '...' : '';
-									$errorMsg = 'Template contains duplicate port IDs: '.$duplicatePortString;
-									array_push($validate->returnData['error'], $errorMsg);
-								}
+							} else {
+								$errorMsg = 'Invalid partition type.';
+								array_push($validate->returnData['error'], $errorMsg);
 							}
+						
 						} else {
-							$errorMsg = 'Invalid partition type.';
+							$errorMsg = 'Invalid template data.';
 							array_push($validate->returnData['error'], $errorMsg);
 						}
-					
-					} else {
-						$errorMsg = 'Invalid template data.';
-						array_push($validate->returnData['error'], $errorMsg);
+					} else if($data['attribute'] == 'inline-portOrientation') {
+						$portOrientationID = $data['value'];
+						$portOrientationIDArray = array(1, 2, 3, 4);
+						$errMsg = 'port orientation ID';
+						$validate->validateInArray($portOrientationID, $portOrientationIDArray, $reference);
+					} else if($data['attribute'] == 'inline-enclosureTolerance') {
+						$encTolerance = strtolower($data['value']);
+						$encToleranceArray = array('strict', 'loose');
+						$errMsg = 'enclosure tolerance';
+						$validate->validateInArray($encTolerance, $encToleranceArray, $reference);
 					}
-				} else if($data['attribute'] == 'inline-portOrientation') {
-					$portOrientationID = $data['value'];
-					$portOrientationIDArray = array(1, 2, 3, 4);
-					$errMsg = 'port orientation ID';
-					$validate->validateInArray($portOrientationID, $portOrientationIDArray, $reference);
-				} else if($data['attribute'] == 'inline-enclosureTolerance') {
-					$encTolerance = strtolower($data['value']);
-					$encToleranceArray = array('strict', 'loose');
-					$errMsg = 'enclosure tolerance';
-					$validate->validateInArray($encTolerance, $encToleranceArray, $reference);
-				} else {
-					//Error
-					$errorMsg = 'Invalid attribute.';
-					array_push($validate->returnData['error'], $errorMsg);
 				}
 			}
 		}

@@ -13,11 +13,40 @@ $response = json_decode($responseJSON, true);
 if(curl_errno($ch)) {
 	echo '<strong>Error:</strong> Unable to contact template catalog server.';
 } else {
-	$templateArray = $response['templateArray'];
+	
 	$categoryArray = $response['categoryArray'];
-	$templates = array();
-	foreach($templateArray as $template){
+	$templateCategoryArray = array();
+	$templateArray = $response['templateArray'];
+	
+	foreach($templateArray as &$template){
 		
+		// Create templateCategoryArray
+		$categoryID = $template['templateCategory_id'];
+		$templateName = $template['templateName'];
+		$templateID = $template['id'];
+		if(!isset($templateCategoryArray[$categoryID])) {
+			$templateCategoryArray[$categoryID] = array();
+		}
+		$templateCategoryArray[$categoryID][$templateName] = array(
+			'type' => 'regular',
+			'id' => $templateID
+		);
+		
+		// Convert partition data.  Necessary for transition from 0.1.3 to 0.1.4
+		if($template['templatePartitionData']) {
+			$template['templatePartitionData'] = json_decode($template['templatePartitionData'], true);
+			
+			foreach($template['templatePartitionData'] as &$face) {
+				$qls->App->alterTemplatePartitionDataLayoutName($face);
+				$qls->App->alterTemplatePartitionDataDimensionUnits($face);
+			}
+			
+			$template['templatePartitionData'] = json_encode($template['templatePartitionData']);
+		}
+		
+		
+		
+		/*
 		$templateID = $template['id'];
 		$categoryID = $template['templateCategory_id'];
 		$categoryName = $categoryArray[$categoryID]['name'];
@@ -35,6 +64,7 @@ if(curl_errno($ch)) {
 		}
 		
 		$templates[$categoryName][$templateID] = $template;
+		*/
 
 	}
 	require_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-build-objects.php';

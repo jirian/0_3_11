@@ -1872,7 +1872,7 @@ var $qls;
 		return $dateFormatted;
 	}
 	
-	function buildStandard($data, $rackObj, $objID=false, $objFace=false, $cabinetView=false, &$depthCounter=0){
+	function buildStandard($data, $isCombinedTemplate, $objID=false, $objFace=false, $cabinetView=false, &$depthCounter=0){
 		$html = '';
 		$encInsert = false;
 		foreach($data as $element){
@@ -1885,7 +1885,7 @@ var $qls;
 				
 					if(isset($element['children'])){
 						$depthCounter++;
-						$html .= $this->buildStandard($element['children'], $rackObj, $objID, $objFace, $cabinetView, $depthCounter);
+						$html .= $this->buildStandard($element['children'], $isCombinedTemplate, $objID, $objFace, $cabinetView, $depthCounter);
 					}
 					break;
 					
@@ -1901,7 +1901,7 @@ var $qls;
 					$valueX = $element['valueX'];
 					$valueY = $element['valueY'];
 					
-					$html .= $this->buildEnclosure($valueX, $valueY, $objID, $objFace, $cabinetView, $depthCounter);
+					$html .= $this->buildEnclosure($valueX, $valueY, $isCombinedTemplate, $objID, $objFace, $cabinetView, $depthCounter);
 					break;
 			}
 			$html .= '</div>';
@@ -2008,7 +2008,7 @@ var $qls;
 		return $html;
 	}
 	
-	function buildEnclosure($encX, $encY, $objID=false, $objFace=false, $cabinetView=false, $depthCounter=false){
+	function buildEnclosure($encX, $encY, $isCombinedTemplate, $objID=false, $objFace=false, $cabinetView=false, $depthCounter=false){
 		
 		$html = '<div class="enclosure" style="display:flex;flex:1;height:100%;" data-enc-obj-face="'.$objFace.'" data-enc-obj-depth="'.$depthCounter.'" data-enc-layout-x="'.$encX.'" data-enc-layout-y="'.$encY.'">';
 		for ($y = 0; $y < $encY; $y++){
@@ -2036,11 +2036,34 @@ var $qls;
 								'insertDraggable'
 							);
 							$categoryData = false;
-							$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $insertObjID, $categoryData, $cabinetView);
-							$rackObj = true;
+							$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $isCombinedTemplate, $insertObjID, $categoryData, $cabinetView);
 							$objFace = 0;
-							$html .= $this->buildStandard($insertPartitionData[$objFace], $rackObj, $insertObjID, $objFace, $cabinetView);
+							$html .= $this->buildStandard($insertPartitionData[$objFace], $isCombinedTemplate, $insertObjID, $objFace, $cabinetView);
 							$html .= '</div>';
+						}
+					} else if($isCombinedTemplate) {
+						foreach($isCombinedTemplate as $insertTemplateID => $templateData) {
+							$parentFace = $templateData['parentFace'];
+							$parentDepth = $templateData['parentDepth'];
+							$combinedEncX = $templateData['encX'];
+							$combinedEncY = $templateData['encY'];
+							error_log('Debug: '.$parentFace.'-'.$parentDepth.'-'.$encX.'-'.$encY);
+							error_log('Debug: '.$objFace.'-'.$depthCounter.'-'.$x.'-'.$y);
+							if($parentFace == $objFace and $parentDepth == $depthCounter and $combinedEncX == $x and $combinedEncY == $y) {
+								$insertTemplate = $this->templateArray[$insertTemplateID];
+								$insertPartitionDataJSON = $insertTemplate['templatePartitionData'];
+								$insertPartitionData = json_decode($insertPartitionDataJSON, true);
+								
+								$objClassArray = array(
+									'stockObj',
+									'insertDraggable'
+								);
+								$categoryData = false;
+								$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $isCombinedTemplate, $insertObjID, $categoryData, $cabinetView);
+								$objFace = 0;
+								$html .= $this->buildStandard($insertPartitionData[$objFace], $isCombinedTemplate, $insertObjID, $objFace, $cabinetView);
+								$html .= '</div>';
+							}
 						}
 					}
 					$html .= '</div>';
@@ -2164,7 +2187,7 @@ var $qls;
 		return $html;
 	}
 
-	function generateObjContainer($template, $face, $objClassArray, $objID=false, $categoryData=false, $cabinetView=false){
+	function generateObjContainer($template, $face, $objClassArray, $isCombinedTemplate, $objID=false, $categoryData=false, $cabinetView=false){
 		$templateID = $template['id'];
 		$templateName = $template['templateName'];
 		$templateType = $template['templateType'];
@@ -2178,6 +2201,7 @@ var $qls;
 		$parentVUnits = $template['templateVUnits'];
 		$parentEncLayoutX = $template['templateEncLayoutX'];
 		$parentEncLayoutY = $template['templateEncLayoutY'];
+		$isCombinedTemplate = ($isCombinedTemplate) ? 'yes' : 'no';
 		
 		// Object data
 		$objAttrArray = array();
@@ -2185,6 +2209,7 @@ var $qls;
 		$objAttrArray['data-object-face'] = $face;
 		$objAttrArray['data-template-id'] = $templateID;
 		$objAttrArray['data-template-name'] = $templateName;
+		$objAttrArray['data-template-combined'] = $isCombinedTemplate;
 		$objAttrArray['data-ru-size'] = $templateRUSize;
 		$objAttrArray['data-template-function'] = '"'.$templateFunction.'"';
 		$objAttrArray['data-template-front-image'] = '"'.$templateFrontImage.'"';

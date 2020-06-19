@@ -749,14 +749,6 @@ require_once './includes/content-templates.php';
 								</div>
 							</div>
 						</span>
-						<!--
-						<div class="pull-right" title="Import Template">
-							Import&nbsp;&nbsp;
-							<button class="btn btn-sm waves-effect waves-light btn-primary" data-toggle="modal" type="button" data-target="#modalTemplateCatalog">
-								<i class="ti-import"></i>
-							</button>
-						</div>
-						-->
 					</div>
 					
 					<div class="m-t-15 m-l-5">
@@ -775,7 +767,6 @@ require_once './includes/content-templates.php';
 						<select id="templateFilter" multiple data-role="tagsinput"></select>
 						<div id="templateContainer">
 							<?php
-								//include_once('./includes/content-build-objectData.php');
 								include_once('./includes/content-build-objects.php');
 							?>
 						</div>

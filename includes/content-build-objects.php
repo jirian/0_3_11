@@ -10,59 +10,53 @@ $page = basename($_SERVER['PHP_SELF']);
 $cursorClass = (($page == 'templates.php') or ($page == 'retrieve_build-objects.php') or ($page == 'retrieve_template-catalog.php')) ? 'cursorPointer' : 'cursorGrab';
 $faceCount = ($page == 'retrieve_template-catalog.php') ? 1 : 2;
 
+$categoryArray = ($page == 'retrieve_template-catalog.php') ? $categoryArray : $qls->App->categoryArray;
+$templateCategoryArray = ($page == 'retrieve_template-catalog.php') ? $templateCategoryArray : $qls->App->templateCategoryArray;
+$templateArray = ($page == 'retrieve_template-catalog.php') ? $templateArray : $qls->App->templateArray;
+
 for ($x=0; $x<$faceCount; $x++){
 	
 	$display = $x==0 ? '' : ' style="display:none;"';
 	$availableContainerID = ($page == 'retrieve_template-catalog.php') ? 'templateCatalogAvailableContainer' : 'availableContainer'.$x;
 	echo '<div id="'.$availableContainerID.'"'.$display.'>';
 	
-	foreach ($qls->App->categoryArray as $categoryID => $category) {
-	//foreach($templates as $category => $categoryTemplate) {
+	foreach ($categoryArray as $categoryID => $category) {
 		$categoryName = $category['name'];
 
 		echo '<div class="categoryContainerEntire">';
 			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$categoryName.'"><i class="fa fa-caret-right"></i>'.$categoryName.'</h4>';
 			echo '<div class="category'.$categoryName.'Container categoryContainer" style="display:none;">';
-			//echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$category.'"><i class="fa fa-caret-right"></i>'.$category.'</h4>';
-			//echo '<div class="category'.$category.'Container categoryContainer" style="display:none;">';
-			foreach ($qls->App->templateCategoryArray[$categoryID] as $templateName => $templateDetails) {
-			//foreach ($categoryTemplate as $templateID => $templateOrganic) {
+			foreach ($templateCategoryArray[$categoryID] as $templateName => $templateDetails) {
 				
 				$templateType = $templateDetails['type'];
-				$templateID = $templateDetails['id'];
+				$templateID = $templateDetailsID = $templateDetails['id'];
+				
 				if($templateType == 'regular') {
-					$templateOrganic = $qls->App->templateArray[$templateID];
+					$templateOrganic = $templateArray[$templateID];
+					$templateIcon = '';
+					$isCombinedTemplate = false;
 				} else {
 					$combinedTemplate = $qls->App->combinedTemplateArray[$templateID];
 					$templateID = $combinedTemplate['template_id'];
-					$templateOrganic = $qls->App->templateArray[$templateID];
+					$childTemplateData = json_decode($combinedTemplate['childTemplateData'], true);
+					$templateOrganic = $templateArray[$templateID];
+					$templateIcon = '<i class="fa fa-object-group iconCombinedTemplate"></i> ';
+					$isCombinedTemplate = $childTemplateData;
 				}
 				$templateOrganic['templatePartitionData'] = json_decode($templateOrganic['templatePartitionData'], true);
 				
 				if (isset($templateOrganic['templatePartitionData'][$x])) {
 					
-					//$templateName = $templateOrganic['templateName'];
 					$partitionData = $templateOrganic['templatePartitionData'][$x];
 					$type = $templateOrganic['templateType'];
 					$RUSize = $templateOrganic['templateRUSize'];
 					$function = $templateOrganic['templateFunction'];
 					$mountConfig = $templateOrganic['templateMountConfig'];
-					//$categoryID = $templateOrganic['templateCategory_id'];
 					$categoryData = isset($templateOrganic['categoryData']) ? $templateOrganic['categoryData'] : false;
+					$objID = false;
 					
-					echo '<div class="object-wrapper object'.$templateID.'" data-template-name="'.$templateName.'">';
-					echo '<h4 class="templateName'.$templateID.' header-title m-t-0 m-b-15">'.$templateName.'</h4>';
-					
-					$objAttrArray = array(
-						'data-template-type' => $type,
-						'data-template-id' => $templateID,
-						'data-object-face' => $x,
-						'data-object-mount-config' => $mountConfig,
-						'data-ru-size' => $RUSize,
-						'data-template-function' => '"'.$function.'"',
-						'data-template-category-id' => $categoryID,
-						'data-template-category-name' => $category
-					);
+					echo '<div class="object-wrapper object'.$templateDetailsID.'" data-template-id="'.$templateDetailsID.'" data-template-name="'.$templateName.'">';
+					echo '<h4 class="templateName'.$templateDetailsID.' header-title m-t-0 m-b-15">'.$templateIcon.$templateName.'</i></h4>';
 					
 					if ($type == 'Standard'){
 						$objClassArray = array(
@@ -72,9 +66,8 @@ for ($x=0; $x<$faceCount; $x++){
 							'RU'.$RUSize
 						);
 						$objID = false;
-						echo $qls->App->generateObjContainer($templateOrganic, $x, $objClassArray, $objID, $categoryData);
-						$rackObj = false;
-						echo $qls->App->buildStandard($partitionData, $rackObj);
+						echo $qls->App->generateObjContainer($templateOrganic, $x, $objClassArray, $isCombinedTemplate, $objID, $categoryData);
+						echo $qls->App->buildStandard($partitionData, $isCombinedTemplate, $objID, $x);
 						echo '</div>';
 					} else {
 						$objClassArray = array(
@@ -91,14 +84,7 @@ for ($x=0; $x<$faceCount; $x++){
 						$flexWidth = $hUnits/24;
 						$flexHeight = $heightNumerator/$templateOrganic['templateEncLayoutY'];
 						$minRUSize = ceil($vUnits/2);
-						
-						// Generate data attribute string
-						$objAttrWorkingArray = array();
-						foreach($objAttrArray as $attr => $value) {
-							array_push($objAttrWorkingArray, $attr.'='.$value);
-						}
-						$objAttr = implode(' ', $objAttrWorkingArray);
-						
+
 							// Flex Container
 							echo '<div class="RU'.$minRUSize.'" style="display:flex;flex-direction:row;">';
 								// Partition Width
@@ -116,9 +102,8 @@ for ($x=0; $x<$faceCount; $x++){
 												);
 												$templateFace = 0;
 												$objID = false;
-												echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $objID, $categoryData);
-												$rackObj = false;
-												echo $qls->App->buildStandard($partitionData, $rackObj);
+												echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $isCombinedTemplate, $objID, $categoryData);
+												echo $qls->App->buildStandard($partitionData, $isCombinedTemplate);
 												echo '</div>';
 											}
 											echo '</div>';

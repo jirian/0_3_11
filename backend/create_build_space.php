@@ -163,19 +163,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					);
 					
 					$html .= '<td class="droppable" rowspan="'.$RUSize.'" data-cabinetRU="'.$cabLoop.'">';
+					$isCombinedTemplate = false;
 					if($cabinetView == 'port') {
 						
-						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID);
-						$rackObj = true;
-						$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face);
+						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $isCombinedTemplate, $objectID);
+						//$rackObj = true;
+						$html .= $qls->App->buildStandard($partitionData[$face], $isCombinedTemplate, $objectID, $face);
 						$html .= '</div>';
 						
 					} else if($cabinetView == 'visual') {
 						
 						$categoryData = false;
-						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $objectID, $categoryData, $cabinetView);
-						$rackObj = true;
-						$html .= $qls->App->buildStandard($partitionData[$face], $rackObj, $objectID, $face, $cabinetView);
+						$html .= $qls->App->generateObjContainer($template, $face, $objClassArray, $$isCombinedTemplate, $objectID, $categoryData, $cabinetView);
+						//$rackObj = true;
+						$html .= $qls->App->buildStandard($partitionData[$face], $isCombinedTemplate, $objectID, $face, $cabinetView);
 						$html .= '</div>';
 						
 					} else if($cabinetView == 'name') {
