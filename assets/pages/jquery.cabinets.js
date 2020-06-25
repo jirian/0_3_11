@@ -1532,6 +1532,13 @@ $( document ).ready(function() {
 	});
 	
 	$('.createCombinedTemplate').on('click', function(event){
+		var obj = $(document).data('selectedObject');
+		var templateName = $(obj).data('templateName');
+		var categoryID = $(obj).data('templateCategoryId');
+		
+		$('#inputCreateCombinedTemplateCategory option[value='+categoryID+']').attr('selected','selected');
+		$('#inputCreateCombinedTemplateName').val(templateName);
+		$('#alertMsgCreateCombinedTemplate').empty();
 		$('#modalCreateCombinedTemplate').modal('show');
 	});
 	

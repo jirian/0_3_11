@@ -264,19 +264,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			// Retrieve object data
 			$floorplanObjectData = array();
-			foreach($qls->App->objectByCabinetArray[$cabinetID] as $objectID) {
-				$object = $qls->App->objectArray[$objectID];
-				$objectTemplateID = $object['template_id'];
-				$type = $qls->App->compatibilityArray[$objectTemplateID][0][0]['templateType'];
-				$tempArray = array(
-					'id' => $objectID,
-					'type' => $type,
-					'position_top' => $object['position_top'],
-					'position_left' => $object['position_left'],
-					'html' => $qls->App->floorplanObjDetails[$type]['html']
-				);
-				
-				array_push($floorplanObjectData, $tempArray);
+			if(isset($qls->App->objectByCabinetArray[$cabinetID])) {
+				foreach($qls->App->objectByCabinetArray[$cabinetID] as $objectID) {
+					$object = $qls->App->objectArray[$objectID];
+					$objectTemplateID = $object['template_id'];
+					$type = $qls->App->compatibilityArray[$objectTemplateID][0][0]['templateType'];
+					$tempArray = array(
+						'id' => $objectID,
+						'type' => $type,
+						'position_top' => $object['position_top'],
+						'position_left' => $object['position_left'],
+						'html' => $qls->App->floorplanObjDetails[$type]['html']
+					);
+					
+					array_push($floorplanObjectData, $tempArray);
+				}
 			}
 			
 			$validate->returnData['success']['floorplanObjectData'] = $floorplanObjectData;
@@ -839,6 +841,13 @@ function validate($data, &$validate, &$qls){
 			// Validate parent template ID
 			$parentTemplateID = $data['parentObjID'];
 			$validate->validateID($parentTemplateID, 'parent object ID');
+			
+			$table = 'app_object_templates';
+			$where = array('templateName' => array('=', $templateName));
+			$errMsg = 'duplicate template name';
+			$validate->validateDuplicate($table, $where, $errMsg);
+			$table = 'app_combined_templates';
+			$validate->validateDuplicate($table, $where, $errMsg);
 			
 		}
 	}

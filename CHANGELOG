@@ -28,6 +28,7 @@ Contents
 
 **Changes introduced in 0.3.7
 
+[Fix]		Resolved error loading empty floorplan
 [Enhance]	Sort available templates by category name and then template name.
 
 **Changes introduced in 0.3.6
