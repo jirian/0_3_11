@@ -644,8 +644,29 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$templateName = $data['name'];
 			$categoryID = $data['category'];
-			$parentTemplateID = $data['parentTemplateID'];
-			$childTemplateArray = $data['childTemplateArray'];
+			$parentObjID = $data['parentObjID'];
+			
+			$parentTemplateID = $qls->App->objectArray[$parentObjID]['template_id'];
+			$childTemplateArray = array();
+			foreach($qls->App->insertArray[$parentObjID] as $insertObj) {
+				$insertTemplateID = $insertObj['template_id'];
+				$encX = $insertObj['insertSlotX'];
+				$encY = $insertObj['insertSlotY'];
+				$parentFace = $insertObj['parent_face'];
+				$parentDepth = $insertObj['parent_depth'];
+				
+				$workingArray = array(
+					'templateID' => $insertTemplateID,
+					'encX' => $encX,
+					'encY' => $encY,
+					'parentFace' => $parentFace,
+					'parentDepth' => $parentDepth
+				);
+				array_push($childTemplateArray, $workingArray);
+			}
+			
+			//$parentTemplateID = $data['parentTemplateID'];
+			//$childTemplateArray = $data['childTemplateArray'];
 			
 			$childTemplateJSON = json_encode($childTemplateArray);
 			
@@ -816,22 +837,8 @@ function validate($data, &$validate, &$qls){
 			$validate->validateCategoryID($categoryID);
 			
 			// Validate parent template ID
-			$parentTemplateID = $data['parentTemplateID'];
-			$validate->validateID($parentTemplateID, 'parent template ID');
-			
-			$childTemplateArray = $data['childTemplateArray'];
-			foreach($childTemplateArray as $childTemplateID => $childData) {
-				$parentFace = $childData['parentFace'];
-				$parentDepth = $childData['parentDepth'];
-				$encX = $childData['encX'];
-				$encY = $childData['encY'];
-				
-				$validate->validateID($childTemplateID, 'child template ID');
-				$validate->validateID($parentFace, 'parent face ID');
-				$validate->validateID($parentDepth, 'parent depth ID');
-				$validate->validateID($encX, 'enclosure X');
-				$validate->validateID($encY, 'enclosure Y');
-			}
+			$parentTemplateID = $data['parentObjID'];
+			$validate->validateID($parentTemplateID, 'parent object ID');
 			
 		}
 	}

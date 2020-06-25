@@ -460,11 +460,11 @@ $qls->Security->check_auth_page('operator.php');
 								<h6>Name Filter:</h6>
 								<select id="templateFilter" multiple data-role="tagsinput">
 								</select>
+								<div id="templateContainerLoad">
 								<?php
-									//$template = false;
-									include_once('./includes/content-build-objectData.php');
 									include_once('./includes/content-build-objects.php');
 								?>
+								</div>
 							</div>
 						</div>
 					</div>

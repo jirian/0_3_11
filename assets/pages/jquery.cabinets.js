@@ -1262,6 +1262,29 @@ function objectInBounds(offset){
 	return accept;
 }
 
+function reloadTemplates(){
+	$('#templateContainerLoad').load('/backend/retrieve_build-objects.php', function(){
+		makeCategoryTitlesClickable();
+		loadCabinetBuild();
+	});
+}
+
+function makeCategoryTitlesClickable(){
+	$('.categoryTitle').off('click');
+	$('.categoryTitle').on('click', function(){
+		var categoryName = $(this).data('categoryName');
+		if($('.category'+categoryName+'Container').is(':visible')) {
+			$('.category'+categoryName+'Container').hide(400);
+			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
+		} else {
+			$('.categoryContainer').hide(400);
+			$('.categoryTitle').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
+			$('.category'+categoryName+'Container').show(400);
+			$(this).children('i').removeClass('fa-caret-right').addClass('fa-caret-down');
+		}
+	});
+}
+
 $( document ).ready(function() {
 	
 	$('#btnImageUpload').on('click', function(event){
@@ -1520,28 +1543,13 @@ $( document ).ready(function() {
 		} else {
 			var object = $(document).data('selectedObject');
 		}
-		var objTemplateID = $(object).data('templateId');
-		var insertTemplateArray = {};
-		$.each($(object).find('.insert'), function(key, insert){
-			var insertTemplateID = $(insert).data('templateId');
-			var insertEncX = $(insert).parent().data('encX');
-			var insertEncY = $(insert).parent().data('encY');
-			var parentFace = $(insert).closest('.enclosure').data('encObjFace');
-			var parentDepth = $(insert).closest('.enclosure').data('encObjDepth');
-			insertTemplateArray[insertTemplateID] = {
-				encX: insertEncX,
-				encY: insertEncY,
-				parentFace: parentFace,
-				parentDepth: parentDepth
-			}
-		});
+		var objID = $(object).data('templateObjectId');
 		
 		var data = {
 			action: 'combinedTemplate',
 			name: combinedTemplateName,
 			category: combinedTemplateCategory,
-			parentTemplateID: objTemplateID,
-			childTemplateArray: insertTemplateArray
+			parentObjID: objID
 		};
 		
 		console.log(data);
@@ -1555,7 +1563,7 @@ $( document ).ready(function() {
 			} else if ($(response.error).size() > 0){
 				displayErrorElement(response.error, $('#alertMsgCreateCombinedTemplate'));
 			} else {
-				
+				reloadTemplates();
 				$('#modalCreateCombinedTemplate').modal('hide');
 			}
 		});
@@ -1569,18 +1577,7 @@ $( document ).ready(function() {
 		filterTemplates();
 	});
 	
-	$('.categoryTitle').on('click', function(){
-		var categoryName = $(this).data('categoryName');
-		if($('.category'+categoryName+'Container').is(':visible')) {
-			$('.category'+categoryName+'Container').hide(400);
-			$(this).children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
-		} else {
-			$('.categoryContainer').hide(400);
-			$('.categoryTitle').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
-			$('.category'+categoryName+'Container').show(400);
-			$(this).children('i').removeClass('fa-caret-right').addClass('fa-caret-down');
-		}
-	});
+	makeCategoryTitlesClickable();
 	
 	$('.sideSelectorCabinet').on('change', function(){
 		var currentCabinetFace = $(this).val();

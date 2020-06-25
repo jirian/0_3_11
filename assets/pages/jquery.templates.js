@@ -316,9 +316,27 @@ function makeRackObjectsClickable(){
 		}
 	});
 	
+	// Combined Template Icon
 	$('.iconCombinedTemplate').on('click', function(event){
+		
+		// Remove hightlight from all racked objects
+		$('#availableContainer').find('.rackObjSelected').removeClass('rackObjSelected');
+		
+		// Hightlight the selected racked object
+		$(this).addClass('rackObjSelected');
+		
 		templateCombinedContainer = $(this).closest('.object-wrapper');
 		templateCombinedID = $(templateCombinedContainer).data('templateId');
+		$(document).data('selectedTemplateCombinedID', templateCombinedID);
+		$(document).data('selectedTemplateCombined', 'yes');
+		
+		// Store template name
+		var templateCombinedName = $(templateCombinedContainer).data('templateName');
+		$(document).data('selectedTemplateCombinedName', templateCombinedName);
+		
+		// Store template category name
+		var templateCategoryName = $(templateCombinedContainer).closest('.categoryContainerEntire').find('.categoryTitle').data('categoryName');
+		$(document).data('selectedTemplateCategoryName', templateCategoryName);
 		
 		//Collect object data
 		var data = {
@@ -378,7 +396,6 @@ function makeRackObjectsClickable(){
 						return params;
 					},
 					success: function(response) {
-						//var selectedObjID = $('#selectedObjectID').val();
 						var responseJSON = JSON.parse(response);
 						if (responseJSON.active == 'inactive'){
 							window.location.replace("/");
@@ -391,7 +408,7 @@ function makeRackObjectsClickable(){
 				});
 				$('#inline-category').editable('setValue', response.categoryID).editable('enable');
 				
-				//Object Name
+				// Object Name
 				$('#inline-templateName').editable('destroy');
 				$('#inline-templateName').editable({
 					display: function(value){
@@ -411,14 +428,13 @@ function makeRackObjectsClickable(){
 						return params;
 					},
 					success: function(response) {
-						var templateID = $('#selectedObjectID').val();
 						var responseJSON = JSON.parse(response);
 						if (responseJSON.active == 'inactive'){
 							window.location.replace("/");
 						} else if ($(responseJSON.error).size() > 0){
 							displayError(responseJSON.error);
 						} else {
-							$('.templateName'+templateID).html(responseJSON.success);
+							$('#templateName'+templateCombinedID+'.combined').html(responseJSON.success);
 						}
 					}
 				}).editable('enable');
@@ -426,8 +442,16 @@ function makeRackObjectsClickable(){
 		});
 	});
 	
+	// Template Partition
 	$('#availableContainer').find('.selectable').on('click', function(event){
 		event.stopPropagation();
+		
+		// Remove hightlight from all racked objects
+		$('#availableContainer').find('.rackObjSelected').removeClass('rackObjSelected');
+		
+		// Hightlight the selected racked object
+		$(this).addClass('rackObjSelected');
+		
 		if($(this).hasClass('stockObj')) {
 			var object = $(this);
 			var partitionDepth = 0;
@@ -453,6 +477,7 @@ function makeRackObjectsClickable(){
 		if(templateCombined == 'yes') {
 			templateCombinedContainer = $(object).closest('.object-wrapper');
 			templateCombinedID = $(templateCombinedContainer).data('templateId');
+			$(document).data('selectedTemplateCombinedName', templateName);
 		} else {
 			templateCombinedID = 0;
 		}
@@ -463,22 +488,16 @@ function makeRackObjectsClickable(){
 		$('#selectedObjectID').val(templateID);
 		$(document).data('selectedTemplateID', templateID);
 		
-		//Store objectFace
+		// Store objectFace
 		var templateFace = $(object).data('objectFace');
 		$('#selectedObjectFace').val(templateFace);
 		
 		initializeImageUpload(templateID, templateFace);
 		
-		//Store cabinetFace
+		// Store cabinetFace
 		var cabinetFace = $('#currentCabinetFace').val();
 		
-		//Remove hightlight from all racked objects
-		$('#availableContainer').find('.rackObjSelected').removeClass('rackObjSelected');
-		
-		//Hightlight the selected racked object
-		$(this).addClass('rackObjSelected');
-		
-		//Collect object data
+		// Collect object data
 		var data = {
 			objID: templateID,
 			page: 'editor',
@@ -488,7 +507,7 @@ function makeRackObjectsClickable(){
 		};
 		data = JSON.stringify(data);
 		
-		//Retrieve object details
+		// Retrieve object details
 		$.post("backend/retrieve_object_details.php", {data:data}, function(response){
 			var responseJSON = JSON.parse(response);
 			if (responseJSON.active == 'inactive'){
@@ -514,10 +533,14 @@ function makeRackObjectsClickable(){
 				$('#detailTemplateImage').html('<img id="elementTemplateImage" src="" height="" width="">');
 				if(templateCombined == 'no') {
 					$('#detailTemplateImage').append('<div id="templateImageActionContainer"><a id="templateImageAction" href="#">' + response.templateImgAction + '</a></div>');
+					$('#objClone').removeClass('disabled');
+					$('#objFind').removeClass('disabled');
+					$('#objDelete').removeClass('disabled');
+				} else {
+					$('#objClone').addClass('disabled');
+					$('#objFind').addClass('disabled');
+					$('#objDelete').addClass('disabled');
 				}
-				$('#objClone').removeClass('disabled');
-				$('#objFind').removeClass('disabled');
-				$('#objDelete').removeClass('disabled');
 				
 				// Port Range
 				if(response.portRange == 'N/A') {
@@ -597,7 +620,7 @@ function makeRackObjectsClickable(){
 					$('#inline-category').editable('enable');
 				}
 				
-				//Object Name
+				// Object Name
 				$('#inline-templateName').editable('destroy');
 				$('#inline-templateName').editable({
 					display: function(value){
@@ -624,10 +647,15 @@ function makeRackObjectsClickable(){
 						} else if ($(responseJSON.error).size() > 0){
 							displayError(responseJSON.error);
 						} else {
-							$('.templateName'+templateID).html(responseJSON.success);
+							$('#templateName'+templateID+'.regular').html(responseJSON.success);
 						}
 					}
-				}).editable('enable');
+				});
+				if(templateCombined == 'yes') {
+					$('#inline-templateName').editable('disable');
+				} else {
+					$('#inline-templateName').editable('enable');
+				}
 				
 				// Object Port Orientation
 				if(response.portOrientationID != false) {
@@ -1661,7 +1689,6 @@ $( document ).ready(function() {
 	handleScrollLock();	
 	toggleObjectTypeDependencies();
 	
-	//$('#containerTemplateCatalog').load('https://patchcablemgr.com/public/template-catalog-013.php', function(){
 	$('#containerTemplateCatalog').load('/backend/retrieve_template-catalog.php', function(){
 		initializeTemplateCatalog();
 	});
@@ -1802,10 +1829,19 @@ $( document ).ready(function() {
 	
 	// Delete a temlate
 	$('#confirmObjDelete').click(function(){
-		var templateID = $('#selectedObjectID').val();
-		var data = {};
-		data['id'] = templateID;
-		data['action'] = 'delete';
+		var templateCombined = $(document).data('selectedTemplateCombined');
+		if (templateCombined == 'yes') {
+			var templateID = $(document).data('selectedTemplateCombinedID');
+			var templateType = 'combined';
+		} else {
+			var templateID = $(document).data('selectedTemplateID');
+			var templateType = 'regular';
+		}
+		var data = {
+			'id': templateID,
+			'templateCombined': templateCombined,
+			'action': 'delete'
+		};
 		data = JSON.stringify(data);
 		$.post('backend/process_object-custom.php', {'data':data}, function(response){
 			var responseJSON = JSON.parse(response);
@@ -1815,7 +1851,7 @@ $( document ).ready(function() {
 				displayError(responseJSON.error);
 			} else if (responseJSON.success != ''){
 				displaySuccess(responseJSON.success);
-				$('#availableContainer').find('.object'+templateID).remove();
+				$('#availableContainer').find('.object'+templateID+'.'+templateType).remove();
 				resetTemplateDetails();
 			} else {
 				displayError(['Something went wrong.']);
@@ -2560,7 +2596,15 @@ $( document ).ready(function() {
 	
 	// Set template name in delete confirm modal
 	$('#modalTemplateDeleteConfirm').on('shown.bs.modal', function (e){
-		var templateName = $(document).data('selectedTemplateName');
+		
+		var templateCombined = $(document).data('selectedTemplateCombined');
+		
+		if(templateCombined == 'yes') {
+			var templateName = $(document).data('selectedTemplateCombinedName');
+		} else {
+			var templateName = $(document).data('selectedTemplateName');
+		}
+		
 		var templateCategoryName = $(document).data('selectedTemplateCategoryName');
 		$('#deleteTemplateName').html(templateName + ' (' + templateCategoryName + ')');
 	});

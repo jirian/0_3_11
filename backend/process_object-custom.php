@@ -188,20 +188,34 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->App->logAction(1, 1, $actionString);
 				
 		} else if($action == 'delete') {
+			
+			$templateDeleted = false;
 			$id = $data['id'];
-			$result = $qls->SQL->select('id', 'app_object', array('template_id' => array('=', $id)));
-			if ($qls->SQL->num_rows($result) == 0) {
-				$name = $qls->App->templateArray[$id]['templateName'];
-				$qls->SQL->delete('app_object_templates', array('id' => array('=', $id)));
-				$qls->SQL->delete('app_object_compatibility', array('template_id' => array('=', $id)));
+			$templateCombined = $data['templateCombined'];
+			
+			if($templateCombined == 'yes') {
+				$qls->SQL->delete('app_combined_templates', array('id' => array('=', $id)));
+				$templateDeleted = true;
+			} else {
+				$result = $qls->SQL->select('id', 'app_object', array('template_id' => array('=', $id)));
+				if ($qls->SQL->num_rows($result) == 0) {
+					$name = $qls->App->templateArray[$id]['templateName'];
+					$qls->SQL->delete('app_object_templates', array('id' => array('=', $id)));
+					$qls->SQL->delete('app_object_compatibility', array('template_id' => array('=', $id)));
+					$templateDeleted = true;
+					
+				} else {
+					array_push($validate->returnData['error'], 'Object is in use.');
+				}
+			}
+			
+			if($templateDeleted) {
 				$validate->returnData['success'] = 'Object was deleted.';
 				
 				// Log action in history
 				// $qls->App->logAction($function, $actionType, $actionString)
 				$actionString = 'Deleted template: <strong>'.$name.'</strong>';
 				$qls->App->logAction(1, 3, $actionString);
-			} else {
-				array_push($validate->returnData['error'], 'Object is in use.');
 			}
 			
 		} else if($action == 'edit') {
@@ -479,7 +493,11 @@ function validate($data, &$validate, &$qls){
 
 	} else if($data['action'] == 'delete'){
 		
-		//Validate object ID
+		// Validate templateCombined
+		$templateCombinedArray = array('yes', 'no');
+		$validate->validateInArray($data['templateCombined'], $templateCombinedArray, 'combined template flag');
+		
+		// Validate template ID
 		$validate->validateObjectID($data['id']);
 		
 	} else if($data['action'] == 'edit'){

@@ -40,7 +40,7 @@ for ($x=0; $x<$faceCount; $x++){
 					$templateID = $combinedTemplate['template_id'];
 					$childTemplateData = json_decode($combinedTemplate['childTemplateData'], true);
 					$templateOrganic = $templateArray[$templateID];
-					$templateIcon = '<i class="fa fa-object-group iconCombinedTemplate"></i> ';
+					$templateIcon = '<i class="fa fa-object-group cursorPointer iconCombinedTemplate"></i> ';
 					$isCombinedTemplate = $childTemplateData;
 				}
 				$templateOrganic['templatePartitionData'] = json_decode($templateOrganic['templatePartitionData'], true);
@@ -55,8 +55,8 @@ for ($x=0; $x<$faceCount; $x++){
 					$categoryData = isset($templateOrganic['categoryData']) ? $templateOrganic['categoryData'] : false;
 					$objID = false;
 					
-					echo '<div class="object-wrapper object'.$templateDetailsID.'" data-template-id="'.$templateDetailsID.'" data-template-name="'.$templateName.'">';
-					echo '<h4 class="templateName'.$templateDetailsID.' header-title m-t-0 m-b-15">'.$templateIcon.$templateName.'</i></h4>';
+					echo '<div class="object-wrapper object'.$templateDetailsID.' '.$templateType.'" data-template-id="'.$templateDetailsID.'" data-template-name="'.$templateName.'">';
+					echo '<h4 class="header-title m-t-0 m-b-15">'.$templateIcon.'<div id="templateName'.$templateDetailsID.'" class="'.$templateType.'" style="display:inline;">'.$templateName.'</div></h4>';
 					
 					if ($type == 'Standard'){
 						$objClassArray = array(

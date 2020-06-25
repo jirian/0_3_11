@@ -2042,13 +2042,14 @@ var $qls;
 							$html .= '</div>';
 						}
 					} else if($isCombinedTemplate) {
-						foreach($isCombinedTemplate as $insertTemplateID => $templateData) {
+						foreach($isCombinedTemplate as $templateData) {
+							
+							$insertTemplateID = $templateData['templateID'];
 							$parentFace = $templateData['parentFace'];
 							$parentDepth = $templateData['parentDepth'];
 							$combinedEncX = $templateData['encX'];
 							$combinedEncY = $templateData['encY'];
-							error_log('Debug: '.$parentFace.'-'.$parentDepth.'-'.$encX.'-'.$encY);
-							error_log('Debug: '.$objFace.'-'.$depthCounter.'-'.$x.'-'.$y);
+							
 							if($parentFace == $objFace and $parentDepth == $depthCounter and $combinedEncX == $x and $combinedEncY == $y) {
 								$insertTemplate = $this->templateArray[$insertTemplateID];
 								$insertPartitionDataJSON = $insertTemplate['templatePartitionData'];
