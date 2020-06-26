@@ -652,6 +652,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$childTemplateArray = array();
 			foreach($qls->App->insertArray[$parentObjID] as $insertObj) {
 				$insertTemplateID = $insertObj['template_id'];
+				$insertName = $insertObj['name'];
 				$encX = $insertObj['insertSlotX'];
 				$encY = $insertObj['insertSlotY'];
 				$parentFace = $insertObj['parent_face'];
@@ -659,6 +660,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 				$workingArray = array(
 					'templateID' => $insertTemplateID,
+					'name' => $insertName,
 					'encX' => $encX,
 					'encY' => $encY,
 					'parentFace' => $parentFace,
@@ -666,9 +668,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				);
 				array_push($childTemplateArray, $workingArray);
 			}
-			
-			//$parentTemplateID = $data['parentTemplateID'];
-			//$childTemplateArray = $data['childTemplateArray'];
 			
 			$childTemplateJSON = json_encode($childTemplateArray);
 			

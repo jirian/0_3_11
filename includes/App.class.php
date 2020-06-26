@@ -2056,8 +2056,7 @@ var $qls;
 								$insertPartitionData = json_decode($insertPartitionDataJSON, true);
 								
 								$objClassArray = array(
-									'stockObj',
-									'insertDraggable'
+									'stockObj'
 								);
 								$categoryData = false;
 								$html .= $this->generateObjContainer($insertTemplate, 0, $objClassArray, $isCombinedTemplate, $insertObjID, $categoryData, $cabinetView);

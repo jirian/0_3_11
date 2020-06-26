@@ -20,23 +20,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objectID = $data['objectID'];
 		
 		if($action == 'add') {
-				
+			
+			
+			
 			$cabinetID = $data['cabinetID'];
+			$cabinetFace = $data['cabinetFace'];
+			$templateCombined = $data['templateCombined'];
 			$name = $data['name'];
 			$RU = isset($data['RU']) ? $data['RU'] : 0;
-			$cabinetFace = $data['cabinetFace'];
-			$object = $qls->SQL->fetch_assoc(
-				$qls->SQL->select(
-					'*',
-					'app_object_templates',
-					array(
-						'id' => array(
-							'=',
-							$objectID
-						)
-					)
-				)
-			);
+			
+			if($templateCombined == 'yes') {
+				$combinedTemplate = $qls->App->combinedTemplateArray[$objectID];
+				$objectID = $combinedTemplate['template_id'];
+				$childTemplateData = json_decode($combinedTemplate['childTemplateData'], true);
+			}
+			
+			$object = $qls->App->templateArray[$objectID];
+			
 			$objectMountConfig = $object['templateMountConfig'];
 			$RUSize = $object['templateRUSize'];
 			
@@ -103,8 +103,53 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				)
 			);
 			
+			$newObjID = $qls->SQL->insert_id();
+			
+			if(isset($childTemplateData)) {
+				foreach($childTemplateData as $childTemplate) {
+					$templateID = $childTemplate['templateID'];
+					$name = $childTemplate['name'];
+					$RU = 0;
+					$cabinetFront = 0;
+					$cabinetBack = null;
+					$parent_id = $newObjID;
+					$parent_face = $childTemplate['parentFace'];
+					$parent_depth = $childTemplate['parentDepth'];
+					$insertSlotX = $childTemplate['encX'];
+					$insertSlotY = $childTemplate['encY'];
+					
+					//Insert data into DB
+					$qls->SQL->insert('app_object', array(
+							'env_tree_id',
+							'template_id', 
+							'name',
+							'RU',
+							'cabinet_front',
+							'cabinet_back',
+							'parent_id',
+							'parent_face',
+							'parent_depth',
+							'insertSlotX',
+							'insertSlotY'
+						), array(
+							$cabinetID,
+							$templateID,
+							$name,
+							$RU,
+							$cabinetFront,
+							$cabinetBack,
+							$parent_id,
+							$parent_face,
+							$parent_depth,
+							$insertSlotX,
+							$insertSlotY
+						)
+					);
+				}
+			}
+			
 			//This tells the client what the new object_id is
-			$validate->returnData['success'] = $qls->SQL->insert_id();
+			$validate->returnData['success'] = $newObjID;
 			
 			// Log history
 			$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
@@ -395,6 +440,11 @@ function validate(&$data, &$validate, &$qls){
 						$data['name'] = $name;
 					}
 				}
+				
+				// Validate template combined
+				$templateCombined = $data['templateCombined'];
+				$templateCombinedArray = array('yes', 'no');
+				$validate->validateInArray($templateCombined, $templateCombinedArray, 'template combined flag');
 		
 				// Validate cabinet RU
 				if($data['RU'] != 0) {

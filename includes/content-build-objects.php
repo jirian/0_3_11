@@ -70,11 +70,6 @@ for ($x=0; $x<$faceCount; $x++){
 						echo $qls->App->buildStandard($partitionData, $isCombinedTemplate, $objID, $x);
 						echo '</div>';
 					} else {
-						$objClassArray = array(
-							'stockObj',
-							$cursorClass,
-							'insertDraggable'
-						);
 						
 						$hUnits = $partitionData[0]['hUnits'];
 						$vUnits = $partitionData[0]['vUnits'];
@@ -100,6 +95,7 @@ for ($x=0; $x<$faceCount; $x++){
 													$cursorClass,
 													'insertDraggable'
 												);
+												
 												$templateFace = 0;
 												$objID = false;
 												echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $isCombinedTemplate, $objID, $categoryData);

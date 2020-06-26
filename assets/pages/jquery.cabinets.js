@@ -410,7 +410,6 @@ function initializeInsertDroppable(){
 			data['cabinetID'] = $('#cabinetID').val();
 			data['cabinetFace'] = $('#currentCabinetFace').val();
 			data['RU'] = 0;
-			//data['objectID'] = ui.draggable.data('templateObjectId');
 			data['parent_id'] = parseInt($(this).closest('.rackObj').data('templateObjectId'));
 			data['parent_face'] = parseInt($(this).closest('.rackObj').data('objectFace'));
 			data['parent_depth'] = parseInt($(this).closest('[data-depth]').data('depth'));
@@ -421,6 +420,7 @@ function initializeInsertDroppable(){
 			if (ui.draggable.hasClass('stockObj')){
 				var object = ui.draggable.clone();
 				data['objectID'] = ui.draggable.data('templateId');
+				data['templateCombined'] = 'no';
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
@@ -579,6 +579,7 @@ function makeRackUnitsDroppable(target){
 			if (ui.draggable.hasClass('stockObj')){
 				var object = ui.draggable.clone();
 				data['objectID'] = ui.draggable.data('templateId');
+				data['templateCombined'] = ui.draggable.data('templateCombined');
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
