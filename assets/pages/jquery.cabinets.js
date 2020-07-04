@@ -563,9 +563,10 @@ function makeRackUnitsDroppable(target){
 		drop: function(event, ui){
 			var data = {};
 			var dataSecondary = {};
-			var cabinetRU = parseInt($(this).data('cabinetru'));
+			var targetDroppable = $(this);
+			var cabinetRU = parseInt($(targetDroppable).data('cabinetru'));
 			var objectRUSize = parseInt($(ui.draggable).data('ruSize'));
-			var droppableIndex = $('.droppable').index($(this));
+			var droppableIndex = $('.droppable').index($(targetDroppable));
 			var currentCabinetFace = $('#currentCabinetFace').val();
 			var cabinetID = $('#cabinetID').val();
 			var validDrop = true;
@@ -578,8 +579,16 @@ function makeRackUnitsDroppable(target){
 			//If object came from stock, then append the clone.  Otherwise append the object.
 			if (ui.draggable.hasClass('stockObj')){
 				var object = ui.draggable.clone();
-				data['objectID'] = ui.draggable.data('templateId');
-				data['templateCombined'] = ui.draggable.data('templateCombined');
+				var templateCombined = ui.draggable.data('templateCombined');
+				
+				if (templateCombined == 'yes') {
+					var templateID = ui.draggable.closest('.object-wrapper').data('templateId');
+				} else {
+					var templateID = ui.draggable.data('templateId');
+				}
+				
+				data['objectID'] = templateID;
+				data['templateCombined'] = templateCombined;
 				data['action'] = 'add';
 			} else {
 				var object = ui.draggable;
@@ -598,35 +607,98 @@ function makeRackUnitsDroppable(target){
 					if (response.active == 'inactive'){
 						window.location.replace("/");
 					} else if ($(response.error).size() > 0){
+						$(ui.draggable).addClass('revert');
 						displayError(response.error);
-						validDrop = false;
-					} else if (response.success != ''){
-						$('#objectID').val(response.success);
-					}
+					} else {
+						var responseData = response.data;
+						$(ui.draggable).addClass('valid');
+						$('#objectID').val(responseData.parentID);
+						
+						//If object came from stock, then set cabinetObjectID to the ID retreived from the insert
+						//else, set it to its current value.
+						if (ui.draggable.hasClass('stockObj')){
+							var cabinetObjectID = $('#objectID').val();
+						} else {
+							var cabinetObjectID = ui.draggable.data('templateObjectId');
+							removeObject($(ui.draggable));
+						}
+						
+						//Adjust droppable table to fit dropped object
+						insertObject(droppableIndex, objectRUSize);
+						
+						//Create object where it was dropped.
+						$(targetDroppable).append(object
+							.removeClass('stockObj')
+							//Mark object as being racked in cabinet and landing in a valid dropZone
+							.addClass('rackObj')
+							.css({
+								'left':0,
+								'top':0,
+								'width':'auto'
+							})
+							.show()
+							.attr('data-template-object-id', cabinetObjectID)
+							.draggable({
+								delay: 200,
+								helper: 'clone',
+								zIndex: 1000,
+								cursorAt: {
+									top:10
+								},
+								start: function(){
+									var cabinetRUObject = $(this).parent();
+									var dragStartWidth = $(cabinetRUObject).width();
+									var dragStartHeight = $(cabinetRUObject).height();
+									$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
+								},
+								revert: function(){
+									return determineRevert($(this), true);
+								}
+							})
+						);
+						
+						$.each(responseData.childrenID, function(faceID, faceData){
+							$.each(faceData, function(depthID, depthData){
+								var encObj = $(object).children('[data-enc-obj-face="'+faceID+'"][data-enc-obj-depth="'+depthID+'"]');
+								console.log($(encObj).className);
+								$.each(depthData, function(encXID, encXData){
+									$.each(encXData, function(encYID, insertID){
+										console.log(faceID+'-'+depthID+'-'+encXID+'-'+encYID+' = '+insertID);
+										var encSlot = $(encObj).children('[data-enc-x="'+encXID+'"][data-enc-y="'+encYID+'"]');
+										$(encSlot).children('.insert').attr('data-template-object-id', insertID);
+									});
+								});
+							});
+						});
+						
+						makeRackObjectsClickable();
+						initializeInsertDroppable();
 					
-					// Update RUSize Minimum
-					dataSecondary['action'] = 'updateCabinetRUMin';
-					dataSecondary = JSON.stringify(dataSecondary);
-					$.ajax({
-						url: 'backend/process_cabinet.php',
-						method: 'POST',
-						data: {'data':dataSecondary},
-						success: function(resultSecondary){
-							var responseSecondary = JSON.parse(resultSecondary);
-							if (responseSecondary.active == 'inactive'){
-								window.location.replace("/");
-							} else if ($(responseSecondary.error).size() > 0){
-								displayError(responseSecondary.error);
-							} else if ($(responseSecondary.success.RUData).length) {
-								$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
-							}
-						},
-						async: false
-					});
+						// Update RUSize Minimum
+						dataSecondary['action'] = 'updateCabinetRUMin';
+						dataSecondary = JSON.stringify(dataSecondary);
+						$.ajax({
+							url: 'backend/process_cabinet.php',
+							method: 'POST',
+							data: {'data':dataSecondary},
+							success: function(resultSecondary){
+								var responseSecondary = JSON.parse(resultSecondary);
+								if (responseSecondary.active == 'inactive'){
+									window.location.replace("/");
+								} else if ($(responseSecondary.error).size() > 0){
+									displayError(responseSecondary.error);
+								} else if ($(responseSecondary.success.RUData).length) {
+									$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
+								}
+							},
+							async: false
+						});
+					}
 				},
 				async: false
 			});
 			
+			/*
 			if(!validDrop){
 				$(ui.draggable).addClass('revert');
 				return false;
@@ -676,8 +748,10 @@ function makeRackUnitsDroppable(target){
 					}
 				})
 			);
+			
 			makeRackObjectsClickable();
 			initializeInsertDroppable();
+			*/
 		}
     }).removeClass('newDroppable');
 }
@@ -1559,8 +1633,6 @@ $( document ).ready(function() {
 			category: combinedTemplateCategory,
 			parentObjID: objID
 		};
-		
-		console.log(data);
 		
 		data = JSON.stringify(data);
 		

@@ -21,8 +21,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		if($action == 'add') {
 			
-			
-			
 			$cabinetID = $data['cabinetID'];
 			$cabinetFace = $data['cabinetFace'];
 			$templateCombined = $data['templateCombined'];
@@ -104,6 +102,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			);
 			
 			$newObjID = $qls->SQL->insert_id();
+			$newObjChildIDArray = array();
 			
 			if(isset($childTemplateData)) {
 				foreach($childTemplateData as $childTemplate) {
@@ -145,11 +144,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 							$insertSlotY
 						)
 					);
+					
+					$newObjChildID = $qls->SQL->insert_id();
+					$newObjChildIDArray[$parent_face][$parent_depth][$insertSlotX][$insertSlotY] = $newObjChildID;
 				}
 			}
 			
 			//This tells the client what the new object_id is
 			$validate->returnData['success'] = $newObjID;
+			$validate->returnData['data']['parentID'] = $newObjID;
+			$validate->returnData['data']['childrenID'] = $newObjChildIDArray;
 			
 			// Log history
 			$cabinetName = $qls->App->envTreeArray[$cabinetID]['nameString'];
