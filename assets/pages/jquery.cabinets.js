@@ -659,13 +659,14 @@ function makeRackUnitsDroppable(target){
 						
 						$.each(responseData.childrenID, function(faceID, faceData){
 							$.each(faceData, function(depthID, depthData){
-								var encObj = $(object).children('[data-enc-obj-face="'+faceID+'"][data-enc-obj-depth="'+depthID+'"]');
-								console.log($(encObj).className);
+								var encObj = $(object).find('[data-enc-obj-face="'+faceID+'"][data-enc-obj-depth="'+depthID+'"]');
 								$.each(depthData, function(encXID, encXData){
 									$.each(encXData, function(encYID, insertID){
-										console.log(faceID+'-'+depthID+'-'+encXID+'-'+encYID+' = '+insertID);
-										var encSlot = $(encObj).children('[data-enc-x="'+encXID+'"][data-enc-y="'+encYID+'"]');
-										$(encSlot).children('.insert').attr('data-template-object-id', insertID);
+										var encSlot = $(encObj).find('[data-enc-x="'+encXID+'"][data-enc-y="'+encYID+'"]');
+										var insert = $(encSlot).children('.insert');
+										$(insert).attr('data-template-object-id', insertID);
+										$(insert).removeClass('stockObj');
+										$(insert).addClass('rackObj');
 									});
 								});
 							});
@@ -697,61 +698,6 @@ function makeRackUnitsDroppable(target){
 				},
 				async: false
 			});
-			
-			/*
-			if(!validDrop){
-				$(ui.draggable).addClass('revert');
-				return false;
-			} else {
-				$(ui.draggable).addClass('valid');
-			}
-			
-			//If object came from stock, then set cabinetObjectID to the ID retreived from the insert
-			//else, set it to its current value.
-			if (ui.draggable.hasClass('stockObj')){
-				var cabinetObjectID = $('#objectID').val();
-			} else {
-				var cabinetObjectID = ui.draggable.data('templateObjectId');
-				removeObject($(ui.draggable));
-			}
-			
-			//Adjust droppable table to fit dropped object
-			insertObject(droppableIndex, objectRUSize);
-			
-			//Create object where it was dropped.
-			$(this).append(object
-				.removeClass('stockObj')
-				//Mark object as being racked in cabinet and landing in a valid dropZone
-				.addClass('rackObj')
-				.css({
-					'left':0,
-					'top':0,
-					'width':'auto'
-				})
-				.show()
-				.attr('data-template-object-id', cabinetObjectID)
-				.draggable({
-					delay: 200,
-					helper: 'clone',
-					zIndex: 1000,
-					cursorAt: {
-						top:10
-					},
-					start: function(){
-						var cabinetRUObject = $(this).parent();
-						var dragStartWidth = $(cabinetRUObject).width();
-						var dragStartHeight = $(cabinetRUObject).height();
-						$(cabinetRUObject).children().eq(1).width(dragStartWidth).height(dragStartHeight);
-					},
-					revert: function(){
-						return determineRevert($(this), true);
-					}
-				})
-			);
-			
-			makeRackObjectsClickable();
-			initializeInsertDroppable();
-			*/
 		}
     }).removeClass('newDroppable');
 }
