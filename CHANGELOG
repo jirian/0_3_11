@@ -28,8 +28,10 @@ Contents
 
 **Changes introduced in 0.3.7
 
+[Feature]	Combined templates
+[Fix]		Resolved error during new user registration
 [Fix]		Resolved error loading empty floorplan
-[Enhance]	Sort available templates by category name and then template name.
+[Enhance]	Sort available templates by category name and then template name
 
 **Changes introduced in 0.3.6
 

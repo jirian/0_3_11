@@ -666,7 +666,22 @@ function makeRackUnitsDroppable(target){
 										var insert = $(encSlot).children('.insert');
 										$(insert).attr('data-template-object-id', insertID);
 										$(insert).removeClass('stockObj');
-										$(insert).addClass('rackObj');
+										$(insert).addClass('rackObj insertDraggable');
+										$(insert).draggable({
+											delay: 200,
+											helper: 'clone',
+											classes: {'ui-draggable-dragging': 'obj-border'},
+											cursorAt: {top:10},
+											start: function(event, ui){
+												var dragStartWidth = $(this).width();
+												var dragStartHeight = $(this).height();
+												$(ui.helper).width(dragStartWidth).height(dragStartHeight);
+											},
+											revert: function(){
+												return determineRevert($(this), false);
+											},
+											zIndex: 1000
+										});
 									});
 								});
 							});
