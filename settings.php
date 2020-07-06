@@ -82,19 +82,17 @@ $qls->Security->check_auth_page('user.php');
 			</div>
 			<div class="m-b-30">
 				<h4 class="m-t-0 header-title"><b>Connection Style</b></h4>
-				<div class="checkbox">
-					<div class="radio">
-						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioAngled" value="0" <?php echo ($qls->user_info['connectionStyle'] == 0) ? 'checked' : ''; ?>>
-						<label for="connectionRadioAngled">Angled</label>
-					</div>
-					<div class="radio">
-						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioStraight" value="1" <?php echo ($qls->user_info['connectionStyle'] == 1) ? 'checked' : ''; ?>>
-						<label for="connectionRadioStraight">Straight</label>
-					</div>
-					<div class="radio">
-						<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioCurved" value="2" <?php echo ($qls->user_info['connectionStyle'] == 2) ? 'checked' : ''; ?>>
-						<label for="connectionRadioCurved">Curved</label>
-					</div>
+				<div class="radio">
+					<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioAngled" value="0" <?php echo ($qls->user_info['connectionStyle'] == 0) ? 'checked' : ''; ?>>
+					<label for="connectionRadioAngled">Angled</label>
+				</div>
+				<div class="radio">
+					<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioStraight" value="1" <?php echo ($qls->user_info['connectionStyle'] == 1) ? 'checked' : ''; ?>>
+					<label for="connectionRadioStraight">Straight</label>
+				</div>
+				<div class="radio">
+					<input class="radioConnectionStyle" type="radio" name="connectionRadio" id="connectionRadioCurved" value="2" <?php echo ($qls->user_info['connectionStyle'] == 2) ? 'checked' : ''; ?>>
+					<label for="connectionRadioCurved">Curved</label>
 				</div>
 			</div>
 			<div class="m-b-30">
@@ -107,15 +105,24 @@ $qls->Security->check_auth_page('user.php');
 					</label>
 				</div>
 				<?php } ?>
-				<div class="checkbox">
-					<div class="radio">
-						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioAdjacent" value="0" <?php echo ($qls->user_info['pathOrientation'] == 0) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
-						<label for="pathOrientationRadioAdjacent">Cable Adjacent</label>
-					</div>
-					<div class="radio">
-						<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioInline" value="1" <?php echo ($qls->user_info['pathOrientation'] == 1) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
-						<label for="pathOrientationRadioInline">Cable Inline</label>
-					</div>
+				<div class="radio">
+					<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioAdjacent" value="0" <?php echo ($qls->user_info['pathOrientation'] == 0) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
+					<label for="pathOrientationRadioAdjacent">Cable Adjacent</label>
+				</div>
+				<div class="radio">
+					<input class="radioPathOrientation" type="radio" name="pathOrientationRadio" id="pathOrientationRadioInline" value="1" <?php echo ($qls->user_info['pathOrientation'] == 1) ? 'checked' : ''; ?> <?php echo ($qls->org_info['global_setting_path_orientation'] == 1 and $qls->user_info['group_id'] != 3) ? 'disabled' : ''; ?>>
+					<label for="pathOrientationRadioInline">Cable Inline</label>
+				</div>
+			</div>
+			<div class="m-b-30">
+				<h4 class="m-t-0 header-title"><b>Tree Size</b></h4>
+				<div class="radio">
+					<input class="radioTreeSize" type="radio" name="treeSizeRadio" id="treeSizeRadioScrollable" value="0" <?php echo ($qls->user_info['treeSize'] == 0) ? 'checked' : ''; ?>>
+					<label for="treeSizeRadioScrollable">Scrollable</label>
+				</div>
+				<div class="radio">
+					<input class="radioTreeSize" type="radio" name="treeSizeRadio" id="treeSizeRadioExtended" value="1" <?php echo ($qls->user_info['treeSize'] == 1) ? 'checked' : ''; ?>>
+					<label for="treeSizeRadioExtended">Extended</label>
 				</div>
 			</div>
 		</div>

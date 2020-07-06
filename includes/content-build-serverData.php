@@ -23,7 +23,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 		echo '<input id="nodeID" type="hidden" value="'.$nodeID.'">';
 	}
 	
-	echo '<input id="connectionStyle" type="hidden" value="'.$qls->user_info['connectionStyle'].'">';
 }
 
 ?>

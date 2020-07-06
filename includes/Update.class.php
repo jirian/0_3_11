@@ -108,6 +108,9 @@ var $qls;
 		// Create combined templates table
 		$this->qls->SQL->query("CREATE TABLE `{$this->qls->config['sql_prefix']}app_combined_templates` (`id` int(11) NOT NULL AUTO_INCREMENT, `templateName` varchar(255) NOT NULL, `template_id` int(11) DEFAULT NULL, `templateCategory_id` int(11) DEFAULT NULL, `childTemplateData` text, PRIMARY KEY(`id`))");
 		
+		// Add "treeSize" column to "user" table
+		$this->qls->SQL->alter('users', 'add', 'treeSize', 'tinyint(4)', false, 0);
+		
 	}
 	
 	/**

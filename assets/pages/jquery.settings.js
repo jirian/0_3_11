@@ -137,4 +137,26 @@ $( document ).ready(function() {
 		});
 	});
 	
+	// Tree Size
+	$('.radioTreeSize').on('change', function(){
+		var value = $('.radioTreeSize:checked').val();
+		
+		var data = {
+			property: 'treeSize',
+			value: value
+		};
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_settings.php', {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success);
+			}
+		});
+	});
+	
 });

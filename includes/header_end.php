@@ -18,7 +18,11 @@
 <body>
 
 <?php require 'topbar.php'; ?>
+
+<!-- User Settings -->
+<input id="connectionStyle" type="hidden" value="<?php echo $qls->user_info['connectionStyle']; ?>">
 	
+<!-- Error Messages -->
 <div class="row">
     <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
 		<div class="row">

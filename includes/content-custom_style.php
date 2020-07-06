@@ -27,7 +27,7 @@ function color_inverse($color){
 ?>
 
 .navTree {
-	max-height: 200px;
+	<?php echo ($qls->user_info['treeSize']) ? '' : 'max-height: 200px;'; ?>
 	overflow: auto;
 }
 
@@ -230,6 +230,30 @@ function color_inverse($color){
 
 .port.LC.endpointTrunked {
 	background-image: url("/assets/images/portIcons/LC-gray.png");
+}
+
+.port.MPO-12 {
+	background-image: url("/assets/images/portIcons/MPO-black.png");
+}
+
+.port.MPO-12.populated {
+	background-image: url("/assets/images/portIcons/MPO-red.png") !important;
+}
+
+.port.MPO-12.endpointTrunked {
+	background-image: url("/assets/images/portIcons/MPO-gray.png");
+}
+
+.port.MPO-24 {
+	background-image: url("/assets/images/portIcons/MPO-black.png");
+}
+
+.port.MPO-24.populated {
+	background-image: url("/assets/images/portIcons/MPO-red.png") !important;
+}
+
+.port.MPO-24.endpointTrunked {
+	background-image: url("/assets/images/portIcons/MPO-gray.png");
 }
 
 .port.SC {

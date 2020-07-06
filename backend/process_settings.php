@@ -79,6 +79,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					array_push($validate->returnData['error'], $errMsg);
 				}
 				break;
+				
+			case 'treeSize':
+				$treeSize = $data['value'];
+				
+				$qls->SQL->update('users', array('treeSize' => $treeSize), array('id' => array('=', $qls->user_info['id'])));
+				
+				$validate->returnData['success'] = 'Tree Size has been updated.';
+				break;
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -86,7 +94,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 function validate($data, &$validate, &$qls){
 	
-	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle', 'pathOrientation', 'globalPathOrientation');
+	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle', 'pathOrientation', 'globalPathOrientation', 'treeSize');
 	
 	if($validate->validateInArray($data['property'], $propertyArray, 'property')) {
 		
@@ -118,6 +126,13 @@ function validate($data, &$validate, &$qls){
 			$pathOrientationArray = array(0, 1);
 			
 			if(!in_array($data['value'], $pathOrientationArray)) {
+				$errMsg = 'Invalid value.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		} else if($data['property'] == 'treeSize'){
+			$treeSizeArray = array(0, 1);
+			
+			if(!in_array($data['value'], $treeSizeArray)) {
 				$errMsg = 'Invalid value.';
 				array_push($validate->returnData['error'], $errMsg);
 			}
