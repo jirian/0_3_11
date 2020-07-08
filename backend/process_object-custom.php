@@ -277,7 +277,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				// Store and manipulate template partition data
 				$template = $qls->App->templateArray[$templateID];
 				$templatePartitionData = json_decode($template['templatePartitionData'], true);
-				updatePartitionData($templatePartitionData[$templateFace], $depth, $portOrientationID, 'portOrientation');
+				updatePartitionData($templatePartitionData[$templateFace], $templateDepth, $portOrientationID, 'portOrientation');
 				$templatePartitionDataJSON = json_encode($templatePartitionData);
 				
 				// Update template partition data
@@ -294,7 +294,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				// Store and manipulate template partition data
 				$template = $qls->App->templateArray[$templateID];
 				$templatePartitionData = json_decode($template['templatePartitionData'], true);
-				updatePartitionData($templatePartitionData[$templateFace], $depth, ucfirst($encTolerance), 'encTolerance');
+				updatePartitionData($templatePartitionData[$templateFace], $templateDepth, ucfirst($encTolerance), 'encTolerance');
 				$templatePartitionDataJSON = json_encode($templatePartitionData);
 				
 				// Update template partition data
@@ -341,8 +341,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	return;
 }
 
-function updatePartitionData(&$partitionData, $depth, $value, $attribute, $counter=0){
+function updatePartitionData(&$partitionData, $depth, $value, $attribute, &$counter=0){
+	
 	foreach($partitionData as &$element) {
+		error_log('Debug: '.$depth.'-'.$counter.'-'.$element['partitionType']);
 		if($counter == $depth) {
 			$element[$attribute] = $value;
 			return;

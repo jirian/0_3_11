@@ -56,6 +56,7 @@ CREATE TABLE `{database_prefix}users`(
 	`scrollLock` tinyint(4) DEFAULT '1' NOT NULL,
 	`connectionStyle` SMALLINT(6) DEFAULT '0' NOT NULL,
 	`pathOrientation` tinyint(4) DEFAULT '0' NOT NULL,
+	`treeSize` tinyint(4) DEFAULT '0' NOT NULL,
 	PRIMARY KEY(`id`),
 	INDEX `users_idx` (`username`),
 	INDEX `users_idx2` (`code`),
