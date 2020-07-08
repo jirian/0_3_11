@@ -147,8 +147,8 @@ var $qls;
 	    return $this->current_layer->insert($table, $columns, $values);
 	}
 
-	function alter($table, $action, $column, $data_type = false, $null = false) {
-	    return $this->current_layer->alter($table, $action, $column, $data_type, $null);
+	function alter($table, $action, $column, $data_type = false, $null = false, $default_value = false) {
+	    return $this->current_layer->alter($table, $action, $column, $data_type, $null, $default_value);
 	}
 	
 	function create_db($org_id) {

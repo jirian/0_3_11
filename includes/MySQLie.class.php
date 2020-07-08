@@ -728,19 +728,20 @@ var $qls;
 				if ($null) {
                     // Append column information to query
                     $query .= " {$data_type} NULL";
-				}
-				else {
+				} else {
                     // Append...
                     $query .= " {$data_type} NOT NULL";
 				}
-			}
-			else {
+				if($default_value !== false) {
+					$query .= " DEFAULT '".$default_value."'";
+				}
+			} else {
 			    die(SQL_ALTER_QUERY_FAILED);
 			}
 		} else if(strtolower($action) == 'alter') {
-			$query .= " DEFAULT '".$default_value."'";
+			$query .= " SET DEFAULT '".$default_value."'";
 		}
-
+		error_log('Debug: '.$query);
         $this->update_queries();
         $this->last_query[] = $query;
         mysqli_query($this->connection, $query) or die(mysqli_errno($this->connection) . ': ' . mysqli_error($this->connection));

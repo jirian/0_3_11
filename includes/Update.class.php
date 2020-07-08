@@ -91,6 +91,7 @@ var $qls;
 		} else {
 			return true;
 		}
+		
 		$this->currentVersion = $this->getVersion();
 		return false;
 	}
@@ -110,6 +111,11 @@ var $qls;
 		
 		// Add "treeSize" column to "user" table
 		$this->qls->SQL->alter('users', 'add', 'treeSize', 'tinyint(4)', false, 0);
+		
+		// Correct previously added user table fields
+		$this->qls->SQL->alter('users', 'alter', 'scrollLock', false, false, 1);
+		$this->qls->SQL->alter('users', 'alter', 'connectionStyle', false, false, 0);
+		$this->qls->SQL->alter('users', 'alter', 'pathOrientation', false, false, 0);
 		
 	}
 	

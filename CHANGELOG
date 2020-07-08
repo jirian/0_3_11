@@ -29,6 +29,7 @@ Contents
 **Changes introduced in 0.3.7
 
 [Feature]	Combined templates
+[Fix]		Resolved database error during user invitation registration
 [Fix]		Resolved issue with editing template port orientation and enclosure tolerance
 [Fix]		Resolved error during new user registration
 [Fix]		Resolved error loading empty floorplan
