@@ -1734,7 +1734,7 @@ $( document ).ready(function() {
 		
 		var templateID = $('#selectedObjectID').val();
 		var templateSide = $(document).data('availableTemplateSide');
-		var templateObj = $('#availableContainer'+templateSide).find('[data-template-id="'+templateID+'"]');
+		var templateObj = $('#availableContainer'+templateSide).find('.stockObj[data-template-id="'+templateID+'"]');
 		var templateName = $(templateObj).data('templateName');
 		var templateType = $(templateObj).data('templateType');
 		var templateFrontImage = $(templateObj).data('templateFrontImage');

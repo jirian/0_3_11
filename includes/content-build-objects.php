@@ -21,12 +21,12 @@ for ($x=0; $x<$faceCount; $x++){
 	echo '<div id="'.$availableContainerID.'"'.$display.'>';
 	
 	foreach ($categoryArray as $categoryID => $category) {
-		$categoryName = $category['name'];
+		if(isset($templateCategoryArray[$categoryID])) {
+			$categoryName = $category['name'];
 
-		echo '<div class="categoryContainerEntire">';
-			echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$categoryName.'"><i class="fa fa-caret-right"></i>'.$categoryName.'</h4>';
-			echo '<div class="category'.$categoryName.'Container categoryContainer" style="display:none;">';
-			if(isset($templateCategoryArray[$categoryID])) {
+			echo '<div class="categoryContainerEntire">';
+				echo '<h4 class="categoryTitle cursorPointer" data-category-name="'.$categoryName.'"><i class="fa fa-caret-right"></i>'.$categoryName.'</h4>';
+				echo '<div class="category'.$categoryName.'Container categoryContainer" style="display:none;">';
 				foreach ($templateCategoryArray[$categoryID] as $templateName => $templateDetails) {
 					
 					$templateType = $templateDetails['type'];
@@ -113,9 +113,9 @@ for ($x=0; $x<$faceCount; $x++){
 						echo '</div>';
 					}
 				}
-			}
+				echo '</div>';
 			echo '</div>';
-		echo '</div>';
+		}
 	}
 	echo '</div>';
 }

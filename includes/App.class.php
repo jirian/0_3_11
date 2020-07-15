@@ -1058,6 +1058,7 @@ var $qls;
 		foreach($elementArray as $elementItem) {
 			$elementPortType = $elementItem['portType'];
 			$elementMediaCategory = $elementItem['mediaCategory'];
+			$elementMediaCategoryType = $elementItem['mediaCategoryType'];
 			$elementPartitionFunction = $elementItem['partitionFunction'];
 			
 			if($cablePortType) {
@@ -1081,22 +1082,20 @@ var $qls;
 			} else if($objectCompatibility) {
 				
 				$objectMediaCategory = $objectCompatibility['mediaCategory'];
+				$objectMediaCategoryType = $objectCompatibility['mediaCategoryType'];
 				$objectPortType = $objectCompatibility['portType'];
 				$objectPartitionFunction = $objectCompatibility['partitionFunction'];
 				
 				// Media category must be compatible (Copper, Singlmode, Multimode)
 				if($elementMediaCategory == $objectMediaCategory) {
-					
 					$isCompatible = true;
 					
 				// Port type must be compatible
-				} else if($elementPortType == $objectPortType and ($elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint')) {
-					
+				} else if($elementMediaCategoryType == $objectMediaCategoryType and ($elementPartitionFunction == 'Endpoint' or $objectPartitionFunction == 'Endpoint')) {
 					$isCompatible = true;
 					
 				// If either port type is SFP, then they are compatible
 				} else if($elementPortType == 4 or $objectPortType == 4) {
-					
 					$isCompatible = true;
 					
 				// Failing all of that, not compatible
@@ -2460,9 +2459,12 @@ var $qls;
 		// Peer
 		if($templateType == 'Insert') {
 			$parentID = $obj['parent_id'];
-			$this->objectArray[$parentID];
+			$parent = $this->objectArray[$parentID];
+			$parentName = $parent['name'];
+			$objectString = $parentName;
+		} else {
+			$objectString = $objName;
 		}
-		$objectString = $objName;
 		
 		//Locations
 		$locationString = '';

@@ -29,10 +29,13 @@ Contents
 **Changes introduced in 0.3.7
 
 [Feature]	Combined templates
+[Fix]		Resolved inaccurate trunk path
+[Fix]		Resolved issue determining port compatibility when making connections
 [Fix]		Resolved database error during user invitation registration
 [Fix]		Resolved issue with editing template port orientation and enclosure tolerance
 [Fix]		Resolved error during new user registration
 [Fix]		Resolved error loading empty floorplan
+[Enhance]	Prevent categories for which no templates are assigned from displaying in available templates box
 [Enhance]	Sort available templates by category name and then template name
 
 **Changes introduced in 0.3.6
