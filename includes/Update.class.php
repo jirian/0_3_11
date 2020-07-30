@@ -88,12 +88,47 @@ var $qls;
 			$this->update_035_to_036();
 		} else if($this->currentVersion == '0.3.6') {
 			$this->update_036_to_037();
+		} else if($this->currentVersion == '0.3.7') {
+			$this->update_037_to_038();
 		} else {
 			return true;
 		}
 		
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.7 to 0.3.8
+	 * @return Boolean
+	 */
+	function update_037_to_038() {
+		$incrementalVersion = '0.3.8';
+		
+		// Set app version to 0.3.8
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Add cable connector types
+		$connectorTypeColumns = array('value', 'name', 'defaultOption');
+		$connectorTypeValuesArray = array(
+			array(5, 'MPO-12', 0),
+			array(6, 'MPO-24', 0)
+		);
+		foreach($connectorTypeValuesArray as $connectorTypeValues) {
+			$this->qls->SQL->insert('shared_cable_connectorType', $connectorTypeColumns, $connectorTypeValues);
+		}
+		
+		// Add object port type
+		$objectPortTypeColumns = array('value', 'name', 'category_type_id', 'defaultOption');
+		$objectPortTypeValuesArray = array(
+			array(5, 'QSFP', 0),
+			array(6, 'MPO-12', 0),
+			array(7, 'MPO-24', 0)
+		);
+		foreach($objectPortTypeValuesArray as $objectPortTypeValues) {
+			$this->qls->SQL->insert('shared_object_portType', $objectPortTypeColumns, $objectPortTypeValues);
+		}
+		
 	}
 	
 	/**
