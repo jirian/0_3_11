@@ -280,6 +280,18 @@ function color_inverse($color){
 	background-image: url("/assets/images/portIcons/SFP-gray.png");
 }
 
+.port.QSFP {
+	background-image: url("/assets/images/portIcons/SFP-black.png");
+}
+
+.port.QSFP.populated {
+	background-image: url("/assets/images/portIcons/SFP-red.png") !important;
+}
+
+.port.QSFP.endpointTrunked {
+	background-image: url("/assets/images/portIcons/SFP-gray.png");
+}
+
 .port {
 	height: 8px;
 	width: 8px;

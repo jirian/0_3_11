@@ -26,6 +26,9 @@ Contents
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+**Changes introduced in 0.3.8
+[Enhance]	Added MPO-12, MPO-24, and QSFP port types
+
 **Changes introduced in 0.3.7
 
 [Feature]	Combined templates

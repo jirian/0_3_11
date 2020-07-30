@@ -681,7 +681,9 @@ var $install_error = array();
 				"1, 'RJ45', 1",
 				"2, 'LC', 0",
 				"3, 'SC', 0",
-				"4, 'Label', 0"
+				"4, 'Label', 0",
+				"5, 'MPO-12', 0",
+				"6, 'MPO-24', 0"
 			);
 			
 			// Add cable connector type
@@ -806,7 +808,10 @@ var $install_error = array();
 				"1, 'RJ45', 1, 1",
 				"2, 'LC', 2, 0",
 				"3, 'SC', 2, 0",
-				"4, 'SFP', 4, 0"
+				"4, 'SFP', 4, 0",
+				"5, 'QSFP', 4, 0",
+				"6, 'MPO-12', 2, 0",
+				"7, 'MPO-24', 2, 0"
 			);
 			
 			// Add object port type
