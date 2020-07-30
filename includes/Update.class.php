@@ -121,9 +121,9 @@ var $qls;
 		// Add object port type
 		$objectPortTypeColumns = array('value', 'name', 'category_type_id', 'defaultOption');
 		$objectPortTypeValuesArray = array(
-			array(5, 'QSFP', 0),
-			array(6, 'MPO-12', 0),
-			array(7, 'MPO-24', 0)
+			array(5, 'QSFP', 4, 0),
+			array(6, 'MPO-12', 2, 0),
+			array(7, 'MPO-24', 2, 0)
 		);
 		foreach($objectPortTypeValuesArray as $objectPortTypeValues) {
 			$this->qls->SQL->insert('shared_object_portType', $objectPortTypeColumns, $objectPortTypeValues);
