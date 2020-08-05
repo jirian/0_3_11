@@ -159,4 +159,26 @@ $( document ).ready(function() {
 		});
 	});
 	
+	// Tree Sort
+	$('.radioTreeSort').on('change', function(){
+		var value = $('.radioTreeSort:checked').val();
+		
+		var data = {
+			property: 'treeSort',
+			value: value
+		};
+		data = JSON.stringify(data);
+		
+		$.post('backend/process_settings.php', {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success);
+			}
+		});
+	});
+	
 });

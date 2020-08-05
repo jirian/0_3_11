@@ -90,12 +90,26 @@ var $qls;
 			$this->update_036_to_037();
 		} else if($this->currentVersion == '0.3.7') {
 			$this->update_037_to_038();
+		} else if($this->currentVersion == '0.3.8') {
+			$this->update_038_to_039();
 		} else {
 			return true;
 		}
 		
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.8 to 0.3.9
+	 * @return Boolean
+	 */
+	function update_038_to_039() {
+		$incrementalVersion = '0.3.9';
+		
+		// Set app version to 0.3.9
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
 	}
 	
 	/**

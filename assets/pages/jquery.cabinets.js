@@ -1920,6 +1920,9 @@ $( document ).ready(function() {
 							};
 							params.data = JSON.stringify(data);
 							return params;
+						},
+						success: function(response, newValue) {
+							$('#ajaxTree').jstree("refresh");
 						}
 					});
 					
@@ -2055,11 +2058,49 @@ $( document ).ready(function() {
 		return false;
 	})
 	.bind('move_node.jstree', function(event, nodeData){
+		var nodeID = nodeData.node.id;
+		var ordOrig = parseInt(nodeData.node.original.order);
+		var posOld = parseInt(nodeData.old_position);
+		var posNew = parseInt(nodeData.position);
+		var posDiff = posNew - posOld;
+		var ordNew = ordOrig + posDiff;
+		console.log('Name: '+nodeData.node.text);
+		console.log('ordOrig: '+ordOrig);
+		console.log('ordNew: '+ordNew);
+		console.log('Diff: '+posDiff);
+		
+		$.each(nodeData.old_instance._model.data, function(id, node){
+			var nodeObj = $('#ajaxTree').jstree(true).get_node(id);
+			if(typeof nodeObj.original !== 'undefined' && id != nodeID){
+				var nodeOrd = parseInt(nodeObj.original.order);
+				var nodeName = nodeObj.text;
+				console.log(nodeName+' - '+nodeOrd);
+				if(posDiff > 0) {
+					console.log('Moved down');
+					// Node was moved down in order
+					if(nodeOrd <= ordNew) {
+						nodeObj.original.order = nodeOrd - 1;
+						console.log('Node moved up');
+					}
+				} else if(posDiff < 0) {
+					console.log('Moved up');
+					// Node was moved up in order
+					if(nodeOrd >= ordNew) {
+						nodeObj.original.order = nodeOrd + 1;
+						console.log('Node moved down');
+					}
+				}
+			}
+			//console.log($('#ajaxTree').jstree(true).get_node(id));
+		});
+		
+		nodeData.node.original.order = ordNew;
+		
 		var data = {
 			operation: 'move_node',
-			id: nodeData.node.id,
+			id: nodeID,
 			parent: nodeData.node.parent
-			};
+		};
 		data = JSON.stringify(data);
 		
 		$.post('/backend/process_environment-tree.php', {data:data}, function(response){
@@ -2072,6 +2113,13 @@ $( document ).ready(function() {
 		});
 	})
 	.jstree({
+		'sort' : function(a, b){
+			a1 = this.get_node(a);
+			b1 = this.get_node(b);
+			aOrd = parseInt(a1.original.order);
+			bOrd = parseInt(b1.original.order);
+			return aOrd > bOrd ? 1 : -1;
+		},
 		'core' : {
 			'check_callback' : function(operation, node, node_parent, node_position, more){
 				//alert("Position: "+node_position+" Operation: "+operation+" Type: "+node.type+" Parent: "+node_parent.type+" Node name: "+node.text+" Node ID: "+node.id);
@@ -2120,7 +2168,7 @@ $( document ).ready(function() {
 				return state;
 			}
 		},
-		"types" : {
+		'types' : {
 			'default' : {
 				'icon' : 'fa fa-building'
 			},
@@ -2137,10 +2185,10 @@ $( document ).ready(function() {
 				'icon' : 'fa fa-map-o'
 			}
         },
-		"contextmenu":{
-			"items": customMenu
+		'contextmenu':{
+			'items': customMenu
 		},
-		"plugins" : [ "contextmenu", "dnd", "search", "state", "types", "wholerow" ]
+		'plugins' : [ 'contextmenu', 'dnd', 'search', 'state', 'types', 'wholerow', 'sort' ]
     });
 	
 });

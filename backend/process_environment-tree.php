@@ -154,18 +154,121 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 } else {
 	$qls->Security->check_auth_page('user.php');
 	$treeArray = array();
-
-	$treeData = $qls->SQL->select('*',
-		    'app_env_tree',
-			false,
-			array('name', 'ASC')
-		);
-	while ($row = $qls->SQL->fetch_assoc($treeData)){
-		$treeArray[] = array(
-			'id' => $row['id'],
-			'text' => $row ['name'],
-			'parent' => $row['parent'],
-			'type' => $row['type']);
+	$treeSort = $qls->user_info['treeSort'];
+	
+	if($treeSort == 0) {
+		// Alphabetical
+		$counter = 0;
+		foreach($qls->App->envTreeArray as $treeNode){
+			$treeArray[] = array(
+				'id' => $treeNode['id'],
+				'order' => $counter,
+				'text' => $treeNode['name'],
+				'parent' => $treeNode['parent'],
+				'type' => $treeNode['type']
+			);
+			$counter++;
+		}
+	} else if($treeSort == 1) {
+		// Adjacent
+		$counter = 0;
+		$visitedNodeArray = array();
+		foreach($qls->App->envTreeArray as $treeNode){
+			$nodeID = $treeNode['id'];
+			$nodeName = $treeNode['name'];
+			$nodeParent = $treeNode['parent'];
+			$nodeType = $treeNode['type'];
+			
+			// Skip if node has already been added as adjacent node
+			if(!in_array($nodeID, $visitedNodeArray)) {
+				
+				// Does node have adjacency?
+				if(isset($qls->App->cabinetAdjacencyArray[$nodeID])) {
+					
+					// Node is left cabinet, so add it first
+					if($qls->App->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'] == $nodeID) {
+						
+						$treeArray[] = array(
+							'id' => $nodeID,
+							'order' => $counter,
+							'text' => $nodeName,
+							'parent' => $nodeParent,
+							'type' => $nodeType
+						);
+						
+						$counter++;
+						
+						$adjNodeID = $qls->App->cabinetAdjacencyArray[$nodeID]['right_cabinet_id'];
+						$adjNode = $qls->App->envTreeArray[$adjNodeID];
+						$adjNodeName = $adjNode['name'];
+						$adjNodeParent = $adjNode['parent'];
+						$adjNodeType = $adjNode['type'];
+						
+						$treeArray[] = array(
+							'id' => $adjNodeID,
+							'order' => $counter,
+							'text' => $adjNodeName,
+							'parent' => $adjNodeParent,
+							'type' => $adjNodeType
+						);
+						
+						array_push($visitedNodeArray, $adjNodeID);
+						
+					// Node is right cabinet, so add it second
+					} else {
+						
+						$adjNodeID = $qls->App->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'];
+						$adjNode = $qls->App->envTreeArray[$adjNodeID];
+						$adjNodeName = $adjNode['name'];
+						$adjNodeParent = $adjNode['parent'];
+						$adjNodeType = $adjNode['type'];
+						
+						$treeArray[] = array(
+							'id' => $adjNodeID,
+							'order' => $counter,
+							'text' => $adjNodeName,
+							'parent' => $adjNodeParent,
+							'type' => $adjNodeType
+						);
+						
+						$counter++;
+						
+						$treeArray[] = array(
+							'id' => $nodeID,
+							'order' => $counter,
+							'text' => $nodeName,
+							'parent' => $nodeParent,
+							'type' => $nodeType
+						);
+						
+						array_push($visitedNodeArray, $adjNodeID);
+					}
+				} else {
+				
+					$treeArray[] = array(
+						'id' => $nodeID,
+						'order' => $counter,
+						'text' => $nodeName,
+						'parent' => $nodeParent,
+						'type' => $nodeType
+					);
+				}
+				$counter++;
+			}
+		}
+		error_log(json_encode($visitedNodeArray));
+	} else if($treeSort == 2) {
+		// User Defined
+	} else {
+		foreach($qls->App->envTreeArray as $treeNode){
+			$treeArray[] = array(
+				'id' => $treeNode['id'],
+				'order' => $treeNode['id'],
+				'text' => $treeNode['name'],
+				'parent' => $treeNode['parent'],
+				'type' => $treeNode['type']
+			);
+		}
 	}
 
 	header ('Content-Type: application/json');
