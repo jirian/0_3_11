@@ -2054,6 +2054,7 @@ $( document ).ready(function() {
 					$('#cabinetHeader').html(nodeData.node.text);
 				}
 			}
+			$('#ajaxTree').jstree("refresh");
 		});
 		return false;
 	})
@@ -2064,42 +2065,14 @@ $( document ).ready(function() {
 		var posNew = parseInt(nodeData.position);
 		var posDiff = posNew - posOld;
 		var ordNew = ordOrig + posDiff;
-		console.log('Name: '+nodeData.node.text);
-		console.log('ordOrig: '+ordOrig);
-		console.log('ordNew: '+ordNew);
-		console.log('Diff: '+posDiff);
-		
-		$.each(nodeData.old_instance._model.data, function(id, node){
-			var nodeObj = $('#ajaxTree').jstree(true).get_node(id);
-			if(typeof nodeObj.original !== 'undefined' && id != nodeID){
-				var nodeOrd = parseInt(nodeObj.original.order);
-				var nodeName = nodeObj.text;
-				console.log(nodeName+' - '+nodeOrd);
-				if(posDiff > 0) {
-					console.log('Moved down');
-					// Node was moved down in order
-					if(nodeOrd <= ordNew) {
-						nodeObj.original.order = nodeOrd - 1;
-						console.log('Node moved up');
-					}
-				} else if(posDiff < 0) {
-					console.log('Moved up');
-					// Node was moved up in order
-					if(nodeOrd >= ordNew) {
-						nodeObj.original.order = nodeOrd + 1;
-						console.log('Node moved down');
-					}
-				}
-			}
-			//console.log($('#ajaxTree').jstree(true).get_node(id));
-		});
 		
 		nodeData.node.original.order = ordNew;
 		
 		var data = {
 			operation: 'move_node',
 			id: nodeID,
-			parent: nodeData.node.parent
+			parent: nodeData.node.parent,
+			order: ordNew
 		};
 		data = JSON.stringify(data);
 		
@@ -2110,6 +2083,7 @@ $( document ).ready(function() {
 			} else if ($(responseJSON.error).size() > 0){
 				displayError(responseJSON.error);
 			}
+			$('#ajaxTree').jstree("refresh");
 		});
 	})
 	.jstree({

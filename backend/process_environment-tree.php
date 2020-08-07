@@ -65,7 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 			$nodeID = $data['id'];
 			$parentID = $data['parent'];
-			
+			$newOrder = $data['order'];
 			$node = $qls->App->envTreeArray[$nodeID];
 			
 			$permitted = true;
@@ -88,7 +88,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			
 			if($permitted) {
-				$qls->SQL->update('app_env_tree', array('parent'=>$parentID), 'id='.$nodeID);
+				
+				$origOrder = $node['order'];
+				$ordDiff = $newOrder - $origOrder;
+				
+				foreach($qls->App->envTreeArray as $envTreeNode) {
+					$envTreeNodeID = $envTreeNode['id'];
+					$envTreeNodeOrder = $envTreeNode['order'];
+					
+					if($envTreeNodeID != $nodeID) {
+						if($ordDiff < 0) {
+							if($envTreeNodeOrder >= $newOrder and $envTreeNodeOrder <= $origOrder) {
+								$newEnvTreeNodeOrder = $envTreeNodeOrder + 1;
+								$qls->SQL->update('app_env_tree', array('order'=>$newEnvTreeNodeOrder), array('id'=>array('=', $envTreeNodeID)));
+							}
+						} else if($ordDiff > 0) {
+							if($envTreeNodeOrder <= $newOrder and $envTreeNodeOrder >= $origOrder) {
+								$newEnvTreeNodeOrder = $envTreeNodeOrder - 1;
+								$qls->SQL->update('app_env_tree', array('order'=>$newEnvTreeNodeOrder), array('id'=>array('=', $envTreeNodeID)));
+							}
+						}
+					}
+				}
+				
+				$qls->SQL->update('app_env_tree', array('parent'=>$parentID, 'order'=>$newOrder), 'id='.$nodeID);
 				
 				// Log history
 				$nodeType = $qls->App->envTreeArray[$nodeID]['type'];
@@ -256,10 +279,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$counter++;
 			}
 		}
-		error_log(json_encode($visitedNodeArray));
 	} else if($treeSort == 2) {
 		// User Defined
+		foreach($qls->App->envTreeArray as $treeNode){
+			$treeArray[] = array(
+				'id' => $treeNode['id'],
+				'order' => $treeNode['order'],
+				'text' => $treeNode['name'],
+				'parent' => $treeNode['parent'],
+				'type' => $treeNode['type']
+			);
+		}
 	} else {
+		// Default
 		foreach($qls->App->envTreeArray as $treeNode){
 			$treeArray[] = array(
 				'id' => $treeNode['id'],
@@ -342,9 +374,11 @@ function validate(&$data, &$validate, &$qls){
 			
 			$parentID = $data['parent'];
 			$nodeID = $data['id'];
+			$nodeOrder = $data['order'];
 			
 			$validate->validateTreeID($parentID);
 			$validate->validateTreeID($nodeID);
+			$validate->validateID($nodeOrder, 'node order');
 			
 		} else if ($operation == 'delete_node') {
 			
