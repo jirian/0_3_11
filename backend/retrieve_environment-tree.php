@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			$objectFace = $_GET['objectFace'];
 			$objectDepth = $_GET['objectDepth'];
 			
-			$treeLocations = buildTreeLocation($qls);
+			$treeLocations = $qls->App->buildTreeLocation($qls);
 			$treeArray = array_merge($treeArray, $treeLocations);
 			
 			foreach($treeLocations as $location) {
@@ -36,6 +36,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 					}
 				}
 			}
+		} else if($scope == 'cabinet') {
+			
+			$treeArray = $qls->App->buildTreeLocation();
+			
 		} else if($scope == 'portScan') {
 			$connectorID = $_GET['connectorID'];
 			

@@ -50,7 +50,8 @@
 			var html = '<div class="alert alert-danger" role="alert">';
 			html += '<strong>Oops!</strong>  '+value;
 			html += '</div>';
-			$('#alertMsg').append(html);
+			$('#alertMsg').append(html).hide();
+			$('#alertMsg').slideDown();
 		});
 		$("html, body").animate({ scrollTop: 0 }, "slow");
 	}
@@ -60,7 +61,8 @@
 		var html = '<div class="alert alert-success" role="alert">';
 		html += '<strong>Success!</strong>  '+successMsg;
 		html += '</div>';
-		$('#alertMsg').append(html);
+		$('#alertMsg').append(html).hide();
+		$('#alertMsg').slideDown();
 	}
 	
 	function displaySuccessElement(successMsg, element){
@@ -68,7 +70,8 @@
 		var html = '<div class="alert alert-success" role="alert">';
 		html += '<strong>Success!</strong>  '+successMsg;
 		html += '</div>';
-		$(element).append(html);
+		$(element).append(html).hide();
+		$(element).slideDown();
 	}
 	
 	function displayErrorElement(errMsg, element){
@@ -77,7 +80,8 @@
 			var html = '<div class="alert alert-danger" role="alert">';
 			html += '<strong>Oops!</strong>  '+value;
 			html += '</div>';
-			$(element).append(html);
+			$(element).append(html).hide();
+			$(element).slideDown();
 		});
 		if($(element).closest('.modal').length) {
 			$(element).closest('.modal').animate({ scrollTop: 0 }, "slow");

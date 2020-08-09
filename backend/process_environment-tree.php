@@ -23,12 +23,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		if ($operation == 'create_node') {
 			
+			$order = count($qls->App->envTreeArray) + 1;
 			$parentID = $data['parent'];
 			$nodeType = $data['type'];
 			$nodeName = $data['name'];
 			
-			$attrArray = array('parent', 'name', 'type');
-			$valueArray = array($parentID, $nodeName, $nodeType);
+			$attrArray = array('order', 'parent', 'name', 'type');
+			$valueArray = array($order, $parentID, $nodeName, $nodeType);
 			
 			// Add column and value if floorplan object
 			if($nodeType == 'floorplan') {
@@ -92,6 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$origOrder = $node['order'];
 				$ordDiff = $newOrder - $origOrder;
 				
+				// Set the user defined order
 				foreach($qls->App->envTreeArray as $envTreeNode) {
 					$envTreeNodeID = $envTreeNode['id'];
 					$envTreeNodeOrder = $envTreeNode['order'];
@@ -163,6 +165,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			if (!count($validate->returnData['error'])){
 				deleteNodes($nodeID, $qls);
 				
+				// Reorder nodes
+				$counter = 1;
+				$query = $qls->SQL->select('*', 'app_env_tree', false, array('order', 'ASC'));
+				while($row = $qls->SQL->fetch_assoc($query)) {
+					$rowID = $row['id'];
+					$rowOrder = $row['order'];
+					if ($rowOrder != $counter) {
+						$qls->SQL->update('app_env_tree', array('order'=>$counter), array('id'=>array('=', $rowID)));
+					}
+					$counter++;
+				}
+				
 				// Log history
 				$nodeType = $qls->App->envTreeArray[$nodeID]['type'];
 				$nodeName = $qls->App->envTreeArray[$nodeID]['nameString'];
@@ -174,137 +188,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 	}
 	echo json_encode($validate->returnData);
-} else {
-	$qls->Security->check_auth_page('user.php');
-	$treeArray = array();
-	$treeSort = $qls->user_info['treeSort'];
-	
-	if($treeSort == 0) {
-		// Alphabetical
-		$counter = 0;
-		foreach($qls->App->envTreeArray as $treeNode){
-			$treeArray[] = array(
-				'id' => $treeNode['id'],
-				'order' => $counter,
-				'text' => $treeNode['name'],
-				'parent' => $treeNode['parent'],
-				'type' => $treeNode['type']
-			);
-			$counter++;
-		}
-	} else if($treeSort == 1) {
-		// Adjacent
-		$counter = 0;
-		$visitedNodeArray = array();
-		foreach($qls->App->envTreeArray as $treeNode){
-			$nodeID = $treeNode['id'];
-			$nodeName = $treeNode['name'];
-			$nodeParent = $treeNode['parent'];
-			$nodeType = $treeNode['type'];
-			
-			// Skip if node has already been added as adjacent node
-			if(!in_array($nodeID, $visitedNodeArray)) {
-				
-				// Does node have adjacency?
-				if(isset($qls->App->cabinetAdjacencyArray[$nodeID])) {
-					
-					// Node is left cabinet, so add it first
-					if($qls->App->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'] == $nodeID) {
-						
-						$treeArray[] = array(
-							'id' => $nodeID,
-							'order' => $counter,
-							'text' => $nodeName,
-							'parent' => $nodeParent,
-							'type' => $nodeType
-						);
-						
-						$counter++;
-						
-						$adjNodeID = $qls->App->cabinetAdjacencyArray[$nodeID]['right_cabinet_id'];
-						$adjNode = $qls->App->envTreeArray[$adjNodeID];
-						$adjNodeName = $adjNode['name'];
-						$adjNodeParent = $adjNode['parent'];
-						$adjNodeType = $adjNode['type'];
-						
-						$treeArray[] = array(
-							'id' => $adjNodeID,
-							'order' => $counter,
-							'text' => $adjNodeName,
-							'parent' => $adjNodeParent,
-							'type' => $adjNodeType
-						);
-						
-						array_push($visitedNodeArray, $adjNodeID);
-						
-					// Node is right cabinet, so add it second
-					} else {
-						
-						$adjNodeID = $qls->App->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'];
-						$adjNode = $qls->App->envTreeArray[$adjNodeID];
-						$adjNodeName = $adjNode['name'];
-						$adjNodeParent = $adjNode['parent'];
-						$adjNodeType = $adjNode['type'];
-						
-						$treeArray[] = array(
-							'id' => $adjNodeID,
-							'order' => $counter,
-							'text' => $adjNodeName,
-							'parent' => $adjNodeParent,
-							'type' => $adjNodeType
-						);
-						
-						$counter++;
-						
-						$treeArray[] = array(
-							'id' => $nodeID,
-							'order' => $counter,
-							'text' => $nodeName,
-							'parent' => $nodeParent,
-							'type' => $nodeType
-						);
-						
-						array_push($visitedNodeArray, $adjNodeID);
-					}
-				} else {
-				
-					$treeArray[] = array(
-						'id' => $nodeID,
-						'order' => $counter,
-						'text' => $nodeName,
-						'parent' => $nodeParent,
-						'type' => $nodeType
-					);
-				}
-				$counter++;
-			}
-		}
-	} else if($treeSort == 2) {
-		// User Defined
-		foreach($qls->App->envTreeArray as $treeNode){
-			$treeArray[] = array(
-				'id' => $treeNode['id'],
-				'order' => $treeNode['order'],
-				'text' => $treeNode['name'],
-				'parent' => $treeNode['parent'],
-				'type' => $treeNode['type']
-			);
-		}
-	} else {
-		// Default
-		foreach($qls->App->envTreeArray as $treeNode){
-			$treeArray[] = array(
-				'id' => $treeNode['id'],
-				'order' => $treeNode['id'],
-				'text' => $treeNode['name'],
-				'parent' => $treeNode['parent'],
-				'type' => $treeNode['type']
-			);
-		}
-	}
-
-	header ('Content-Type: application/json');
-	echo json_encode($treeArray);
 }
 
 function validate(&$data, &$validate, &$qls){
@@ -378,7 +261,12 @@ function validate(&$data, &$validate, &$qls){
 			
 			$validate->validateTreeID($parentID);
 			$validate->validateTreeID($nodeID);
-			$validate->validateID($nodeOrder, 'node order');
+			if ($validate->validateID($nodeOrder, 'node order')) {
+				if ($nodeOrder > count($qls->App->envTreeArray)) {
+					$errMsg = 'Invalid node order.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+			}
 			
 		} else if ($operation == 'delete_node') {
 			

@@ -2065,6 +2065,7 @@ $( document ).ready(function() {
 		var posNew = parseInt(nodeData.position);
 		var posDiff = posNew - posOld;
 		var ordNew = ordOrig + posDiff;
+		console.log('ordNew: '+ordNew);
 		
 		nodeData.node.original.order = ordNew;
 		
@@ -2119,7 +2120,8 @@ $( document ).ready(function() {
 			},
 			'data' : {
 				'url' : function (node) {
-					return 'backend/process_environment-tree.php';
+					//return 'backend/process_environment-tree.php';
+					return 'backend/retrieve_environment-tree.php?scope=cabinet';
 				}
 			},
 			'strings' : {

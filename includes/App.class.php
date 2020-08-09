@@ -932,25 +932,116 @@ var $qls;
 	
 	function buildTreeLocation(){
 		$treeArray = array();
+		$treeSort = $this->qls->user_info['treeSort'];
+		$counter = 0;
+		$visitedNodeArray = array();
 		
 		foreach($this->envTreeArray as $envNode) {
 			
-			if($envNode['type'] == 'location' || $envNode['type'] == 'pod') {
+			$nodeID = $envNode['id'];
+			$nodeOrder = $envNode['order'];
+			$nodeName = $envNode['name'];
+			$nodeParent = $envNode['parent'];
+			$nodeType = $envNode['type'];
+			
+			if($nodeType == 'location' || $nodeType == 'pod') {
 				$elementType = 0;
-			} else if($envNode['type'] == 'cabinet' || $envNode['type'] == 'floorplan') {
+			} else if($nodeType == 'cabinet' || $nodeType == 'floorplan') {
 				$elementType = 1;
 			}
 			
-			$value = array($elementType, $envNode['id'], 0, 0, 0);
+			$value = array($elementType, $nodeID, 0, 0, 0);
 			$value = implode('-', $value);
 			
-			array_push($treeArray, array(
-				'id' => $envNode['id'],
-				'text' => $envNode['name'],
-				'parent' => $envNode['parent'],
-				'type' => $envNode['type'],
+			$nodeEntry = array(
+				'id' => $nodeID,
+				'text' => $nodeName,
+				'parent' => $nodeParent,
+				'type' => $nodeType,
 				'data' => array('globalID' => $value)
-			));
+			);
+			
+			if($treeSort == 0) {
+				
+				// Alphabetical
+				$nodeEntry['order'] = $counter;
+				$treeArray[] = $nodeEntry;
+				$counter++;
+				
+			} else if($treeSort == 1) {
+				
+				// Adjacent
+				// Skip if node has already been added as adjacent node
+				if(!in_array($nodeID, $visitedNodeArray)) {
+					
+					// Does node have adjacency?
+					if(isset($this->cabinetAdjacencyArray[$nodeID])) {
+						
+						$nodeOrientation = ($this->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'] == $nodeID) ? 'left' : 'right';
+						$adjNodeID = ($nodeOrientation == 'left') ? $this->cabinetAdjacencyArray[$nodeID]['right_cabinet_id'] : $this->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'];
+						$adjNode = $this->envTreeArray[$adjNodeID];
+						$adjNodeName = $adjNode['name'];
+						$adjNodeParent = $adjNode['parent'];
+						$adjNodeType = $adjNode['type'];
+						
+						if($adjNodeType == 'location' || $adjNodeType == 'pod') {
+							$adjElementType = 0;
+						} else if($adjNodeType == 'cabinet' || $adjNodeType == 'floorplan') {
+							$adjElementType = 1;
+						}
+						
+						$adjValue = array($adjElementType, $adjNodeID, 0, 0, 0);
+						$adjValue = implode('-', $adjValue);
+						
+						$adjNodeEntry = array(
+							'id' => $adjNodeID,
+							'text' => $adjNode,
+							'parent' => $adjNodeParent,
+							'type' => $adjNodeType,
+							'data' => array('globalID' => $adjValue)
+						);
+						
+						// Node is left cabinet, so add it first
+						if($nodeOrientation == 'left') {
+							
+							$nodeEntry['order'] = $counter;
+							$treeArray[] = $nodeEntry;
+							
+							$counter++;
+							
+							$adjNodeEntry['order'] = $counter;
+							$treeArray[] = $adjNodeEntry;
+							
+							array_push($visitedNodeArray, $adjNodeID);
+							
+						// Node is right cabinet, so add it second
+						} else {
+							
+							$adjNodeEntry['order'] = $counter;
+							$treeArray[] = $adjNodeEntry;
+							
+							$counter++;
+							
+							$nodeEntry['order'] = $counter;
+							$treeArray[] = $nodeEntry;
+							
+							array_push($visitedNodeArray, $adjNodeID);
+						}
+					} else {
+					
+						$nodeEntry['order'] = $counter;
+						$treeArray[] = $nodeEntry;
+					}
+					$counter++;
+				}
+				
+			} else if($treeSort == 2) {
+				
+				// User Defined
+				$nodeEntry['order'] = $nodeOrder;
+				$treeArray[] = $nodeEntry;
+				
+			}
 		}
 		
 		return $treeArray;
