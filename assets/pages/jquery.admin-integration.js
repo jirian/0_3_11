@@ -95,6 +95,7 @@ $( document ).ready(function() {
 				} else {
 					displaySuccess(responseJSON.success);
 				}
+				$('#fileDataImport').prop('jFiler').reset();
 				$('#importModal').modal('hide');
             },
             error: function(el){

@@ -1314,7 +1314,7 @@ $( document ).ready(function() {
 			},
 			'data' : {
 				'url' : function (node) {
-					return 'backend/process_environment-tree.php';
+					return 'backend/retrieve_environment-tree.php?scope=cabinet';
 				}
 			}
 		},

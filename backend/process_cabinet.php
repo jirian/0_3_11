@@ -628,9 +628,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$qls->SQL->delete('app_object_peer', array('id' => array('=', $objectPeerEntryID)));
 			}
 			
-			
-			
-			
 			$validate->returnData['success']['trunkFlatPath'] = 'None';
 			$validate->returnData['success']['peerID'] = $peerID;
 			$validate->returnData['success']['peerFace'] = $peerFace;

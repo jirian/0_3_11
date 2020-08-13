@@ -207,8 +207,21 @@ var $qls;
 		}
 		
 		$this->cabinetAdjacencyArray = array();
+		$this->cabinetAdjacencyArrayFixed = array();
 		$query = $this->qls->SQL->select('*', 'app_cabinet_adj');
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$leftCabID = $row['left_cabinet_id'];
+			$rightCabID = $row['right_cabinet_id'];
+			
+			if(!isset($this->cabinetAdjacencyArrayFixed[$leftCabID])) {
+				$this->cabinetAdjacencyArrayFixed[$leftCabID] = array('left' => 0, 'right' => 0);
+			}
+			if(!isset($this->cabinetAdjacencyArrayFixed[$rightCabID])) {
+				$this->cabinetAdjacencyArrayFixed[$rightCabID] = array('left' => 0, 'right' => 0);
+			}
+			$this->cabinetAdjacencyArrayFixed[$leftCabID]['right'] = $rightCabID;
+			$this->cabinetAdjacencyArrayFixed[$rightCabID]['left'] = $leftCabID;
+			
 			$this->cabinetAdjacencyArray[$row['left_cabinet_id']] = $row;
 			$this->cabinetAdjacencyArray[$row['right_cabinet_id']] = $row;
 		}
@@ -933,13 +946,19 @@ var $qls;
 	function buildTreeLocation(){
 		$treeArray = array();
 		$treeSort = $this->qls->user_info['treeSort'];
-		$counter = 0;
+		$treeSortAdj = $this->qls->user_info['treeSortAdj'];
+		$counter = 1;
 		$visitedNodeArray = array();
 		
-		foreach($this->envTreeArray as $envNode) {
+		if($treeSort == 0) {
+			$query = $this->qls->SQL->select('*', 'app_env_tree', false, array('name', 'ASC'));
+		} else if($treeSort == 1) {
+			$query = $this->qls->SQL->select('*', 'app_env_tree', false, array('order', 'ASC'));
+		}
+		
+		while($envNode = $this->qls->SQL->fetch_assoc($query)) {
 			
 			$nodeID = $envNode['id'];
-			$nodeOrder = $envNode['order'];
 			$nodeName = $envNode['name'];
 			$nodeParent = $envNode['parent'];
 			$nodeType = $envNode['type'];
@@ -955,95 +974,66 @@ var $qls;
 			
 			$nodeEntry = array(
 				'id' => $nodeID,
+				'order' => $counter,
 				'text' => $nodeName,
 				'parent' => $nodeParent,
 				'type' => $nodeType,
 				'data' => array('globalID' => $value)
 			);
 			
-			if($treeSort == 0) {
-				
-				// Alphabetical
-				$nodeEntry['order'] = $counter;
-				$treeArray[] = $nodeEntry;
-				$counter++;
-				
-			} else if($treeSort == 1) {
-				
-				// Adjacent
-				// Skip if node has already been added as adjacent node
-				if(!in_array($nodeID, $visitedNodeArray)) {
-					
-					// Does node have adjacency?
-					if(isset($this->cabinetAdjacencyArray[$nodeID])) {
+			if($treeSortAdj == 1) {
+				// Does node have adjacency?
+				if(isset($this->cabinetAdjacencyArrayFixed[$nodeID]) and !in_array($nodeID, $visitedNodeArray)) {
+					$adjNodeID = $nodeID;
+					// Find the left most cabinet
+					while($this->cabinetAdjacencyArrayFixed[$adjNodeID]['left'] != 0) {
+						$adjNodeID = $this->cabinetAdjacencyArrayFixed[$adjNodeID]['left'];
+					}
+					// Add adjacent cabinet series in order
+					while($adjNodeID != 0) {
+						$node = $this->envTreeArray[$adjNodeID];
+						$nodeName = $node['name'];
+						$nodeParent = $node['parent'];
+						$nodeType = $node['type'];
 						
-						$nodeOrientation = ($this->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'] == $nodeID) ? 'left' : 'right';
-						$adjNodeID = ($nodeOrientation == 'left') ? $this->cabinetAdjacencyArray[$nodeID]['right_cabinet_id'] : $this->cabinetAdjacencyArray[$nodeID]['left_cabinet_id'];
-						$adjNode = $this->envTreeArray[$adjNodeID];
-						$adjNodeName = $adjNode['name'];
-						$adjNodeParent = $adjNode['parent'];
-						$adjNodeType = $adjNode['type'];
-						
-						if($adjNodeType == 'location' || $adjNodeType == 'pod') {
-							$adjElementType = 0;
-						} else if($adjNodeType == 'cabinet' || $adjNodeType == 'floorplan') {
-							$adjElementType = 1;
+						if($nodeType == 'location' || $nodeType == 'pod') {
+							$elementType = 0;
+						} else if($nodeType == 'cabinet' || $nodeType == 'floorplan') {
+							$elementType = 1;
 						}
 						
-						$adjValue = array($adjElementType, $adjNodeID, 0, 0, 0);
-						$adjValue = implode('-', $adjValue);
+						$value = array($elementType, $adjNodeID, 0, 0, 0);
+						$value = implode('-', $value);
 						
-						$adjNodeEntry = array(
+						$nodeEntry = array(
 							'id' => $adjNodeID,
-							'text' => $adjNode,
-							'parent' => $adjNodeParent,
-							'type' => $adjNodeType,
-							'data' => array('globalID' => $adjValue)
+							'order' => $counter,
+							'text' => $nodeName,
+							'parent' => $nodeParent,
+							'type' => $nodeType,
+							'data' => array('globalID' => $value)
 						);
 						
-						// Node is left cabinet, so add it first
-						if($nodeOrientation == 'left') {
-							
-							$nodeEntry['order'] = $counter;
-							$treeArray[] = $nodeEntry;
-							
-							$counter++;
-							
-							$adjNodeEntry['order'] = $counter;
-							$treeArray[] = $adjNodeEntry;
-							
-							array_push($visitedNodeArray, $adjNodeID);
-							
-						// Node is right cabinet, so add it second
-						} else {
-							
-							$adjNodeEntry['order'] = $counter;
-							$treeArray[] = $adjNodeEntry;
-							
-							$counter++;
-							
-							$nodeEntry['order'] = $counter;
-							$treeArray[] = $nodeEntry;
-							
-							array_push($visitedNodeArray, $adjNodeID);
-						}
-					} else {
-					
-						$nodeEntry['order'] = $counter;
+						// Add node
 						$treeArray[] = $nodeEntry;
+						$counter++;
+						array_push($visitedNodeArray, $adjNodeID);
+						$adjNodeID = $this->cabinetAdjacencyArrayFixed[$adjNodeID]['right'];
 					}
-					$counter++;
+				} else {
+					if(!in_array($nodeID, $visitedNodeArray)) {
+						// Add node
+						$treeArray[] = $nodeEntry;
+						$counter++;
+						array_push($visitedNodeArray, $nodeID);
+					}
 				}
-				
-			} else if($treeSort == 2) {
-				
-				// User Defined
-				$nodeEntry['order'] = $nodeOrder;
+			} else {
+				// Add node
 				$treeArray[] = $nodeEntry;
-				
+				$counter++;
 			}
 		}
-		
 		return $treeArray;
 	}
 	

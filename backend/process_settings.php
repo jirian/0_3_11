@@ -95,6 +95,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 				$validate->returnData['success'] = 'Tree Sort has been updated.';
 				break;
+				
+			case 'treeSortAdj':
+				$treeSort = $data['value'] ? 1 : 0;
+				
+				$qls->SQL->update('users', array('treeSortAdj' => $treeSort), array('id' => array('=', $qls->user_info['id'])));
+				
+				$validate->returnData['success'] = 'Tree Sort Adjacency has been updated.';
+				break;
 		}
 	}
 	echo json_encode($validate->returnData);
@@ -102,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 function validate($data, &$validate, &$qls){
 	
-	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle', 'pathOrientation', 'globalPathOrientation', 'treeSize', 'treeSort');
+	$propertyArray = array('timezone', 'scanMethod', 'scrollLock', 'connectionStyle', 'pathOrientation', 'globalPathOrientation', 'treeSize', 'treeSort', 'treeSortAdj');
 	
 	if($validate->validateInArray($data['property'], $propertyArray, 'property')) {
 		
@@ -145,9 +153,16 @@ function validate($data, &$validate, &$qls){
 				array_push($validate->returnData['error'], $errMsg);
 			}
 		} else if($data['property'] == 'treeSort'){
-			$treeSortArray = array(0, 1, 2);
+			$treeSortArray = array(0, 1);
 			
 			if(!in_array($data['value'], $treeSortArray)) {
+				$errMsg = 'Invalid value.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		} else if($data['property'] == 'treeSortAdj'){
+			$treeSortAdjArray = array(0, 1);
+			
+			if(!in_array($data['value'], $treeSortAdjArray)) {
 				$errMsg = 'Invalid value.';
 				array_push($validate->returnData['error'], $errMsg);
 			}

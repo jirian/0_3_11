@@ -183,6 +183,7 @@ function createCabinets(&$qls){
 
 	$csvHeader = array(
 		'Name',
+		'Order',
 		'Type',
 		'RU Size',
 		'RU Orientation',
@@ -195,6 +196,7 @@ function createCabinets(&$qls){
 
 	$csvArray = array();
 	foreach($qls->App->envTreeArray as $location) {
+		$order = $location['order'];
 		$size = $location['type'] == 'cabinet' ? $location['size'] : '';
 		if($location['type'] == 'cabinet') {
 			$size = $location['size'];
@@ -210,6 +212,7 @@ function createCabinets(&$qls){
 		$name = $location['nameString'];
 		$line = array(
 			$name,
+			$order,
 			$location['type'],
 			$size,
 			$orientation,

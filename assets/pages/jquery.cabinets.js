@@ -2065,7 +2065,12 @@ $( document ).ready(function() {
 		var posNew = parseInt(nodeData.position);
 		var posDiff = posNew - posOld;
 		var ordNew = ordOrig + posDiff;
+		console.log('ordOrig: '+ordOrig);
+		console.log('posOld: '+posOld);
+		console.log('posNew: '+posNew);
+		console.log('posDiff: '+posDiff);
 		console.log('ordNew: '+ordNew);
+		console.log('-----------------');
 		
 		nodeData.node.original.order = ordNew;
 		

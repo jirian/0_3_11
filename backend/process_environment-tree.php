@@ -259,12 +259,28 @@ function validate(&$data, &$validate, &$qls){
 			$nodeID = $data['id'];
 			$nodeOrder = $data['order'];
 			
-			$validate->validateTreeID($parentID);
-			$validate->validateTreeID($nodeID);
-			if ($validate->validateID($nodeOrder, 'node order')) {
-				if ($nodeOrder > count($qls->App->envTreeArray)) {
+			$validParentID = $validate->validateTreeID($parentID);
+			$validNodeID = $validate->validateTreeID($nodeID);
+			$validNodeOrder = $validate->validateID($nodeOrder, 'node order');
+			
+			// Node Order
+			if ($validNodeOrder) {
+				if ($nodeOrder > count($qls->App->envTreeArray) or $nodeOrder < 1) {
 					$errMsg = 'Invalid node order.';
 					array_push($validate->returnData['error'], $errMsg);
+				}
+			}
+			
+			// Same name
+			if($validParentID and $validNodeID) {
+				$nodeName = $qls->App->envTreeArray[$nodeID]['name'];
+				foreach($qls->App->envTreeArray as $envTreeNode) {
+					if($envTreeNode['parent'] == $parentID and $envTreeNode['id'] != $nodeID) {
+						if(strtolower($nodeName) == strtolower($envTreeNode['name'])) {
+							$errMsg = 'Duplicate node name.';
+							array_push($validate->returnData['error'], $errMsg);
+						}
+					}
 				}
 			}
 			

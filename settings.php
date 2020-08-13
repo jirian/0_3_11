@@ -127,16 +127,18 @@ $qls->Security->check_auth_page('user.php');
 			</div>
 			<div class="m-b-30">
 				<h4 class="m-t-0 header-title"><b>Tree Sort</b></h4>
+				<div class="checkbox">
+					<input id="checkboxTreeSortAdj" type="checkbox" <?php echo ($qls->user_info['treeSortAdj'] == 1) ? 'checked' : ''; ?>>
+					<label for="checkboxTreeSortAdj">
+						Account for cabinet adjacencies
+					</label>
+				</div>
 				<div class="radio">
 					<input class="radioTreeSort" type="radio" name="treeSortRadio" id="treeSortRadioAlphabetical" value="0" <?php echo ($qls->user_info['treeSort'] == 0) ? 'checked' : ''; ?>>
 					<label for="treeSortRadioAlphabetical">Alphabetical</label>
 				</div>
 				<div class="radio">
-					<input class="radioTreeSort" type="radio" name="treeSortRadio" id="treeSortRadioAdjacent" value="1" <?php echo ($qls->user_info['treeSort'] == 1) ? 'checked' : ''; ?>>
-					<label for="treeSortRadioAdjacent">Adjacent</label>
-				</div>
-				<div class="radio">
-					<input class="radioTreeSort" type="radio" name="treeSortRadio" id="treeSortRadioUserDefined" value="2" <?php echo ($qls->user_info['treeSort'] == 2) ? 'checked' : ''; ?>>
+					<input class="radioTreeSort" type="radio" name="treeSortRadio" id="treeSortRadioUserDefined" value="1" <?php echo ($qls->user_info['treeSort'] == 1) ? 'checked' : ''; ?>>
 					<label for="treeSortRadioUserDefined">User Defined</label>
 				</div>
 			</div>

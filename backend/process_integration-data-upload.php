@@ -392,12 +392,13 @@ function buildExistingCabinetArray($envTreeArray, $envAdjArray){
 
 function buildImportedCabinetArray($csvLine, $csvLineNumber, $csvFilename, &$importedCabinetArray, $existingCabinetArray, &$validate){
 	$cabinetName = $csvLine[0];
-	$cabinetType = $csvLine[1];
-	$cabinetSize = $csvLine[2];
-	$cabinetOrientation = $csvLine[3];
-	$cabinetLeft = $csvLine[4];
-	$cabinetRight = $csvLine[5];
-	$floorplanImg = $csvLine[6];
+	$cabinetOrder = $csvLine[1];
+	$cabinetType = $csvLine[2];
+	$cabinetSize = $csvLine[3];
+	$cabinetOrientation = $csvLine[4];
+	$cabinetLeft = $csvLine[5];
+	$cabinetRight = $csvLine[6];
+	$floorplanImg = $csvLine[7];
 	$importedCabinetNameHash = md5(strtolower($cabinetName));
 	$cabinetParent = explode('.', $cabinetName);
 	$name = array_pop($cabinetParent);
@@ -417,6 +418,7 @@ function buildImportedCabinetArray($csvLine, $csvLineNumber, $csvFilename, &$imp
 	
 	$importedCabinetArray[$importedCabinetNameHash]['fileName'] = $csvFilename;
 	$importedCabinetArray[$importedCabinetNameHash]['line'] = $csvLineNumber;
+	$importedCabinetArray[$importedCabinetNameHash]['order'] = $cabinetOrder;
 	$importedCabinetArray[$importedCabinetNameHash]['nameString'] = $cabinetName;
 	$importedCabinetArray[$importedCabinetNameHash]['name'] = $name;
 	$importedCabinetArray[$importedCabinetNameHash]['nameHash'] = $importedCabinetNameHash;
@@ -982,6 +984,8 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 // Validation
 function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, $occupancyArray, &$validate){
 	
+	$orderArray = array();
+	$cabinetCount = count($importedCabinetArray);
 	$arrayOriginalHashes = array();
 	$arrayImportedHashes = array();
 	$allowedLocationTypes = array(
@@ -994,6 +998,7 @@ function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, 
 	foreach($importedCabinetArray as $cabinet) {
 		// Validation Cabinet
 		$cabinetName = $cabinet['nameString'];
+		$cabinetOrder = $cabinet['order'];
 		$cabinetNameHash = $cabinet['nameHash'];
 		$cabinetType = $cabinet['type'];
 		$cabinetSize = $cabinet['size'];
@@ -1011,6 +1016,21 @@ function validateImportedCabinets($importedCabinetArray, $existingCabinetArray, 
 		$cabinetNameArray = explode('.', $cabinetName);
 		foreach($cabinetNameArray as $cabinetNameFragment) {
 			$validate->validateNameText($cabinetNameFragment, 'Name '.$cabinetNameFragment.' on line '.$csvLineNumber.' of '.$csvFilename);
+		}
+		
+		// Validate Cabinet Order
+		if($validate->validateID($cabinetOrder, 'cabinet order on line '.$csvLineNumber.' of '.$csvFilename)) {
+			if($cabinetOrder > $cabinetCount or $cabinetOrder < 1) {
+				$errMsg = 'Invalid cabinet order on line '.$csvLineNumber.' of "'.$csvFilename.'".  Cannot be less than 1 or greater than total number of cabinets.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+			
+			if(in_array($cabinetOrder, $orderArray)) {
+				$errMsg = 'Duplicate cabinet order on line '.$csvLineNumber.' of '.$csvFilename;
+				array_push($validate->returnData['error'], $errMsg);
+			} else {
+				array_push($orderArray, $cabinetOrder);
+			}
 		}
 		
 		// Validate Location Type
@@ -1961,6 +1981,7 @@ function insertCabinetAdds(&$qls, &$importedCabinetArray, $existingCabinetArray)
 		$nameHash = $cabinet['nameHash'];
 		
 		$name = $cabinet['name'];
+		$order = $cabinet['order'];
 		$insert['insertName'];
 		$parent = '#';
 		$type = $cabinet['type'];
@@ -1975,7 +1996,7 @@ function insertCabinetAdds(&$qls, &$importedCabinetArray, $existingCabinetArray)
 			$orientation = 0;
 		}
 		
-		$qls->SQL->insert('app_env_tree', array('name', 'parent', 'type', 'size', 'ru_orientation', 'floorplan_img'), array($name, $parent, $type, $size, $orientation, $floorplanImg));
+		$qls->SQL->insert('app_env_tree', array('name', 'order', 'parent', 'type', 'size', 'ru_orientation', 'floorplan_img'), array($name, $order, $parent, $type, $size, $orientation, $floorplanImg));
 		$cabinet['id'] = $qls->SQL->insert_id();
 	}
 	unset($cabinet);
