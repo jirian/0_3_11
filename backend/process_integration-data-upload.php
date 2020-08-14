@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	if (!count($validate->returnData['error'])){
 		
 		// Minimum Compatible Version
-		$minCompatibleVersion = '0.3.8';
+		$minCompatibleVersion = '0.3.9';
 		
 		$uploader = new Uploader();
 		$filename = md5(time().$_SERVER['REMOTE_ADDR']);

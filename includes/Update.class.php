@@ -110,6 +110,45 @@ var $qls;
 		// Set app version to 0.3.9
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
+		// Add "treeSort" column to "users" table
+		$this->qls->SQL->alter('users', 'add', 'treeSort', 'tinyint(4)', false, 0);
+		
+		// Add "treeSortAdj" column to "users" table
+		$this->qls->SQL->alter('users', 'add', 'treeSortAdj', 'tinyint(4)', false, 0);
+		
+		// Add "order" column to "app_env_tree" table
+		$this->qls->SQL->alter('app_env_tree', 'add', 'order', 'int(11)', false, 0);
+		
+		$counter = 1;
+		$neighborNodeNameArray = array();
+		$query = $this->qls->SQL->select('*', 'app_env_tree', false, array('name', 'ASC'));
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			$rowID = $row['id'];
+			$parentID = $row['parent'];
+			$nodeName = $row['name'];
+			if(!isset($neighborNodeNameArray[$parentID])) {
+				$neighborNodeNameArray[$parentID] = array();
+			}
+			
+			// Add order
+			$this->qls->SQL->update('app_env_tree', array('order' => $counter), array('id' => array('=', $rowID)));
+			$counter++;
+
+			// Resolve duplicate neighbor names
+			$duplicateFound = false;
+			foreach($neighborNodeNameArray[$parentID] as $neighborNodeName) {
+				if(strtolower($neighborNodeName) == strtolower($nodeName)) {
+					$uniqueStr = $this->generateUniqueNameValue();
+					$newName = $nodeName.'_'.$uniqueStr;
+					$this->qls->SQL->update('app_env_tree', array('name' => $newName), array('id' => array('=', $rowID)));
+					$duplicateFound = true;
+					break;
+				}
+			}
+			
+			array_push($neighborNodeNameArray[$parentID], $nodeName);
+		}
+		
 	}
 	
 	/**

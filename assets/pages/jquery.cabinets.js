@@ -337,7 +337,7 @@ function initializeEditable(){
 	//Object Name
 	$('#inline-objName').editable({
 		display: function(value){
-			$(this).text(value);
+			return $(this).text(value);
 		},
 		pk: 1,
 		mode: 'inline',

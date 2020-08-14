@@ -991,8 +991,21 @@ var $qls;
 					}
 					// Add adjacent cabinet series in order
 					while($adjNodeID != 0) {
+						
+						$left = $this->cabinetAdjacencyArrayFixed[$adjNodeID]['left'];
+						$right = $this->cabinetAdjacencyArrayFixed[$adjNodeID]['right'];
+						if($left == 0 and $right != 0) {
+							$adjIndicator = '&downarrow;';
+						} else if($left != 0 and $right != 0) {
+							$adjIndicator = '&updownarrow;';
+						} else if($left != 0 and $right == 0) {
+							$adjIndicator = '&uparrow;';
+						} else {
+							$adjIndicator = '';
+						}
+						
 						$node = $this->envTreeArray[$adjNodeID];
-						$nodeName = $node['name'];
+						$nodeName = $adjIndicator.$node['name'];
 						$nodeParent = $node['parent'];
 						$nodeType = $node['type'];
 						
