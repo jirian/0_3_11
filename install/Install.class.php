@@ -37,7 +37,7 @@ class Install {
  * @var string $system_version - The version of the system
  */
 var $system_version = '3.1.11';
-var $app_version = '0.3.8';
+var $app_version = '0.3.9';
 
 /**
  * @var string $install_error - Contains the installation error
@@ -497,17 +497,17 @@ var $install_error = array();
 			}
 			
 			$env_tree = array(
-				"'Location', '#', 'location', 42, NULL, 0",
-				"'Sub-Location', '1', 'location', 42, NULL, 0",
-				"'Pod', '2', 'pod', 42, NULL, 0",
-				"'Cab1', '3', 'cabinet', 42, NULL, 0",
-				"'Cab2', '3', 'cabinet', 42, NULL, 0",
-				"'Cab3', '3', 'cabinet', 42, NULL, 0"
+				"'Location', '#', 'location', 42, NULL, 0, 1",
+				"'Sub-Location', '1', 'location', 42, NULL, 0, 1",
+				"'Pod', '2', 'pod', 42, NULL, 0, 1",
+				"'Cab1', '3', 'cabinet', 42, NULL, 0, 1",
+				"'Cab2', '3', 'cabinet', 42, NULL, 0, 1",
+				"'Cab3', '3', 'cabinet', 42, NULL, 0, 1"
 			);
 			
 			// Add environment tree data
 			foreach($env_tree as $env_tree_item) {
-				if (!$this->test->query("INSERT INTO `{$database_prefix}app_env_tree` (`name`, `parent`, `type`, `size`, `floorplan_img`, `ru_orientation`) VALUES({$env_tree_item})")) {
+				if (!$this->test->query("INSERT INTO `{$database_prefix}app_env_tree` (`name`, `parent`, `type`, `size`, `floorplan_img`, `ru_orientation`, `order`) VALUES({$env_tree_item})")) {
 					$this->test->output_error();
 				}
 			}

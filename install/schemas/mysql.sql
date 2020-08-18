@@ -57,6 +57,8 @@ CREATE TABLE `{database_prefix}users`(
 	`connectionStyle` SMALLINT(6) DEFAULT '0' NOT NULL,
 	`pathOrientation` tinyint(4) DEFAULT '0' NOT NULL,
 	`treeSize` tinyint(4) DEFAULT '0' NOT NULL,
+	`treeSort` tinyint(4) DEFAULT '0' NOT NULL,
+	`treeSortAdj` tinyint(4) DEFAULT '0' NOT NULL,
 	PRIMARY KEY(`id`),
 	INDEX `users_idx` (`username`),
 	INDEX `users_idx2` (`code`),
@@ -175,6 +177,7 @@ CREATE TABLE `{database_prefix}app_env_tree` (
   `size` int(11) NOT NULL DEFAULT '42',
   `floorplan_img` varchar(40) DEFAULT NULL,
   `ru_orientation` tinyint NULL DEFAULT '0',
+  `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY(`id`)
 );
 
