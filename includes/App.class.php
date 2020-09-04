@@ -2179,6 +2179,8 @@ var $qls;
 			$portIndex = ($y * $portX) + (($portX - $x) - 1);
 		} else if($orientation == 4) {
 			$portIndex = ($portTotal - ($y * $portX)) - ($portX - $x);
+		} else if($orientation == 5) {
+			$portIndex = ($portY * $x) + ($portY - ($y+1));
 		}
 		return $portIndex;
 	}

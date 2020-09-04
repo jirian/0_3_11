@@ -37,7 +37,7 @@ class Install {
  * @var string $system_version - The version of the system
  */
 var $system_version = '3.1.11';
-var $app_version = '0.3.9';
+var $app_version = '0.3.10';
 
 /**
  * @var string $install_error - Contains the installation error
@@ -791,10 +791,11 @@ var $install_error = array();
 			}
 			
 			$object_portOrientation = array(
-				"1, 'Left-Right', 1",
-				"2, 'Top-Bottom', 0",
-				"3, 'Right-Left', 0",
-				"4, 'BottomLeft-Right', 0"
+				"1, 'Top-Left to Right', 1",
+				"2, 'Top-Left to Bottom', 0",
+				"3, 'Top-Right to Left', 0",
+				"4, 'Bottom-Left to Right', 0",
+				"5, 'Bottom-Left to Top', 0"
 			);
 			
 			// Add object port orientation

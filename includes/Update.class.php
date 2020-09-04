@@ -92,12 +92,42 @@ var $qls;
 			$this->update_037_to_038();
 		} else if($this->currentVersion == '0.3.8') {
 			$this->update_038_to_039();
+		} else if($this->currentVersion == '0.3.9') {
+			$this->update_039_to_0310();
 		} else {
 			return true;
 		}
 		
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.9 to 0.3.10
+	 * @return Boolean
+	 */
+	function update_039_to_0310() {
+		$incrementalVersion = '0.3.10';
+		
+		// Set app version to 0.3.10
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Update portOrientation names
+		$portOrientationNameArray = array(
+			1 => 'Top-Left to Right',
+			2 => 'Top-Left to Bottom',
+			3 => 'Top-Right to Left',
+			4 => 'Bottom-Left to Right'
+		);
+		foreach($portOrientationNameArray as $portOrientationID => $portOrientationName) {
+			$this->qls->SQL->update('shared_object_portOrientation', array('name' => $portOrientationName), array('id' => array('=', $portOrientationID)));
+		}
+		
+		// Add portOrientation "Bottom-Left to Top"
+		$objectPortOrientationColumns = array('id', 'value', 'name', 'defaultOption');
+		$objectPortOrientationValuesArray = array(5, 5, 'Bottom-Left to Top', 0);
+		$this->qls->SQL->insert('shared_object_portOrientation', $objectPortOrientationColumns, $objectPortOrientationValuesArray);
+		
 	}
 	
 	/**
