@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.10
 	- Changes Introduced In 0.3.9
 	- Changes Introduced In 0.3.8
 	- Changes Introduced In 0.3.7
@@ -27,6 +28,9 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.10
+[Enhance]	Added "Bottom-Left to Top" port orientation
 
 **Changes introduced in 0.3.9
 [Enhance]	Added location/cabinet tree sorting options
